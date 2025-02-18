@@ -3,6 +3,7 @@ from __future__ import annotations
 # IMPORT STANDARD LIBRARIES
 from collections import defaultdict
 from typing import TYPE_CHECKING, Optional
+import typing
 
 # IMPORT THIRD PARTY LIBRARIES
 import pydantic
@@ -15,6 +16,30 @@ from lorgs.models.wow_spell import WowSpell
 
 if TYPE_CHECKING:
     from lorgs.clients import wcl
+
+
+# Maps Warcraftlogs Event Types to their corresponding ingame Comabatlog Event Types
+WCL_TO_MRT_EVENT = {
+    "cast": "SPELL_CAST_SUCCESS",
+    "begincast": "SPELL_CAST_START",
+    "applybuff": "SPELL_AURA_APPLIED",
+    "applydebuff": "SPELL_AURA_APPLIED",
+    "removebuff": "SPELL_AURA_REMOVED",
+    "removedebuff": "SPELL_AURA_REMOVED",
+    "death": "UNIT_DIED",
+}
+
+# Maps Combatlog Event Names to their shorthand versions used in MRT
+MRT_EVENT_ABBREVIATION = {
+    "SPELL_CAST_START": "SCS",
+    "SPELL_CAST_SUCCESS": "SCC",
+    "SPELL_AURA_APPLIED": "SAA",
+    "SPELL_AURA_REMOVED": "SAR",
+    "UNIT_DIED": "UD",
+    "UNIT_SPELLCAST_START": "USS",
+    "UNIT_SPELLCAST_SUCCEEDED": "USC",
+    "CHAT_MSG_MONSTER_YELL": "CMMY",
+}
 
 
 class Cast(base.BaseModel):
@@ -47,6 +72,11 @@ class Cast(base.BaseModel):
             event_type=event.type,
         )
 
+    def model_dump(self, **kwargs: typing.Any) -> dict[str, typing.Any]:
+        kwargs.setdefault("by_alias", True)
+        kwargs.setdefault("exclude_unset", True)
+        return super().model_dump(**kwargs)
+
     def __str__(self):
         time_fmt = utils.format_time(self.timestamp)
         return f"Cast(id={self.spell_id}, ts={time_fmt})"
@@ -54,6 +84,16 @@ class Cast(base.BaseModel):
     @property
     def spell(self) -> Optional[WowSpell]:
         return WowSpell.get(spell_id=self.spell_id)
+
+    @property
+    def combatlog_event_type(self) -> str:
+        return WCL_TO_MRT_EVENT.get(self.event_type, "UNKNOWN")
+
+    @property
+    def mrt_trigger(self) -> str:
+        """eg.: SCC:442432:1"""
+        event = MRT_EVENT_ABBREVIATION.get(self.combatlog_event_type, self.combatlog_event_type)
+        return f"{event}:{self.spell_id}:{self.counter}"
 
     def get_duration(self) -> int:
         if self.duration:
@@ -73,8 +113,13 @@ class Cast(base.BaseModel):
         eg.: Convert from "remove debuff" to "apply debuff"
         and automatically shift the timestamp based on the spell default duration
         """
+        duration = self.get_duration()
+        if not duration:
+            # TMP hack for eg.: Phase Events, where we're only interested in remove event
+            return
+
         self.event_type = self.event_type.replace("remove", "apply")
-        self.timestamp -= self.get_duration()
+        self.timestamp -= duration
 
 
 def process_auras(events: list[Cast]) -> list[Cast]:

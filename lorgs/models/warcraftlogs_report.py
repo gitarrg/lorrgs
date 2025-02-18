@@ -1,4 +1,5 @@
 """Class and Functions to manage Report-Instances."""
+
 from __future__ import annotations
 
 # IMPORT STANRD LIBRARIES
@@ -220,7 +221,7 @@ class Report(warcraftlogs_base.BaseModel):
         if not fight:
             raise ValueError("invalid fight id")
 
-        await fight.load_players(player_ids=player_ids)
+        await fight.load_actors(player_ids=player_ids)
 
     async def load_fights(self, fight_ids: list[int], player_ids: list[int]) -> None:
         if not self.fights:

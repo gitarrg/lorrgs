@@ -1,4 +1,5 @@
 """Models for Top Rankings for a given Spec."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -192,20 +193,26 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
     ############################################################################
     # Query: Fights
     #
-    async def load_players(self) -> None:
+    async def load_actors(self) -> None:
         """Load the Casts for all missing fights."""
         actors_to_load = self.players
 
-        # make sure the first report has the boss added
-        if self.fights:
-            first_fight = self.fights[0]
+        # add Boss Actors
+        for i, fight in enumerate(self.fights):
+            if not fight.boss:
+                fight.boss = Boss(boss_slug=self.boss_slug)
+                fight.boss.fight = fight
 
-            if not first_fight.boss:
-                first_fight.boss = Boss(boss_slug=self.boss_slug)
-                first_fight.boss.fight = first_fight
+            # Only full load the first boss.
+            # for 2..n only load phase infos
+            if i == 0:
+                fight.boss.query_mode = fight.boss.QueryModes.ALL
+            else:
+                fight.boss.query_mode = fight.boss.QueryModes.PHASES
 
-            actors_to_load += [first_fight.boss]  # type: ignore
+            actors_to_load += [fight.boss]  # type: ignore
 
+        # filter out actors that have already been loaded
         actors_to_load = [actor for actor in actors_to_load if actor]
         actors_to_load = [actor for actor in actors_to_load if not actor.casts]
 
@@ -220,9 +227,7 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
     #
     async def load(self, limit=50, clear_old=False) -> None:
         """Get Top Ranks for a given boss and spec."""
-        logger.info(
-            f"{self.boss.name} vs. {self.spec.name} {self.spec.wow_class.name} START | limit={limit} | clear_old={clear_old}"
-        )
+        logger.info(f"{self.boss.name} vs. {self.spec.name} {self.spec.wow_class.name} START | limit={limit} | clear_old={clear_old}")
 
         if clear_old:
             self.reports = []
@@ -236,6 +241,5 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
         self.reports = self.reports[:limit]
 
         # load the fights/players/casts
-        await self.load_players()
-
+        await self.load_actors()
         logger.info("done")

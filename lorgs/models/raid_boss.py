@@ -15,7 +15,8 @@ from lorgs.models.wow_trinket import WowTrinket
 
 class Phase(WowSpell):
 
-    label: str = "P%d"
+    # TODO: re-use "name" field?
+    label: str = "P{:d}"
 
     event_type: str
     """WCL Event Type (`applybuff`, `removebuff`, etc)"""
