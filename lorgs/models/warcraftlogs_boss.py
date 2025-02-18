@@ -94,13 +94,17 @@ class Boss(warcraftlogs_actor.BaseActor):
             if not trigger:
                 continue
 
+            # if a trigger count is set, compare it to the event count
+            if trigger.count and count is not trigger.count:
+                continue
+
             cast = Cast.from_report_event(event)
             cast.timestamp -= self.fight.start_time_rel
             cast.counter = count
 
             self.fight.add_phase(
                 ts=cast.timestamp,
-                label=trigger.label,
+                name=trigger.name,
                 mrt=cast.mrt_trigger,
             )
 

@@ -106,7 +106,7 @@ boss.add_cast(
 # Phases
 
 # "Chittering Swarm" apply
-boss.add_phase(name="Phase 2", spell_id=445052, event_type="applybuff")
+boss.add_phase(name="P2", spell_id=445052, event_type="applybuff")
 
 # "Ready to Feed" removed --> back to P1
-boss.add_phase(name="Phase 1", spell_id=440177, event_type="removedebuff"),
+boss.add_phase(name="P1", spell_id=440177, event_type="removedebuff"),

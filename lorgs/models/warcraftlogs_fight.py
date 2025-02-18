@@ -28,7 +28,7 @@ class Phase(pydantic.BaseModel):
     """A phase within a Fight."""
 
     timestamp: int = pydantic.Field(alias="ts")
-    label: str = "Phase"
+    name: str = "Phase"
     mrt: str = ""
 
 
@@ -124,14 +124,14 @@ class Fight(warcraftlogs_base.BaseModel):
 
         return [player for player in players if player]
 
-    def add_phase(self, ts: int, label: str, mrt: str = "") -> Phase:
+    def add_phase(self, ts: int, name: str, mrt: str = "") -> Phase:
         """Add a new phase to the fight."""
 
         if not self.phases:
             self.phases = []  # force new list to trick pydantics "excludeUnset"
 
-        label = label.format(len(self.phases) + 1)
-        phase = Phase(ts=ts, label=label, mrt=mrt)
+        name = name.format(len(self.phases) + 1)
+        phase = Phase(ts=ts, name=name, mrt=mrt)
         self.phases.append(phase)
         return phase
 

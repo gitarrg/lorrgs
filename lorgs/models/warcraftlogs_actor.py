@@ -95,7 +95,7 @@ class BaseActor(warcraftlogs_base.BaseModel):
         """Get the Query for fetch all relevant data for this actor."""
         # combine all parts
         abilities = self.get_query_abilities()
-        query = build_spell_query(abilities)
+        query = build_spell_query(*abilities)
         return query
 
     def get_query(self) -> str:

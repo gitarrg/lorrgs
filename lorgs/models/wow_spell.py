@@ -201,7 +201,7 @@ class WowSpell(base.MemoryModel):
             spec.add_spells(self)
 
 
-def build_spell_query(spells: list[WowSpell]) -> str:
+def build_spell_query(*spells: WowSpell) -> str:
     if not spells:
         return ""
 

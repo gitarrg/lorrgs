@@ -99,7 +99,7 @@ class CompRankingFight(Fight):
 
     def get_query_parts(self) -> list[str]:
         spells = [spell for spell in WowSpell.list() if SpellTag.RAID_CD in spell.tags]
-        filter_expr = build_spell_query(spells)
+        filter_expr = build_spell_query(*spells)
         query = f'events({self.table_query_args}, filterExpression: "{filter_expr}") {{data}}'
 
         parts = super().get_query_parts()
