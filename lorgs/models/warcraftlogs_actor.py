@@ -104,13 +104,18 @@ class BaseActor(warcraftlogs_base.BaseModel):
         if not self.fight.report:
             raise ValueError("missing report")
 
+        sub_query = self.get_sub_query()
+        if not sub_query:
+            # eg.: a boss in `query_mode.phases` but with not phase-triggers
+            return
+
         return textwrap.dedent(
             f"""\
             reportData
             {{
                 report(code: "{self.fight.report.report_id}")
                 {{
-                    events({self.fight.table_query_args}, filterExpression: "{self.get_sub_query()}")
+                    events({self.fight.table_query_args}, filterExpression: "{sub_query}")
                         {{data}}
                 }}
             }}
