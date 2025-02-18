@@ -8,7 +8,7 @@ from lorgs.clients import wcl
 from lorgs.models.warcraftlogs_actor import BaseActor
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_spec import WowSpec
-from lorgs.models.wow_spell import WowSpell
+from lorgs.models.wow_spell import WowSpell, build_spell_query
 
 
 class Player(BaseActor):
@@ -61,45 +61,29 @@ class Player(BaseActor):
     ############################################################################
     # Query
     #
-    def get_cast_query(self) -> str:
-        """Get a query for spells cast by this player."""
-        query = super().get_cast_query()
-        if query and self.name:
-            query = f"source.name='{self.name}' and ({query})"
-        return query
 
-    def get_buff_query(self) -> str:
-        """Get a query for all buffs applied to this player."""
-        query = super().get_buff_query()
-        if query and self.name:
-            query = f"target.name='{self.name}' and {query}"
-        return query
+    def get_sub_query(self):
 
-    def get_debuff_query(self) -> str:
-        """Get a query for all debuffs applied by this player."""
-        query = super().get_debuff_query()
-        if query and self.name:
-            query = f"source.name='{self.name}' and {query}"
-        return query
+        # Casts
+        casts_query = build_spell_query(*self.actor_type.all_spells)
+        if casts_query and self.name:
+            casts_query = f"source.name='{self.name}' and ({casts_query})"
 
-    def get_event_query(self) -> str:
-        """Get a query for custom events this player."""
-        query = super().get_events_query()
-        if query and self.name:
-            query = f"source.name='{self.name}' and {query}"
-        return query or ""
+        # Auras
+        auras_query = build_spell_query(*self.actor_type.all_buffs, *self.actor_type.all_debuffs)
+        if auras_query and self.name:
+            auras_query = f"target.name='{self.name}' and ({auras_query})"
 
-    def get_resurection_query(self) -> str:
-        """Get a query for resurrects given to this player."""
-        # Resurrections
-        if self.name:
-            return f"target.name='{self.name}' and type='resurrect'"
-        return ""
+        # Events
+        events_query = build_spell_query(*self.actor_type.all_events)
+        if events_query and self.name:
+            events_query = f"source.name='{self.name}' and ({events_query})"
 
-    def get_query_parts(self) -> list[str]:
-        parts = super().get_query_parts()
-        parts += [self.get_resurection_query()]
-        return parts
+        resurrection_query = ""
+        if self.resurrects and self.name:
+            resurrection_query = f"target.name='{self.name}' and type='resurrect'"
+
+        return self.combine_queries(casts_query, auras_query, events_query, resurrection_query)
 
     ############################################################################
     # Process

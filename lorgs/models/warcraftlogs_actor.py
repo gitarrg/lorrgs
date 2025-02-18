@@ -15,7 +15,7 @@ from lorgs import utils
 from lorgs.clients import wcl
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_base
-from lorgs.models.warcraftlogs_cast import Cast, process_auras, process_until_events
+from lorgs.models.warcraftlogs_cast import Cast, process_auras, process_until_events, add_cast_counters
 from lorgs.models.wow_spell import SpellType, WowSpell, build_spell_query
 
 
@@ -82,35 +82,21 @@ class BaseActor(warcraftlogs_base.BaseModel):
     #
     ############################################################################
 
-    def get_cast_query(self) -> str:
-        """Get the query for all spells cast by this actor."""
-        return build_spell_query(self.actor_type.all_spells)
-
-    def get_buff_query(self) -> str:
-        """Get the query for all buffs applied to this actor."""
-        return build_spell_query(self.actor_type.all_buffs)
-
-    def get_debuff_query(self) -> str:
-        """Get the query for all debuffs applied from this actor."""
-        return build_spell_query(self.actor_type.all_debuffs)
-
-    def get_events_query(self) -> str:
-        """Get the query for all custom events for this actor."""
-        return build_spell_query(self.actor_type.all_events)
-
-    def get_query_parts(self) -> list[str]:
+    def get_query_abilities(self) -> list[WowSpell]:
+        """Get all abilities to be queried."""
         return [
-            self.get_cast_query(),
-            self.get_buff_query(),
-            self.get_debuff_query(),
-            self.get_events_query(),
+            *self.actor_type.all_spells,
+            *self.actor_type.all_buffs,
+            *self.actor_type.all_debuffs,
+            *self.actor_type.all_events,
         ]
 
     def get_sub_query(self) -> str:
         """Get the Query for fetch all relevant data for this actor."""
         # combine all parts
-        query_parts = self.get_query_parts()
-        return self.combine_queries(*query_parts, op="or")
+        abilities = self.get_query_abilities()
+        query = build_spell_query(*abilities)
+        return query
 
     def get_query(self) -> str:
         if not self.fight:
@@ -118,13 +104,18 @@ class BaseActor(warcraftlogs_base.BaseModel):
         if not self.fight.report:
             raise ValueError("missing report")
 
+        sub_query = self.get_sub_query()
+        if not sub_query:
+            # eg.: a boss in `query_mode.phases` but with not phase-triggers
+            return
+
         return textwrap.dedent(
             f"""\
             reportData
             {{
                 report(code: "{self.fight.report.report_id}")
                 {{
-                    events({self.fight.table_query_args}, filterExpression: "{self.get_sub_query()}")
+                    events({self.fight.table_query_args}, filterExpression: "{sub_query}")
                         {{data}}
                 }}
             }}
@@ -137,11 +128,27 @@ class BaseActor(warcraftlogs_base.BaseModel):
     #
     ############################################################################
 
+    def process_events(self, events: list[wcl.ReportEvent]) -> list[wcl.ReportEvent]:
+        """Hook to preprocess the entire list of  Cast/Events.
+
+        Args:
+            events (list[wcl.ReportEvent]): The list of Events to be processed
+
+        Returns:
+            events (list[wcl.ReportEvent]): The processed list of Events
+
+        """
+        return events
+
     def process_event(self, event: wcl.ReportEvent) -> wcl.ReportEvent:
         """Hook to preprocess each Cast/Event
 
         Args:
             event (wcl.ReportEvent): The Event to be processed
+
+        Returns:
+            event (wcl.ReportEvent): The processed Event
+
         """
         return event
 
@@ -175,6 +182,7 @@ class BaseActor(warcraftlogs_base.BaseModel):
         ##############################
         # Pre Processing
         self.set_source_id_from_events(casts_data)
+        casts_data = self.process_events(casts_data)
 
         ##############################
         # Main
@@ -207,3 +215,6 @@ class BaseActor(warcraftlogs_base.BaseModel):
         # make sure casts are sorted correctly
         # avoids weird UI overlaps, and just feels cleaner
         self.casts = sorted(self.casts, key=lambda cast: cast.timestamp)
+
+        # we do this at the very end after all the filtering has been done.
+        self.casts = add_cast_counters(self.casts)

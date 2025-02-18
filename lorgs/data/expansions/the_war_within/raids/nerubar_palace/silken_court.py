@@ -87,9 +87,18 @@ boss.add_debuff(
     icon="ability_creature_disease_02.jpg",
 )
 
-boss.add_debuff(
+boss.add_buff(
     spell_id=450980,
     name="Shatter Existence",
     color="hsl(110, 60%, 50%)",
     icon="inv_cosmicvoid_wave.jpg",
 )
+
+
+################################################################################
+# Phases
+
+boss.add_phase(name="I1", spell_id=450980, event_type="applybuff")  # Shatter Resistance
+boss.add_phase(name="P2", spell_id=450980, event_type="removebuff")  # Shatter Resistance
+boss.add_phase(name="I2", spell_id=451277, event_type="applybuff")  # Spike Storm
+boss.add_phase(name="P3", spell_id=451277, event_type="removebuff")  # Spike Storm

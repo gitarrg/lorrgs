@@ -54,3 +54,9 @@ boss.add_cast(
     icon="spell_shadow_unstableaffliction_2.jpg",
     show=False,
 )
+
+################################################################################
+# Phases
+
+# Ingest Black Blood
+boss.add_phase(spell_id=442432, event_type="cast")

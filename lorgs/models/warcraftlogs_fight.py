@@ -24,6 +24,14 @@ if typing.TYPE_CHECKING:
     from lorgs.models.warcraftlogs_report import Report
 
 
+class Phase(pydantic.BaseModel):
+    """A phase within a Fight."""
+
+    timestamp: int = pydantic.Field(alias="ts")
+    name: str = "Phase"
+    mrt: str = ""
+
+
 class Fight(warcraftlogs_base.BaseModel):
     fight_id: int
 
@@ -35,6 +43,7 @@ class Fight(warcraftlogs_base.BaseModel):
 
     players: list[Player] = []
     boss: Optional[Boss] = None
+    phases: list[Phase] = []
 
     deaths: int = 0
     damage_taken: int = 0
@@ -115,6 +124,17 @@ class Fight(warcraftlogs_base.BaseModel):
 
         return [player for player in players if player]
 
+    def add_phase(self, ts: int, name: str, mrt: str = "") -> Phase:
+        """Add a new phase to the fight."""
+
+        if not self.phases:
+            self.phases = []  # force new list to trick pydantics "excludeUnset"
+
+        name = name.format(len(self.phases) + 1)
+        phase = Phase(ts=ts, name=name, mrt=mrt)
+        self.phases.append(phase)
+        return phase
+
     ############################################################################
     # Query
     #
@@ -131,6 +151,7 @@ class Fight(warcraftlogs_base.BaseModel):
     def get_query(self) -> str:
         """Get the Query to load the fights summary."""
         if self.players:
+            logger.info("no players")
             return ""
 
         if not self.report:
@@ -206,7 +227,7 @@ class Fight(warcraftlogs_base.BaseModel):
     ############################################################################
     #   Load Player:
     #
-    async def load_players(self, player_ids: typing.Optional[list[int]] = None):
+    async def load_actors(self, player_ids: typing.Optional[list[int]] = None):
         player_ids = player_ids or []
 
         if not self.players:
