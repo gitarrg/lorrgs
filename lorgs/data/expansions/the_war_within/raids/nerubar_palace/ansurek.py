@@ -128,3 +128,16 @@ boss.add_cast(
     color="hsl(100, 70%, 60%)",
     icon="ability_creature_poison_01_purple.jpg",
 )
+
+
+################################################################################
+
+
+boss.add_phase(name="I1", spell_id=447207, event_type="applybuff")  # Predation
+boss.add_phase(name="P2", spell_id=447207, event_type="removebuff")  # Predation
+
+boss.add_phase(name="Platform 1", spell_id=448300, event_type="removebuff", count=1)  # Echoing Connection (Ascended Voidspeaker)
+boss.add_phase(name="Platform 2", spell_id=462693, event_type="applybuff", count=3)  # Echoing Connection (Chamber Expeller)
+boss.add_phase(name="Platform 3", spell_id=448300, event_type="applybuff", count=3)  # Echoing Connection (Ascended Voidspeaker)
+
+boss.add_phase(name="P3", spell_id=449986, event_type="cast")
