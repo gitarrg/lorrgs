@@ -149,3 +149,14 @@ boss.add_cast(
     color="hsl(120, 70%, 50%)",
     icon="spell_yorsahj_bloodboil_purple.jpg",
 )
+
+
+################################################################################
+# Phases
+
+
+for i in range(1, 5):
+
+    # Beta Launch
+    boss.add_phase(name=f"P2 ({i})", spell_id=1218318, event_type="applybuff", count=i)
+    boss.add_phase(name=f"P1 ({i})", spell_id=1218318, event_type="removebuff", count=i)
