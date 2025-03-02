@@ -154,9 +154,6 @@ boss.add_cast(
 ################################################################################
 # Phases
 
-
-for i in range(1, 5):
-
-    # Beta Launch
-    boss.add_phase(name=f"P2 ({i})", spell_id=1218318, event_type="applybuff", count=i)
-    boss.add_phase(name=f"P1 ({i})", spell_id=1218318, event_type="removebuff", count=i)
+# Beta Launch
+boss.add_phase(name="P2 ({count})", spell_id=1218318, event_type="applybuff")
+boss.add_phase(name="P1 ({count})", spell_id=1218318, event_type="removebuff")
