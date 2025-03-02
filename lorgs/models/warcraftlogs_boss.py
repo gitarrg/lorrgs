@@ -80,6 +80,12 @@ class Boss(warcraftlogs_actor.BaseActor):
         if not self.fight:
             return
 
+        # clear out any old data
+        # not sure if we'd ever want to keep old data,
+        # or at least leave this in case we're adding phases in a different way
+        if self.fight.phases:
+            self.fight.phases = []
+
         counters: dict[tuple[int, str], int] = defaultdict(int)
 
         # lookup table for phase triggers based on (spell_od, event_type, count)
@@ -106,6 +112,7 @@ class Boss(warcraftlogs_actor.BaseActor):
                 ts=cast.timestamp,
                 name=trigger.name,
                 mrt=cast.mrt_trigger,
+                count=count,
             )
 
     def process_events(self, events: list[wcl.ReportEvent]) -> list[wcl.ReportEvent]:

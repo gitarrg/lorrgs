@@ -191,10 +191,10 @@ boss.add_cast(
 # Phases
 
 # Head Honcho: Mug
-boss.add_phase(name="Mug {:d}", spell_id=466459, event_type="applybuff")
+boss.add_phase(name="Mug {count}", spell_id=466459, event_type="applybuff")
 
 # Head Honcho: Zee
-boss.add_phase(name="Zee {:d}", spell_id=466460, event_type="applybuff")
+boss.add_phase(name="Zee {count}", spell_id=466460, event_type="applybuff")
 
 # Head Honcho: Mug'Zee
 boss.add_phase(name="P2", spell_id=1222408, event_type="applybuff")

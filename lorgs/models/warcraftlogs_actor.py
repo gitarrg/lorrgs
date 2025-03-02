@@ -186,6 +186,7 @@ class BaseActor(warcraftlogs_base.BaseModel):
 
         ##############################
         # Main
+        self.casts = []  # cl;ear out any old data
         for cast_data in casts_data:
             cast_data = self.process_event(cast_data)
 

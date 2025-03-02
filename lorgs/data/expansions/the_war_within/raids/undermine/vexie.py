@@ -126,3 +126,9 @@ boss.add_debuff(
     color="hsl(120, 70%, 50%)",
     icon="ability_siege_engineer_detonate.jpg",
 )
+
+
+################################################################################
+
+boss.add_phase(name="P2 ({count})", spell_id=460116, event_type="applybuff")
+boss.add_phase(name="P1 ({count})", spell_id=460116, event_type="removebuff")
