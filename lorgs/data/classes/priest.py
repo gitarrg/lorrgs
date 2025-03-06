@@ -59,7 +59,7 @@ PRIEST_DISCIPLINE.add_spell(   spell_id=62618,  cooldown=180, duration=10, color
 PRIEST_DISCIPLINE.add_spell(   spell_id=271466, cooldown=180, duration=10, color="#b3ad91", name="Luminous Barrier",      icon="spell_priest_burningwill.jpg", tags=[SpellTag.RAID_CD])
 # PRIEST_DISCIPLINE.add_spell(   spell_id=109964, cooldown=60,  duration=10, color="#d7abdb", name="Spirit Shell",          icon="ability_shaman_astralshift.jpg", tags=[SpellTag.RAID_CD])
 PRIEST_DISCIPLINE.add_spell(   spell_id=47536,  cooldown=90,  duration=8,                   name="Rapture",               icon="spell_holy_rapture.jpg",          show=True, tags=[SpellTag.RAID_CD])
-PRIEST_DISCIPLINE.add_spell(   spell_id=246287, cooldown=90,                                name="Evangelism",            icon="spell_holy_divineillumination.jpg", tags=[SpellTag.RAID_CD])
+PRIEST_DISCIPLINE.add_spell(   spell_id=472433, cooldown=90,                                name="Evangelism",            icon="spell_holy_divineillumination.jpg", tags=[SpellTag.RAID_CD])
 PRIEST_DISCIPLINE.add_spell(   spell_id=194509, cooldown=20,               color="#edbb2f", name="Power Word: Radiance",  icon="spell_priest_power-word.jpg",     show=False)
 PRIEST_DISCIPLINE.add_spell(   spell_id=314867, cooldown=30, duration=7,   color="#6633cc", name="Shadow Covenant",       icon="spell_shadow_summonvoidwalker.jpg", show=False)
 PRIEST_DISCIPLINE.add_spell(   spell_id=373178, cooldown=90,               color="#e85465", name="Light's Wrath",         icon="inv_staff_2h_artifacttome_d_01.jpg", show=False)
