@@ -53,7 +53,7 @@ SHAMAN_ELEMENTAL.add_buff(     spell_id=188592, cooldown=150, duration=30, color
 # Note: need to track Storm Ele via Buff... but can't find a log right now.
 SHAMAN_ELEMENTAL.add_spell(    spell_id=192249, cooldown=150, duration=30, color="#64b8d9", name="Storm Elemental",            icon="inv_stormelemental.jpg", tags=[SpellTag.DAMAGE])
 SHAMAN_ELEMENTAL.add_spell(    spell_id=108281, cooldown=120, duration=10, color="#64b8d9", name="Ancestral Guidance",         icon="ability_shaman_ancestralguidance.jpg", tags=[SpellTag.RAID_CD], show=False)
-SHAMAN_ELEMENTAL.add_buff(     spell_id=114050,                            color="#ffcb6b", name="Ascendance",                 icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.DAMAGE])  # The Buff
+SHAMAN_ELEMENTAL.add_buff(     spell_id=1219480,                           color="#ffcb6b", name="Ascendance",                 icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.DAMAGE])  # The Buff
 SHAMAN_ELEMENTAL.add_spell(    spell_id=192222, cooldown=60,  duration=6,  color="#d15a5a", name="Liquid Magma Totem",         icon="spell_shaman_spewlava.jpg")
 
 
