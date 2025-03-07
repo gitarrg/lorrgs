@@ -65,7 +65,7 @@ EVOKER_PRESERVATION.add_spell(spell_id=359816, name="Dreamflight",        cooldo
 EVOKER_PRESERVATION.add_spell(spell_id=443328, name="Engulf",             cooldown=30,               color="#dd405a",  icon="inv_ability_flameshaperevoker_engulf.jpg", show=False)
 EVOKER_PRESERVATION.add_spell(spell_id=355936, name="Dream Breath",       cooldown=30,               color="#59ebb3",  icon="ability_evoker_dreambreath.jpg", show=False)
 STASIS_CHARGE = EVOKER_PRESERVATION.add_spell(spell_id=370537, name="Stasis", cooldown=90, color=COLOR_BRONZE, icon="ability_evoker_stasis.jpg", tags=[SpellTag.RAID_CD])
-STASIS_RELEASE = EVOKER_PRESERVATION.add_spell(spell_id=370564, icon=STASIS_CHARGE.icon)
+STASIS_RELEASE = EVOKER_PRESERVATION.add_spell(spell_id=370564, name="Stasis Pop", icon=STASIS_CHARGE.icon, show=False)
 
 # Augmentation
 EVOKER_AUGMENTATION.add_buff( spell_id=395296, name="Ebon Might Buff",                            color="#bf8330", icon="spell_sarkareth.jpg", show=False)
@@ -95,7 +95,9 @@ def calculate_stasis_duration(actor: warcraftlogs_actor.BaseActor, status: str) 
 
             if charge_event:
                 charge_event.duration = cast.timestamp - charge_event.timestamp
-                cast.spell_id = -1  # we no longer need this.
+
+                # keep the release spell for MRT purposes
+                ## cast.spell_id = -1  # we no longer need this.
 
             else: # stasis was charged pre pull
                 cast.spell_id = STASIS_CHARGE.spell_id
