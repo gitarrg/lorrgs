@@ -52,3 +52,17 @@ WARLOCK_DESTRUCTION.add_spell( spell_id=80240,  cooldown=30,  duration=12, color
 
 # Additional Spells (not tracked)
 SOULSTONE_RESURRECTION = WowSpell(spell_id=95750, name="Soulstone", icon="spell_shadow_soulgem.jpg")
+
+
+################################################################################
+# Hero Talents
+
+Malevolence = WowSpell(
+    spell_id=442726, name="Malevolence",
+    cooldown=60, duration=20, color="#8048cf",
+    icon="inv_ability_hellcallerwarlock_malevolence.jpg",
+    show=True,
+    spell_type=WARLOCK.name_slug,
+)
+WARLOCK_AFFLICTION.add_spell(Malevolence)
+WARLOCK_DESTRUCTION.add_spell(Malevolence)
