@@ -107,8 +107,10 @@ boss.add_cast(
     cooldown=30,
     color="hsl(120, 50%, 50%)",
     icon="achievement_battleground_templeofkotmogu_02.jpg",
+    variations=[
+        465309,  # Cheat to Win!
+    ],
 )
-
 
 # Rewards
 rewards = boss.add_cast(
@@ -143,5 +145,4 @@ rewards = boss.add_cast(
 ################################################################################
 # Phases
 
-# Cheat to Win!
-boss.add_phase(name="P2", spell_id=465309, event_type="cast")
+boss.add_phase(name="P2", spell_id=465765, event_type="cast")  # Maintenance Cycle
