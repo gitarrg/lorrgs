@@ -44,10 +44,11 @@ MONK.add_spell(           spell_id=322109, cooldown=180,              color="#c7
 MONK.add_spell(           spell_id=388686, cooldown=120,              color="#8dd6bf", name="Summon White Tiger Statue",       icon="ability_monk_summonwhitetigerstatue.jpg", show=False)
 
 MONK_MISTWEAVER.add_spell(spell_id=322118, cooldown=180, duration=4.5 ,                 name="Invoke Yu'lon, the Jade Serpent", icon="ability_monk_dragonkick.jpg", tags=[SpellTag.RAID_CD])
-MONK_MISTWEAVER.add_spell(spell_id=115310, cooldown=180,              color="#00FF98", name="Revival",                         icon="spell_monk_revival.jpg", tags=[SpellTag.RAID_CD], variations=[388615])
-MONK_MISTWEAVER.add_spell(spell_id=325197, cooldown=180, duration=25, color="#e0bb36", name="Invoke Chi-Ji, the Red Crane",    icon="inv_pet_cranegod.jpg", tags=[SpellTag.RAID_CD])
-MONK_MISTWEAVER.add_spell(spell_id=116680, cooldown=30,               color="#22a5e6", name="Thunder Focus Tea",               icon="ability_monk_thunderfocustea.jpg", show=False)
-MONK_MISTWEAVER.add_spell(spell_id=399491,               duration=8,  color="#78e048", name="Sheilun's Gift",                icon="inv_staff_2h_artifactshaohao_d_01.jpg", show=False)
+MONK_MISTWEAVER.add_spell(spell_id=115310, cooldown=180,              color="#00FF98", name="Revival",                          icon="spell_monk_revival.jpg", tags=[SpellTag.RAID_CD], variations=[388615])
+MONK_MISTWEAVER.add_spell(spell_id=325197, cooldown=180, duration=25, color="#e0bb36", name="Invoke Chi-Ji, the Red Crane",     icon="inv_pet_cranegod.jpg", tags=[SpellTag.RAID_CD])
+MONK_MISTWEAVER.add_spell(spell_id=116680, cooldown=30,               color="#22a5e6", name="Thunder Focus Tea",                icon="ability_monk_thunderfocustea.jpg", show=False)
+MONK_MISTWEAVER.add_spell(spell_id=399491,               duration=8,  color="#78e048", name="Sheilun's Gift",                   icon="inv_staff_2h_artifactshaohao_d_01.jpg", show=False)
+MONK_MISTWEAVER.add_buff(spell_id=197908,                             color="#22a5e6", name="Mana Tea",                         icon="monk_ability_cherrymanatea.jpg", show=False)
 
 
 MONK_WINDWALKER.add_spell(spell_id=123904, cooldown=120, duration=24, color="#8cdbbc", name="Invoke Xuen, the White Tiger",    icon="ability_monk_summontigerstatue.jpg", tags=[SpellTag.DAMAGE])
