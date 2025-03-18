@@ -76,7 +76,9 @@ PRIEST_SHADOW.add_spell(       spell_id=228260, cooldown=120, duration=15, color
 PRIEST_SHADOW.add_spell(       spell_id=391109, cooldown=60,  duration=20, color="#308fbf", name="Dark Ascension",        icon="ability_priest_darkarchangel.jpg", tags=[SpellTag.DAMAGE])
 PRIEST_SHADOW.add_spell(       spell_id=263165, cooldown=30,  duration=3,                   name="Void Torrent",          icon="spell_priest_voidsear.jpg",       show=False)
 PRIEST_SHADOW.add_spell(       spell_id=47585,  cooldown=120, duration=6,                   name="Dispersion",            icon="spell_shadow_dispersion.jpg",    show=False)
-PRIEST_SHADOW.add_spell(       spell_id=15286,  cooldown=120, duration=15, color="#446fc7", name="Vampiric Embrace",        icon="spell_shadow_unsummonbuilding.jpg",    show=False, tags=[SpellTag.RAID_CD])
+PRIEST_SHADOW.add_spell(       spell_id=15286,  cooldown=120, duration=15, color="#446fc7", name="Vampiric Embrace",      icon="spell_shadow_unsummonbuilding.jpg",    show=False, tags=[SpellTag.RAID_CD])
+# 11.1 T Set (Random PI Procs)
+SHADOW_JACKPOT = PRIEST_SHADOW.add_spell(       spell_id=1215703,duration=4,                color="#f7c625", name="Jackpot!",              icon="spell_holy_powerinfusion.jpg",    show=False)
 
 
 # Shadowfiend/Mindbeder Variations (with different glyphs etc)
@@ -84,3 +86,16 @@ for spec in (PRIEST_SHADOW, PRIEST_DISCIPLINE):
     spec.add_spell(spell_id=123040, cooldown=60,  duration=15, color="#58db97", name="Mindbender", icon="spell_shadow_soulleech_3.jpg", variations=[200174])
     spec.add_spell(spell_id=132603, cooldown=180, duration=15, color="#58db97", name="Shadowfiend", icon="spell_shadow_shadowfiend.jpg", variations=[34433, 254232, 254224])
     spec.add_spell(spell_id=451235, cooldown=60,  duration=15, color="#58db97", name="Voidwraith", icon="warlock_curse_shadow.jpg")
+
+
+def filter_pi_procs(actor: warcraftlogs_actor.BaseActor, status: str):
+    if status != "success":
+        return
+    if not actor:
+        return
+    
+    for cast in actor.casts:
+        if cast.spell_id == 10060 and cast.duration < 19_000:
+            cast.spell_id = SHADOW_JACKPOT.spell_id
+
+warcraftlogs_actor.BaseActor.event_actor_load.connect(filter_pi_procs)
