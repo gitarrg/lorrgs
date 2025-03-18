@@ -9,6 +9,7 @@
 # IMPORT LOCAL LIBRARIES
 from lorgs.data.constants import *
 from lorgs.data.roles import *
+from lorgs.models import warcraftlogs_actor
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_spec import WowSpec
 from lorgs.models.wow_spell import SpellTag
