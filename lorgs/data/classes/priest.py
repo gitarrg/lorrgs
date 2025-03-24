@@ -96,7 +96,7 @@ def filter_pi_procs(actor: warcraftlogs_actor.BaseActor, status: str):
         return
     
     for cast in actor.casts:
-        if cast.spell_id == 10060 and cast.duration < 19_000:
+        if cast.duration and cast.spell_id == 10060 and cast.duration < 19_000:
             cast.spell_id = SHADOW_JACKPOT.spell_id
 
 warcraftlogs_actor.BaseActor.event_actor_load.connect(filter_pi_procs)
