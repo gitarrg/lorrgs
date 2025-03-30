@@ -37,7 +37,7 @@ HUNTER.add_spell(              spell_id=375891, cooldown=45,  duration=10, color
 
 HUNTER.add_spell(              spell_id=109304, cooldown=120,                               name="Exhilaration",        icon="ability_hunter_onewithnature.jpg", show=False, tags=[SpellTag.DEFENSIVE])
 HUNTER.add_buff(               spell_id=186265, cooldown=120,                               name="Aspect of the Turtle",icon="ability_hunter_pet_turtle.jpg", show=False, tags=[SpellTag.DEFENSIVE])
-HUNTER.add_spell(              spell_id=264735, cooldown=180, duration=6,                   name="Survival of the Fittest", icon="spell_nature_spiritarmor.jpg", show=False, variations=[281195], tags=[SpellTag.DEFENSIVE])
+HUNTER.add_spell(              spell_id=264735, cooldown=180, duration=8,                   name="Survival of the Fittest", icon="spell_nature_spiritarmor.jpg", show=False, variations=[281195], tags=[SpellTag.DEFENSIVE])
 HUNTER.add_buff(               spell_id=339461, cooldown=30,                                name="Resilience of the Hunter",icon="ability_rogue_feigndeath.jpg", show=False, tags=[SpellTag.DEFENSIVE])
 HUNTER.add_spell(              spell_id=212431, cooldown=30,                                name="Explosive Shot",icon="ability_hunter_explosiveshot.jpg", show=False)
 
