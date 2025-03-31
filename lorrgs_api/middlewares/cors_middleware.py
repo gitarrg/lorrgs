@@ -17,6 +17,9 @@ ORIGINS = [
 if DEBUG:
     ORIGINS.append("*")
 
+# 32/03/2025: tmp fix
+ORIGINS = ["*"]
+
 
 def init(app: fastapi.FastAPI, enabled=True):
 
