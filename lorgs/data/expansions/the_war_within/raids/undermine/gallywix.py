@@ -53,6 +53,20 @@ EYE_OF_KEZAN = GALLYWIX.add_trinket(
 
 
 ########################################
+# pre
+
+boss.add_buff(
+    spell_id=1214590,
+    name="TOTAL DESTRUCTION!!!",
+    color="hsl(120, 50%, 50%)",
+    icon="ui_majorfactions_rocket.jpg",
+    variations=[
+        # 1219278,  # mythic
+    ],
+)
+
+
+########################################
 # P1
 
 # Frontals
@@ -63,6 +77,9 @@ boss.add_cast(
     cooldown=30,
     color="hsl(0, 50%, 50%)",
     icon="spell_mage_infernoblast.jpg",
+    variations=[
+        1218493,  # Mythic: Scatterbomb Canisters
+    ],
 )
 
 
@@ -87,6 +104,26 @@ boss.add_cast(
 )
 
 
+boss.add_cast(
+    spell_id=1217953,
+    name="Giga Blast",
+    color="hsl(200, 60%, 50%)",
+    duration=3,
+    cooldown=10,
+    icon="ability_siege_engineer_magnetic_crush.jpg",
+)
+
+
+########################################
+# Intermission
+
+boss.add_buff(
+    spell_id=1226891,
+    name="Circuit Reboot",
+    color="hsl(120, 50%, 50%)",
+    icon="inv_eng_superchargedengine.jpg",
+)
+
 ########################################
 # P2
 
@@ -98,6 +135,9 @@ boss.add_cast(
     duration=3,
     color="hsl(0, 50%, 50%)",
     icon="inv_eng_bombstonestun.jpg",
+    variations=[
+        1229328,  # Mythic
+    ],
 )
 
 
@@ -109,11 +149,13 @@ boss.add_buff(
 )
 
 
-boss.add_buff(
-    spell_id=1214590,
-    name="TOTAL DESTRUCTION!!!",
-    color="hsl(120, 50%, 50%)",
-    icon="ui_majorfactions_rocket.jpg",
+boss.add_cast(
+    spell_id=467182,
+    name="Suppression",
+    duration=1.5 + 3,
+    color="hsl(20, 50%, 50%)",
+    icon="ability_ironmaidens_rapidfire.jpg",
+    show=False,
 )
 
 
@@ -133,17 +175,20 @@ boss.add_cast(
 ################################################################################
 # Phases
 
-boss.add_phase(name="P2 (1)", spell_id=1216846, event_type="applybuff", count=2)  # Holding a Wrench
-boss.add_phase(name="P2 (2)", spell_id=1216846, event_type="applybuff", count=4)  # Holding a Wrench
-boss.add_phase(name="Int", spell_id=1214369, event_type="cast")  # TOTAL DESTRUCTION!!!
-boss.add_phase(name="P3 (1)", spell_id=1214590, event_type="removebuff")  # TOTAL DESTRUCTION!!!
-boss.add_phase(name="P3 (2)", spell_id=466342, event_type="cast", count=2)
-boss.add_phase(name="P3 (3)", spell_id=1223658, event_type="cast", count=3)
+## Heroic
+# TODO: can we bring these back?
+# boss.add_phase(name="P2 (1)", spell_id=1216846, event_type="applybuff", count=2)  # Holding a Wrench
+# boss.add_phase(name="P2 (2)", spell_id=1216846, event_type="applybuff", count=4)  # Holding a Wrench
+# boss.add_phase(name="Int", spell_id=1214369, event_type="cast")  # TOTAL DESTRUCTION!!!
+# boss.add_phase(name="P3 (1)", spell_id=1214590, event_type="removebuff")  # TOTAL DESTRUCTION!!!
+# boss.add_phase(name="P3 (2)", spell_id=466342, event_type="cast", count=2)
+# boss.add_phase(name="P3 (3)", spell_id=1223658, event_type="cast", count=3)
 
+## Mythic
+boss.add_phase(name="P1", spell_id=1214369, event_type="removebuff")  # TOTAL DESTRUCTION!!!
 
-# boss.add_phase(name="P2 (1)", spell_id=469387, event_type="applybuff")  # Carrier Giga Bomb
-# boss.add_phase(name="P2 (3)", spell_id=1216846, event_type="applybuff", count=2)
-# boss.add_phase(name="Int", spell_id=1214229, event_type="applybuff")  # Armageddon-class Plating
-# boss.add_phase(name="P3 (2)", spell_id=466342, event_type="begincast", count=2)  # Tick-Tock Canisters
-# boss.add_phase(name="P3 (3)", spell_id=1223658, event_type="cast", count=3)  # Suppression
-# boss.add_phase(name="P3 (4)", spell_id=466342, event_type="begincast", count=4)  # Tick-Tock Canisters
+boss.add_phase(name="I1", spell_id=1226891, event_type="applybuff", count=1)  # Circuit Reboot
+boss.add_phase(name="P2", spell_id=1226891, event_type="removebuff", count=1)
+
+boss.add_phase(name="I2", spell_id=1226891, event_type="applybuff", count=2)  # Circuit Reboot
+boss.add_phase(name="P3", spell_id=1226891, event_type="removebuff", count=2)

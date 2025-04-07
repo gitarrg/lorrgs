@@ -88,15 +88,18 @@ class Boss(warcraftlogs_actor.BaseActor):
 
         counters: dict[tuple[int, str], int] = defaultdict(int)
 
-        # lookup table for phase triggers based on (spell_od, event_type, count)
-        triggers = {(trigger.spell_id, trigger.event_type): trigger for trigger in self.raid_boss.phases}
+        # lookup table for phase triggers based on (spell_id, event_type, count)
+        triggers = {(trigger.spell_id, trigger.event_type, trigger.count): trigger for trigger in self.raid_boss.phases}
 
         for event in events:
 
             counters[(event.abilityGameID, event.type)] += 1
             count = counters[(event.abilityGameID, event.type)]
 
-            trigger = triggers.get((event.abilityGameID, event.type))
+            # check if this event triggers a new phase.
+            # key = [spellID, eventType, count], where count may be 0 if every occurrence
+            # triggers a new phase
+            trigger = triggers.get((event.abilityGameID, event.type, count)) or triggers.get((event.abilityGameID, event.type, 0))
             if not trigger:
                 continue
 
