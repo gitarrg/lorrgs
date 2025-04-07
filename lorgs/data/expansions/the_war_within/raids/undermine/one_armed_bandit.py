@@ -46,7 +46,7 @@ HOUSE_OF_CARDS = boss.add_trinket(
     cooldown=90,
     name="House of Cards",
     icon="inv_111_gallyjack_gallywix.jpg",
-    item=23002,
+    item=230027,
 )
 """On-Use mastery
 
