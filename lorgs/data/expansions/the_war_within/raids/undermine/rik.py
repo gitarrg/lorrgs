@@ -79,9 +79,16 @@ boss.add_cast(
     show=False,
 )
 
+
 # Sparkblast Ignition = Adds
-# - gives buff when hitting them
-# - explode when killed (2 explosion at same time = wipe)
+boss.add_cast(
+    spell_id=1214688,
+    name="Sparkblast Ignition",
+    duration=5,
+    color="hsl(50, 60%, 60%)",
+    icon="inv_wildfirebomb.jpg",
+    event_type="summon",
+)
 
 
 ################################################################################
