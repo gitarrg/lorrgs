@@ -58,7 +58,7 @@ SHAMAN_ELEMENTAL.add_spell(    spell_id=192222, cooldown=60,  duration=6,  color
 
 
 SHAMAN_ENHANCEMENT.add_spell(  spell_id=51533,  cooldown=120,                               name="Feral Spirit",               icon="spell_shaman_feralspirit.jpg", show=False)
-SHAMAN_ENHANCEMENT.add_buff(   spell_id=384352, cooldown=60,  duration=8,  color="#42bff5", name="Doom Winds",                 icon="ability_ironmaidens_swirlingvortex.jpg")
+SHAMAN_ENHANCEMENT.add_spell(  spell_id=384352, cooldown=60,  duration=8,  color="#42bff5", name="Doom Winds",                 icon="ability_ironmaidens_swirlingvortex.jpg")
 SHAMAN_ENHANCEMENT.add_buff(   spell_id=114051, cooldown=180,              color="#ffcb6b", name="Ascendance",                 icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.DAMAGE])  # The Buff
 
 
