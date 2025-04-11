@@ -63,4 +63,4 @@ PALADIN_RETRIBUTION.add_spell( spell_id=343721, cooldown=60,  duration=8,       
 PALADIN_RETRIBUTION.add_spell( spell_id=152262, cooldown=60,  duration=15, color="#0a60ff", name="Seraphim",           icon="ability_paladin_seraphim.jpg")
 PALADIN_RETRIBUTION.add_spell( spell_id=184662, cooldown=120, duration=15,                  name="Shield of Vengeance",icon="ability_paladin_shieldofthetemplar.jpg", show=False, tags=[SpellTag.DAMAGE])
 PALADIN_RETRIBUTION.add_spell( spell_id=205191, cooldown=60,  duration=10,                  name="Eye for an Eye",     icon="spell_holy_weaponmastery.jpg", show=False)
-PALADIN_RETRIBUTION.add_spell( spell_id=205191, cooldown=60,  duration=8,  color="#fcea74", name="Divine Hammer",     icon="classicon_paladin.jpg", show=False)
+PALADIN_RETRIBUTION.add_spell( spell_id=198034, cooldown=60,  duration=8,  color="#fcea74", name="Divine Hammer",     icon="classicon_paladin.jpg", show=False)
