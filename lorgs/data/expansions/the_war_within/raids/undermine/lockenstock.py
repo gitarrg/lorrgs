@@ -75,8 +75,7 @@ boss.add_cast(
 
 
 # Mine spawn / Foot Blasters
-# trigger them to explode 1 by 1
-# TODO: track triggering
+# TODO: track "death" event of mines?
 boss.add_cast(
     spell_id=1217231,
     name="Foot-Blasters",
@@ -110,7 +109,7 @@ boss.add_cast(
 
 # Weapons
 boss.add_cast(
-    spell_id=465232,
+    spell_id=473276,
     name="Activate Inventions!",
     duration=1,
     color="hsl(260, 50%, 50%)",
