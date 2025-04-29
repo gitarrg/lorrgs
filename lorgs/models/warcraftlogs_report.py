@@ -35,6 +35,9 @@ class Report(warcraftlogs_base.BaseModel):
     guild: str = ""
     """The guild that the report belongs to. None if it was a logged as a personal report."""
 
+    region: str = ""
+    """Realm Region of the Report. (eg.: "US", "EU", "KR", "TW")"""
+
     owner: str = ""
     """The user that uploaded the report."""
 

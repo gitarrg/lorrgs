@@ -145,6 +145,7 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
             report_id=report_data.code,
             start_time=report_data.startTime,
             fights=[fight],
+            region=ranking_data.server.region,
         )
         self.reports.append(report)
 
