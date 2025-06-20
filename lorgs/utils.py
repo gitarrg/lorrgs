@@ -272,3 +272,20 @@ def run_in_executor(_func):
         return loop.run_in_executor(executor=None, func=func)
 
     return wrapped
+
+
+def get_nested_key(d: dict, keys: typing.Iterable[str]) -> typing.Any:
+    """Get a nested key from a dictionary.
+
+    Args:
+        d (dict): The dictionary to search
+        keys (iterable): The keys to search for
+
+    Returns:
+        Any: The value of the nested key, or None if not found
+    """
+    for key in keys:
+        d = d.get(key)
+        if d is None:
+            return None
+    return d

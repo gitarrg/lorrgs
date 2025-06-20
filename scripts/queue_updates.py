@@ -2,15 +2,19 @@
 
 import dotenv
 
+from lorgs.data.expansions.the_war_within.raids.undermine import *
+from lorgs.data.season import CURRENT_SEASON
+
 dotenv.load_dotenv()
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
-from lorgs.data.classes import *
-from lorgs.data.raids import *
-
 from lorgs.models.wow_spec import WowSpec
 from lorgs.models.raid_boss import RaidBoss
+
+# data
+from lorgs.data.classes import *
+from lorgs.data.expansions.the_war_within.raids.nerubar_palace import *
 
 
 def load_remote(
@@ -64,43 +68,34 @@ def load_local(
 
 def load_spec_rankings() -> None:
     bosses = [
-        # BLOODBOUND_HORROR
-        # ANSUREK,
-        # OVINAX,
-        ULGRAX,
+        # VEXIE,
+        # CAULDRON,
+        # RIK,
+        # STIX,
+        LOCKENSTOCK,
+        # ONE_ARMED_BANDIT,
+        # MUGZEE,
+        # GALLYWIX,
     ]
-    bosses = NERUBAR_PALACE.bosses
+
+    # bosses = LIBERATION_OF_UNDERMINE.bosses
 
     specs = [
-        # DRUID_BALANCE,
-        # SHAMAN_ENHANCEMENT,
-        # SHAMAN_RESTORATION,
+        # *HEAL.specs,
+        # *RDPS.specs,
+        # *MDPS.specs,
+        # DRUID_FERAL,
+        WARLOCK_DESTRUCTION,
+        # WARRIOR_ARMS,
         # MONK_MISTWEAVER,
-        # WARLOCK_DESTRUCTION,
-        # WARLOCK_AFFLICTION,
-        # WARLOCK_DEMONOLOGY,
-        HUNTER_BEASTMASTERY,
-        HUNTER_MARKSMANSHIP,
-        HUNTER_SURVIVAL,
-        # MAGE_ARCANE,
-        # MAGE_FIRE,
-        # MAGE_FROST,
-        # EVOKER_AUGMENTATION,
-        # EVOKER_PRESERVATION,
-        # DEMONHUNTER_HAVOC,
-        # PRIEST_SHADOW,
-        # SHAMAN_RESTORATION,
-        # SHAMAN_ELEMENTAL,
-        # SHAMAN_ENHANCEMENT
-        # PRIEST_HOLY
-        # MAGE_ARCANE,
-        # PALADIN_HOLY,
-        # MONK_WINDWALKER,
+        # PRIEST_DISCIPLINE,
+        # SHAMAN_ENHANCEMENT,
+        # PALADIN_RETRIBUTION,
     ]
     # specs = ALL_SPECS
 
+    # load = load_remote
     load = load_local
-    load = load_remote
 
     for spec in specs:
         print(spec.full_name_slug)
@@ -111,8 +106,9 @@ def load_spec_rankings() -> None:
                 spec,
                 boss,
                 clear=True,
-                # difficulty="heroic",
-                # metric="dps",
+                difficulty="normal",
+                # metric="hps",
+                limit=10,
             )
 
 

@@ -1,4 +1,5 @@
 """Adds a CORS Middleware."""
+
 # IMPORT STANDARD LIBRARIES
 import os
 

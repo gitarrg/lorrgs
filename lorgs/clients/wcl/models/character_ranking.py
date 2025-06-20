@@ -1,5 +1,4 @@
-"""Models representing the Data we revive from WCL under the worldData.encounter.charaterRankings."""
-
+"""Models represeting the Data we recive from WCL under the worldData.encounter.charaterRankings."""
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -20,19 +19,6 @@ class CharacterRankingReportFightData(BaseModel):
 
     fightID: int
     """ID of the Fight."""
-
-
-class CharacterRankingReportServerData(BaseModel):
-    """Contains the Server Name and Region."""
-
-    id: int = 0
-    """ID of the Server."""
-
-    name: str = ""
-    """Name of the Server."""
-
-    region: str = ""
-    """Region of the Server. (eg.: "US", "EU", "KR", "TW")"""
 
 
 class CharacterRanking(BaseModel):
@@ -62,8 +48,6 @@ class CharacterRanking(BaseModel):
     """Fight Pull Time.."""
 
     hidden: bool = False
-
-    server: CharacterRankingReportServerData = CharacterRankingReportServerData()
 
 
 class CharacterRankings(BaseModel):
