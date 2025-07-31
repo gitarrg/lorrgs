@@ -21,7 +21,7 @@ from lorgs.data.expansions.the_war_within import MANAFORGE_OMEGA
 TWW_SEASON2 = Season(
     name="TWW Season 3",
     slug="tww_3",
-    ilvl=678,
+    ilvl=723,
     domain="ptr2",
     raids=[
         MANAFORGE_OMEGA,

@@ -7,6 +7,10 @@ from lorgs.models.wow_trinket import WowTrinket
 ################################################################################
 # Trinkets
 
+# [Mereldar's Toll]
+# bad?
+
+
 ################################################################################
 
 DAWNBREAKER = Dungeon(name="The Dawnbreaker")

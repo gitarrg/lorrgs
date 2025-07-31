@@ -27,7 +27,6 @@ SIGNET_OF_THE_PRIORY = WowTrinket(
     name="Signet of the Priory",
     icon="inv_arathordungeon_signet_color1.jpg",
     item=219308,
-    query=True,
 )
 """On-Use secondary stat + party buff
 

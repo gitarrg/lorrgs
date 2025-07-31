@@ -7,6 +7,8 @@ from lorgs.models.wow_trinket import WowTrinket
 ################################################################################
 # Trinkets
 
+# no on-use trinkets
+
 ################################################################################
 
 ARA_KARA = Dungeon(name="Ara-Kara, City of Echoes")

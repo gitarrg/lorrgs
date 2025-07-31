@@ -1,4 +1,4 @@
-"""01: Plexus Sentinel 
+"""01: Plexus Sentinel
 
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/DzLQG1Rkp4xtdJgh?fight=16"
@@ -16,8 +16,3 @@ PLEXUS_SENTINEL = RaidBoss(
     icon="inv_112_achievement_raid_automaton.jpg",
 )
 boss = PLEXUS_SENTINEL
-
-
-################################################################################
-# Trinkets
-

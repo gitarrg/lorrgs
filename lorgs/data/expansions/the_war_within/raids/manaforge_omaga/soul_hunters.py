@@ -1,4 +1,4 @@
-"""03: The Soul Hunters 
+"""03: The Soul Hunters
 
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/DzLQG1Rkp4xtdJgh?fight=16"
@@ -16,7 +16,3 @@ SOUL_HUNTERS = RaidBoss(
     icon="inv_112_achievement_raid_dhcouncil.jpg",
 )
 boss = SOUL_HUNTERS
-
-
-################################################################################
-# Trinkets
