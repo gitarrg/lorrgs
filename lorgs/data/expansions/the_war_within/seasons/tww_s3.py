@@ -18,7 +18,7 @@ from lorgs.data.expansions.the_war_within import PRIORY_OF_THE_SACRED_FLAME
 from lorgs.data.expansions.the_war_within import MANAFORGE_OMEGA
 
 
-TWW_SEASON2 = Season(
+TWW_SEASON3 = Season(
     name="TWW Season 3",
     slug="tww_3",
     ilvl=723,

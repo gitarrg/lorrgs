@@ -13,6 +13,7 @@ from .dungeons import THE_ROOKERY
 # Raids
 from .raids import NERUBAR_PALACE
 from .raids import LIBERATION_OF_UNDERMINE
+from .raids import MANAFORGE_OMEGA
 
 # Seasons
 from .seasons import TWW_SEASON1
@@ -30,6 +31,7 @@ __all__ = [
     "DAWNBREAKER",
     "ECODOME_ALDANI",
     "LIBERATION_OF_UNDERMINE",
+    "MANAFORGE_OMEGA",
     "NERUBAR_PALACE",
     "OPERATION_FLOODGATE",
     "PRIORY_OF_THE_SACRED_FLAME",
