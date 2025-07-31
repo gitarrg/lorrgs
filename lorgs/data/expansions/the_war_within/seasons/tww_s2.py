@@ -21,7 +21,6 @@ TWW_SEASON2 = Season(
     name="TWW Season 2",
     slug="tww_2",
     ilvl=678,
-    domain="ptr2",
     raids=[
         LIBERATION_OF_UNDERMINE,
     ],
