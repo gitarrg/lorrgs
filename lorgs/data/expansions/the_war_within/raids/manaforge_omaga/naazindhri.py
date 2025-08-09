@@ -42,16 +42,34 @@ SOULBINDERS_EMBRACE.add_specs(*TANK.specs)
 # Spells
 
 
-# Orbs
+# new cages spawn
+boss.add_cast(
+    spell_id=1225582,
+    name="Soul Calling",
+    duration=3,
+    color="rgb(160, 76, 245)",
+    icon="ability_racial_etherealconnection.jpg",
+)
+
+
+# Break Cage Debuffs #1
+boss.add_cast(
+    spell_id=1225616,
+    name="Soulfire Convergence",
+    duration=8,
+    color="rgb(122, 216, 235)",
+    icon="ability_socererking_arcanereplication_nightborne.jpg",
+)
+
+
+# Break Cage Debuffs #2
 boss.add_cast(
     spell_id=1227276,
     name="Soulfray Annihilation",
     duration=6,
-    color="hsl(30, 60%, 50%)",
+    color="rgb(237, 100, 230)",
     icon="spell_arcane_arcane03.jpg",
 )
-
-# TODO: Lines?
 
 
 # "Arcane Expulsion" = Knockback + drop stuff
@@ -60,22 +78,22 @@ boss.add_cast(
     name="Arcane Expulsion",
     duration=4,
     cooldown=15,
-    color="hsl(0, 60%, 60%)",
+    color="rgb(227, 39, 111)",
     icon="spell_nature_astralrecalgroup.jpg",
 )
 
 
-# new cages spawn
 boss.add_cast(
-    spell_id=1225582,
-    name="Soul Calling",
-    duration=3,
-    color="hsl(30, 60%, 50%)",
-    icon="ability_racial_etherealconnection.jpg",
+    spell_id=1241100,
+    name="Mystic Lash",
+    duration=4,
+    # cooldown=15, # todo
+    color="rgb(201, 162, 113)",
+    icon="spell_arcane_arcane01_nightborne.jpg",
+    show=False,
 )
 
 
 ################################################################################
 # Phases
-
-boss.add_phase(name="P{count}", spell_id=1225582, event_type="cast")
+# boss.add_phase(name="P{count}", spell_id=1225582, event_type="cast")
