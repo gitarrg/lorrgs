@@ -22,6 +22,7 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 ```bash
 
 python3.11 -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 pip install -r requirements_dev.txt
 ```

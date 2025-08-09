@@ -7,8 +7,9 @@ from lorgs.models.wow_trinket import WowTrinket
 ################################################################################
 # Trinkets
 
-# no on-use trinkets
+# no on-use
+
 
 ################################################################################
 
-ARA_KARA = Dungeon(name="Ara-Kara, City of Echoes")
+TAZAVESH_GAMBIT = Dungeon(name="Tazavesh, the Veiled Market: So'leah's Gambit")
