@@ -46,25 +46,53 @@ LOOMITHARS_LIVING_SILK.add_specs(*HEAL.specs)
 # Phase 1
 
 
-# Tank: Beam
 boss.add_cast(
-    spell_id=1227261,
-    name="Piercing Strand",
-    duration=3,
-    cooldown=45,
-    # color="hsl(30, 60%, 50%)",
-    icon="inv_112_arcane_beam.jpg",
-    show=False,
+    spell_id=1226395,
+    name="Overinfusion Burst",
+    duration=8,
+    color="rgb(247, 40, 78)",
+    icon="spell_nature_wispsplode.jpg",
 )
+
+
+# Unable to find a matching cast/event to track this
+# boss.add_cast(
+#     spell_id=1250103,
+#     name="Infusion Pylons",
+#     duration=19,
+#     color="rgb(240, 62, 186)",
+#     icon="spell_mage_overpowered.jpg",
+# )
 
 
 boss.add_cast(
     spell_id=1237272,
     name="Lair Weaving",
     duration=5,
-    # cooldown=45,
-    # color="hsl(30, 60%, 50%)",
+    color="rgb(200, 230, 226)",
     icon="inv_ability_web_buff.jpg",
+)
+
+
+# boss.add_cast(
+#     spell_id=1226311,
+#     name="Infusion Tether",
+#     duration=5,
+#     color="rgb(240, 159, 72)",
+#     icon="inv_ability_web_beam.jpg",
+# )
+
+
+# Tank: Beam
+boss.add_cast(
+    spell_id=1227263,
+    name="Piercing Strand",
+    color="rgb(95, 103, 245)",
+    duration=3,
+    cooldown=45,
+    icon="inv_112_arcane_beam.jpg",
+    show=False,
+    # spell id might be 1227261?
 )
 
 
@@ -83,7 +111,7 @@ boss.add_cast(
     name="Writhing Wave",
     duration=4,
     cooldown=25,
-    color="hsl(30, 60%, 50%)",
+    color="rgb(100, 237, 182)",
     icon="inv_ability_web_wave.jpg",
 )
 
@@ -93,7 +121,7 @@ boss.add_cast(
     name="Arcane Outrage",
     duration=2,
     cooldown=4,
-    color="hsl(10, 60%, 50%)",
+    color="rgb(169, 64, 230)",
     icon="inv_112_raidsilkworm_arcaneoutrage.jpg",
 )
 
