@@ -1,7 +1,7 @@
 """0:
 
 
->>> scripts/load_report.py "https://www.warcraftlogs.com/reports/DzLQG1Rkp4xtdJgh?fight=16"
+>>> scripts/load_report.py "https://www.warcraftlogs.com/reports/B8TZkGKaXQn6rCFA?fight=25"
 
 """
 
@@ -39,3 +39,34 @@ UNYIELDING_NETHERPRISM = WowTrinket(
 """
 UNYIELDING_NETHERPRISM.add_specs(*AGI_SPECS)
 UNYIELDING_NETHERPRISM.add_specs(*STR_SPECS)
+
+
+################################################################################
+# Spells
+
+# 4x Player Walls
+boss.add_cast(
+    spell_id=1233416,
+    name="Crystalline Shockwave",
+    duration=10,
+    color="rgb(33, 255, 244)",
+    icon="spell_hunter_blackicetrap.jpg",
+)
+
+# Tank Wall
+boss.add_cast(
+    spell_id=1220394,
+    name="Shattering Backhand",
+    duration=2,
+    color="rgb(242, 98, 46)",
+    icon="inv_enchant_metamorphiccrystal.jpg",
+)
+
+# Wall Break
+boss.add_cast(
+    spell_id=1231871,
+    name="Shockwave Slam",
+    duration=4,
+    color="rgb(209, 157, 98)",
+    icon="inv_leycrystallarge.jpg",
+)
