@@ -30,10 +30,6 @@ DEATHKNIGHT_UNHOLY = WowSpec(role=MDPS, wow_class=DEATHKNIGHT, name="Unholy")
 # Spells
 #
 
-# Class Spells
-DEATHKNIGHT.add_spell(         spell_id=383269, cooldown=120, duration=12, color=COL_NECRO, name="Abomination Limb",      icon="ability_maldraxxus_deathknight.jpg",       show=False)
-DEATHKNIGHT.add_spell(         spell_id=47568,  cooldown=120, duration=20, color="#88e8f2", name="Empower Rune Weapon",   icon="inv_sword_62.jpg",                         show=False)
-
 # Utility
 DEATHKNIGHT.add_spell(         spell_id=48265,  cooldown=45,  duration=10, color="#b82cbf", name="Death's Advance",       icon="spell_shadow_demonicempathy.jpg",           show=False, tags=[SpellTag.MOVE])
 
@@ -64,9 +60,8 @@ DEATHKNIGHT_UNHOLY.add_spell(  spell_id=207289, cooldown=90,  duration=20, color
 
 DEATHKNIGHT_FROST.add_spell(   spell_id=51271,  cooldown=60,  duration=12,                  name="Pillar of Frost",       icon="ability_deathknight_pillaroffrost.jpg",    show=False)
 DEATHKNIGHT_FROST.add_spell(   spell_id=46585,  cooldown=120, duration=60, color="#c7ba28", name="Raise Dead",            icon="inv_pet_ghoul.jpg",                        show=False)
-DEATHKNIGHT_FROST.add_spell(   spell_id=152279, cooldown=120, duration=30, color="#52abff", name="Breath of Sindragosa",  icon="spell_deathknight_breathofsindragosa.jpg", tags=[SpellTag.DAMAGE])
+DEATHKNIGHT_FROST.add_buff(    spell_id=1249658,cooldown=120, duration=30, color="#52abff", name="Breath of Sindragosa",  icon="spell_deathknight_breathofsindragosa.jpg", tags=[SpellTag.DAMAGE])
 DEATHKNIGHT_FROST.add_spell(   spell_id=279302, cooldown=180,                               name="Frostwyrm's Fury",      icon="achievement_boss_sindragosa.jpg", tags=[SpellTag.DAMAGE])
-DEATHKNIGHT_FROST.add_spell(   spell_id=57330,  cooldown=45,               color="#806996", name="Horn of Winter",        icon="inv_misc_horn_02.jpg", show=False)
 
 # Additional Spells (not tracked)
 RAISE_ALLY = WowSpell(spell_id=61999, name="Raise Ally", icon="spell_shadow_deadofnight.jpg")

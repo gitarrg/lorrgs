@@ -1,7 +1,7 @@
 """0:
 
 
->>> scripts/load_report.py "https://www.warcraftlogs.com/reports/DzLQG1Rkp4xtdJgh?fight=16"
+>>> scripts/load_report.py "https://www.warcraftlogs.com/reports/pmbqxtTkGAdf9FMK?fight=34"
 
 """
 
@@ -177,6 +177,7 @@ boss.add_buff(
 boss.add_cast(
     spell_id=1226648,
     name="Galactic Smash",
+    duration=4,  # TODO: check duration
     color="rgb(31, 79, 237)",
     icon="artifactability_balancedruid_moonandstars.jpg",
 )
@@ -185,6 +186,7 @@ boss.add_cast(
 boss.add_cast(
     spell_id=1226024,
     name="Starkiller Swing",
+    duration=6,
     color="rgb(206, 225, 242)",
     icon="spell_mage_supernova.jpg",
 )
