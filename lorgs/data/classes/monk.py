@@ -54,7 +54,8 @@ MONK_MISTWEAVER.add_buff(spell_id=197908,                             color="#22
 MONK_WINDWALKER.add_spell(spell_id=123904, cooldown=120, duration=24, color="#8cdbbc", name="Invoke Xuen, the White Tiger",    icon="ability_monk_summontigerstatue.jpg", tags=[SpellTag.DAMAGE])
 MONK_WINDWALKER.add_spell(spell_id=137639, cooldown=90,  duration=15, color="#be53db", name="Storm, Earth, and Fire",          icon="spell_nature_giftofthewild.jpg")
 MONK_WINDWALKER.add_spell(spell_id=122470, cooldown=90,  duration=10, color="#8afbff", name="Touch of Karma",                  icon="ability_monk_touchofkarma.jpg", show=False)
-MONK_WINDWALKER.add_spell(spell_id=152173, cooldown=90,  duration=12,                  name="Serenity"      ,                  icon="ability_monk_serenity.jpg", show=False)
+MONK_WINDWALKER.add_spell(spell_id=152173, cooldown=90,  duration=12,                    name="Serenity"      ,                  icon="ability_monk_serenity.jpg", show=False)
+MONK_WINDWALKER.add_spell(spell_id=392983, cooldown=40,  duration=6,                     name="Strike of the Windlord",                  icon="inv_hand_1h_artifactskywall_d_01.jpg", show=False)
 
 
 MONK_BREWMASTER.add_spell(spell_id=322507, cooldown=60,  duration=0,  color="#45f9ff", name="Celestial Brew",                  icon="ability_monk_ironskinbrew.jpg",        show=False)
