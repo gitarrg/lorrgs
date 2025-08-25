@@ -29,6 +29,7 @@ ARAZS_RITUAL_FORGE = WowTrinket(
     name="Araz's Ritual Forge",
     icon="inv_112_raidtrinkets_trinkettechnomancer_ritualengine.jpg",
     item=242402,
+    event_type="buff",
 )
 """30sec Main Statt, decaying
 
