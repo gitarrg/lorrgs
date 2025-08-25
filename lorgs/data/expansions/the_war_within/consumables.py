@@ -12,7 +12,21 @@ Algari_Healing_Potion = WowPotion(
     variations=[],
 )
 """Health Pot"""
-Algari_Healing_Potion.add_specs(*ALL_SPECS)
+# no longer used. people should use invigorating instead
+# Algari_Healing_Potion.add_specs(*ALL_SPECS)
+
+
+Invigorating_Healing_Potion = WowPotion(
+    spell_id=1238009,
+    cooldown=300,
+    color="#e35f5f",
+    name="Health Pot",
+    icon="inv_alchemy_70_flask04.jpg",
+    item=244839,
+    variations=[],  # logs only show 1 spell ID
+)
+"""Health Pot"""
+Invigorating_Healing_Potion.add_specs(*ALL_SPECS)
 
 
 Tempered_Potion = WowPotion(
