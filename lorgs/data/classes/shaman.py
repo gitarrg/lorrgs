@@ -12,7 +12,7 @@ from lorgs.data.roles import *
 from lorgs.models import warcraftlogs_actor
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_spec import WowSpec
-from lorgs.models.wow_spell import SpellTag
+from lorgs.models.wow_spell import SpellTag, WowSpell
 
 
 ################################################################################
@@ -86,3 +86,17 @@ def split_ascendance_procs(actor: warcraftlogs_actor.BaseActor, status: str):
             cast.spell_id = 378270
 
 warcraftlogs_actor.BaseActor.event_actor_load.connect(split_ascendance_procs)
+
+
+################################################################################
+# Hero Talents
+
+AncestralSwiftness = WowSpell(
+    spell_id=443454, name="Ancestral Swiftness",
+    cooldown=30, duration=4, color="#1e7ed8",
+    icon="inv_ability_farseershaman_ancestralswiftness.jpg",
+    show=False,
+    spell_type=SHAMAN.name_slug,
+)
+SHAMAN_ELEMENTAL.add_spell(AncestralSwiftness)
+SHAMAN_RESTORATION.add_spell(AncestralSwiftness)
