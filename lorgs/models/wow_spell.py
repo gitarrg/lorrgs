@@ -64,7 +64,7 @@ class SpellTag:
 class WowSpell(base.MemoryModel):
     """Container to define a spell."""
 
-    spell_variations: ClassVar[dict[int, int]] = {}
+    spell_variations: ClassVar[dict[(int, str), int]] = {}
     """Map to track spell variations and their "master"-spells.
         `[key: id of the variation] = id of the "master"-spell`
     """
@@ -137,9 +137,9 @@ class WowSpell(base.MemoryModel):
         return ",".join(str(spell_id) for spell_id in spell_ids)
 
     @classmethod
-    def resolve_spell_id(cls, spell_id: int) -> int:
+    def resolve_spell_id(cls, spell_id: int, event_type: str = "cast") -> int:
         """Resolve a Spell ID for a spell variation to its main-spell."""
-        return cls.spell_variations.get(spell_id) or spell_id
+        return cls.spell_variations.get((spell_id, event_type)) or spell_id
 
     def __str__(self) -> str:
         return f"<Spell({self.spell_id}, name={self.name})>"
@@ -168,7 +168,7 @@ class WowSpell(base.MemoryModel):
             "tags": self.tags,
         }
 
-    def add_variation(self, spell_id: int):
+    def add_variation(self, spell_id: int, event_type: str = ""):
         """Add an additional spell ids for the "same" spell.
 
         eg.: glyphed versions of the spell
@@ -176,7 +176,7 @@ class WowSpell(base.MemoryModel):
         different phases for the same mechanic
         """
         self.variations.append(spell_id)
-        self.spell_variations[spell_id] = self.spell_id
+        self.spell_variations[(spell_id, event_type or self.event_type)] = self.spell_id
 
     def add_variations(self, *spell_ids: int):
         for spell_id in spell_ids:
@@ -190,7 +190,7 @@ class WowSpell(base.MemoryModel):
         # automatic mirror_events for buffs/debuffs
         if self.event_type in ("applybuff", "applydebuff"):
             event_type = self.event_type.replace("apply", "remove")
-            end = WowSpell(spell_id=self.spell_id, event_type=event_type)
+            end = WowSpell(spell_id=self.spell_id, event_type=event_type, variations=self.variations)
             return [self, end]
 
         return [self]

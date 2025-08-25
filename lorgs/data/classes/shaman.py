@@ -53,9 +53,8 @@ SHAMAN_ELEMENTAL.add_buff(     spell_id=188592, cooldown=150, duration=30, color
 # Note: need to track Storm Ele via Buff... but can't find a log right now.
 SHAMAN_ELEMENTAL.add_spell(    spell_id=192249, cooldown=150, duration=30, color="#64b8d9", name="Storm Elemental",            icon="inv_stormelemental.jpg", tags=[SpellTag.DAMAGE])
 SHAMAN_ELEMENTAL.add_spell(    spell_id=108281, cooldown=120, duration=10, color="#64b8d9", name="Ancestral Guidance",         icon="ability_shaman_ancestralguidance.jpg", tags=[SpellTag.RAID_CD], show=False)
-SHAMAN_ELEMENTAL.add_buff(     spell_id=1219480,                           color="#ffcb6b", name="Ascendance",                 icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.DAMAGE])  # The Buff
 SHAMAN_ELEMENTAL.add_spell(    spell_id=192222, cooldown=60,  duration=6,  color="#d15a5a", name="Liquid Magma Totem",         icon="spell_shaman_spewlava.jpg")
-
+SHAMAN_ELEMENTAL.add_spell(    spell_id=114050,               duration=15, color="#ffcb6b", name="Ascendance",                 icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.DAMAGE])
 
 SHAMAN_ENHANCEMENT.add_spell(  spell_id=51533,  cooldown=120,                               name="Feral Spirit",               icon="spell_shaman_feralspirit.jpg", show=False)
 SHAMAN_ENHANCEMENT.add_spell(  spell_id=384352, cooldown=60,  duration=8,  color="#42bff5", name="Doom Winds",                 icon="ability_ironmaidens_swirlingvortex.jpg")
@@ -69,10 +68,32 @@ SHAMAN_RESTORATION.add_spell(  spell_id=207399, cooldown=300, duration=30, color
 SHAMAN_RESTORATION.add_spell(  spell_id=198838, cooldown=60,  duration=15, color="#a47ea6", name="Earthen Wall Totem",         icon="spell_nature_stoneskintotem.jpg",           show=False)
 SHAMAN_RESTORATION.add_spell(  spell_id=157153, cooldown=30,  duration=15, color="#96d0eb", name="Cloudburst Totem",           icon="ability_shaman_condensationtotem.jpg",      show=False)
 SHAMAN_RESTORATION.add_spell(  spell_id=5394,   cooldown=30,  duration=15, color="#96d0eb", name="Healing Stream Totem",       icon="inv_spear_04.jpg",      show=False)
+SHAMAN_RESTORATION.add_spell(  spell_id=114052, cooldown=180, duration=30, color="#ffcb6b", name="Ascendance", icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.RAID_CD])
 
 
-SHAMAN_RESTORATION.add_buff(   spell_id=114052, cooldown=180,                  color="#ffcb6b", name="Ascendance",                 icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.RAID_CD])
-SHAMAN_RESTORATION.add_buff(   spell_id=378270,                                color="#ffcb6b", name="Ascendance (DRE Proc)",      icon="inv_misc_herb_liferoot_stem.jpg", query=False, show=False)
+# we need to query both: casts and buffs to be able to split DRE procs
+DRE = SHAMAN.add_buff(spell_id=378270, color="#ffcb6b", name="Deeply Rooted Elements", icon="inv_misc_herb_liferoot_stem.jpg", show=False)
+DRE.add_variation(114052, "applybuff")  # Resto
+DRE.add_variation(1219480, "applybuff")  # Elemental
+
+
+def remove_buffs_from_casts(
+        actor: warcraftlogs_actor.BaseActor,
+        cast_spell_ids: set[int],
+        buff_spell_ids: set[int],
+        tolerance = 500, # ms
+    ):
+    casts = [cast for cast in actor.casts if cast.spell_id in cast_spell_ids and cast.event_type == "cast"]
+    buffs = [cast for cast in actor.casts if cast.spell_id in buff_spell_ids and cast.event_type == "applybuff"]
+    if not casts and buffs:
+        return
+
+    # filter out Buffs triggered by casts
+    for buff in buffs:
+        closest = min(casts, key=lambda c: abs(c.timestamp - buff.timestamp))
+        if abs(buff.timestamp - closest.timestamp) < tolerance:
+            buff.spell_id = -1
+    actor.casts = [cast for cast in actor.casts if cast.spell_id > 0]
 
 
 def split_ascendance_procs(actor: warcraftlogs_actor.BaseActor, status: str):
@@ -81,11 +102,19 @@ def split_ascendance_procs(actor: warcraftlogs_actor.BaseActor, status: str):
     if not actor:
         return
     
+    ascendance_casts = {114050, 114052}
+    ascendance_buffs = {378270}
+    remove_buffs_from_casts(actor, ascendance_casts, ascendance_buffs)
+
+
+def clip_ascendance_procs(actor: warcraftlogs_actor.BaseActor, status: str):
+    """If someone casts Ascendance before the buff expires, clip it to 6s."""
     for cast in actor.casts:
-        if cast.spell_id == 114052 and cast.duration and cast.duration < 10_000: # real = 15sec / procs = 6sec
-            cast.spell_id = 378270
+        if cast.spell_id == DRE.spell_id:
+            cast.duration = min(cast.duration, 6000)
 
 warcraftlogs_actor.BaseActor.event_actor_load.connect(split_ascendance_procs)
+warcraftlogs_actor.BaseActor.event_actor_load.connect(clip_ascendance_procs)
 
 
 ################################################################################

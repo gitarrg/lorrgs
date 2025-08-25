@@ -65,7 +65,7 @@ class Cast(base.BaseModel):
 
     @classmethod
     def from_report_event(cls, event: "wcl.ReportEvent") -> "Cast":
-        spell_id = WowSpell.resolve_spell_id(event.abilityGameID)
+        spell_id = WowSpell.resolve_spell_id(event.abilityGameID, event.type)
         return cls(
             spell_id=spell_id,
             timestamp=event.timestamp,
