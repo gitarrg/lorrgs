@@ -7,7 +7,6 @@
 
 from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.wow_trinket import WowTrinket
 
 
 FRACTILLUS = RaidBoss(
@@ -22,7 +21,7 @@ boss = FRACTILLUS
 ################################################################################
 # Trinkets
 
-UNYIELDING_NETHERPRISM = WowTrinket(
+UNYIELDING_NETHERPRISM = boss.add_trinket(
     spell_id=1233556,
     duration=20,
     name="Unyielding Netherprism",

@@ -16,6 +16,8 @@ dotenv.load_dotenv()  # pylint: disable=wrong-import-position
 from lorgs import data  # pylint: disable=unused-import
 from lorgs.models.warcraftlogs_user_report import UserReport
 
+from lorgs.data.season import CURRENT_SEASON
+
 
 class WarcraftReport(pydantic.BaseModel):
     """Small Helper Class to Hold Report Information."""

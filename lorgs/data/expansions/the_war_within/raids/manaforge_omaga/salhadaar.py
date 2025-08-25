@@ -7,7 +7,6 @@
 
 from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.wow_trinket import WowTrinket
 
 
 SALHADAAR = RaidBoss(
@@ -22,7 +21,7 @@ boss = SALHADAAR
 ################################################################################
 # Trinkets
 
-PERFIDIOUS_PROJECTOR = WowTrinket(
+PERFIDIOUS_PROJECTOR = boss.add_trinket(
     spell_id=0,
     cooldown=120,
     name="Perfidious Projector",

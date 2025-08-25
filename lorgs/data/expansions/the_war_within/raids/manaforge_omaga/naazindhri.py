@@ -7,7 +7,6 @@
 
 from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.wow_trinket import WowTrinket
 
 
 NAAZINDHRI = RaidBoss(
@@ -22,7 +21,7 @@ boss = NAAZINDHRI
 ################################################################################
 # Trinkets
 
-SOULBINDERS_EMBRACE = WowTrinket(
+SOULBINDERS_EMBRACE = boss.add_trinket(
     spell_id=1235425,
     cooldown=60,
     duration=20,

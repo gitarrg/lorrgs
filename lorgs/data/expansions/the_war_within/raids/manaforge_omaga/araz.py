@@ -7,8 +7,6 @@
 
 from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.wow_trinket import WowTrinket
-
 
 ARAZ = RaidBoss(
     id=3132,
@@ -22,7 +20,7 @@ boss = ARAZ
 ################################################################################
 # Trinkets
 
-ARAZS_RITUAL_FORGE = WowTrinket(
+ARAZS_RITUAL_FORGE = boss.add_trinket(
     spell_id=1232802,
     cooldown=120,
     duration=30,

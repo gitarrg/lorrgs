@@ -7,7 +7,6 @@
 
 from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.wow_trinket import WowTrinket
 
 
 LOOMITHAR = RaidBoss(
@@ -22,7 +21,7 @@ boss = LOOMITHAR
 ################################################################################
 # Trinkets
 
-LOOMITHARS_LIVING_SILK = WowTrinket(
+LOOMITHARS_LIVING_SILK = boss.add_trinket(
     spell_id=1232721,
     cooldown=90,
     duration=10,
