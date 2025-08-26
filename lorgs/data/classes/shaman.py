@@ -53,7 +53,7 @@ SHAMAN_ELEMENTAL.add_buff(     spell_id=188592, cooldown=150, duration=30, color
 # Note: need to track Storm Ele via Buff... but can't find a log right now.
 SHAMAN_ELEMENTAL.add_spell(    spell_id=192249, cooldown=150, duration=30, color="#64b8d9", name="Storm Elemental",            icon="inv_stormelemental.jpg", tags=[SpellTag.DAMAGE])
 SHAMAN_ELEMENTAL.add_spell(    spell_id=108281, cooldown=120, duration=10, color="#64b8d9", name="Ancestral Guidance",         icon="ability_shaman_ancestralguidance.jpg", tags=[SpellTag.RAID_CD], show=False)
-SHAMAN_ELEMENTAL.add_spell(    spell_id=192222, cooldown=60,  duration=6,  color="#d15a5a", name="Liquid Magma Totem",         icon="spell_shaman_spewlava.jpg")
+SHAMAN_ELEMENTAL.add_spell(    spell_id=192222, cooldown=60,  duration=6,  color="#d15a5a", name="Liquid Magma Totem",         icon="spell_shaman_spewlava.jpg", show=False)
 SHAMAN_ELEMENTAL.add_spell(    spell_id=114050,               duration=15, color="#ffcb6b", name="Ascendance",                 icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.DAMAGE])
 
 SHAMAN_ENHANCEMENT.add_spell(  spell_id=51533,  cooldown=120,                               name="Feral Spirit",               icon="spell_shaman_feralspirit.jpg", show=False)
@@ -110,7 +110,7 @@ def split_ascendance_procs(actor: warcraftlogs_actor.BaseActor, status: str):
 def clip_ascendance_procs(actor: warcraftlogs_actor.BaseActor, status: str):
     """If someone casts Ascendance before the buff expires, clip it to 6s."""
     for cast in actor.casts:
-        if cast.spell_id == DRE.spell_id:
+        if cast.spell_id == DRE.spell_id and cast.duration:
             cast.duration = min(cast.duration, 6000)
 
 warcraftlogs_actor.BaseActor.event_actor_load.connect(split_ascendance_procs)

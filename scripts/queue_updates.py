@@ -7,10 +7,12 @@ dotenv.load_dotenv()
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
 from lorgs.data.classes import *
-from lorgs.data.raids import *
 
 from lorgs.models.wow_spec import WowSpec
 from lorgs.models.raid_boss import RaidBoss
+
+from lorgs.data.season import CURRENT_SEASON
+from lorgs.data.expansions.the_war_within.raids.manaforge_omaga import MANAFORGE_OMEGA
 
 
 def load_remote(
@@ -67,21 +69,21 @@ def load_spec_rankings() -> None:
         # BLOODBOUND_HORROR
         # ANSUREK,
         # OVINAX,
-        ULGRAX,
+        # ULGRAX,
     ]
-    bosses = NERUBAR_PALACE.bosses
+    bosses = MANAFORGE_OMEGA.bosses
 
     specs = [
         # DRUID_BALANCE,
-        # SHAMAN_ENHANCEMENT,
+        SHAMAN_ELEMENTAL,
         # SHAMAN_RESTORATION,
         # MONK_MISTWEAVER,
         # WARLOCK_DESTRUCTION,
         # WARLOCK_AFFLICTION,
         # WARLOCK_DEMONOLOGY,
-        HUNTER_BEASTMASTERY,
-        HUNTER_MARKSMANSHIP,
-        HUNTER_SURVIVAL,
+        # HUNTER_BEASTMASTERY,
+        # HUNTER_MARKSMANSHIP,
+        # HUNTER_SURVIVAL,
         # MAGE_ARCANE,
         # MAGE_FIRE,
         # MAGE_FROST,
@@ -96,11 +98,14 @@ def load_spec_rankings() -> None:
         # MAGE_ARCANE,
         # PALADIN_HOLY,
         # MONK_WINDWALKER,
+        # *MDPS.specs,
+        # *RDPS.specs,
     ]
     # specs = ALL_SPECS
+    # specs = DPS.specs
 
-    load = load_local
     load = load_remote
+    load = load_local
 
     for spec in specs:
         print(spec.full_name_slug)
@@ -111,8 +116,8 @@ def load_spec_rankings() -> None:
                 spec,
                 boss,
                 clear=True,
-                # difficulty="heroic",
-                # metric="dps",
+                difficulty="mythic",
+                metric="dps",
             )
 
 
