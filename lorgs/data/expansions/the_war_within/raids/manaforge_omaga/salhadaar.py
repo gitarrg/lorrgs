@@ -191,3 +191,11 @@ boss.add_cast(
 )
 
 # World in Twilight (1249234) = enrage
+
+################################################################################
+# Phases
+
+boss.add_phase(name="P2", spell_id=1227734, event_type="cast")
+boss.add_phase(name="I1", spell_id=1228065, event_type="cast")  # Rally the Shadowguard
+boss.add_phase(name="I2", spell_id=1228265, event_type="cast")  # King's Hunger
+boss.add_phase(name="P3", spell_id=1224822, event_type="cast")  # Tyranny
