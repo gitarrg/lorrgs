@@ -69,4 +69,8 @@ boss.add_buff(
 ################################################################################
 # Phases
 
-boss.add_phase(name="P1 ({count})", spell_id=1223364, event_type="cast")
+# ignore the first cast
+boss.add_phase(name="P1 ({count})", spell_id=1223364, event_type="cast", count=2)
+boss.add_phase(name="P1 ({count})", spell_id=1223364, event_type="cast", count=3)
+boss.add_phase(name="P1 ({count})", spell_id=1223364, event_type="cast", count=4)
+boss.add_phase(name="P1 ({count})", spell_id=1223364, event_type="cast", count=5)
