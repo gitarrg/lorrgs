@@ -44,13 +44,13 @@ PERFIDIOUS_PROJECTOR = boss.add_trinket(
 # Phase 1
 
 # Besiege
-boss.add_cast(
-    spell_id=1227384,
-    name="Fel Rush",
-    duration=23,  # todo: check what duration to display
-    color="rgb(74, 135, 232)",
-    icon="inv_cosmicvoid_missile.jpg",
-)
+# boss.add_cast(
+#     spell_id=1227384,
+#     name="Fel Rush",
+#     duration=23,  # todo: check what duration to display
+#     color="rgb(74, 135, 232)",
+#     icon="inv_cosmicvoid_missile.jpg",
+# )
 
 boss.add_cast(
     spell_id=1224864,
@@ -69,13 +69,20 @@ boss.add_cast(
 )
 
 # Subjue Rule = Tank Combo
-# boss.add_cast(
-#     spell_id=1224776,
-#     name="Fel Rush",
-#     duration=24,
-#     color="rgb(43, 217, 165)",
-#     icon="spell_holy_devotion.jpg",
-# )
+boss.add_cast(
+    spell_id=1224787,
+    name="Conquer",
+    duration=4,
+    color="rgb(231, 37, 107)",
+    icon="inv_legendary_mace.jpg",
+)
+boss.add_cast(
+    spell_id=1224812,
+    name="Vanquish",
+    duration=2.5,
+    color="rgb(103, 74, 195)",
+    icon="ability_warrior_decisivestrike.jpg",
+)
 
 
 ################################################################################

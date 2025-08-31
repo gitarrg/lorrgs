@@ -161,3 +161,14 @@ boss.add_cast(
     color="rgb(184, 140, 99)",
     icon="inv_cosmicvoid_nova.jpg",
 )
+
+
+################################################################################
+# Phases
+
+boss.add_phase(name="I1", spell_id=1234898, event_type="cast")  # Event Horizon
+
+boss.add_phase(name="Artoshion", spell_id=1246143, event_type="applybuff", count=1)  # Touch of Oblivion
+boss.add_phase(name="Pargoth", spell_id=1246143, event_type="applybuff", count=2)  # Touch of Oblivion
+
+boss.add_phase(name="P3", spell_id=1245292, event_type="applybuff")  # Destabilized
