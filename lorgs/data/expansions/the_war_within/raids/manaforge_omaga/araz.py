@@ -27,7 +27,7 @@ ARAZS_RITUAL_FORGE = boss.add_trinket(
     name="Araz's Ritual Forge",
     icon="inv_112_raidtrinkets_trinkettechnomancer_ritualengine.jpg",
     item=242402,
-    event_type="buff",
+    event_type="cast",
 )
 """30sec Main Statt, decaying
 
