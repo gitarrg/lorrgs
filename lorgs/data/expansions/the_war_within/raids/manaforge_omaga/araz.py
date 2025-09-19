@@ -85,6 +85,15 @@ boss.add_cast(
     show=False,
 )
 
+# DMG Amp
+boss.add_buff(
+    spell_id=1233415,
+    name="Mana Splinter",
+    color="rgb(40, 233, 81)",
+    icon="inv_112_arcane_debuff.jpg",
+    show=True,
+)
+
 
 ################################################################################
 # Intermisions
