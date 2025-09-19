@@ -56,3 +56,6 @@ class Season(base.MemoryModel):
                 trinket.wowhead_data += f"&domain={self.domain}"
             for spell in self.spells:
                 spell.wowhead_data += f"&domain={self.domain}"
+
+        for trinket in self.trinkets:
+            trinket.post_init()  # regenerate wowhead_data

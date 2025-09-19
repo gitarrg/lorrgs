@@ -20,6 +20,7 @@ class WowItem(wow_spell.WowSpell):
 
     bonus_ids: list[str] = [
         "6646",  # Mythic
+        "10356",  # Mythic v2 ?
     ]
 
     def post_init(self) -> None:
@@ -35,6 +36,6 @@ class WowItem(wow_spell.WowSpell):
             parts.append(f"ilvl={self.ilvl}")
         if self.bonus_ids:
             bonus_ids = ":".join(self.bonus_ids)
-            parts.append(bonus_ids)
+            parts.append(f"bonus={bonus_ids}")
 
         return "&".join(parts)

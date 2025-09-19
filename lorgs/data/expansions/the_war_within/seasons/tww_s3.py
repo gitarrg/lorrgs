@@ -22,7 +22,6 @@ TWW_SEASON3 = Season(
     name="TWW Season 3",
     slug="tww_3",
     ilvl=723,
-    domain="ptr2",
     raids=[
         MANAFORGE_OMEGA,
     ],
