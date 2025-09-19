@@ -65,7 +65,8 @@ CELESTIAL_ALIGNMENT.add_variation(390414) # Incarn + Orbital Strike
 CELESTIAL_ALIGNMENT.add_variation(102560) # Incarn + Whirling Stars (2 charges)
 
 DRUID_BALANCE.add_spell(     spell_id=205636, cooldown=60,  duration=10,                  name="Force of Nature",                icon="ability_druid_forceofnature.jpg",           show=False)
-DRUID_BALANCE.add_spell(     spell_id=202770, cooldown=60,  duration=8,  color="#749cdb", name="Fury of Elune",                  icon="ability_druid_dreamstate.jpg",              show=False)
+DRUID_BALANCE.add_spell(     spell_id=202770, cooldown=60,  duration=8,  color="#749cdb", name="Fury of Elune",                icon="ability_druid_dreamstate.jpg",              show=False)
+DRUID_BALANCE.add_spell(     spell_id=202425, cooldown=45,               color="#749cdb", name="Warrior of Elune",             icon="spell_holy_elunesgrace.jpg",                show=False)
 
 
 DRUID_FERAL.add_spell(       spell_id=106951, cooldown=120, duration=15,                  name="Berserk",                        icon="ability_druid_berserk.jpg", variations=[102543], tags=[SpellTag.DAMAGE])
