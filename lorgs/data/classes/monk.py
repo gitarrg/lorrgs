@@ -63,6 +63,7 @@ MONK_BREWMASTER.add_spell(spell_id=132578, cooldown=180, duration=25,           
 MONK_BREWMASTER.add_spell(spell_id=115176, cooldown=300, duration=8,                   name="Zen Meditation",                  icon="ability_monk_zenmeditation.jpg", tags=[SpellTag.TANK])
 MONK_BREWMASTER.add_spell(spell_id=115203, cooldown=360, duration=15, color="#ffb145", name="Fortifying Brew",                 icon="ability_monk_fortifyingale_new.jpg", tags=[SpellTag.DEFENSIVE])
 MONK_BREWMASTER.add_spell(spell_id=325153, cooldown=60,  duration=3,  color="#cc5a89", name="Exploding Keg",                 icon="archaeology_5_0_emptykegofbrewfatherxinwoyin.jpg")
+MONK_BREWMASTER.add_spell(spell_id=1241059, cooldown=45,              color="#dd422d", name="Celestial Infusion",                 icon="ability_monk_tigereyebrandy.jpg")
 
 
 # Hero Talents
