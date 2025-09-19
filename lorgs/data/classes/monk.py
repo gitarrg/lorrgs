@@ -66,6 +66,19 @@ MONK_BREWMASTER.add_spell(spell_id=325153, cooldown=60,  duration=3,  color="#cc
 MONK_BREWMASTER.add_spell(spell_id=1241059, cooldown=45,              color="#dd422d", name="Celestial Infusion",                 icon="ability_monk_tigereyebrandy.jpg")
 
 
+CracklingJadeLightning = WowSpell(
+    spell_id=117952,
+    name="Crackling Jade Lightning",
+    color="#8dd6a3",
+    duration=4,
+    icon="ability_monk_cracklingjadelightning.jpg",
+    show=False,
+    spell_type=MONK.name_slug,
+)
+MONK_MISTWEAVER.add_spell(CracklingJadeLightning)
+MONK_WINDWALKER.add_spell(CracklingJadeLightning)
+
+
 # Hero Talents
 CelestialConduit = WowSpell(
     spell_id=443028, name="Celestial Conduit",
