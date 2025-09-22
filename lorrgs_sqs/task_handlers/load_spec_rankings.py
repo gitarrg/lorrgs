@@ -41,6 +41,15 @@ async def load_spec_rankings(
     if not ranking.spec:
         return False, "invalid spec"
 
+    # force refresh if dirty
+    if ranking.dirty:
+        clear = True
+
+    # skip if updated recently
+    if not clear:
+        if ranking.updated > (datetime.datetime.now() - datetime.timedelta(hours=2)):
+            return True, "already updated"
+
     ################################
     # load and save
     await ranking.load(limit=limit, clear_old=clear)
