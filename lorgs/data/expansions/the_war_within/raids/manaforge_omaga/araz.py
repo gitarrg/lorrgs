@@ -49,6 +49,7 @@ boss.add_cast(
     duration=5,
     color="rgb(237, 221, 116)",
     icon="ability_socererking_arcanefortification.jpg",
+    show=False,
 )
 
 

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
+import datetime
 import textwrap
 import typing
 
@@ -35,6 +36,9 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
     difficulty: str = "mythic"
     metric: str = ""
     reports: list[Report] = []
+
+    updated: datetime.datetime = datetime.datetime.min
+    dirty: bool = False
 
     # Config
     key: typing.ClassVar[str] = "{spec_slug}/{boss_slug}__{difficulty}__{metric}"
@@ -244,3 +248,7 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
         # load the fights/players/casts
         await self.load_actors()
         logger.info("done")
+
+        # update timestamp and mark as clean
+        self.updated = datetime.datetime.now(datetime.timezone.utc)
+        self.dirty = False
