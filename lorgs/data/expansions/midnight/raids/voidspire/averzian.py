@@ -8,7 +8,7 @@ AVERZIAN = RaidBoss(
     id=3176,
     name="Imperator Averzian",
     nick="Araz",
-    icon="",
+    icon="inv_120_raid_voidspire_hostgeneral.jpg",
 )
 boss = AVERZIAN
 

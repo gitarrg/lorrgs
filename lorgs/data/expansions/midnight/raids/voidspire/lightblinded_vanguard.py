@@ -8,7 +8,7 @@ LIGHTBLINDED_VANGUARD = RaidBoss(
     id=3180,
     name="Lightblinded Vanguard",
     nick="Vanguard",
-    icon="",
+    icon="inv_120_raid_voidspire_paladintrio.jpg",
 )
 boss = LIGHTBLINDED_VANGUARD
 

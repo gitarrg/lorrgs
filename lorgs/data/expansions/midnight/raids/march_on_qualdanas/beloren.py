@@ -8,7 +8,7 @@ BELOREN = RaidBoss(
     id=3182,
     name="Belo'ren, Child of Al'ar",
     nick="Belo'ren",
-    icon="",
+    icon="inv_120_raid_marchonqueldanas_lightvoidphoenix.jpg",
 )
 boss = BELOREN
 

@@ -8,7 +8,7 @@ LURA = RaidBoss(
     id=3183,
     name="L'ura",
     nick="L'ura",
-    icon="",
+    icon="inv_120_raid_marchonqueldanas_lura.jpg",
 )
 boss = LURA
 

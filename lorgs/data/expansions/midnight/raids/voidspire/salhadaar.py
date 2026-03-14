@@ -8,7 +8,7 @@ FALLEN_KING_SALHADAAR = RaidBoss(
     id=3179,
     name="Fallen-King Salhadaar",
     nick="Salhadaar",
-    icon="",
+    icon="inv_120_raid_voidspire_salhadaar.jpg",
 )
 boss = FALLEN_KING_SALHADAAR
 

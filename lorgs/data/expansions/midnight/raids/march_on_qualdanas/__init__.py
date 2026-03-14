@@ -25,7 +25,7 @@ from .lura import LURA
 MARCH_ON_QUALDANAS = RaidZone(
     id=46.3,
     name="March on Qual'danas",
-    icon="inv_achievement_raid_riftofaln.jpg",
+    icon="inv_achievement_raid_darkwell.jpg",
     bosses=[
         BELOREN,
         LURA,

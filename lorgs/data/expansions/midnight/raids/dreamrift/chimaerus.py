@@ -8,7 +8,7 @@ CHIMAERUS = RaidBoss(
     id=3306,
     name="Chimaerus",
     nick="Chimaerus",
-    icon="",
+    icon="inv_120_raid_dreamwell_malformedmanifestation.jpg",
 )
 boss = CHIMAERUS
 

@@ -8,7 +8,7 @@ VORASIUS = RaidBoss(
     id=3177,
     name="Vorasius",
     nick="Vorasius",
-    icon="",
+    icon="inv_120_raid_voidspire_kaiju.jpg",
 )
 boss = VORASIUS
 

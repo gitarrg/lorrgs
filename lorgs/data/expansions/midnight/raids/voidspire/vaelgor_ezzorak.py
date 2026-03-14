@@ -8,7 +8,7 @@ VAELGOR_EZZORAK = RaidBoss(
     id=3178,
     name="Vaelgor & Ezzorak",
     nick="Vaelgor",
-    icon="",
+    icon="inv_120_raid_voidspire_dragonduo.jpg",
 )
 boss = VAELGOR_EZZORAK
 
