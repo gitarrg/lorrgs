@@ -2,11 +2,13 @@
 
 from __future__ import annotations
 
-# IMPORT STANRD LIBRARIES
-import asyncio
+# IMPORT STANDARD LIBRARIES
 import datetime
-import textwrap
 import typing
+
+# IMPORT THIRD PARTY LIBRARIES
+import asyncio
+import textwrap
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import wcl

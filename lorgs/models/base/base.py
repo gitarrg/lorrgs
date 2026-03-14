@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-from typing import Any, ClassVar, Optional, Type, TypeVar
+from typing import Any, ClassVar, Type, TypeVar
 
 # IMPORT THIRD PARTY LIBRARIES
 import pydantic
@@ -38,7 +38,7 @@ class BaseModel(pydantic.BaseModel):
         return cls.key.format(**kwargs)
 
     @classmethod
-    def get(cls: Type[T], **kwargs: Any) -> Optional[T]:
+    def get(cls: Type[T], **kwargs: Any) -> T | None:
         ...
 
     @classmethod
