@@ -113,7 +113,7 @@ spell_types: set[type[WowSpell | RaidBoss | RaidZone]] = {
 
 
 # Retrieve all spells
-spells: list[WowSpell] = []
+spells: list[WowSpell | RaidBoss | RaidZone] = []
 for spell_type in spell_types:
     spells += spell_type.list()
 

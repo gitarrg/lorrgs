@@ -7,8 +7,8 @@
 # fmt: off
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data.constants import *
-from lorgs.data.roles import *
+from lorgs.data.roles import MDPS, TANK, RDPS
+from lorgs.data.constants import COL_KYR
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_spec import WowSpec
 from lorgs.models.wow_spell import SpellTag
@@ -24,6 +24,7 @@ DEMONHUNTER  = WowClass(id=12, name="Demon Hunter",  color="#A330C9")
 #
 DEMONHUNTER_HAVOC     = WowSpec(role=MDPS, wow_class=DEMONHUNTER, name="Havoc")
 DEMONHUNTER_VENGEANCE = WowSpec(role=TANK, wow_class=DEMONHUNTER, name="Vengeance")
+DEMONHUNTER_DEVOURER  = WowSpec(role=RDPS, wow_class=DEMONHUNTER, name="Devourer")
 
 ################################################################################
 # Spells
