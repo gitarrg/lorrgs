@@ -18,8 +18,11 @@ from lorgs.models.wow_trinket import WowTrinket
 class RaidZone(base.MemoryModel):
     """A raid zone in the Game."""
 
-    id: int
-    """ID of the Raid Zone. aka. T28, T29 (as used in WarcraftLogs)."""
+    id: int | float
+    """ID of the Raid Zone. aka. T28, T29 (as used in WarcraftLogs).
+    
+    Multi raid tiers can use floats. eg. 46.1, 46.2
+    """
 
     name: str
     """Full Name of the Zone. eg.: `Castle Nathria`."""
