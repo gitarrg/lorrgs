@@ -32,10 +32,10 @@ VOIDSPIRE = RaidZone(
     icon="inv_achievement_raid_voidspire.jpg",
     bosses=[
         AVERZIAN,
-        FALLEN_KING_SALHADAAR,
-        LIGHTBLINDED_VANGUARD,
         VORASIUS,
+        FALLEN_KING_SALHADAAR,
         VAELGOR_EZZORAK,
+        LIGHTBLINDED_VANGUARD,
         CROWN_OF_THE_COSMOS,
     ],
 )
