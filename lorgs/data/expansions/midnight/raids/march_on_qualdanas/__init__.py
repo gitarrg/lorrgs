@@ -14,6 +14,8 @@ Logs:
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models.raid_zone import RaidZone
+from .beloren import BELOREN
+from .lura import LURA
 
 ################################################################################
 #
@@ -24,5 +26,8 @@ MARCH_ON_QUALDANAS = RaidZone(
     id=46.3,
     name="March on Qual'danas",
     icon="inv_achievement_raid_riftofaln.jpg",
-    bosses=[],
+    bosses=[
+        BELOREN,
+        LURA,
+    ],
 )

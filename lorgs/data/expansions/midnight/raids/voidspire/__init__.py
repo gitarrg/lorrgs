@@ -14,6 +14,12 @@ Logs:
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models.raid_zone import RaidZone
+from .averzian import AVERZIAN
+from .salhadaar import FALLEN_KING_SALHADAAR
+from .lightblinded_vanguard import LIGHTBLINDED_VANGUARD
+from .vorasius import VORASIUS
+from .vaelgor_ezzorak import VAELGOR_EZZORAK
+from .crown_of_the_cosmos import CROWN_OF_THE_COSMOS
 
 ################################################################################
 #
@@ -24,5 +30,12 @@ VOIDSPIRE = RaidZone(
     id=46.1,
     name="The Voidspire",
     icon="inv_achievement_raid_voidspire.jpg",
-    bosses=[],
+    bosses=[
+        AVERZIAN,
+        FALLEN_KING_SALHADAAR,
+        LIGHTBLINDED_VANGUARD,
+        VORASIUS,
+        VAELGOR_EZZORAK,
+        CROWN_OF_THE_COSMOS,
+    ],
 )

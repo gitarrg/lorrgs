@@ -14,6 +14,7 @@ Logs:
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models.raid_zone import RaidZone
+from .chimaerus import CHIMAERUS
 
 ################################################################################
 #
@@ -24,5 +25,7 @@ DREAMRIFT = RaidZone(
     id=46.2,
     name="The Dreamrift",
     icon="inv_achievement_raid_riftofaln.jpg",
-    bosses=[],
+    bosses=[
+        CHIMAERUS,
+    ],
 )
