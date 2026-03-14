@@ -17,9 +17,6 @@ class Phase(WowSpell):
 
     name: str = "P{phase}"
 
-    event_type: str
-    """WCL Event Type (`applybuff`, `removebuff`, etc)"""
-
     count: int = 0
     """Only trigger if its the n'th count of the event.
     
