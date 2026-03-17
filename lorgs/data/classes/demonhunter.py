@@ -47,3 +47,9 @@ DEMONHUNTER_VENGEANCE.add_spell(spell_id=204021, cooldown=60,  duration=10,  col
 DEMONHUNTER_VENGEANCE.add_spell(spell_id=212084, cooldown=40,  duration=2,  color="#34ebe1", name="Fel Devastation", icon="ability_demonhunter_feldevastation.jpg",    show=False)
 DEMONHUNTER_VENGEANCE.add_spell(spell_id=187827, cooldown=180, duration=15, color="#348540", name="Metamorphosis",   icon="ability_demonhunter_metamorphasistank.jpg", tags=[SpellTag.TANK])
 DEMONHUNTER_VENGEANCE.add_debuff(spell_id=209261, cooldown=480, duration=15, color="#348540", name="Last Resort",   icon="inv_glaive_1h_artifactaldorchi_d_06.jpg", tags=[SpellTag.TANK])
+
+
+DEMONHUNTER_DEVOURER.add_spell(spell_id=1221150, name="Collapsing Star",  icon="inv_12_dh_void_ability_collapsingstar.jpg")
+DEMONHUNTER_DEVOURER.add_buff(spell_id=1217607, name="Void Metamorphosis",  icon="inv_112_ability_demonhunter_metamorphasisvoid.jpg")
+DEMONHUNTER_DEVOURER.add_spell(         spell_id=1246167, cooldown=90,   duration=6,  color="#2075d6", name="The Hunt",        icon="inv_12_voiddh_ability_thehunt.jpg")
+DEMONHUNTER_DEVOURER.add_spell(         spell_id=473728, name="Void Ray",        icon="inv_12_dh_void_ability_voidray.jpg", show=False)
