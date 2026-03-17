@@ -8,6 +8,5 @@ CURRENT_SEASON.activate()
 
 
 __all__ = [
-    "ALL_SEASONS",
     "CURRENT_SEASON",
 ]
