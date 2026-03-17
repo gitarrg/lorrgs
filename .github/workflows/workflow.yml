@@ -17,7 +17,7 @@ jobs:
 
     steps:
       # Checkout the Code
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v5
 
       # Setup Python
       - uses: actions/setup-python@v5
@@ -28,7 +28,7 @@ jobs:
       - run: pip install -r requirements.txt
 
       # install Deploy Dependencies
-      - run: pip install boto3 requests
+      - run: pip install boto3 requests pillow
 
       # Update Images (old bucket)
       # - run: python scripts/load_images.py

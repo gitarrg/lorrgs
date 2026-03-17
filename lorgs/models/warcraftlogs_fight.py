@@ -145,8 +145,6 @@ class Fight(warcraftlogs_base.BaseModel):
         }
         name = name.format(**kwargs)
 
-        print("Name", name)
-
         phase = Phase(ts=ts, name=name, mrt=mrt)
         self.phases.append(phase)
         return phase
