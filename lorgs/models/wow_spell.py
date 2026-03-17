@@ -64,7 +64,7 @@ class SpellTag:
 class WowSpell(base.MemoryModel):
     """Container to define a spell."""
 
-    spell_variations: ClassVar[dict[(int, str), int]] = {}
+    spell_variations: ClassVar[dict[tuple[int, str], int]] = {}
     """Map to track spell variations and their "master"-spells.
         `[key: id of the variation] = id of the "master"-spell`
     """
@@ -190,7 +190,7 @@ class WowSpell(base.MemoryModel):
         # automatic mirror_events for buffs/debuffs
         if self.event_type in ("applybuff", "applydebuff"):
             event_type = self.event_type.replace("apply", "remove")
-            end = WowSpell(spell_id=self.spell_id, event_type=event_type, variations=self.variations)
+            end = self.model_copy(update={"event_type": event_type})
             return [self, end]
 
         return [self]

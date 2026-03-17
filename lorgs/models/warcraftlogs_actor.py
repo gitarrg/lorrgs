@@ -4,11 +4,10 @@ from __future__ import annotations
 import abc
 import textwrap
 import typing
-from typing import ClassVar, Optional
+from typing import ClassVar
 
 # IMPORT THIRD PARTY LIBRARIES
 import blinker
-import pydantic
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
@@ -34,7 +33,8 @@ class BaseActor(warcraftlogs_base.BaseModel):
     source_id: int = -1
     casts: list[Cast] = []
 
-    fight: Optional["Fight"] = pydantic.Field(exclude=True, default=None, repr=False)
+    # private storage to avoid Pydantic schema resolution
+    _fight: Fight | None = None
 
     # Events
     event_actor_load: ClassVar[blinker.Signal] = blinker.signal("actor.load")
@@ -44,6 +44,15 @@ class BaseActor(warcraftlogs_base.BaseModel):
     # Attributes
     #
     ############################################################################
+
+    @property
+    def fight(self) -> Fight | None:
+        """Parent fight (private storage to avoid Pydantic schema resolution)."""
+        return self._fight
+
+    @fight.setter
+    def fight(self, value: Fight) -> None:
+        self._fight = value
 
     @property
     def _has_source_id(self) -> bool:

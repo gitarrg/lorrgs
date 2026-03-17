@@ -127,7 +127,7 @@ async def get_zones():
 
 
 @router.get("/zones/{zone_id}", tags=["raids"])
-async def get_zone(zone_id: int):
+async def get_zone(zone_id: float):
     """Get a specific (raid-)Zone."""
     zone = RaidZone.get(id=zone_id)
     if not zone:
@@ -136,7 +136,7 @@ async def get_zone(zone_id: int):
 
 
 @router.get("/zones/{zone_id}/bosses", tags=["raids"])
-async def get_zone_bosses(zone_id: int):
+async def get_zone_bosses(zone_id: float):
     """Get all Bosses in a given Raid Zone."""
     zone = RaidZone.get(id=zone_id)
     if not zone:

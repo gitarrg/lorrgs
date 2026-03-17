@@ -1,13 +1,19 @@
 #!/usr/bin/env python
-"""Fetches spell icons from wowhead and uploads them to our S3 bucket."""
+"""Fetches spell icons from wowhead and uploads them to our S3 bucket.
+
+PYTHONPATH=. uv run scripts/load_images.py 
+
+"""
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
+import io
 import os
 
 # IMPORT THIRD PARTY LIBRARIES
 import boto3
 import requests
+from PIL import Image
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import data
@@ -44,6 +50,13 @@ def get_images(folder: str) -> list[str]:
     return images
 
 
+def convert_to_webp(data: bytes) -> bytes:
+    image = Image.open(io.BytesIO(data))
+    buffer = io.BytesIO()
+    image.save(buffer, format="webp")
+    return buffer.getvalue()
+
+
 def upload(filname: str) -> None:
     """Download an image from wowhead and upload it to S3.
 
@@ -56,11 +69,27 @@ def upload(filname: str) -> None:
     if not response:
         response.raise_for_status()
 
-    # Upload to S3
+    path = f"{FOLDER}{filname}"
+
+    # upload jpeg to S3
     BUCKET.put_object(
         Body=response.content,
-        Key=f"{FOLDER}{filname}",
+        Key=path,
         ContentType="image/jpeg",
+        CacheControl="public, max-age=31536000, immutable",
+    )
+
+    # convert jpeg to webp
+    webp_data = convert_to_webp(response.content)
+
+    basename, _ = os.path.splitext(filname)
+    webp_path = f"{FOLDER}{basename}.webp"
+
+    # upload webp to S3
+    BUCKET.put_object(
+        Body=webp_data,
+        Key=webp_path,
+        ContentType="image/webp",
         CacheControl="public, max-age=31536000, immutable",
     )
 
@@ -84,7 +113,7 @@ spell_types: set[type[WowSpell | RaidBoss | RaidZone]] = {
 
 
 # Retrieve all spells
-spells: list[WowSpell] = []
+spells: list[WowSpell | RaidBoss | RaidZone] = []
 for spell_type in spell_types:
     spells += spell_type.list()
 

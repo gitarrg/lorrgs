@@ -4,7 +4,6 @@ from __future__ import annotations
 import datetime
 import textwrap
 import typing
-from typing import Optional
 
 # IMPORT THIRD PARTY LIBRARIES
 import pydantic
@@ -42,7 +41,7 @@ class Fight(warcraftlogs_base.BaseModel):
     """fight duration in milliseconds."""
 
     players: list[Player] = []
-    boss: Optional[Boss] = None
+    boss: Boss | None = None
     phases: list[Phase] = []
 
     deaths: int = 0
@@ -52,7 +51,16 @@ class Fight(warcraftlogs_base.BaseModel):
     """boss percentage at the end of the fight."""
     kill: bool = True
 
-    report: typing.Optional["Report"] = pydantic.Field(default=None, exclude=True)
+    _report: Report | None = None
+
+    @property
+    def report(self) -> Report | None:
+        """Parent report (private storage to avoid Pydantic schema resolution)."""
+        return self._report
+
+    @report.setter
+    def report(self, value: Report | None) -> None:
+        self._report = value
 
     def post_init(self) -> None:
         actors = self.players + [self.boss]
@@ -235,7 +243,7 @@ class Fight(warcraftlogs_base.BaseModel):
     ############################################################################
     #   Load Player:
     #
-    async def load_actors(self, player_ids: typing.Optional[list[int]] = None):
+    async def load_actors(self, player_ids: list[int] | None = None):
         player_ids = player_ids or []
 
         if not self.players:

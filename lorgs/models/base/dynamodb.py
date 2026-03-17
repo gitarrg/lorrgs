@@ -48,7 +48,7 @@ class DynamoDBModel(base.BaseModel):
     #
 
     @classmethod
-    def get(cls: typing.Type[TBaseModel], **kwargs: typing.Any) -> typing.Optional[TBaseModel]:
+    def get(cls: typing.Type[TBaseModel], **kwargs: typing.Any) -> TBaseModel | None:
         table = cls.get_table()
         keys = cls.get_keys(**kwargs)
 
@@ -63,7 +63,7 @@ class DynamoDBModel(base.BaseModel):
             return cls(**item)
 
     @classmethod
-    def first(cls: typing.Type[TBaseModel], **kwargs: typing.Any) -> typing.Optional[TBaseModel]:
+    def first(cls: typing.Type[TBaseModel], **kwargs: typing.Any) -> TBaseModel | None:
         """Returns the first Item matching the given keywords."""
 
         table = cls.get_table()
