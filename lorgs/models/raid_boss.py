@@ -23,6 +23,9 @@ class Phase(WowSpell):
     if 0: trigger a new phase each time the event occurs
     """
 
+    offset: int = 0
+    """Offset the phase start time by the given number of seconds."""
+
 
 class RaidBoss(WowActor):
     """A raid boss in the Game."""

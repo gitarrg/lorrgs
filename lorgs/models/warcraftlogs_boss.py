@@ -8,7 +8,7 @@ import typing
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import wcl
 from lorgs.models import warcraftlogs_actor
-from lorgs.models.raid_boss import RaidBoss
+from lorgs.models.raid_boss import Phase, RaidBoss
 from lorgs.models.warcraftlogs_cast import Cast
 from lorgs.models.wow_spell import WowSpell
 
@@ -88,35 +88,32 @@ class Boss(warcraftlogs_actor.BaseActor):
 
         counters: dict[tuple[int, str], int] = defaultdict(int)
 
-        # lookup table for phase triggers based on (spell_id, event_type, count)
-        triggers = {(trigger.spell_id, trigger.event_type, trigger.count): trigger for trigger in self.raid_boss.phases}
+        # Ordered triggers per (spell_id, event_type). A dict on (spell_id, event_type, count)
+        # drops duplicates when the same signal is used for more than one phase.
+        phases_by_key: dict[tuple[int, str], list[Phase]] = defaultdict(list)
+        for phase in self.raid_boss.phases:
+            phases_by_key[(phase.spell_id, phase.event_type)].append(phase)
 
         for event in events:
+            key = (event.abilityGameID, event.type)
+            counters[key] += 1
+            count = counters[key]
 
-            counters[(event.abilityGameID, event.type)] += 1
-            count = counters[(event.abilityGameID, event.type)]
-
-            # check if this event triggers a new phase.
-            # key = [spellID, eventType, count], where count may be 0 if every occurrence
-            # triggers a new phase
-            trigger = triggers.get((event.abilityGameID, event.type, count)) or triggers.get((event.abilityGameID, event.type, 0))
-            if not trigger:
+            triggers = phases_by_key.get(key)
+            if not triggers:
                 continue
 
-            # if a trigger count is set, compare it to the event count
-            if trigger.count and count is not trigger.count:
-                continue
+            for trigger in triggers:
+                cast = Cast.from_report_event(event)
+                cast.timestamp -= self.fight.start_time_rel
+                cast.counter = count
 
-            cast = Cast.from_report_event(event)
-            cast.timestamp -= self.fight.start_time_rel
-            cast.counter = count
-
-            self.fight.add_phase(
-                ts=cast.timestamp,
-                name=trigger.name,
-                mrt=cast.mrt_trigger,
-                count=count,
-            )
+                self.fight.add_phase(
+                    ts=cast.timestamp + trigger.offset,
+                    name=trigger.name,
+                    mrt=cast.mrt_trigger,
+                    count=count,
+                )
 
     def process_events(self, events: list[wcl.ReportEvent]) -> list[wcl.ReportEvent]:
         self.process_phase_events(events)

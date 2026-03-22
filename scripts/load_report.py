@@ -5,12 +5,9 @@
 from urllib.parse import urlparse, parse_qs
 import argparse
 import asyncio
-import dotenv
 import re
 
 import pydantic
-
-dotenv.load_dotenv()  # pylint: disable=wrong-import-position
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import data  # pylint: disable=unused-import
