@@ -48,11 +48,17 @@ async def load_spec_rankings(
 
     # skip if updated recently
     if not clear:
-        print("ranking.updated", ranking.updated)
-        print("now", datetime.datetime.now(datetime.timezone.utc))
+        now = datetime.datetime.now(datetime.timezone.utc)
+        updated = ranking.updated
+        # Some persisted/initialized values may be offset-naive; treat them as UTC.
+        if updated.tzinfo is None:
+            updated = updated.replace(tzinfo=datetime.timezone.utc)
 
-        if ranking.updated > (datetime.datetime.now(datetime.timezone.utc) - datetime.timedelta(hours=2)):
-            return True, "already updated"
+        try:
+            if updated > (now - datetime.timedelta(hours=2)):
+                return True, "already updated"
+        except:
+            pass
 
     ################################
     # load and save
