@@ -29,7 +29,6 @@ MONK_WINDWALKER = WowSpec(role=MDPS, wow_class=MONK, name="Windwalker")
 ################################################################################
 # Spells
 #
-MONK.add_spell(           spell_id=387184, cooldown=120, duration=30, color=COL_KYR,   name="Weapons of Order",                icon="ability_bastion_monk.jpg",            show=False)
 MONK.add_spell(           spell_id=386276, cooldown=60,  duration=10, color=COL_NECRO, name="Bonedust Brew",                   icon="ability_maldraxxus_monk.jpg",         show=False)
 MONK.add_spell(           spell_id=327104, cooldown=30,  duration=30, color=COL_NF,    name="Faeline Stomp",                   icon="ability_ardenweald_monk.jpg",         show=False)
 
@@ -52,10 +51,10 @@ MONK_MISTWEAVER.add_buff(spell_id=197908,                             color="#22
 
 
 MONK_WINDWALKER.add_spell(spell_id=123904, cooldown=120, duration=24, color="#8cdbbc", name="Invoke Xuen, the White Tiger",    icon="ability_monk_summontigerstatue.jpg", tags=[SpellTag.DAMAGE])
-MONK_WINDWALKER.add_spell(spell_id=137639, cooldown=90,  duration=15, color="#be53db", name="Storm, Earth, and Fire",          icon="spell_nature_giftofthewild.jpg")
 MONK_WINDWALKER.add_spell(spell_id=122470, cooldown=90,  duration=10, color="#8afbff", name="Touch of Karma",                  icon="ability_monk_touchofkarma.jpg", show=False)
 MONK_WINDWALKER.add_spell(spell_id=152173, cooldown=90,  duration=12,                    name="Serenity"      ,                  icon="ability_monk_serenity.jpg", show=False)
 MONK_WINDWALKER.add_spell(spell_id=392983, cooldown=40,  duration=6,                     name="Strike of the Windlord",                  icon="inv_hand_1h_artifactskywall_d_01.jpg", show=False)
+MONK_WINDWALKER.add_spell(spell_id=124962, cooldown=90,  duration=15, color="#3DC280", name="Zenith",                          icon="inv_ability_monk_weaponsoforder.jpg")
 
 
 MONK_BREWMASTER.add_spell(spell_id=322507, cooldown=60,  duration=0,  color="#45f9ff", name="Celestial Brew",                  icon="ability_monk_ironskinbrew.jpg",        show=False)
@@ -64,19 +63,6 @@ MONK_BREWMASTER.add_spell(spell_id=115176, cooldown=300, duration=8,            
 MONK_BREWMASTER.add_spell(spell_id=115203, cooldown=360, duration=15, color="#ffb145", name="Fortifying Brew",                 icon="ability_monk_fortifyingale_new.jpg", tags=[SpellTag.DEFENSIVE])
 MONK_BREWMASTER.add_spell(spell_id=325153, cooldown=60,  duration=3,  color="#cc5a89", name="Exploding Keg",                 icon="archaeology_5_0_emptykegofbrewfatherxinwoyin.jpg")
 MONK_BREWMASTER.add_spell(spell_id=1241059, cooldown=45,              color="#dd422d", name="Celestial Infusion",                 icon="ability_monk_tigereyebrandy.jpg")
-
-
-CracklingJadeLightning = WowSpell(
-    spell_id=117952,
-    name="Crackling Jade Lightning",
-    color="#8dd6a3",
-    duration=4,
-    icon="ability_monk_cracklingjadelightning.jpg",
-    show=False,
-    spell_type=MONK.name_slug,
-)
-MONK_MISTWEAVER.add_spell(CracklingJadeLightning)
-MONK_WINDWALKER.add_spell(CracklingJadeLightning)
 
 
 # Hero Talents
