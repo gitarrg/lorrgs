@@ -1,4 +1,4 @@
-"""Define the Shaman Class its Specs and Spells."""
+# """Define the Shaman Class its Specs and Spells."""
 
 # pylint: disable=line-too-long
 # pylint: disable=bad-whitespace
@@ -8,7 +8,7 @@
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.data.constants import *
-from lorgs.data.roles import *
+from lorgs.data.roles import HEAL, MDPS, RDPS
 from lorgs.models import warcraftlogs_actor
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_spec import WowSpec
@@ -52,31 +52,38 @@ SHAMAN_ENHANCEMENT.add_spell(  spell_id=114051, cooldown=10, duration=15, color=
 
 SHAMAN_RESTORATION.add_spell(  spell_id=108280, cooldown=180, duration=10,                    name="Healing Tide Totem",         icon="ability_shaman_healingtide.jpg", tags=[SpellTag.RAID_CD])
 SHAMAN_RESTORATION.add_spell(  spell_id=98008,  cooldown=180, duration=6,  color="#24b385", name="Spirit Link Totem",          icon="spell_shaman_spiritlink.jpg", tags=[SpellTag.RAID_CD])
-SHAMAN_RESTORATION.add_spell(  spell_id=114052, cooldown=180, duration=30, color="#ffcb6b", name="Ascendance",                 icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.RAID_CD])
-
+RESTO_ASCENDANCE = SHAMAN_RESTORATION.add_spell(spell_id=114052, cooldown=180, duration=30, color="#ffcb6b", name="Ascendance", icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.RAID_CD])
 
 # we need to query both: casts and buffs to be able to split DRE procs
-DRE = SHAMAN.add_buff(spell_id=378270, color="#ffcb6b", name="Deeply Rooted Elements", icon="inv_misc_herb_liferoot_stem.jpg", show=False)
-DRE.add_variation(114052, "applybuff")  # Resto
-DRE.add_variation(1219480, "applybuff")  # Elemental
+DRE = SHAMAN_RESTORATION.add_buff(spell_id=378270, color="#ffcb6b", name="Deeply Rooted Elements", icon="inv_misc_herb_liferoot_stem.jpg", show=False, query=False)
+SHAMAN_RESTORATION.add_buff(RESTO_ASCENDANCE)
 
 
 def remove_buffs_from_casts(
         actor: warcraftlogs_actor.BaseActor,
         cast_spell_ids: set[int],
         buff_spell_ids: set[int],
+        proc_spell_id: int,
         tolerance = 500, # ms
     ):
+    for cast in actor.casts:
+        print(cast, cast.event_type)
+
     casts = [cast for cast in actor.casts if cast.spell_id in cast_spell_ids and cast.event_type == "cast"]
     buffs = [cast for cast in actor.casts if cast.spell_id in buff_spell_ids and cast.event_type == "applybuff"]
+
     if not casts and buffs:
         return
 
     # filter out Buffs triggered by casts
     for buff in buffs:
         closest = min(casts, key=lambda c: abs(c.timestamp - buff.timestamp))
-        if abs(buff.timestamp - closest.timestamp) < tolerance:
+        diff = abs(buff.timestamp - closest.timestamp)
+        if diff < tolerance:
             buff.spell_id = -1
+        else:
+            buff.spell_id = proc_spell_id
+    
     actor.casts = [cast for cast in actor.casts if cast.spell_id > 0]
 
 
@@ -86,9 +93,14 @@ def split_ascendance_procs(actor: warcraftlogs_actor.BaseActor, status: str):
     if not actor:
         return
     
-    ascendance_casts = {114050, 114052}
-    ascendance_buffs = {378270}
-    remove_buffs_from_casts(actor, ascendance_casts, ascendance_buffs)
+    ascendance_casts = {RESTO_ASCENDANCE.spell_id, }
+    ascendance_buffs = {RESTO_ASCENDANCE.spell_id, }
+    remove_buffs_from_casts(
+        actor,
+        ascendance_casts,
+        ascendance_buffs,
+        DRE.spell_id
+    )
 
 
 def clip_ascendance_procs(actor: warcraftlogs_actor.BaseActor, status: str):
@@ -99,17 +111,3 @@ def clip_ascendance_procs(actor: warcraftlogs_actor.BaseActor, status: str):
 
 warcraftlogs_actor.BaseActor.event_actor_load.connect(split_ascendance_procs)
 warcraftlogs_actor.BaseActor.event_actor_load.connect(clip_ascendance_procs)
-
-
-################################################################################
-# Hero Talents
-
-AncestralSwiftness = WowSpell(
-    spell_id=443454, name="Ancestral Swiftness",
-    cooldown=30, duration=4, color="#1e7ed8",
-    icon="inv_ability_farseershaman_ancestralswiftness.jpg",
-    show=False,
-    spell_type=SHAMAN.name_slug,
-)
-SHAMAN_ELEMENTAL.add_spell(AncestralSwiftness)
-SHAMAN_RESTORATION.add_spell(AncestralSwiftness)
