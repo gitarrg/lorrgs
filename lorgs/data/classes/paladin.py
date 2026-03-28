@@ -22,9 +22,9 @@ PALADIN = WowClass(id=2, name="Paladin", color="#F48CBA")
 ################################################################################
 # Specs
 #
-PALADIN_HOLY        = WowSpec(role=HEAL, wow_class=PALADIN, name="Holy")
-PALADIN_PROTECTION  = WowSpec(role=TANK, wow_class=PALADIN, name="Protection",  short_name="Prot")
-PALADIN_RETRIBUTION = WowSpec(role=MDPS, wow_class=PALADIN, name="Retribution", short_name="Ret")
+PALADIN_HOLY        = WowSpec(id=65, role=HEAL, wow_class=PALADIN, name="Holy")
+PALADIN_PROTECTION  = WowSpec(id=66, role=TANK, wow_class=PALADIN, name="Protection",  short_name="Prot")
+PALADIN_RETRIBUTION = WowSpec(id=70, role=MDPS, wow_class=PALADIN, name="Retribution", short_name="Ret")
 
 ################################################################################
 # Spells

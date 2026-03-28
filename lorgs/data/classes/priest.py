@@ -23,9 +23,9 @@ PRIEST = WowClass(id=5, name="Priest", color="#FFFFFF")
 ########################################################################################################################
 # Specs
 #
-PRIEST_DISCIPLINE = WowSpec(role=HEAL, wow_class=PRIEST, name="Discipline", short_name="Disc")
-PRIEST_HOLY       = WowSpec(role=HEAL, wow_class=PRIEST, name="Holy")
-PRIEST_SHADOW     = WowSpec(role=RDPS, wow_class=PRIEST, name="Shadow")
+PRIEST_DISCIPLINE = WowSpec(id=256, role=HEAL, wow_class=PRIEST, name="Discipline", short_name="Disc")
+PRIEST_HOLY       = WowSpec(id=257, role=HEAL, wow_class=PRIEST, name="Holy")
+PRIEST_SHADOW     = WowSpec(id=258, role=RDPS, wow_class=PRIEST, name="Shadow")
 
 ################################################################################
 # Class

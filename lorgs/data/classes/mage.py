@@ -22,9 +22,9 @@ MAGE = WowClass(id=8, name="Mage", color="#3FC7EB")
 ################################################################################
 # Specs
 #
-MAGE_ARCANE = WowSpec(role=RDPS, wow_class=MAGE, name="Arcane")
-MAGE_FIRE   = WowSpec(role=RDPS, wow_class=MAGE, name="Fire")
-MAGE_FROST  = WowSpec(role=RDPS, wow_class=MAGE, name="Frost")
+MAGE_ARCANE = WowSpec(id=62, role=RDPS, wow_class=MAGE, name="Arcane")
+MAGE_FIRE   = WowSpec(id=63, role=RDPS, wow_class=MAGE, name="Fire")
+MAGE_FROST  = WowSpec(id=64, role=RDPS, wow_class=MAGE, name="Frost")
 
 ################################################################################
 # Spells

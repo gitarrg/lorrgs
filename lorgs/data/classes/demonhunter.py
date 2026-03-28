@@ -22,9 +22,9 @@ DEMONHUNTER  = WowClass(id=12, name="Demon Hunter",  color="#A330C9")
 ################################################################################
 # Specs
 #
-DEMONHUNTER_HAVOC     = WowSpec(role=MDPS, wow_class=DEMONHUNTER, name="Havoc")
-DEMONHUNTER_VENGEANCE = WowSpec(role=TANK, wow_class=DEMONHUNTER, name="Vengeance")
-DEMONHUNTER_DEVOURER  = WowSpec(role=RDPS, wow_class=DEMONHUNTER, name="Devourer")
+DEMONHUNTER_HAVOC     = WowSpec(id=577, role=MDPS, wow_class=DEMONHUNTER, name="Havoc")
+DEMONHUNTER_VENGEANCE = WowSpec(id=581, role=TANK, wow_class=DEMONHUNTER, name="Vengeance")
+DEMONHUNTER_DEVOURER  = WowSpec(id=1480, role=RDPS, wow_class=DEMONHUNTER, name="Devourer")
 
 ################################################################################
 # Spells

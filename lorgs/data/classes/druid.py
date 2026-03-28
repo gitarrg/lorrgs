@@ -23,10 +23,10 @@ DRUID = WowClass(id=11, name="Druid", color="#FF7C0A")
 ################################################################################
 # Specs
 #
-DRUID_BALANCE     = WowSpec(role=RDPS, wow_class=DRUID, name="Balance")
-DRUID_FERAL       = WowSpec(role=MDPS, wow_class=DRUID, name="Feral")
-DRUID_GUARDIAN    = WowSpec(role=TANK, wow_class=DRUID, name="Guardian")
-DRUID_RESTORATION = WowSpec(role=HEAL, wow_class=DRUID, name="Restoration", short_name="Resto")
+DRUID_BALANCE     = WowSpec(id=102, role=RDPS, wow_class=DRUID, name="Balance")
+DRUID_FERAL       = WowSpec(id=103, role=MDPS, wow_class=DRUID, name="Feral")
+DRUID_GUARDIAN    = WowSpec(id=104, role=TANK, wow_class=DRUID, name="Guardian")
+DRUID_RESTORATION = WowSpec(id=105, role=HEAL, wow_class=DRUID, name="Restoration")
 
 ################################################################################
 # Spells

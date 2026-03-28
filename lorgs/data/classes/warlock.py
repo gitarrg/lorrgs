@@ -22,9 +22,9 @@ WARLOCK = WowClass(id=9, name="Warlock", color="#8788EE")
 ################################################################################
 # Specs
 #
-WARLOCK_AFFLICTION  = WowSpec(role=RDPS, wow_class=WARLOCK, name="Affliction",  short_name="Aff")
-WARLOCK_DEMONOLOGY  = WowSpec(role=RDPS, wow_class=WARLOCK, name="Demonology",  short_name="Demo")
-WARLOCK_DESTRUCTION = WowSpec(role=RDPS, wow_class=WARLOCK, name="Destruction", short_name="Destro")
+WARLOCK_AFFLICTION  = WowSpec(id=265, role=RDPS, wow_class=WARLOCK, name="Affliction",  short_name="Aff")
+WARLOCK_DEMONOLOGY  = WowSpec(id=266, role=RDPS, wow_class=WARLOCK, name="Demonology",  short_name="Demo")
+WARLOCK_DESTRUCTION = WowSpec(id=267, role=RDPS, wow_class=WARLOCK, name="Destruction", short_name="Destro")
 
 ################################################################################
 # Spells

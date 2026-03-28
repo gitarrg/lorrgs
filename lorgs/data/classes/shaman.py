@@ -23,9 +23,9 @@ SHAMAN = WowClass(id=7, name="Shaman", color="#0070DD")
 ################################################################################
 # Specs
 #
-SHAMAN_ELEMENTAL   = WowSpec(role=RDPS, wow_class=SHAMAN, name="Elemental")
-SHAMAN_ENHANCEMENT = WowSpec(role=MDPS, wow_class=SHAMAN, name="Enhancement")
-SHAMAN_RESTORATION = WowSpec(role=HEAL, wow_class=SHAMAN, name="Restoration",   short_name="Resto")
+SHAMAN_ELEMENTAL   = WowSpec(id=262, role=RDPS, wow_class=SHAMAN, name="Elemental")
+SHAMAN_ENHANCEMENT = WowSpec(id=263, role=MDPS, wow_class=SHAMAN, name="Enhancement")
+SHAMAN_RESTORATION = WowSpec(id=264, role=HEAL, wow_class=SHAMAN, name="Restoration",   short_name="Resto")
 
 ################################################################################
 # Spells

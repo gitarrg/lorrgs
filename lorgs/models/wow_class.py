@@ -51,7 +51,8 @@ class WowClass(WowActor):
         return {
             "name": self.name,
             "name_slug": self.name_slug,
-            "specs": [spec.full_name_slug for spec in self.specs],
+            "specs": [spec.full_name_slug for spec in sorted(self.specs)],
+            "spec_ids": [spec.id for spec in self.specs],
             "color": self.color,
         }
 

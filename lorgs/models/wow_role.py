@@ -38,10 +38,12 @@ class WowRole(base.MemoryModel):
         return self.id < other.id
 
     def as_dict(self) -> dict[str, typing.Any]:
+        specs_sorted = sorted(self.specs)
         return {
             "id": self.id,
             "name": self.name,
             "code": self.code,
-            "specs": [spec.full_name_slug for spec in self.specs],
+            "specs": [spec.full_name_slug for spec in specs_sorted],
+            "spec_ids": [spec.id for spec in specs_sorted],
             "metrics": self.metrics,
         }

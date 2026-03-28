@@ -15,6 +15,10 @@ from lorgs.models.wow_spell import WowSpell
 class WowSpec(WowActor):
     """docstring for Spec"""
 
+    id: int | None = None
+    """Blizzard specialization id (ChrSpecialization.ID).
+    None for utility specs (e.g. Other)."""
+
     name: str
 
     role: "WowRole"
@@ -59,6 +63,7 @@ class WowSpec(WowActor):
 
     def as_dict(self) -> dict[str, typing.Any]:
         return {
+            "id": self.id,
             "name": self.name,
             "full_name": self.full_name,
             "full_name_slug": self.full_name_slug,

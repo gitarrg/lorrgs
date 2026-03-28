@@ -28,9 +28,9 @@ EVOKER = WowClass(id=13, name="Evoker", color="#33937F")
 ################################################################################
 # Specs
 #
-EVOKER_DEVASTATION = WowSpec(role=RDPS, wow_class=EVOKER, name="Devastation")
-EVOKER_PRESERVATION = WowSpec(role=HEAL, wow_class=EVOKER, name="Preservation")
-EVOKER_AUGMENTATION = WowSpec(role=RDPS, wow_class=EVOKER, name="Augmentation")
+EVOKER_DEVASTATION = WowSpec(id=1467, role=RDPS, wow_class=EVOKER, name="Devastation")
+EVOKER_PRESERVATION = WowSpec(id=1468, role=HEAL, wow_class=EVOKER, name="Preservation")
+EVOKER_AUGMENTATION = WowSpec(id=1473, role=RDPS, wow_class=EVOKER, name="Augmentation")
 
 
 ################################################################################
