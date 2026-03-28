@@ -39,10 +39,10 @@ EVOKER_AUGMENTATION = WowSpec(id=1473, role=RDPS, wow_class=EVOKER, name="Augmen
 
 # Defensives
 EVOKER.add_spell(spell_id=363916, name="Obsidian Scales",    cooldown=150, duration=12, color=COLOR_BLACK,  icon="inv_artifact_dragonscales.jpg", tags=[SpellTag.DEFENSIVE], show=False)
-EVOKER.add_spell(spell_id=374348, name="Renewing Blaze",     cooldown=150, duration=8,  color=COLOR_RED,    icon="ability_evoker_masterylifebinder_red.jpg", tags=[SpellTag.DEFENSIVE], show=False)
 EVOKER.add_spell(spell_id=370553, name="Tip the Scales",     cooldown=120,              color=COLOR_BRONZE, icon="ability_evoker_tipthescales.jpg", show=False)
 EVOKER.add_spell(spell_id=374227, name="Zephyr",             cooldown=120, duration=8,  color="#d6b969",    icon="ability_evoker_hoverblack.jpg", tags=[SpellTag.RAID_CD], show=False)
 EVOKER.add_spell(spell_id=374968, name="Time Spiral",        cooldown=120, duration=10, color="#c4d669",    icon="ability_evoker_timespiral.jpg", tags=[SpellTag.RAID_CD, SpellTag.MOVE], show=False)
+EVOKER.add_spell(spell_id=406732, name="Spatial Paradox",    cooldown=120, duration=10,                    icon="ability_evoker_stretchtime.jpg", show=False, tags=[SpellTag.MOVE])
 EVOKER.add_spell(spell_id=370665, name="Rescue",             cooldown=60,               color="#8bc1ff",  icon="ability_evoker_flywithme.jpg", show=False, tags=[SpellTag.MOVE])
 
 
@@ -62,7 +62,6 @@ EVOKER_DEVASTATION.add_spell(spell_id=382411, name="Eternity Surge", cooldown=30
 EVOKER_PRESERVATION.add_spell(spell_id=370960, name="Emerald Communion",  cooldown=180, duration=5,                      icon="ability_evoker_green_01.jpg", tags=[SpellTag.RAID_CD])
 EVOKER_PRESERVATION.add_spell(spell_id=363534, name="Rewind",             cooldown=180,              color=COLOR_BRONZE, icon="ability_evoker_rewind.jpg", tags=[SpellTag.RAID_CD])
 EVOKER_PRESERVATION.add_spell(spell_id=359816, name="Dreamflight",        cooldown=120, duration=15, color="#33a36d",    icon="ability_evoker_dreamflight.jpg", tags=[SpellTag.RAID_CD])
-EVOKER_PRESERVATION.add_spell(spell_id=443328, name="Engulf",             cooldown=30,               color="#dd405a",  icon="inv_ability_flameshaperevoker_engulf.jpg", show=False)
 EVOKER_PRESERVATION.add_spell(spell_id=355936, name="Dream Breath",       cooldown=30,               color="#59ebb3",  icon="ability_evoker_dreambreath.jpg", show=False)
 STASIS_CHARGE = EVOKER_PRESERVATION.add_spell(spell_id=370537, name="Stasis", cooldown=90, color=COLOR_BRONZE, icon="ability_evoker_stasis.jpg", tags=[SpellTag.RAID_CD])
 STASIS_RELEASE = EVOKER_PRESERVATION.add_spell(spell_id=370564, name="Stasis Pop", icon=STASIS_CHARGE.icon, show=False)
@@ -71,8 +70,6 @@ STASIS_RELEASE = EVOKER_PRESERVATION.add_spell(spell_id=370564, name="Stasis Pop
 EVOKER_AUGMENTATION.add_buff( spell_id=395296, name="Ebon Might Buff",                            color="#bf8330", icon="spell_sarkareth.jpg", show=False)
 EVOKER_AUGMENTATION.add_spell(spell_id=403631, name="Breath of Eons",  cooldown=120, duration=12, color="#e4e267", icon="ability_evoker_breathofeons.jpg", tags=[SpellTag.DAMAGE], variations=[442204])
 EVOKER_AUGMENTATION.add_spell(spell_id=404977, name="Time Skip",       cooldown=180,              color="#e8bf46", icon="ability_evoker_timeskip.jpg")
-EVOKER_AUGMENTATION.add_spell(spell_id=406732, name="Spatial Paradox", cooldown=120, duration=10,                    icon="ability_evoker_stretchtime.jpg", show=False, tags=[SpellTag.MOVE])
-
 
 
 def calculate_stasis_duration(actor: warcraftlogs_actor.BaseActor, status: str) -> None:
@@ -113,7 +110,6 @@ warcraftlogs_actor.BaseActor.event_actor_load.connect(calculate_stasis_duration)
 
 # list[int]: Spells that are able to be stores in Stasis
 STATIS_SPELLS = [
-    443328, # Engulf
     355936, # Dream Breath
 ]
 
