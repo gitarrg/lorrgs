@@ -36,12 +36,10 @@ DRUID.add_spell(             spell_id=391528, cooldown=60,  duration=4,  color=C
 
 # Utils
 DRUID.add_spell(             spell_id=106898, cooldown=120, duration=8,                   name="Stampeding Roar",                icon="spell_druid_stampedingroar_cat.jpg",        show=False, variations=[77764, 77761], tags=[SpellTag.MOVE])
-DRUID.add_spell(             spell_id=124974, cooldown=90,  duration=30,                  name="Nature's Vigil",                 icon="achievement_zone_feralas.jpg",              show=False)
-
 
 # Defensives
-DRUID.add_spell(             spell_id=22812, cooldown=60, duration=12, name="Barkskin",                icon="spell_nature_stoneclawtotem.jpg",              show=False, tags=[SpellTag.DEFENSIVE])
-DRUID.add_spell(             spell_id=108238, cooldown=90,             name="Renewal",                 icon="spell_nature_natureblessing.jpg",              show=False, tags=[SpellTag.DEFENSIVE])
+DRUID.add_spell(             spell_id=22812, cooldown=60, duration=8, name="Barkskin",                icon="spell_nature_stoneclawtotem.jpg",              show=False, tags=[SpellTag.DEFENSIVE])
+
 
 BEAR_FORM = WowSpell(spell_id=5487, name="Bear Form", icon="ability_racial_bearform.jpg", show=False, event_type="applybuff", tags=[SpellTag.DEFENSIVE])
 BEAR_FORM.spell_type = DRUID.name_slug
@@ -49,6 +47,7 @@ BEAR_FORM.color = DRUID.color
 DRUID_BALANCE.add_buff(BEAR_FORM)
 DRUID_FERAL.add_buff(BEAR_FORM)
 DRUID_RESTORATION.add_buff(BEAR_FORM)
+
 
 SURVIVAL_INSTINCTS = WowSpell(spell_id=61336,  cooldown=180, duration=6,                   name="Survival Instincts",             icon="ability_druid_tigersroar.jpg", tags=[SpellTag.DEFENSIVE])
 SURVIVAL_INSTINCTS.spell_type = DRUID.name_slug
