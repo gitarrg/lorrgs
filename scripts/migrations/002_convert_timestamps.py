@@ -8,10 +8,6 @@ import arrow
 import mongoengine as me
 from lorgs.lib import mongoengine_arrow
 
-import dotenv
-dotenv.load_dotenv() # pylint: disable=wrong-import-position
-# os.environ["MONGO_URI"] = os.getenv("MONGO_URI_PROD") # pylint: disable=wrong-import-position
-
 from lorgs import data
 from lorgs import db
 # from lorgs.models import warcraftlogs_ranking

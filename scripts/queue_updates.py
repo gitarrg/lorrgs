@@ -1,8 +1,13 @@
 #!/usr/bin/env python
 
-import dotenv
+"""
+PYTHONPATH=. uv run --env-file=.env scripts/queue_updates.py
 
-dotenv.load_dotenv()
+
+
+
+"""
+
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
@@ -12,7 +17,20 @@ from lorgs.models.wow_spec import WowSpec
 from lorgs.models.raid_boss import RaidBoss
 
 from lorgs.data.season import CURRENT_SEASON
-from lorgs.data.expansions.the_war_within.raids.manaforge_omaga import MANAFORGE_OMEGA
+from lorgs.data.expansions.midnight.raids import (
+    VOIDSPIRE,
+    DREAMRIFT,
+    MARCH_ON_QUALDANAS,
+)
+
+from lorgs.data.expansions.midnight.raids.voidspire import (
+    AVERZIAN,
+    FALLEN_KING_SALHADAAR,
+    LIGHTBLINDED_VANGUARD,
+    VORASIUS,
+    VAELGOR_EZZORAK,
+    CROWN_OF_THE_COSMOS,
+)
 
 
 def load_remote(
@@ -66,16 +84,16 @@ def load_local(
 
 def load_spec_rankings() -> None:
     bosses = [
-        # BLOODBOUND_HORROR
-        # ANSUREK,
-        # OVINAX,
-        # ULGRAX,
+        *VOIDSPIRE.bosses,
+        *DREAMRIFT.bosses,
+        # *MARCH_ON_QUALDANAS.bosses,
+        #' CROWN_OF_THE_COSMOS,
     ]
-    bosses = MANAFORGE_OMEGA.bosses
 
-    specs = [
+    specs: list[WowSpec] = [
+        MONK_WINDWALKER,
         # DRUID_BALANCE,
-        SHAMAN_ELEMENTAL,
+        # SHAMAN_ELEMENTAL,
         # SHAMAN_RESTORATION,
         # MONK_MISTWEAVER,
         # WARLOCK_DESTRUCTION,
@@ -102,9 +120,9 @@ def load_spec_rankings() -> None:
         # *RDPS.specs,
     ]
     # specs = ALL_SPECS
-    # specs = DPS.specs
+    # specs = HEAL.specs
 
-    load = load_remote
+    # load = load_remote
     load = load_local
 
     for spec in specs:
@@ -116,7 +134,7 @@ def load_spec_rankings() -> None:
                 spec,
                 boss,
                 clear=True,
-                difficulty="mythic",
+                difficulty="heroic",
                 metric="dps",
             )
 
@@ -131,5 +149,19 @@ def load_comp_ranking(boss_slug: str = "all"):
 
 
 if __name__ == "__main__":
-    load_spec_rankings()
+    # load_spec_rankings()
+
+    # load_remote()
     # load_comp_ranking()
+
+    payload = {
+        "task": "load_spec_rankings",
+        "spec_slug": "all",
+        "boss_slug": "all",
+        "difficulty": "mythic",
+        "metric": "all",
+        "limit": 25,
+        "clear": False,
+    }
+    print("q", payload)
+    sqs.send_message(payload=payload)

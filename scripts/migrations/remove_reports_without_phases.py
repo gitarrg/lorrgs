@@ -8,14 +8,11 @@
 
 
 import asyncio
-import dotenv
 import logging
 
 from lorgs.data.season import CURRENT_SEASON
 from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_report import Report
-
-dotenv.load_dotenv()
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs

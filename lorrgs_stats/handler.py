@@ -7,12 +7,6 @@ import aiohttp
 from lorgs.clients import wcl
 from lorgs.logger import timeit
 
-
-if __name__ == "__main__":
-    import dotenv
-
-    dotenv.load_dotenv()
-
 GRAFANA_URL = os.getenv("GRAFANA_URL") or ""
 GRAFANA_APIKEY = os.getenv("GRAFANA_APIKEY") or ""
 
