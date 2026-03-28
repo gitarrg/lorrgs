@@ -45,4 +45,4 @@ HUNTER_MARKSMANSHIP.add_spell( spell_id=260243, cooldown=45,  duration=6, color=
 
 HUNTER_SURVIVAL.add_spell(     spell_id=1250646, cooldown=90, duration=8, color="hsl(25, 60%, 50%)", name="Takedown", icon="inv12_ability_hunter_takedown.jpg")
 HUNTER_SURVIVAL.add_spell(     spell_id=1261193, cooldown=60, duration=3, color="hsl(40, 40%, 70%)", name="Boomstick", icon="inv_musket_04.jpg")
-HUNTER_SURVIVAL.add_spell(     spell_id=186289, cooldown=90,  duration=15,                  name="Aspect of the Eagle", icon="spell_hunter_aspectoftheironhawk.jpg", show=False)
+HUNTER_SURVIVAL.add_spell(     spell_id=186289,  cooldown=90, duration=15,                  name="Aspect of the Eagle", icon="spell_hunter_aspectoftheironhawk.jpg")
