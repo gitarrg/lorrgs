@@ -47,7 +47,9 @@ SHAMAN_ELEMENTAL.add_spell(    spell_id=114050,               duration=15, color
 
 
 SHAMAN_ENHANCEMENT.add_spell(  spell_id=384352, cooldown=60,  duration=8,  color="#42bff5", name="Doom Winds",                 icon="ability_ironmaidens_swirlingvortex.jpg")
-SHAMAN_ENHANCEMENT.add_spell(  spell_id=114051, cooldown=10, duration=15, color="#ffcb6b", name="Ascendance",                 icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.DAMAGE])
+SHAMAN_ENHANCEMENT.add_spell(  spell_id=114051, cooldown=10, duration=15,  color="#ffcb6b", name="Ascendance",                 icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.DAMAGE])
+SHAMAN_ENHANCEMENT.add_spell(  spell_id=197214, cooldown=30,               color="hsl(10 80% 70%)", name="Sundering",          icon="ability_rhyolith_lavapool.jpg", show=False)
+SHAMAN_ENHANCEMENT.add_spell(  spell_id=1218090,                           color="hsl(180 60% 60%)", name="Primordial Storm",  icon="ability_shaman_ascendance.jpg", show=False)
 
 
 SHAMAN_RESTORATION.add_spell(  spell_id=108280, cooldown=180, duration=10,                    name="Healing Tide Totem",         icon="ability_shaman_healingtide.jpg", tags=[SpellTag.RAID_CD])
