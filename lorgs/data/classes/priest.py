@@ -40,6 +40,7 @@ PRIEST_DISCIPLINE.add_spell(   spell_id=421453, cooldown=240, duration=6,  color
 PRIEST_HOLY.add_spell(         spell_id=64843,  cooldown=180, duration=8, color="#d7abdb",  name="Divine Hymn",           icon="spell_holy_divinehymn.jpg", tags=[SpellTag.RAID_CD])
 PRIEST_HOLY.add_spell(         spell_id=200183, cooldown=120, duration=20,                  name="Apotheosis",            icon="ability_priest_ascension.jpg",    show=False, tags=[SpellTag.RAID_CD])
 PRIEST_HOLY.add_buff(          spell_id=27827,                             color="#82eeff", name="Spirit of Redemption",  icon="inv_enchant_essenceeternallarge.jpg",    show=True)
+PRIEST_HOLY.add_spell(         spell_id=120517, cooldown=60,                                  name="Halo",                   icon="ability_priest_halo.jpg", show=False)
 
 PRIEST_SHADOW.add_spell(       spell_id=228260, cooldown=120, duration=15, color="#b330e3", name="Voidform",              icon="spell_priest_void-blast.jpg", tags=[SpellTag.DAMAGE])  # tooltip: 228264
 PRIEST_SHADOW.add_spell(       spell_id=263165, cooldown=30,  duration=3,                   name="Void Torrent",          icon="spell_priest_voidsear.jpg",       show=False)
