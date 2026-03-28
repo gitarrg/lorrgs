@@ -76,6 +76,8 @@ class WowActor(base.MemoryModel):
             kwargs.setdefault("event_type", "applybuff")
             kwargs.setdefault("spell_type", self.full_name_slug)
             spell = WowSpell(**kwargs)
+        else:
+            spell = spell.model_copy(update={"event_type": "applybuff"})
 
         self.buffs.append(spell)
         return spell

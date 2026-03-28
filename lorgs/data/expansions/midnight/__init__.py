@@ -5,6 +5,8 @@ from .raids import VOIDSPIRE
 from .raids import DREAMRIFT
 from .raids import MARCH_ON_QUALDANAS
 
+from .consumables import MIDNIGHT_CONSUMABLES
+
 # Seasons
 from .seasons import MIDNIGHT_SEASON1
 
@@ -14,4 +16,5 @@ __all__ = [
     "DREAMRIFT",
     "MARCH_ON_QUALDANAS",
     "MIDNIGHT_SEASON1",
+    "MIDNIGHT_CONSUMABLES",
 ]

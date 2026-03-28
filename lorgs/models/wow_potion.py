@@ -9,3 +9,7 @@ class WowPotion(wow_item.WowItem):
     spell_type: str = SpellType.POTION
 
     cooldown: int = 300  # default cooldown for all potions
+
+
+    ilvl: int = 0
+    bonus_ids: list[str] = []
