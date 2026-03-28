@@ -41,8 +41,10 @@ MONK_MISTWEAVER.add_spell(spell_id=116680, cooldown=30,               color="#22
 MONK_MISTWEAVER.add_spell(spell_id=443028, cooldown=90,  duration=4,  color="#72d81e", name="Celestial Conduit",     icon="inv_ability_conduitofthecelestialsmonk_celestialconduit.jpg", show=False)
 
 
-MONK_WINDWALKER.add_spell(spell_id=122470, cooldown=90,  duration=10, color="#8afbff", name="Touch of Karma",                  icon="ability_monk_touchofkarma.jpg", show=False)
+MONK_WINDWALKER.add_spell(spell_id=123904, cooldown=120, duration=24, color="#8cdbbc", name="Invoke Xuen, the White Tiger",    icon="ability_monk_summontigerstatue.jpg", tags=[SpellTag.DAMAGE])
 MONK_WINDWALKER.add_spell(spell_id=1249625, cooldown=90,  duration=15, color="#3DC280", name="Zenith",                          icon="inv_ability_monk_weaponsoforder.jpg")
+MONK_WINDWALKER.add_spell(spell_id=392983, cooldown=40,  duration=6,                     name="Strike of the Windlord",                  icon="inv_hand_1h_artifactskywall_d_01.jpg", show=False)
+MONK_WINDWALKER.add_spell(spell_id=122470, cooldown=90,  duration=10, color="#8afbff", name="Touch of Karma",                  icon="ability_monk_touchofkarma.jpg", show=False)
 
 
 MONK_BREWMASTER.add_spell(spell_id=322507, cooldown=60,  duration=0,  color="#45f9ff", name="Celestial Brew",                  icon="ability_monk_ironskinbrew.jpg",        show=False)
