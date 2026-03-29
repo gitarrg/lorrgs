@@ -22,9 +22,9 @@ DEATHKNIGHT = WowClass(id=6, name="Death Knight", color="#C41E3A")
 ################################################################################
 # Specs
 #
-DEATHKNIGHT_BLOOD  = WowSpec(id=250, role=TANK, wow_class=DEATHKNIGHT, name="Blood")
-DEATHKNIGHT_FROST  = WowSpec(id=251, role=MDPS, wow_class=DEATHKNIGHT, name="Frost")
-DEATHKNIGHT_UNHOLY = WowSpec(id=252, role=MDPS, wow_class=DEATHKNIGHT, name="Unholy")
+DEATHKNIGHT_BLOOD  = WowSpec(id=250, index=1, role=TANK, wow_class=DEATHKNIGHT, name="Blood")
+DEATHKNIGHT_FROST  = WowSpec(id=251, index=2, role=MDPS, wow_class=DEATHKNIGHT, name="Frost")
+DEATHKNIGHT_UNHOLY = WowSpec(id=252, index=3, role=MDPS, wow_class=DEATHKNIGHT, name="Unholy")
 
 ################################################################################
 # Spells

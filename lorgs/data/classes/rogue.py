@@ -22,9 +22,9 @@ ROGUE = WowClass(id=4, name="Rogue", color="#FFF468")
 ################################################################################
 # Specs
 #
-ROGUE_ASSASSINATION = WowSpec(id=259, role=MDPS, wow_class=ROGUE, name="Assassination", short_name="Assa")
-ROGUE_OUTLAW        = WowSpec(id=260, role=MDPS, wow_class=ROGUE, name="Outlaw")
-ROGUE_SUBTLETY      = WowSpec(id=261, role=MDPS, wow_class=ROGUE, name="Subtlety")
+ROGUE_ASSASSINATION = WowSpec(id=259, index=1, role=MDPS, wow_class=ROGUE, name="Assassination", short_name="Assa")
+ROGUE_OUTLAW        = WowSpec(id=260, index=2, role=MDPS, wow_class=ROGUE, name="Outlaw")
+ROGUE_SUBTLETY      = WowSpec(id=261, index=3, role=MDPS, wow_class=ROGUE, name="Subtlety")
 
 ################################################################################
 # Spells

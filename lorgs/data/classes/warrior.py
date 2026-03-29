@@ -22,9 +22,9 @@ WARRIOR = WowClass(id=1, name="Warrior", color="#C69B6D")
 ################################################################################
 # Specs
 #
-WARRIOR_ARMS          = WowSpec(id=71, role=MDPS, wow_class=WARRIOR,      name="Arms")
-WARRIOR_FURY          = WowSpec(id=72, role=MDPS, wow_class=WARRIOR,      name="Fury")
-WARRIOR_PROTECTION    = WowSpec(id=73, role=TANK, wow_class=WARRIOR,      name="Protection",    short_name="Prot")
+WARRIOR_ARMS          = WowSpec(id=71, index=1, role=MDPS, wow_class=WARRIOR,      name="Arms")
+WARRIOR_FURY          = WowSpec(id=72, index=2, role=MDPS, wow_class=WARRIOR,      name="Fury")
+WARRIOR_PROTECTION    = WowSpec(id=73, index=3, role=TANK, wow_class=WARRIOR,      name="Protection",    short_name="Prot")
 
 ################################################################################
 # Spells

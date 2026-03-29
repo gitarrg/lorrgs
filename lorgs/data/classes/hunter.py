@@ -23,9 +23,9 @@ HUNTER = WowClass(id=3, name="Hunter", color="#AAD372")
 ################################################################################
 # Specs
 #
-HUNTER_BEASTMASTERY   = WowSpec(id=253, role=RDPS, wow_class=HUNTER,       name="Beast Mastery")
-HUNTER_MARKSMANSHIP   = WowSpec(id=254, role=RDPS, wow_class=HUNTER,       name="Marksmanship")
-HUNTER_SURVIVAL       = WowSpec(id=255, role=MDPS, wow_class=HUNTER,       name="Survival")
+HUNTER_BEASTMASTERY   = WowSpec(id=253, index=1, role=RDPS, wow_class=HUNTER,       name="Beast Mastery")
+HUNTER_MARKSMANSHIP   = WowSpec(id=254, index=2, role=RDPS, wow_class=HUNTER,       name="Marksmanship")
+HUNTER_SURVIVAL       = WowSpec(id=255, index=3, role=MDPS, wow_class=HUNTER,       name="Survival")
 
 ################################################################################
 # Spells

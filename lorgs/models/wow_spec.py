@@ -19,6 +19,9 @@ class WowSpec(WowActor):
     """Blizzard specialization id (ChrSpecialization.ID).
     None for utility specs (e.g. Other)."""
 
+    index: int | None = None
+    """Index of the Spec (1-4)"""
+
     name: str
 
     role: "WowRole"
@@ -64,6 +67,7 @@ class WowSpec(WowActor):
     def as_dict(self) -> dict[str, typing.Any]:
         return {
             "id": self.id,
+            "index": self.index,
             "name": self.name,
             "full_name": self.full_name,
             "full_name_slug": self.full_name_slug,

@@ -22,9 +22,9 @@ MONK = WowClass(id=10, name="Monk", color="#00FF98")
 ################################################################################
 # Specs
 #
-MONK_BREWMASTER = WowSpec(id=268, role=TANK, wow_class=MONK, name="Brewmaster")
-MONK_MISTWEAVER = WowSpec(id=270, role=HEAL, wow_class=MONK, name="Mistweaver")
-MONK_WINDWALKER = WowSpec(id=269, role=MDPS, wow_class=MONK, name="Windwalker")
+MONK_BREWMASTER = WowSpec(id=268, index=1, role=TANK, wow_class=MONK, name="Brewmaster")
+MONK_MISTWEAVER = WowSpec(id=270, index=2, role=HEAL, wow_class=MONK, name="Mistweaver")
+MONK_WINDWALKER = WowSpec(id=269, index=3, role=MDPS, wow_class=MONK, name="Windwalker")
 
 ################################################################################
 # Spells
