@@ -116,7 +116,7 @@ class BaseActor(warcraftlogs_base.BaseModel):
         sub_query = self.get_sub_query()
         if not sub_query:
             # eg.: a boss in `query_mode.phases` but with not phase-triggers
-            return
+            return ""
 
         return textwrap.dedent(
             f"""\
@@ -220,7 +220,10 @@ class BaseActor(warcraftlogs_base.BaseModel):
         self.casts = process_auras(self.casts)
 
         # Filter out same event at the same time (eg.: raid wide debuff apply)
-        self.casts = utils.uniqify(self.casts, key=lambda cast: (cast.spell_id, int(cast.timestamp / 1000)))
+        self.casts = utils.uniqify(
+            self.casts,
+            key=lambda cast: (cast.spell_id, int(cast.timestamp / 1000), cast.event_type),
+        )
 
         # make sure casts are sorted correctly
         # avoids weird UI overlaps, and just feels cleaner

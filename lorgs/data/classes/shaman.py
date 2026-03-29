@@ -54,62 +54,27 @@ SHAMAN_ENHANCEMENT.add_spell(  spell_id=1218090,                           color
 
 SHAMAN_RESTORATION.add_spell(  spell_id=108280, cooldown=180, duration=10,                    name="Healing Tide Totem",         icon="ability_shaman_healingtide.jpg", tags=[SpellTag.RAID_CD])
 SHAMAN_RESTORATION.add_spell(  spell_id=98008,  cooldown=180, duration=6,  color="#24b385", name="Spirit Link Totem",          icon="spell_shaman_spiritlink.jpg", tags=[SpellTag.RAID_CD])
-RESTO_ASCENDANCE = SHAMAN_RESTORATION.add_spell(spell_id=114052, cooldown=180, duration=30, color="#ffcb6b", name="Ascendance", icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.RAID_CD])
 
-# we need to query both: casts and buffs to be able to split DRE procs
-DRE = SHAMAN_RESTORATION.add_buff(spell_id=378270, color="#ffcb6b", name="Deeply Rooted Elements", icon="inv_misc_herb_liferoot_stem.jpg", show=False, query=False)
-SHAMAN_RESTORATION.add_buff(RESTO_ASCENDANCE)
-
-
-def remove_buffs_from_casts(
-        actor: warcraftlogs_actor.BaseActor,
-        cast_spell_ids: set[int],
-        buff_spell_ids: set[int],
-        proc_spell_id: int,
-        tolerance = 500, # ms
-    ):
-    for cast in actor.casts:
-        print(cast, cast.event_type)
-
-    casts = [cast for cast in actor.casts if cast.spell_id in cast_spell_ids and cast.event_type == "cast"]
-    buffs = [cast for cast in actor.casts if cast.spell_id in buff_spell_ids and cast.event_type == "applybuff"]
-
-    if not casts and buffs:
-        return
-
-    # filter out Buffs triggered by casts
-    for buff in buffs:
-        closest = min(casts, key=lambda c: abs(c.timestamp - buff.timestamp))
-        diff = abs(buff.timestamp - closest.timestamp)
-        if diff < tolerance:
-            buff.spell_id = -1
-        else:
-            buff.spell_id = proc_spell_id
-    
-    actor.casts = [cast for cast in actor.casts if cast.spell_id > 0]
+# we query for all Ascendance buffs and split them into DRE procs later
+SHAMAN_RESTORATION.add_buff(   spell_id=114052, cooldown=180,              color="hsl(40 100% 70%)", name="Ascendance",             icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.RAID_CD])
+SHAMAN_RESTORATION.add_buff(   spell_id=378270,                            color="hsl(40 90% 60%)",  name="Deeply Rooted Elements", icon="inv_misc_herb_liferoot_stem.jpg", show=False, query=False)
 
 
-def split_ascendance_procs(actor: warcraftlogs_actor.BaseActor, status: str):
+def split_ascendance_procs(actor: warcraftlogs_actor.BaseActor | None, status: str):
     if status != "success":
         return
     if not actor:
         return
+
+    buffs = [cast for cast in actor.casts if cast.spell_id == 114052 and cast.event_type == "applybuff"]
+    if not buffs:
+        return
     
-    ascendance_casts = {RESTO_ASCENDANCE.spell_id, }
-    ascendance_buffs = {RESTO_ASCENDANCE.spell_id, }
-    remove_buffs_from_casts(
-        actor,
-        ascendance_casts,
-        ascendance_buffs,
-        DRE.spell_id
-    )
+    for buff in buffs:
+        buff.duration = buff.duration or 6_000
+        is_proc = buff.duration < 20_000 # Ascendance is 30s / proc 6
+        if is_proc:
+            buff.spell_id = 378270 # DRE
 
-
-def clip_ascendance_procs(actor: warcraftlogs_actor.BaseActor, status: str):
-    """If someone casts Ascendance before the buff expires, clip it to 6s."""
-    for cast in actor.casts:
-        if cast.spell_id == DRE.spell_id and cast.duration:
-            cast.duration = min(cast.duration, 6000)
 
 warcraftlogs_actor.BaseActor.event_actor_load.connect(split_ascendance_procs)
-warcraftlogs_actor.BaseActor.event_actor_load.connect(clip_ascendance_procs)
