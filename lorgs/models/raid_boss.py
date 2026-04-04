@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
+from enum import Enum
 import typing
 from typing import Any
 
@@ -30,6 +31,15 @@ class RaidBoss(WowActor):
 
     trinkets: list[WowTrinket] = []
     """Trinkets which can drop from this Boss."""
+
+    class PhaseType(Enum):
+        """Type of phases for a boss."""
+        STATIC = "static"
+        DYNAMIC = "dynamic"
+
+    phase_type: PhaseType = PhaseType.STATIC
+    """Type of phases for this boss."""
+
 
     def __repr__(self):
         return f"<RaidBoss(id={self.id} name={self.name})>"
@@ -61,4 +71,5 @@ class RaidBoss(WowActor):
             "icon": self.icon,
             "full_name": self.name,
             "full_name_slug": self.name_slug,
+            "phase_type": self.phase_type.value,
         }
