@@ -72,7 +72,7 @@ def split_ascendance_procs(actor: warcraftlogs_actor.BaseActor | None, status: s
     
     for buff in buffs:
         buff.duration = buff.duration or 6_000
-        is_proc = buff.duration < 20_000 # Ascendance is 30s / proc 6
+        is_proc = buff.duration < 13_000 # Ascendance is 30s / proc 6. using 13s in case of a double proc
         if is_proc:
             buff.spell_id = 378270 # DRE
 
