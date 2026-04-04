@@ -22,7 +22,23 @@ boss = VAELGOR_EZZORAK
 ################################################################################
 # Trinkets
 
-# [Gloom-Spattered Dreadscale]
+GLOOM_SPATTERED_DREADSCALE = boss.add_trinket(
+    spell_id=1260633,
+    cooldown=120,
+    name="Gloom-Spattered Dreadscale",
+    icon="inv_12_trinket_raid_voidspire_tank1_smolderinggloomscale.jpg",
+    item=249339,
+)
+GLOOM_SPATTERED_DREADSCALE.add_specs(*TANK.specs)
+"""On-Use Damage + Shield
+
+> Use: Unleash a burst of hungering Gloom, dealing 125487 Shadow damage split
+> between nearby enemies and absorbing up to 50% of incoming damage until an
+> equal amount of damage has been prevented.
+> 
+> Damage increased by 30% per additional enemy, up to 150%. (2 Min Cooldown)
+"""
+
 VAELGORS_FINAL_STARE = boss.add_trinket(
     spell_id=1260459,
     duration=15,
