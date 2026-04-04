@@ -15,6 +15,7 @@ CROWN_OF_THE_COSMOS = RaidBoss(
     name="Crown of the Cosmos",
     nick="Alleria",
     icon="inv_120_raid_voidspire_alleria.jpg",
+    phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = CROWN_OF_THE_COSMOS
 

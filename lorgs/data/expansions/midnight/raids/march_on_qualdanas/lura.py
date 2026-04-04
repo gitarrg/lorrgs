@@ -9,6 +9,7 @@ LURA = RaidBoss(
     name="L'ura",
     nick="L'ura",
     icon="inv_120_raid_marchonqueldanas_lura.jpg",
+    phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = LURA
 

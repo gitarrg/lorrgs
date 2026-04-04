@@ -19,6 +19,7 @@ CHIMAERUS = RaidBoss(
     name="Chimaerus the Undreamt God",
     nick="Chimaerus",
     icon="inv_120_raid_dreamwell_malformedmanifestation.jpg",
+    phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = CHIMAERUS
 
