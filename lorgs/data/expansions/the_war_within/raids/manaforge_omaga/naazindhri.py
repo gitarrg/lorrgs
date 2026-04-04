@@ -91,8 +91,3 @@ boss.add_cast(
     icon="spell_arcane_arcane01_nightborne.jpg",
     show=False,
 )
-
-
-################################################################################
-# Phases
-# boss.add_phase(name="P{count}", spell_id=1225582, event_type="cast")

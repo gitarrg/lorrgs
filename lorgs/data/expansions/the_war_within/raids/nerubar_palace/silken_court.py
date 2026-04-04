@@ -93,12 +93,3 @@ boss.add_buff(
     color="hsl(110, 60%, 50%)",
     icon="inv_cosmicvoid_wave.jpg",
 )
-
-
-################################################################################
-# Phases
-
-boss.add_phase(name="I1", spell_id=450980, event_type="applybuff")  # Shatter Resistance
-boss.add_phase(name="P2", spell_id=450980, event_type="removebuff")  # Shatter Resistance
-boss.add_phase(name="I2", spell_id=451277, event_type="applybuff")  # Spike Storm
-boss.add_phase(name="P3", spell_id=451277, event_type="removebuff")  # Spike Storm

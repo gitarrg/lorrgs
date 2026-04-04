@@ -132,20 +132,13 @@ class Fight(warcraftlogs_base.BaseModel):
 
         return [player for player in players if player]
 
-    def add_phase(self, ts: int, name: str, mrt: str = "", count: int = 0) -> Phase:
+    def add_phase(self, ts: int) -> Phase:
         """Add a new phase to the fight."""
 
         if not self.phases:
             self.phases = []  # force new list to trick pydantics "excludeUnset"
 
-        # kwargs to format the phase label
-        kwargs = {
-            "phase": len(self.phases) + 1,
-            "count": count,
-        }
-        name = name.format(**kwargs)
-
-        phase = Phase(ts=ts, name=name, mrt=mrt)
+        phase = Phase(ts=ts)
         self.phases.append(phase)
         return phase
 

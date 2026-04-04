@@ -209,13 +209,8 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
                 fight.boss.fight = fight
 
             # Only full load the first boss.
-            # for 2..n only load phase infos
             if i == 0:
-                fight.boss.query_mode = fight.boss.QueryModes.ALL
-            else:
-                fight.boss.query_mode = fight.boss.QueryModes.PHASES
-
-            actors_to_load += [fight.boss]  # type: ignore
+                actors_to_load += [fight.boss]  # type: ignore
 
         # filter out actors that have already been loaded
         actors_to_load = [actor for actor in actors_to_load if actor]

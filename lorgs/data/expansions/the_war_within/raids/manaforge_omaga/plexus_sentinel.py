@@ -64,13 +64,3 @@ boss.add_buff(
 # Note: Bart uses different Spell IDs.. but the PTR Log from NS I was testing with was working fine.
 # protocol_purge_cast_IDs = ({1220489, 1220553, 1220555},)
 # protocol_purge_aura_IDs = ({1220618, 1220981, 1220982},)
-
-
-################################################################################
-# Phases
-
-# ignore the first cast
-boss.add_phase(name="P1 ({count})", spell_id=1223364, event_type="cast", count=2)
-boss.add_phase(name="P1 ({count})", spell_id=1223364, event_type="cast", count=3)
-boss.add_phase(name="P1 ({count})", spell_id=1223364, event_type="cast", count=4)
-boss.add_phase(name="P1 ({count})", spell_id=1223364, event_type="cast", count=5)

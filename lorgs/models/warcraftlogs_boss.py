@@ -18,13 +18,6 @@ class Boss(warcraftlogs_actor.BaseActor):
 
     boss_slug: str
 
-    class QueryModes(enum.Enum):
-        ALL = 0
-        SPELLS = 1
-        PHASES = 2
-
-    query_mode: QueryModes = QueryModes.ALL
-
     ##########################
     # Attributes
     #

@@ -53,7 +53,6 @@ async def load_top_report(ranking: SpecRanking) -> None:
 
     print("loading", ranking.spec_slug, ranking.boss_slug, ranking.difficulty, ranking.metric)
 
-    boss.query_mode = boss.QueryModes.ALL
     # boss.casts = []
     # boss.phases = []  # reset these, otherwise we'll just append again
     # boss.casts = boss.casts[:]  # not sure if required

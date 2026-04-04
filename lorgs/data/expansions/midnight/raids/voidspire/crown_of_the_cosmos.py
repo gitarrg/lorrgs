@@ -166,23 +166,3 @@ boss.add_cast(
     color="rgb(50, 200, 50)",
     icon="inv_cosmicvoid_orb.jpg",
 )
-
-
-################################################################################
-# Phases
-
-# 2
-boss.add_phase(name="I1", spell_id=1234546, event_type="begincast")
-
-# 3
-# WCL uses the first dmg instance, which happens ~12ms later
-boss.add_phase(name="P2", spell_id=1246349, event_type="cast")
-
-# 4
-boss.add_phase(name="I2", spell_id=1246349, event_type="removebuff")
-
-# TODO: need to find a trigger for phase 3
-#for now.. I assume I2 lasts 30s, so we can use that as an offset
-boss.add_phase(name="P3", spell_id=1246349, event_type="removebuff", offset=30000)
-
-

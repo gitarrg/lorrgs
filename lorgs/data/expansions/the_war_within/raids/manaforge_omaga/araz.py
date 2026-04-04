@@ -136,10 +136,3 @@ boss.add_cast(
     color="rgb(157, 66, 237)",
     icon="inv_112_etherealwraps_empowered_original.jpg",
 )
-
-
-################################################################################
-# Phases
-
-boss.add_phase(name="P1 ({count})", spell_id=1230529, event_type="cast")  # Mana Sacrifice
-boss.add_phase(name="P2", spell_id=1233076, event_type="applybuff")  # Dark Singularity

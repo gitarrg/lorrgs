@@ -123,8 +123,3 @@ boss.add_cast(
     color="rgb(169, 64, 230)",
     icon="inv_112_raidsilkworm_arcaneoutrage.jpg",
 )
-
-
-################################################################################
-# Phases
-boss.add_phase(name="P2", spell_id=1228070, event_type="applybuff", count=1)  # Unbound Rage

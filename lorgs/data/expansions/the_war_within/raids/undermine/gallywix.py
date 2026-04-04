@@ -170,25 +170,3 @@ boss.add_cast(
     color="hsl(220, 80%, 70%)",
     show=False,
 )
-
-
-################################################################################
-# Phases
-
-## Heroic
-# TODO: can we bring these back?
-# boss.add_phase(name="P2 (1)", spell_id=1216846, event_type="applybuff", count=2)  # Holding a Wrench
-# boss.add_phase(name="P2 (2)", spell_id=1216846, event_type="applybuff", count=4)  # Holding a Wrench
-# boss.add_phase(name="Int", spell_id=1214369, event_type="cast")  # TOTAL DESTRUCTION!!!
-# boss.add_phase(name="P3 (1)", spell_id=1214590, event_type="removebuff")  # TOTAL DESTRUCTION!!!
-# boss.add_phase(name="P3 (2)", spell_id=466342, event_type="cast", count=2)
-# boss.add_phase(name="P3 (3)", spell_id=1223658, event_type="cast", count=3)
-
-## Mythic
-boss.add_phase(name="P1", spell_id=1214369, event_type="removebuff")  # TOTAL DESTRUCTION!!!
-
-boss.add_phase(name="I1", spell_id=1226891, event_type="applybuff", count=1)  # Circuit Reboot
-boss.add_phase(name="P2", spell_id=1226891, event_type="removebuff", count=1)
-
-boss.add_phase(name="I2", spell_id=1226891, event_type="applybuff", count=2)  # Circuit Reboot
-boss.add_phase(name="P3", spell_id=1226891, event_type="removebuff", count=2)

@@ -130,10 +130,3 @@ boss.add_cast(
     icon="spell_holy_serendipity.jpg",
 )
 """
-
-
-################################################################################
-# Phases
-
-boss.add_phase(name="I{phase}", spell_id=1246709, event_type="begincast")  # Death Drop
-boss.add_phase(name="P1 ({phase})", spell_id=1241313, event_type="cast") # Rebirth

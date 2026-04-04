@@ -13,20 +13,6 @@ from lorgs.models.wow_spell import WowSpell
 from lorgs.models.wow_trinket import WowTrinket
 
 
-class Phase(WowSpell):
-
-    name: str = "P{phase}"
-
-    count: int = 0
-    """Only trigger if its the n'th count of the event.
-    
-    if 0: trigger a new phase each time the event occurs
-    """
-
-    offset: int = 0
-    """Offset the phase start time by the given number of seconds."""
-
-
 class RaidBoss(WowActor):
     """A raid boss in the Game."""
 
@@ -45,9 +31,6 @@ class RaidBoss(WowActor):
     trinkets: list[WowTrinket] = []
     """Trinkets which can drop from this Boss."""
 
-    phases: list[Phase] = []
-    """Phase triggers"""
-
     def __repr__(self):
         return f"<RaidBoss(id={self.id} name={self.name})>"
 
@@ -59,11 +42,6 @@ class RaidBoss(WowActor):
         trinket = WowTrinket(**kwargs)
         self.trinkets.append(trinket)
         return trinket
-
-    def add_phase(self, **kwargs: typing.Any) -> Phase:
-        phase = Phase(**kwargs)
-        self.phases.append(phase)
-        return phase
 
     @property
     def name_slug(self) -> str:

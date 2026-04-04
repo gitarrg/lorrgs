@@ -102,11 +102,11 @@ class Report(warcraftlogs_base.BaseModel):
             fight.boss.fight = fight
 
         # Fight: Phases
-        for i, phase_transition in enumerate(fight_data.phaseTransitions):
+        for phase_transition in fight_data.phaseTransitions:
             ts = phase_transition.startTime - fight_data.startTime
             if ts <= 0:  # skip pull as phase
                 continue
-            fight.add_phase(ts=ts, name=f"P{i+1}")
+            fight.add_phase(ts=ts)
 
         # store and return
         self.fights.append(fight)

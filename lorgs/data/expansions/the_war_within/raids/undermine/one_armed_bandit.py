@@ -136,13 +136,3 @@ rewards = boss.add_cast(
 # rewards.add_variation(spell_id=464806, name="Reward: Flame and Coin", icon="ability_creature_cursed_01.jpg")
 # rewards.add_variation(spell_id=464809, name="Reward: Coin and Shock", icon="inv_misc_enggizmos_13.jpg")
 # rewards.add_variation(spell_id=464810, name="Reward: Coin and Bomb", icon="inv_misc_bomb_04.jpg")
-
-
-#################################################
-### Phase 2
-
-
-################################################################################
-# Phases
-
-boss.add_phase(name="P2", spell_id=465765, event_type="cast")  # Maintenance Cycle

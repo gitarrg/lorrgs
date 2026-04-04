@@ -138,9 +138,3 @@ boss.add_cast(
     icon="sha_spell_warlock_demonsoul.jpg",
 )
 """
-
-################################################################################
-# Phases
-
-boss.add_phase(name="I{count}", spell_id=1245396, event_type="cast")
-boss.add_phase(name="P{phase}", spell_id=1245404, event_type="cast")

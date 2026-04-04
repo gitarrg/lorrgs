@@ -118,10 +118,3 @@ boss.add_cast(
 
 
 """
-
-
-################################################################################
-# Phases
-
-
-boss.add_phase(name="Kick {phase}", spell_id=439795, event_type="begincast")

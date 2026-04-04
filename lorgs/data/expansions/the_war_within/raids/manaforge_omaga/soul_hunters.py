@@ -112,13 +112,3 @@ boss.add_cast(
     color="rgb(47, 150, 64)",
     icon="ability_demonhunter_feldevastation.jpg",
 )
-
-
-################################################################################
-# Phases
-
-# there are always 2 applications per phase.
-# but tbh, the boss timers are static anyways.. so we could remove this
-boss.add_phase(name="P1", spell_id=1245978, event_type="applybuff", count=1)  # Soul Tether
-boss.add_phase(name="P2", spell_id=1245978, event_type="applybuff", count=3)  # Soul Tether
-boss.add_phase(name="P3", spell_id=1245978, event_type="applybuff", count=5)  # Soul Tether
