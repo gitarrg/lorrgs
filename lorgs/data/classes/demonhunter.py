@@ -37,7 +37,7 @@ DEMONHUNTER.add_spell(         spell_id=198793, cooldown=25,                colo
 DEMONHUNTER_HAVOC.add_spell(   spell_id=198589, cooldown=60,   duration=10,                  name="Blur",              icon="ability_demonhunter_blur.jpg", show=False, tags=[SpellTag.DEFENSIVE])
 DEMONHUNTER_HAVOC.add_spell(   spell_id=258860, cooldown=40,   duration=4,  color="#9177fc", name="Essence Break",   icon="spell_shadow_ritualofsacrifice.jpg",               show=False)
 DEMONHUNTER_HAVOC.add_spell(   spell_id=200166, cooldown=120,  duration=20, color="#348540", name="Metamorphosis",   icon="ability_demonhunter_metamorphasisdps.jpg", tags=[SpellTag.DAMAGE])
-# DEMONHUNTER_HAVOC.add_spell(   spell_id=198013, cooldown=40,   duration=2,  color="#c531ff", name="Eye Beam",        icon="ability_demonhunter_eyebeam.jpg", show=False, variations=[452497])
+DEMONHUNTER_HAVOC.add_spell(   spell_id=198013, cooldown=40,   duration=2,  color="#c531ff", name="Eye Beam",        icon="ability_demonhunter_eyebeam.jpg", show=False, variations=[452497])
 # TODO: add as "variation" with new icon
 # DEMONHUNTER_HAVOC.add_spell(   spell_id=452497, cooldown=40,   duration=2,  color="#c531ff", name="Abyssal Gaze",    icon="spell_shadow_demonicfortitude.jpg", show=False)
 
