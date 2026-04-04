@@ -19,6 +19,7 @@ from lorgs.data.items import *  # noqa: F403
 
 
 from lorgs.data.expansions import cataclysm  # noqa: F403
+from lorgs.data.expansions import wrath_of_the_lich_king  # noqa: F403
 from lorgs.data.expansions import warlords_of_draenor  # noqa: F403
 from lorgs.data.expansions import legion  # noqa: F403
 from lorgs.data.expansions import battle_for_azeroth  # noqa: F403
@@ -26,4 +27,3 @@ from lorgs.data.expansions import shadowlands  # noqa: F403
 from lorgs.data.expansions import dragonflight  # noqa: F403
 from lorgs.data.expansions import the_war_within  # noqa: F403
 from lorgs.data.expansions import midnight  # noqa: F403
-
