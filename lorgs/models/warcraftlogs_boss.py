@@ -1,16 +1,12 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-from collections import defaultdict
 import enum
 import typing
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.clients import wcl
 from lorgs.models import warcraftlogs_actor
-from lorgs.models.raid_boss import Phase, RaidBoss
-from lorgs.models.warcraftlogs_cast import Cast
-from lorgs.models.wow_spell import WowSpell
+from lorgs.models.raid_boss import RaidBoss
 
 
 if typing.TYPE_CHECKING:
@@ -59,62 +55,3 @@ class Boss(warcraftlogs_actor.BaseActor):
         """Do nothing here, to avoid issues with Council Boss Fights."""
         pass
 
-    ############################################################################
-    #
-    # Query
-    #
-    ############################################################################
-
-    def get_query_abilities(self) -> list[WowSpell]:
-        """Get all abilities to be queried."""
-        if self.query_mode == self.QueryModes.PHASES:
-            return self.raid_boss.phases  # type: ignore
-
-        return [
-            *super().get_query_abilities(),
-            *self.raid_boss.phases,
-        ]
-
-    def process_phase_events(self, events: list[wcl.ReportEvent]) -> None:
-
-        if not self.fight:
-            return
-
-        # clear out any old data
-        # not sure if we'd ever want to keep old data,
-        # or at least leave this in case we're adding phases in a different way
-        if self.fight.phases:
-            self.fight.phases = []
-
-        counters: dict[tuple[int, str], int] = defaultdict(int)
-
-        # Ordered triggers per (spell_id, event_type). A dict on (spell_id, event_type, count)
-        # drops duplicates when the same signal is used for more than one phase.
-        phases_by_key: dict[tuple[int, str], list[Phase]] = defaultdict(list)
-        for phase in self.raid_boss.phases:
-            phases_by_key[(phase.spell_id, phase.event_type)].append(phase)
-
-        for event in events:
-            key = (event.abilityGameID, event.type)
-            counters[key] += 1
-            count = counters[key]
-
-            triggers = phases_by_key.get(key)
-            if not triggers:
-                continue
-
-            for trigger in triggers:
-                cast = Cast.from_report_event(event)
-                cast.timestamp -= self.fight.start_time_rel
-                cast.counter = count
-
-                self.fight.add_phase(
-                    ts=cast.timestamp + trigger.offset,
-                    name=trigger.name,
-                    mrt=cast.mrt_trigger,
-                    count=count,
-                )
-
-    def process_events(self, events: list[wcl.ReportEvent]) -> list[wcl.ReportEvent]:
-        self.process_phase_events(events)
-        return events

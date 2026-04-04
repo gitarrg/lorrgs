@@ -101,6 +101,13 @@ class Report(warcraftlogs_base.BaseModel):
             fight.boss = Boss.from_raid_boss(raid_boss)
             fight.boss.fight = fight
 
+        # Fight: Phases
+        for i, phase_transition in enumerate(fight_data.phaseTransitions):
+            ts = phase_transition.startTime - fight_data.startTime
+            if ts <= 0:  # skip pull as phase
+                continue
+            fight.add_phase(ts=ts, name=f"P{i+1}")
+
         # store and return
         self.fights.append(fight)
         return fight
@@ -135,7 +142,7 @@ class Report(warcraftlogs_base.BaseModel):
             spec_slug=spec_slug,
         )
 
-        if player.class_ == None:
+        if player.class_ is None:
             logger.debug("Skipping unknown Player: %s", player)
             return
 
@@ -183,6 +190,10 @@ class Report(warcraftlogs_base.BaseModel):
                     endTime
                     fightPercentage
                     kill
+
+                    phaseTransitions {{
+                        startTime
+                    }}
                 }}
             }}
         }}

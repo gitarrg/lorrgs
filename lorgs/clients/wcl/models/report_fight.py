@@ -7,6 +7,16 @@ import typing
 from pydantic import BaseModel, root_validator, validator
 
 
+class PhaseTransition(BaseModel):
+    """A spartan representation of phase transitions during a fight.
+
+    https://www.warcraftlogs.com/v2-api-docs/warcraft/phasetransition.doc.html
+    """
+
+    startTime: int
+    """The start time of the phase transition. (Milliseconds relative to the start of the report)."""
+
+
 class ReportFight(BaseModel):
     """The ReportFight represents a single fight that occurs in the report."""
 
@@ -41,6 +51,9 @@ class ReportFight(BaseModel):
     
     100.0 = Pull / 0.0 = Kill
     """
+
+    phaseTransitions: list[PhaseTransition] = []
+    """The start times of the phases in the fight."""
 
     @root_validator(pre=True)
     def remove_nones(cls, values):
