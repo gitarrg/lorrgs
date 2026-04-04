@@ -6,7 +6,7 @@
 
 """
 
-from lorgs.data.classes import *  # noqa: F403
+from lorgs.data.classes import INT_SPECS
 from lorgs.models.raid_boss import RaidBoss
 
 
@@ -22,6 +22,21 @@ boss = VAELGOR_EZZORAK
 ################################################################################
 # Trinkets
 
+# [Gloom-Spattered Dreadscale]
+VAELGORS_FINAL_STARE = boss.add_trinket(
+    spell_id=1260459,
+    duration=15,
+    cooldown=90,
+    name="Vaelgor's Final Stare",
+    icon="inv_12_trinket_raid_voidspire_int1_voiddragoneye.jpg",
+    item=249346,
+)
+VAELGORS_FINAL_STARE.add_specs(*INT_SPECS)
+"""On-Use Mastery
+
+> Use: Seize the eye's draconic power, granting you 1267 Mastery diminishing
+> over 15 sec and allowing you to see hidden enemies. (1 Min, 30 Sec Cooldown)
+"""
 
 ################################################################################
 # Spells
