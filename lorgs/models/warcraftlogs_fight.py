@@ -16,6 +16,7 @@ from lorgs.models import warcraftlogs_base
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.wow_spec import WowSpec
+from lorgs.models.difficulty import RaidDifficulty
 
 
 if typing.TYPE_CHECKING:
@@ -51,6 +52,8 @@ class Fight(warcraftlogs_base.BaseModel):
     """boss percentage at the end of the fight."""
     kill: bool = True
 
+    difficulty: RaidDifficulty = RaidDifficulty.UNKNOWN
+
     _report: Report | None = None
 
     @property
@@ -83,6 +86,7 @@ class Fight(warcraftlogs_base.BaseModel):
             "duration": self.duration,
             "time": self.start_time.isoformat(),
             "boss": {"name": raid_boss_name},
+            "difficulty": self.difficulty.value,
         }
 
     def as_dict(self, player_ids: list[int] = []) -> dict:

@@ -14,6 +14,7 @@ import textwrap
 from lorgs.clients import wcl
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_base
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_fight import Fight
@@ -92,6 +93,7 @@ class Report(warcraftlogs_base.BaseModel):
             kill=fight_data.kill,
             start_time=self.start_time + datetime.timedelta(milliseconds=fight_data.startTime),
             duration=fight_data.endTime - fight_data.startTime + 1,  # somehow there is 1ms missing
+            difficulty=RaidDifficulty(fight_data.difficulty),
         )
         fight.report = self  # TODO: replace in favor of `post_init()``
 
@@ -190,6 +192,7 @@ class Report(warcraftlogs_base.BaseModel):
                     endTime
                     fightPercentage
                     kill
+                    difficulty
 
                     phaseTransitions {{
                         startTime

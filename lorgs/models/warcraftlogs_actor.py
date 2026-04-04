@@ -185,7 +185,6 @@ class BaseActor(warcraftlogs_base.BaseModel):
         casts_data = report_data.report.events
 
         if not casts_data:
-            logger.warning("casts_data is empty")
             return
 
         ##############################
@@ -231,3 +230,71 @@ class BaseActor(warcraftlogs_base.BaseModel):
 
         # we do this at the very end after all the filtering has been done.
         self.casts = add_cast_counters(self.casts)
+
+    def remove_buffs_from_casts(
+            self,
+            cast_spell_ids: set[int],
+            buff_spell_ids: set[int],
+            tolerance = 500, # ms
+        ):
+        """Remove buffs that happen at the same time as a cast.
+
+        for example Ascendance buffs at the same time as a casts.
+        This helps to later identify manually cast buffs vs. procs.
+       
+        """
+        casts = [cast for cast in self.casts if cast.spell_id in cast_spell_ids and cast.event_type == "cast"]
+        buffs = [cast for cast in self.casts if cast.spell_id in buff_spell_ids and cast.event_type == "applybuff"]
+        if not casts and buffs:
+            return
+
+        # filter out Buffs triggered by casts
+        for buff in buffs:
+            closest = min(casts, key=lambda c: abs(c.timestamp - buff.timestamp))
+            if abs(buff.timestamp - closest.timestamp) < tolerance:
+                buff.spell_id = -1
+        self.casts = [cast for cast in self.casts if cast.spell_id > 0]
+
+    def detect_procs(
+            self,
+            cast_spell_ids: list[int],
+            buff_spell_ids: list[int],
+            proc_spell_id: int,
+            tolerance = 500, # ms
+        ):
+        """Split procs from real casts.
+        
+        """
+        # real casts
+        print(f"{self.casts=}")
+        print(f"{cast_spell_ids=}")
+        print(f"{buff_spell_ids=}")
+
+        for cast in self.casts:
+            print(cast, cast.event_type)
+
+        casts = [cast for cast in self.casts if cast.spell_id in cast_spell_ids and cast.event_type == "cast"]
+        buffs = [cast for cast in self.casts if cast.spell_id in buff_spell_ids and cast.event_type == "applybuff"]
+        print(f"{casts=}")
+        print(f"{buffs=}")
+        
+        if not casts and buffs:
+            return
+
+        for buff in buffs:
+            print("----")
+            print(buff, buff.event_type, buff.timestamp)
+
+            # find the closest cast
+            closest = min(casts, key=lambda c: abs(c.timestamp - buff.timestamp))
+            print(f"> {closest=}")
+            diff = abs(buff.timestamp - closest.timestamp)
+            print(f"> {diff=}")
+            is_from_cast = abs(buff.timestamp - closest.timestamp) < tolerance
+            print(f"> {is_from_cast=}")
+            if is_from_cast:
+                buff.spell_id = -1  # flag for filtering
+            else:
+                buff.spell_id = proc_spell_id  # mark as proc
+
+        self.casts = [cast for cast in self.casts if cast.spell_id > 0]

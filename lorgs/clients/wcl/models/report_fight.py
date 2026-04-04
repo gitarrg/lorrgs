@@ -38,6 +38,9 @@ class ReportFight(BaseModel):
     encounterID: int
     """The encounter ID of the fight. If the ID is 0, the fight is considered a trash fight."""
 
+    difficulty: int = 0
+    """The difficulty setting for the raid, dungeon, or arena. Null for trash."""
+
     kill: bool = True
     """Whether or not the fight was a boss kill, i.e., successful. If this field is false, it means the fight was a wipe or a failed run, etc.."""
 
