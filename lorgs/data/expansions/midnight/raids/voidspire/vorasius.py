@@ -59,6 +59,9 @@ boss.add_cast(
     duration=15,
     color="rgb(80, 51, 245)",
     icon="inv_cosmicvoid_missile.jpg",
+    variations=[
+        1257629,  # different direction
+    ],
 )
 
 
