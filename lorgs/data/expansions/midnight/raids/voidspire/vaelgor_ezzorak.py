@@ -6,7 +6,7 @@
 
 """
 
-from lorgs.data.classes import INT_SPECS
+from lorgs.data.classes import INT_SPECS, TANK
 from lorgs.models.raid_boss import RaidBoss
 
 
