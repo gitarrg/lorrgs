@@ -20,22 +20,22 @@ class PhaseTransition(BaseModel):
 class ReportFight(BaseModel):
     """The ReportFight represents a single fight that occurs in the report."""
 
-    id: int
+    id: int = -1
     """The report ID of the fight. This ID can be used to fetch only events, tables or graphs for this fight."""
 
     name: str = ""
     """The name of the fight."""
 
-    startTime: int
+    startTime: int = 0
     """The start time of the fight. (Milliseconds relative to the start of the report)."""
 
-    endTime: int
+    endTime: int = 0
     """The end time of the fight. (Milliseconds relative to the start of the report)."""
 
     inProgress: bool = False
     """Whether or not the fight is still in progress. If this field is false, it means the entire fight has been uploaded."""
 
-    encounterID: int
+    encounterID: int = 0
     """The encounter ID of the fight. If the ID is 0, the fight is considered a trash fight."""
 
     difficulty: int = 0

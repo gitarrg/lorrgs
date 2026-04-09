@@ -156,15 +156,51 @@ class Fight(warcraftlogs_base.BaseModel):
     ############################################################################
     #   Summary
     #
+
+    def get_phase_query(self) -> str:
+        if self.phases:
+            return ""
+
+        if not self.boss:
+            return ""
+        if not self.boss.raid_boss:
+            return ""
+        if self.boss.raid_boss.phase_type != self.boss.raid_boss.PhaseType.DYNAMIC:
+            return ""
+
+        return textwrap.dedent(
+            f"""\
+            fights(fightIDs: {self.fight_id})
+            {{
+                phaseTransitions
+                {{
+                    startTime
+                }}
+            }}
+            """
+        )
+    
+    def get_summary_query(self) -> str:      
+        # We're loading the fight as part of a spec ranking
+        # no need to load the summary
+        # TBD: maybe this could be a simple `if players` ?
+        if len(self.players) == 1:
+            return ""
+
+        return textwrap.dedent(
+            f"""\
+            summary: table({self.table_query_args}, dataType: Summary)
+            """
+        )
+
     def get_query_parts(self) -> list[str]:
-        return [f"summary: table({self.table_query_args}, dataType: Summary)"]
+        return [
+            self.get_summary_query(),
+            self.get_phase_query(),
+        ]
 
     def get_query(self) -> str:
         """Get the Query to load the fights summary."""
-        if self.players:
-            logger.info("no players")
-            return ""
-
         if not self.report:
             raise ValueError("Missing Parent Report")
 
@@ -226,14 +262,30 @@ class Fight(warcraftlogs_base.BaseModel):
     def process_query_result(self, **query_result: typing.Any):
         """Process the data retured from an Overview-Query."""
         report_data = wcl.ReportData(**query_result)
-        if not report_data.report.summary:
-            return
-        summary_data = report_data.report.summary
-        self.duration = self.duration or summary_data.totalTime
-        self.process_players(summary_data)
 
-        for player in self.players:
-            player.process_query_result(**query_result)
+        # process summary
+        if summary_data := report_data.report.summary:
+            self.duration = self.duration or summary_data.totalTime
+            self.process_players(summary_data)
+
+        # process fights
+        for fight in report_data.report.fights:
+            
+            if fight.id not in [self.fight_id, -1]:
+                continue
+
+            # load phases
+            if fight.phaseTransitions:
+                self.phases = []
+                for phase_transition in fight.phaseTransitions:
+                    ts = phase_transition.startTime - self.start_time_rel
+                    if ts <= 100:  # no need to track start of P1
+                        continue
+                    self.add_phase(ts)
+       
+       # todo: when was this used?
+        # for player in self.players:
+        #     player.process_query_result(**query_result)
 
     ############################################################################
     #   Load Player:

@@ -35,7 +35,9 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
     boss_slug: str
     difficulty: str = "mythic"
     metric: str = ""
+
     reports: list[Report] = []
+    """Sorted Reports for this Spec & Boss."""
 
     updated: datetime.datetime = datetime.datetime.min
     dirty: bool = False
@@ -66,22 +68,6 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
     def players(self) -> list[Player]:
         return utils.flatten(fight.players for fight in self.fights)
 
-    ##########################
-    # Methods
-    #
-    @staticmethod
-    def sort_reports(reports: list[Report]) -> list[Report]:
-        """Sort the reports in place by the highest dps player."""
-
-        def get_total(report: Report) -> float:
-            top = 0.0
-            for fight in report.fights:
-                for player in fight.players:
-                    top = max(top, player.total)
-            return top
-
-        return sorted(reports, key=get_total, reverse=True)
-
     ############################################################################
     # Query: Rankings
     #
@@ -107,24 +93,15 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
         """
         )
 
-    @utils.as_list
-    def get_old_reports(self) -> typing.Generator[tuple[str, int, str], None, None]:
-        """Return a list of unique keys to identify existing reports."""
-        for report in self.reports:
-            for fight in report.fights:
-                for player in fight.players:
-                    key = (report.report_id, fight.fight_id, player.name)
-                    yield key
-
-    def add_new_fight(self, ranking_data: wcl.CharacterRanking) -> None:
+    def add_new_fight(self, ranking_data: wcl.CharacterRanking) -> Report | None:
         report_data = ranking_data.report
 
         if not report_data:
-            return
+            return None
 
         # skip hidden reports
         if ranking_data.hidden:
-            return
+            return None
 
         ################
         # Player
@@ -145,30 +122,42 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
 
         ################
         # Report
-        report = Report(
+        return Report(
             report_id=report_data.code,
             start_time=report_data.startTime,
             fights=[fight],
             region=ranking_data.server.region,
         )
-        self.reports.append(report)
 
     def add_new_fights(self, rankings: list[wcl.CharacterRanking]):
         """Add new Fights."""
-        old_reports = self.get_old_reports()
 
+        # build a map of old reports
+        old_reports: dict[tuple[str, int, str], Report] = {}
+        for report in self.reports:
+            for fight in report.fights:
+                for player in fight.players:
+                    key = (report.report_id, fight.fight_id, player.name)
+                    old_reports[key] = report
+
+        self.reports = []
         for ranking_data in rankings:
             report_data = ranking_data.report
 
             ################
             # check if already in the list
             key = (report_data.code, report_data.fightID, ranking_data.name)
-            if key in old_reports:
+           
+            # reuse
+            if old_report := old_reports.get(key):
+                self.reports.append(old_report)
                 continue
 
-            self.add_new_fight(ranking_data)
+            # new
+            if new_report := self.add_new_fight(ranking_data):
+                self.reports.append(new_report)
 
-    def process_query_result(self, **query_result: typing.Any):
+    def process_query_result(self, **query_result: typing.Any) -> None:
         """Process the Ranking Results.
 
         Expected Query:
@@ -200,32 +189,39 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
     #
     async def load_actors(self) -> None:
         """Load the Casts for all missing fights."""
-        actors_to_load = self.players
+        items_to_load: list[warcraftlogs_base.wclclient_mixin] = []
 
-        # add Boss Actors
         for i, fight in enumerate(self.fights):
+
             if not fight.boss:
                 fight.boss = Boss(boss_slug=self.boss_slug)
                 fight.boss.fight = fight
 
+            # Load Phases for Dynamic Bosses
+            raid_boss = fight.boss.raid_boss
+            if raid_boss.phase_type == RaidBoss.PhaseType.DYNAMIC and not fight.phases:
+                items_to_load += [fight]
+
             # Only full load the first boss.
             if i == 0:
-                actors_to_load += [fight.boss]  # type: ignore
+                if not fight.boss.casts:
+                    items_to_load += [fight.boss]
 
-        # filter out actors that have already been loaded
-        actors_to_load = [actor for actor in actors_to_load if actor]
-        actors_to_load = [actor for actor in actors_to_load if not actor.casts]
+            # load players
+            for player in fight.players:
+                if player and not player.casts:
+                    items_to_load.append(player)
 
-        logger.info(f"load {len(actors_to_load)} players")
-        if not actors_to_load:
+        logger.info(f"load {len(items_to_load)} items")
+        if not items_to_load:
             return
 
-        await self.load_many(actors_to_load, raise_errors=False)  # type: ignore
+        await self.load_many(items_to_load, raise_errors=False)  # type: ignore
 
     ############################################################################
     # Query: Both
     #
-    async def load(self, limit=50, clear_old=False) -> None:
+    async def load(self, limit=50, clear_old=False) -> None:  # ty:ignore[invalid-method-override]
         """Get Top Ranks for a given boss and spec."""
         logger.info(f"{self.boss.name} vs. {self.spec.name} {self.spec.wow_class.name} START | limit={limit} | clear_old={clear_old}")
 
@@ -234,11 +230,10 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
 
         # refresh the ranking data
         await self.load_rankings()
-        self.reports = self.sort_reports(self.reports)
 
         # enforce limit
-        limit = limit or -1
-        self.reports = self.reports[:limit]
+        if limit > 0:
+            self.reports = self.reports[:limit]
 
         # load the fights/players/casts
         await self.load_actors()
