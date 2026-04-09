@@ -62,12 +62,15 @@ def load_local(
     spec: WowSpec,
     boss: RaidBoss,
     difficulty: str = "mythic",
-    metric: str = "dps",
+    metric: str = "",
     limit=50,
     clear: bool = False,
 ):
     import asyncio
     from lorgs.models.warcraftlogs_ranking import SpecRanking
+
+    if not metric:
+        metric = spec.role.metric
 
     spec_ranking = SpecRanking.get_or_create(
         spec_slug=spec.full_name_slug,

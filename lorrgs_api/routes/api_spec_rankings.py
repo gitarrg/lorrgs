@@ -45,6 +45,38 @@ async def get_spec_ranking(
         return "Not found.", 404
 
 
+@router.get("/{spec_slug}/{boss_slug}/info")
+async def get_spec_ranking_info(
+    response: fastapi.Response,
+    spec_slug: str,
+    boss_slug: str,
+    difficulty: str = "mythic",
+    metric: str = "",
+):
+    """Get the Rankings for a given Spec and Boss."""
+    if not metric:
+        spec = WowSpec.get(full_name_slug=spec_slug)
+        metric = spec.role.metric if spec else "dps"
+
+    # shorter cache timeout for the start of the tier (where frequent changes happen)
+    response.headers["Cache-Control"] = "max-age=300"
+
+    try:
+        # Fetch the json directly for performance reasons.
+        # this avoids parsing the json into a model just to dump it back to json right away
+        data = warcraftlogs_ranking.SpecRanking.get_json(
+            boss_slug=boss_slug,
+            spec_slug=spec_slug,
+            difficulty=difficulty,
+            metric=metric,
+        )
+    except KeyError:
+        return "Not found.", 404
+
+    data.pop("reports", None)
+    return data
+
+
 ################################################################################
 # Tasks
 #
@@ -78,4 +110,35 @@ async def spec_ranking_load(
         "message": "task queued",
         "task": message.get("MessageId"),
         "payload": payload,
+    }
+
+
+@router.patch("/dirty")
+async def flag_dirty(
+    response: fastapi.Response,
+    spec_slug: str,
+    boss_slug: str,
+    difficulty: str = "mythic",
+    metric: str = "",
+    dirty: bool = True,
+):
+    """Flag a Spec Ranking as dirty."""
+    response.headers["Cache-Control"] = "no-cache"
+
+    if not metric:
+        spec = WowSpec.get(full_name_slug=spec_slug)
+        metric = spec.role.metric if spec else "dps"
+
+    spec_ranking = warcraftlogs_ranking.SpecRanking.get_or_create(
+        spec_slug=spec_slug,
+        boss_slug=boss_slug,
+        difficulty=difficulty,
+        metric=metric,
+    )
+    if spec_ranking:
+        spec_ranking.dirty = dirty
+        spec_ranking.save()
+
+    return {
+        "message": "success",
     }
