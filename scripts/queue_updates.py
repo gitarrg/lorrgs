@@ -84,45 +84,83 @@ def load_local(
 
 def load_spec_rankings() -> None:
     bosses = [
-        *VOIDSPIRE.bosses,
-        *DREAMRIFT.bosses,
+        # *VOIDSPIRE.bosses,
+        # *DREAMRIFT.bosses,
         # *MARCH_ON_QUALDANAS.bosses,
-        #' CROWN_OF_THE_COSMOS,
+        CROWN_OF_THE_COSMOS,
     ]
 
     specs: list[WowSpec] = [
-        MONK_WINDWALKER,
+        # DK
+        # DEATHKNIGHT_BLOOD,
+        # DEATHKNIGHT_FROST,
+        # DEATHKNIGHT_UNHOLY,
+
+        # DH
+        # DEMONHUNTER_HAVOC,
+        # DEMONHUNTER_VENGEANCE,
+        # DEMONHUNTER_DEVOURER,
+
+        # Druid
         # DRUID_BALANCE,
-        # SHAMAN_ELEMENTAL,
-        # SHAMAN_RESTORATION,
-        # MONK_MISTWEAVER,
-        # WARLOCK_DESTRUCTION,
-        # WARLOCK_AFFLICTION,
-        # WARLOCK_DEMONOLOGY,
+        # DRUID_FERAL,
+        # DRUID_GUARDIAN,
+        # DRUID_RESTORATION,
+
+        # Evoker
+        # EVOKER_AUGMENTATION,
+        # EVOKER_DEVASTATION,
+        # EVOKER_PRESERVATION,
+
+        # Hunter
         # HUNTER_BEASTMASTERY,
         # HUNTER_MARKSMANSHIP,
-        # HUNTER_SURVIVAL,
+        HUNTER_SURVIVAL,
+
+        # Mage
         # MAGE_ARCANE,
         # MAGE_FIRE,
         # MAGE_FROST,
-        # EVOKER_AUGMENTATION,
-        # EVOKER_PRESERVATION,
-        # DEMONHUNTER_HAVOC,
-        # PRIEST_SHADOW,
-        # SHAMAN_RESTORATION,
-        # SHAMAN_ELEMENTAL,
-        # SHAMAN_ENHANCEMENT
-        # PRIEST_HOLY
-        # MAGE_ARCANE,
-        # PALADIN_HOLY,
+
+        # Monk
+        # MONK_BREWMASTER,
+        # MONK_MISTWEAVER,
         # MONK_WINDWALKER,
-        # *MDPS.specs,
-        # *RDPS.specs,
+
+        # Priest
+        # PRIEST_DISCIPLINE,
+        # PRIEST_HOLY,
+        # PRIEST_SHADOW,
+
+        # Paladin
+        # PALADIN_HOLY,
+        # PALADIN_PROTECTION,
+        # PALADIN_RETRIBUTION,
+
+        # Rogue
+        # ROGUE_ASSASSINATION,
+        # ROGUE_OUTLAW,
+        # ROGUE_SUBTLETY,
+
+        # Shaman
+        # SHAMAN_ELEMENTAL,
+        # SHAMAN_ENHANCEMENT,
+        # SHAMAN_RESTORATION,
+
+        # Warlock
+        # WARLOCK_AFFLICTION,
+        # WARLOCK_DESTRUCTION,
+        # WARLOCK_DEMONOLOGY,
+
+        # Warrior
+        # WARRIOR_ARMS,
+        # WARRIOR_FURY,
+        # WARRIOR_PROTECTION,
     ]
     # specs = ALL_SPECS
     # specs = HEAL.specs
 
-    # load = load_remote
+    #  load = load_remote
     load = load_local
 
     for spec in specs:
@@ -133,9 +171,10 @@ def load_spec_rankings() -> None:
             load(
                 spec,
                 boss,
-                clear=True,
+                clear=False,
                 difficulty="heroic",
-                metric="dps",
+                metric="hps",
+                limit=5,
             )
 
 
@@ -148,20 +187,20 @@ def load_comp_ranking(boss_slug: str = "all"):
     return sqs.send_message(payload=payload)
 
 
-if __name__ == "__main__":
-    # load_spec_rankings()
-
-    # load_remote()
-    # load_comp_ranking()
-
+def load_all():
     payload = {
         "task": "load_spec_rankings",
         "spec_slug": "all",
         "boss_slug": "all",
         "difficulty": "mythic",
         "metric": "all",
-        "limit": 25,
-        "clear": False,
+        "limit": 40,
+        "clear": True,
     }
     print("q", payload)
-    sqs.send_message(payload=payload)
+    return sqs.send_message(payload=payload)
+
+
+if __name__ == "__main__":
+    load_spec_rankings()
+    # load_all()

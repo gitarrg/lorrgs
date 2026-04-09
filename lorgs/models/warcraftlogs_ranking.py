@@ -35,7 +35,9 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
     boss_slug: str
     difficulty: str = "mythic"
     metric: str = ""
+
     reports: list[Report] = []
+    """Sorted Reports for this Spec & Boss."""
 
     updated: datetime.datetime = datetime.datetime.min
     dirty: bool = False
@@ -116,15 +118,15 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
                     key = (report.report_id, fight.fight_id, player.name)
                     yield key
 
-    def add_new_fight(self, ranking_data: wcl.CharacterRanking) -> None:
+    def add_new_fight(self, ranking_data: wcl.CharacterRanking) -> Report | None:
         report_data = ranking_data.report
 
         if not report_data:
-            return
+            return None
 
         # skip hidden reports
         if ranking_data.hidden:
-            return
+            return None
 
         ################
         # Player
@@ -151,11 +153,25 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
             fights=[fight],
             region=ranking_data.server.region,
         )
-        self.reports.append(report)
+        # self.reports.append(report)
+        return report
 
     def add_new_fights(self, rankings: list[wcl.CharacterRanking]):
         """Add new Fights."""
-        old_reports = self.get_old_reports()
+
+        # build a map of old reports
+        old_reports: dict[tuple[str, int, str], Report] = {}
+        for report in self.reports:
+            for fight in report.fights:
+                for player in fight.players:
+                    key = (report.report_id, fight.fight_id, player.name)
+                    old_reports[key] = report
+
+        # for key in keys:
+        #     print(key)
+
+        reports = []
+        has_new = False
 
         for ranking_data in rankings:
             report_data = ranking_data.report
@@ -163,10 +179,22 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
             ################
             # check if already in the list
             key = (report_data.code, report_data.fightID, ranking_data.name)
-            if key in old_reports:
+           
+            # reuse
+            if old_report := old_reports.get(key):
+                print("new", key)
+                reports.append(old_report)
                 continue
 
-            self.add_new_fight(ranking_data)
+            # new
+            if new_report := self.add_new_fight(ranking_data):
+                print("new", key)
+                reports.append(new_report)
+                has_new = True
+
+        if has_new:
+            self.reports = reports
+        return
 
     def process_query_result(self, **query_result: typing.Any):
         """Process the Ranking Results.
@@ -242,12 +270,14 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
 
         # refresh the ranking data
         await self.load_rankings()
-        self.reports = self.sort_reports(self.reports)
+
+        # self.reports = self.sort_reports(self.reports)
 
         # enforce limit
         limit = limit or -1
         self.reports = self.reports[:limit]
 
+        return
         # load the fights/players/casts
         await self.load_actors()
         logger.info("done")
