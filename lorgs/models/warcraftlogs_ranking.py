@@ -200,27 +200,35 @@ class SpecRanking(S3Model, warcraftlogs_base.wclclient_mixin):
     #
     async def load_actors(self) -> None:
         """Load the Casts for all missing fights."""
-        actors_to_load = self.players
 
-        # add Boss Actors
+        items_to_load: list[warcraftlogs_base.wclclient_mixin] = []
+
         for i, fight in enumerate(self.fights):
+
             if not fight.boss:
                 fight.boss = Boss(boss_slug=self.boss_slug)
                 fight.boss.fight = fight
 
+            # Load Phases for Dynamic Bosses
+            raid_boss = fight.boss.raid_boss
+            if raid_boss.phase_type == RaidBoss.PhaseType.DYNAMIC and not fight.phases:
+                items_to_load += [fight]
+
             # Only full load the first boss.
             if i == 0:
-                actors_to_load += [fight.boss]  # type: ignore
+                if not fight.boss.casts:
+                    items_to_load += [fight.boss]
 
-        # filter out actors that have already been loaded
-        actors_to_load = [actor for actor in actors_to_load if actor]
-        actors_to_load = [actor for actor in actors_to_load if not actor.casts]
+            # load players
+            for player in fight.players:
+                if player and not player.casts:
+                    items_to_load.append(player)
 
-        logger.info(f"load {len(actors_to_load)} players")
-        if not actors_to_load:
+        logger.info(f"load {len(items_to_load)} items")
+        if not items_to_load:
             return
 
-        await self.load_many(actors_to_load, raise_errors=False)  # type: ignore
+        await self.load_many(items_to_load, raise_errors=False)  # type: ignore
 
     ############################################################################
     # Query: Both
