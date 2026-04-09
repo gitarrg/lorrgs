@@ -12,3 +12,7 @@ from lorgs.models.wow_trinket import WowTrinket
 ################################################################################
 
 SKYREACH = Dungeon(name="Skyreach")
+
+
+# [Radiant Sunstone]
+# [Solar Core Igniter]

@@ -30,6 +30,9 @@ boss = FALLEN_KING_SALHADAAR
 # Trinkets
 
 
+# [Wraps of Cosmic Madness]
+ 
+
 ################################################################################
 # Spells
 

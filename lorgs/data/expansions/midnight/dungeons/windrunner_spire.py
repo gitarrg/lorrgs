@@ -12,3 +12,8 @@ from lorgs.models.wow_trinket import WowTrinket
 ################################################################################
 
 WINDRUNNER_SPIRE = Dungeon(name="Windrunner Spire")
+
+
+
+# [Emberwing Feather]
+# [Latch's Crooked Hook]

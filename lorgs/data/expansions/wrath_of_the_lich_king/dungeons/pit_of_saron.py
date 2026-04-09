@@ -12,3 +12,6 @@ from lorgs.models.wow_trinket import WowTrinket
 ################################################################################
 
 PIT_OF_SARON = Dungeon(name="Pit of Saron")
+
+# [Nevermelting Ice Crystal]
+# [Rotting Globule]
