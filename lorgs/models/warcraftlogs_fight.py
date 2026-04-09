@@ -158,8 +158,14 @@ class Fight(warcraftlogs_base.BaseModel):
     #
 
     def get_phase_query(self) -> str:
+        if self.phases:
+            return ""
 
-        if self.boss and self.boss.raid_boss and self.boss.raid_boss.phase_type != self.boss.raid_boss.PhaseType.DYNAMIC:
+        if not self.boss:
+            return ""
+        if not self.boss.raid_boss:
+            return ""
+        if self.boss.raid_boss.phase_type != self.boss.raid_boss.PhaseType.DYNAMIC:
             return ""
 
         return textwrap.dedent(
@@ -174,7 +180,13 @@ class Fight(warcraftlogs_base.BaseModel):
             """
         )
     
-    def get_summary_query(self) -> str:
+    def get_summary_query(self) -> str:      
+        # We're loading the fight as part of a spec ranking
+        # no need to load the summary
+        # TBD: maybe this could be a simple `if players` ?
+        if len(self.players) == 1:
+            return ""
+
         return textwrap.dedent(
             f"""\
             summary: table({self.table_query_args}, dataType: Summary)
@@ -189,12 +201,6 @@ class Fight(warcraftlogs_base.BaseModel):
 
     def get_query(self) -> str:
         """Get the Query to load the fights summary."""
-
-        # When would this happen?
-        # if self.players:
-        #     logger.info("no players")
-        #     return ""
-
         if not self.report:
             raise ValueError("Missing Parent Report")
 
