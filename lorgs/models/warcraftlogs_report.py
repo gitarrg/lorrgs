@@ -81,10 +81,15 @@ class Report(warcraftlogs_base.BaseModel):
     ##########################
     # Methods
     #
-    def add_fight(self, fight_data: wcl.ReportFight):
+    def add_fight(self, fight_data: wcl.ReportFight) -> Fight | None:
         """Add a new Fight to this Report."""
         # skip trash fights
         if not fight_data.encounterID:
+            return
+
+        try:
+            difficulty = RaidDifficulty(fight_data.difficulty)
+        except ValueError:
             return
 
         fight = Fight(
@@ -93,7 +98,7 @@ class Report(warcraftlogs_base.BaseModel):
             kill=fight_data.kill,
             start_time=self.start_time + datetime.timedelta(milliseconds=fight_data.startTime),
             duration=fight_data.endTime - fight_data.startTime + 1,  # somehow there is 1ms missing
-            difficulty=RaidDifficulty(fight_data.difficulty),
+            difficulty=difficulty,
         )
         fight.report = self  # TODO: replace in favor of `post_init()``
 
