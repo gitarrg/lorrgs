@@ -144,24 +144,42 @@ class LambdaLayer:
 
 
 class RequirementsLayer(LambdaLayer):
+    GENERATED_REQUIREMENTS = f"{DEPLOY_DIR}/requirements.txt"
+
     def __init__(self, name: str = "requirements") -> None:
         super().__init__(name=name)
 
+    def _export_requirements(self) -> str:
+        """Generate a requirements.txt from pyproject.toml / uv.lock."""
+        subprocess.check_call(
+            [
+                "uv",
+                "export",
+                "--no-annotate",
+                "--no-dev",
+                "--no-emit-project",
+                "--no-hashes",
+                "--no-header",
+                "-o",
+                self.GENERATED_REQUIREMENTS,
+            ]
+        )
+        return self.GENERATED_REQUIREMENTS
+
     def deploy(self) -> None:
-        """Deploy a Lambda layer using a pip requirements file."""
-        if checksum_compare(name=self.full_name, files="requirements.txt"):
+        """Deploy a Lambda layer using dependencies from pyproject.toml."""
+        reqs = self._export_requirements()
+        if checksum_compare(name=self.full_name, files=reqs):
             return
 
         path = f"{DEPLOY_DIR}/{self.full_name}"
 
         subprocess.call(
             [
-                "pip",
-                "install",
-                "--platform=manylinux2014_aarch64",  # make sure to install arm64 builds
+                "pip", "install",
+                "--platform=manylinux2014_aarch64",
                 "--only-binary=:all:",
-                "-r",
-                "requirements.txt",
+                "-r", reqs,
                 f"--target={path}/python",
             ]
         )

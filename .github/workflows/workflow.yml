@@ -16,33 +16,20 @@ jobs:
       AWS_SECRET_ACCESS_KEY : ${{ secrets.AWS_SECRET_ACCESS_KEY }}
 
     steps:
-      # Checkout the Code
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v6
 
-      # Setup Python
-      - uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-          cache: 'pip' # caching pip dependencies
+      - uses: astral-sh/setup-uv@v7
 
-      - run: pip install -r requirements.txt
+      - run: uv sync
 
-      # install Deploy Dependencies
-      - run: pip install boto3 requests pillow
-
-      # Update Images (old bucket)
-      # - run: python scripts/load_images.py
-      #   env:
-      #     PYTHONPATH: "."
-      #     BUCKET_NAME: "lorrgs-assets"
-
-        # Update Images (new bucket)
-      - run: python scripts/load_images.py
+        # Update Images 
+      - run: uv run python scripts/load_images.py
         env:
           PYTHONPATH: "."
           BUCKET_NAME: "assets2.lorrgs.io"
 
-      # Deploy Main
-      - run: python scripts/deploy.py
-
+      # deploy assets
       - run: ./lorrgs_assets/deploy.sh
+
+      # deploy code
+      - run: uv run python scripts/deploy.py

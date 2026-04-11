@@ -18,9 +18,7 @@ dependencies = [
 dev = [
     "boto3>=1.42.68",
     "boto3-stubs[cloudwatch,dynamodb,s3,sqs]>=1.42.68",
-    "mypy>=1.19.1",
     "pillow>=12.1.1",
-    "python-dotenv>=1.2.2",
     "requests>=2.32.5",
     "uvicorn[standard]>=0.41.0",
 ]
