@@ -2,7 +2,7 @@
 name = "lorrgs"
 version = "0.0.0-dev"
 description = ""
-requires-python = ">=3.13"
+requires-python = ">=3.13.0"
 dependencies = [
     "aiofiles>=25.1.0",
     "aiohttp>=3.13.3",
@@ -16,9 +16,10 @@ dependencies = [
 
 [dependency-groups]
 dev = [
-    "boto3>=1.42.68",
     "boto3-stubs[cloudwatch,dynamodb,s3,sqs]>=1.42.68",
-    "pillow>=12.1.1",
+    "boto3>=1.42.68",
+    "pillow>=12.1.1", 
+    "pip>=26.0.1",  # for deployment
     "requests>=2.32.5",
     "uvicorn[standard]>=0.41.0",
 ]

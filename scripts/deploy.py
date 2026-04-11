@@ -176,7 +176,10 @@ class RequirementsLayer(LambdaLayer):
 
         subprocess.call(
             [
-                "pip", "install",
+                "uv",
+                "run",
+                "pip",
+                "install",
                 "--platform=manylinux2014_aarch64",
                 "--only-binary=:all:",
                 "-r", reqs,
