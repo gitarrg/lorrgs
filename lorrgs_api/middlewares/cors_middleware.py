@@ -7,18 +7,17 @@ import fastapi
 from fastapi.middleware.cors import CORSMiddleware
 
 
-# TMP FIX
-DEBUG = os.getenv("DEBUG")
-
 ORIGINS = [
     "https://lorrgs.io",
     "https://*.lorrgs-frontend.pages.dev",  # CloudFlare Pages preview Builds
 ]
+
+DEBUG = os.getenv("DEBUG")
 if DEBUG:
     ORIGINS.append("*")
 
 # 32/03/2025: tmp fix
-ORIGINS = ["*"]
+# ORIGINS = ["*"]
 
 
 def init(app: fastapi.FastAPI, enabled=True):

@@ -1,20 +1,27 @@
 """Endpoints dealing with user authentication."""
 from __future__ import annotations
 
-# IMPORT STANDARD LIBARIES
+# IMPORT STANDARD LIBRARIES
 import os
 import typing
 
-# IMPORT THIRD PARTY LIBARIES
+# IMPORT THIRD PARTY LIBRARIES
 import fastapi
 import jwt
 
-# IMPORT LOCAL LIBARIES
+# IMPORT LOCAL LIBRARIES
 from lorgs.clients import discord
 from lorgs.models.user import User
 
 
-SECRET_KEY = os.getenv("SECRET_KEY") or "my-super-secret-key"
+SECRET_KEY = os.getenv("SECRET_KEY")
+if os.getenv("DEBUG"):
+    SECRET_KEY = SECRET_KEY or "my-super-secret-key"
+
+if not SECRET_KEY:
+    raise RuntimeError("missing SECRET_KEY")
+
+
 REDIRECT_URI = os.getenv("REDIRECT_URI") or "https://lorrgs.io/login"
 
 

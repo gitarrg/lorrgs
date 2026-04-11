@@ -33,15 +33,6 @@ router.include_router(auth.router, prefix="/auth")
 router.include_router(debug.router)
 
 
-################################################################################
-
-
-@router.get("/error")
-def error():
-    """Route to test error handling"""
-    raise ValueError("something went wrong!")
-
-
 @router.get("/")
 @router.get("/{path:path}")
 def page_not_found(path=""):
