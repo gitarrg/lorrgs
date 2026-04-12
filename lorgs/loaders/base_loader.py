@@ -16,12 +16,10 @@ class BaseLoader:
     @abc.abstractmethod
     def get_query(self) -> str:
         """Get the query for the loader."""
-        return ""
 
     @abc.abstractmethod
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
         """Process the query result."""
-        raise NotImplementedError
 
     def needs_load(self) -> bool:
         """Check if the data needs to be loaded."""

@@ -36,7 +36,7 @@ class BaseClient:
     _instance: typing.Self | None = None
 
     @classmethod
-    def get_instance(cls: type[typing.Self], *args: typing.Any, **kwargs: typing.Any) -> typing.Self:
+    def get_instance(cls, *args: typing.Any, **kwargs: typing.Any) -> typing.Self:
         """Get an instance of the Client.
 
         This is a singleton-style wrapper,

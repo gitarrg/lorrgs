@@ -9,23 +9,22 @@ from lorgs.loaders.fight_loader import FightLoader
 from lorgs.loaders.player_loader import PlayerLoader
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader
 
-from .base_loader import BaseLoader
-
 
 if typing.TYPE_CHECKING:
     from lorgs.clients.wcl.client import WarcraftlogsClient
     from lorgs.models.warcraftlogs_report import Report
 
 
-class ReportLoader(BaseLoader):
+class ReportLoader:
+    """Loader for Report instances.
+
+    Note: this behaves similar to a BaseLoader, but is not a subclass of it.
+    since all the logic is delegated to the other loaders.
+    In the future we might inherit from BaseLoader, but for now it's not really necessary.
+    """
+
     def __init__(self, report: Report) -> None:
         self.report = report
-
-    def get_query(self) -> str:
-        raise NotImplementedError("use ReportOverviewLoader")
-
-    def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
-        raise NotImplementedError("use ReportOverviewLoader")
 
     ############################################################################
     # Load
@@ -33,7 +32,7 @@ class ReportLoader(BaseLoader):
     async def _load_fights(
         self,
         client: WarcraftlogsClient | None = None,
-        fight_ids: list[int] = [],
+        fight_ids: list[int] = [],  # noqa: B006
     ) -> None:
         """Load the fights for the report."""
         fights = self.report.get_fights(*fight_ids)
@@ -44,8 +43,8 @@ class ReportLoader(BaseLoader):
     async def _load_players(
         self,
         client: WarcraftlogsClient | None = None,
-        fight_ids: list[int] = [],
-        player_ids: list[int] = [],
+        fight_ids: list[int] = [],  # noqa: B006
+        player_ids: list[int] = [],  # noqa: B006
     ) -> None:
         """Load the players for the report."""
         players = []
@@ -59,9 +58,12 @@ class ReportLoader(BaseLoader):
     async def load(
         self,
         client: WarcraftlogsClient | None = None,
-        fight_ids: list[int] = [],  # noqa: B006
-        player_ids: list[int] = [],  # noqa: B006
+        fight_ids: list[int] | None = None,
+        player_ids: list[int] | None = None,
     ) -> None:
+        fight_ids = fight_ids or []
+        player_ids = player_ids or []
+
         # load the report overview if not already loaded
         if not self.report.fights:
             overview_loader = ReportOverviewLoader(report=self.report)
