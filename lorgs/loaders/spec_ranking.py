@@ -10,18 +10,19 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import wcl
-from lorgs.loaders.actor import loader_for
-from lorgs.loaders.base_loader import BaseLoader
 from lorgs.logger import logger
-from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_report import Report
 
+from .actor import BossLoader, PlayerLoader
+from .base_loader import BaseLoader
+from .fight_phases import FightPhasesLoader
+
+
 if typing.TYPE_CHECKING:
     from lorgs.clients.wcl.client import WarcraftlogsClient
-    from lorgs.models.warcraftlogs_actor import BaseActor
     from lorgs.models.warcraftlogs_ranking import SpecRanking
 
 
@@ -128,37 +129,13 @@ class SpecRankingLoader(BaseLoader):
     # Actor loading
     # ------------------------------------------------------------------
 
-    def collect_actors_to_load(self) -> list[typing.Any]:
-        items: set[BaseActor] = set()
-
-        for i, fight in enumerate(self.ranking.fights):
-            # load phases if they are dynamic
-            if (
-                not fight.phases
-                and fight.boss
-                and fight.boss.raid_boss
-                and fight.boss.raid_boss.phase_type == RaidBoss.PhaseType.DYNAMIC
-            ):
-                items.add(fight.boss)
-                print("added boss (dynamic)", fight.boss.boss_slug)
-
-            # full load boss for the first fight
-            if i == 0:
-                items.add(fight.boss)
-
-            # load players
-            for player in fight.players:
-                items.add(player)
-
-        items = {item for item in items if item and not item.casts}
-        return list(items)
-
     async def load(
         self,
         client: WarcraftlogsClient | None = None,
         *,
         limit: int = 50,
         clear_old: bool = False,
+        raise_errors: bool = False,
     ) -> None:
         """Load the Spec Ranking data from WarcraftLogs.
 
@@ -183,15 +160,27 @@ class SpecRankingLoader(BaseLoader):
         if limit > 0:
             self.ranking.reports = self.ranking.reports[:limit]
 
-        ###########################
-        # Step 2: Load actors
-        actors = self.collect_actors_to_load()
-        logger.info(f"load {len(actors)} items")
-        if actors:
-            tasks = [loader_for(actor).load(client=client, raise_errors=raise_errors) for actor in actors]
-            await asyncio.gather(*tasks)
+        ##############################################
+        # secondary tasks
+        loaders: list[BaseLoader] = []
 
-        logger.info("done")
+        # load phases for all fights
+        for fight in self.ranking.fights:
+            loaders.append(FightPhasesLoader(fight))
+
+        # load boss for first fight
+        if (top_fight := self.ranking.get_top_fight()) and top_fight.boss:
+            loaders.append(BossLoader(top_fight.boss))
+
+        # load actors
+        for player in self.ranking.players:
+            loaders.append(PlayerLoader(player))
+
+        loaders = [loader for loader in loaders if loader.needs_load()]
+        logger.info(f"load {len(loaders)} items")
+        if loaders:
+            await asyncio.gather(*[loader.load(client=client, raise_errors=raise_errors) for loader in loaders])
 
         self.ranking.updated = datetime.datetime.now(datetime.UTC)
         self.ranking.dirty = False
+        logger.info("done")

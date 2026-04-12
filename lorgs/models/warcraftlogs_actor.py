@@ -10,11 +10,11 @@ import blinker
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models import base
+from lorgs.models.warcraftlogs_cast import Cast  # noqa: TC001 # pydantic requires this import
 from lorgs.models.wow_spell import SpellType, WowSpell
 
 
 if typing.TYPE_CHECKING:
-    from lorgs.models.warcraftlogs_cast import Cast
     from lorgs.models.warcraftlogs_fight import Fight
     from lorgs.models.wow_actor import WowActor
 

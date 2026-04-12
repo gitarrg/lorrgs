@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-# IMPORT STANRD LIBRARIES
+# IMPORT STANDARD LIBRARIES
+import asyncio
 import datetime
 import textwrap
 import typing
@@ -13,10 +14,10 @@ from lorgs import utils
 from lorgs.clients import wcl
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_base
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.wow_spec import WowSpec
-from lorgs.models.difficulty import RaidDifficulty
 
 
 if typing.TYPE_CHECKING:
@@ -157,29 +158,6 @@ class Fight(warcraftlogs_base.BaseModel):
     #   Summary (kept for UserReport flow)
     #
 
-    def get_phase_query(self) -> str:
-        if self.phases:
-            return ""
-
-        if not self.boss:
-            return ""
-        if not self.boss.raid_boss:
-            return ""
-        if self.boss.raid_boss.phase_type != self.boss.raid_boss.PhaseType.DYNAMIC:
-            return ""
-
-        return textwrap.dedent(
-            f"""\
-            fights(fightIDs: {self.fight_id})
-            {{
-                phaseTransitions
-                {{
-                    startTime
-                }}
-            }}
-            """
-        )
-
     def get_summary_query(self) -> str:
         # We're loading the fight as part of a spec ranking
         # no need to load the summary
@@ -196,7 +174,6 @@ class Fight(warcraftlogs_base.BaseModel):
     def get_query_parts(self) -> list[str]:
         return [
             self.get_summary_query(),
-            self.get_phase_query(),
         ]
 
     def get_query(self) -> str:
@@ -284,7 +261,7 @@ class Fight(warcraftlogs_base.BaseModel):
     #   Load actors (uses new loaders for actor data)
     #
     async def load_actors(self, player_ids: list[int] | None = None):
-        from lorgs.loaders.actor import loader_for
+        raise NotImplementedError("use loaders instead")
 
         player_ids = player_ids or []
 

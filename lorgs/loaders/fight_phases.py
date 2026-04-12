@@ -64,15 +64,11 @@ class FightPhasesLoader(BaseLoader):
                         continue
                     self.fight.add_phase(ts=ts)
 
-    async def load(self, client: WarcraftlogsClient | None = None, *, raise_errors: bool = False) -> None:
-
+    def needs_load(self) -> bool:
         if self.fight.phases:
-            return None
-        if not self.fight.boss:
-            return None
-        if not self.fight.boss.raid_boss:
-            return None
-        if self.fight.boss.raid_boss.phase_type != self.fight.boss.raid_boss.PhaseType.DYNAMIC:
-            return None
-
-        return await super().load(client=client, raise_errors=raise_errors)
+            return False
+        if not (boss := self.fight.boss):
+            return False
+        if not (raid_boss := boss.raid_boss):
+            return False
+        return raid_boss.phase_type == raid_boss.PhaseType.DYNAMIC

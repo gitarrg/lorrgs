@@ -23,6 +23,10 @@ class BaseLoader:
         """Process the query result."""
         raise NotImplementedError
 
+    def needs_load(self) -> bool:
+        """Check if the data needs to be loaded."""
+        return True
+
     async def load(
         self,
         client: WarcraftlogsClient | None = None,

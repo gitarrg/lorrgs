@@ -59,6 +59,18 @@ class SpecRanking(S3Model):
     def players(self) -> list[Player]:
         return utils.flatten(fight.players for fight in self.fights)
 
+    def get_top_fight(self) -> Fight | None:
+        try:
+            return self.reports[0].fights[0]
+        except IndexError:
+            return None
+
+    def get_top_player(self) -> Player | None:
+        try:
+            return self.reports[0].fights[0].players[0]
+        except IndexError:
+            return None
+
     @property
     def raid_difficulty(self) -> RaidDifficulty:
         return RaidDifficulty(self.difficulty)

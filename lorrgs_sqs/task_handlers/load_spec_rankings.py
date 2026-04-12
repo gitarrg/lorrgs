@@ -7,6 +7,7 @@ import datetime
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import data  # pylint: disable=unused-import  # noqa: F401
+from lorgs.loaders.spec_ranking import SpecRankingLoader
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_ranking
 from lorgs.models.task_payloads import SpecRankingPayload
@@ -52,7 +53,7 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
 
     ################################
     # load and save
-    await ranking.load(limit=payload.limit, clear_old=clear)
+    await SpecRankingLoader(ranking).load(limit=payload.limit, clear_old=clear)
     ranking.save()
     return True, "done"
 
