@@ -5,15 +5,14 @@ to be triggered via SQS
 """
 from __future__ import annotations
 
-# IMPORT STANDARD LIBRARIES
-import json
-
 # IMPORT LOCAL LIBRARIES
 from lorgs import data  # pylint: disable=unused-import  # noqa: F401
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_actor
 from lorgs.models.task import Task
+from lorgs.models.task_payloads import UserReportPayload
 from lorgs.models.warcraftlogs_user_report import UserReport
+from lorrgs_sqs.exceptions import TaskValidationError
 
 
 def set_task_item_status(task: Task):
@@ -42,19 +41,17 @@ def set_task_item_status(task: Task):
     return handler
 
 
-async def load_user_report(report_id: str, fight_ids: list[int] = [], player_ids: list[int] = [], **kwargs) -> None:
-    logger.info(f"load_user_report: {report_id=} {fight_ids=} {player_ids=}")
-    if not (report_id and fight_ids and player_ids):
-        raise ValueError("Missing fight or player ids")
+async def load_user_report(payload: UserReportPayload) -> None:
+    logger.info(f"load_user_report: {payload}")
 
     ################################
     # loading...
-    user_report = UserReport.get_or_create(report_id=report_id)
-    await user_report.load_fights(fight_ids=fight_ids, player_ids=player_ids)
+    user_report = UserReport.get_or_create(report_id=payload.report_id)
+    await user_report.load_fights(fight_ids=payload.fight_ids, player_ids=payload.player_ids)
     user_report.save()
 
 
-async def main(message) -> None:
+async def main(message: dict[str, str]) -> None:
 
     # task status Updates
     message_id = message.get("messageId")
@@ -66,11 +63,13 @@ async def main(message) -> None:
 
     # parse input
     message_body = message.get("body")
-    message_payload = json.loads(message_body)
+    if not message_body:
+        raise TaskValidationError("No message body.")
+    payload = UserReportPayload.model_validate_json(message_body, extra="ignore")
 
     # Main
     try:
-        await load_user_report(**message_payload)
+        await load_user_report(payload)
     except:
         task.set(status=task.STATUS.FAILED)
         raise

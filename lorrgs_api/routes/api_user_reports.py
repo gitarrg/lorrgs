@@ -14,6 +14,7 @@ from lorgs import utils
 from lorgs.clients import sqs
 from lorgs.clients.wcl import InvalidReport
 from lorgs.models.task import Task
+from lorgs.models.task_payloads import UserReportPayload
 from lorgs.models.warcraftlogs_user_report import UserReport
 
 
@@ -100,13 +101,12 @@ async def load_user_report(response: fastapi.Response, report_id: str, fight: st
     fight_ids = utils.str_int_list(fight)
     player_ids = utils.str_int_list(player)
 
-    payload = {
-        "task": "load_user_report",
-        "report_id": report_id,
-        "user_id": user_id,
-        "fight_ids": utils.str_int_list(fight),
-        "player_ids": utils.str_int_list(player),
-    }
+    payload = UserReportPayload(
+        report_id=report_id,
+        user_id=user_id,
+        fight_ids=fight_ids,
+        player_ids=player_ids,
+    )
 
     message = sqs.send_message(queue_url=SQS_USER_QUEUE_URL, payload=payload)
     message_id = message["MessageId"]

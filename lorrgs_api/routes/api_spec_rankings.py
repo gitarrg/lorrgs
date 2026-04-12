@@ -1,4 +1,4 @@
-"""Enpoints dealing with Rankings per Spec."""
+"""Endpoints dealing with Rankings per Spec."""
 from __future__ import annotations
 
 # IMPORT THIRD PARTY LIBRARIES
@@ -8,6 +8,7 @@ import fastapi
 from lorgs.clients import sqs
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_ranking
+from lorgs.models.task_payloads import SpecRankingPayload
 from lorgs.models.wow_spec import WowSpec
 
 
@@ -95,15 +96,14 @@ async def spec_ranking_load(
     """Queue an update for the given specs and bosses."""
     response.headers["Cache-Control"] = "no-cache"
 
-    payload = {
-        "task": "load_spec_rankings",
-        "spec_slug": spec_slug,
-        "boss_slug": boss_slug,
-        "difficulty": difficulty,
-        "metric": metric,
-        "limit": limit,
-        "clear": clear,
-    }
+    payload = SpecRankingPayload(
+        spec_slug=spec_slug,
+        boss_slug=boss_slug,
+        difficulty=difficulty,
+        metric=metric,
+        limit=limit,
+        clear=clear,
+    )
     message = sqs.send_message(payload=payload)
 
     return {
