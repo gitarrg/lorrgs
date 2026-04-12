@@ -47,8 +47,8 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
         try:
             if updated > (now - datetime.timedelta(hours=2)):
                 return True, "already updated"
-        except:
-            pass
+        except TypeError:
+            logger.warning(f"Failed to compare timestamp ({now=}, {updated=}) for {payload=}")
 
     ################################
     # load and save
