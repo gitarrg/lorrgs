@@ -29,8 +29,7 @@ async def get_user_report(report_id: str) -> UserReport:
     """Returns the overview about a user report."""
     user_report = UserReport.get(report_id=report_id, create=False)
     if not user_report:
-        return {"message": "not found"}
-        # TODO:  raise fastapi.HTTPException(status_code=404, detail="Report not found.")
+        raise fastapi.HTTPException(status_code=404, detail="Report not found.")
 
     # TODO: exclude nested casts/fights etc
     return user_report
@@ -48,7 +47,7 @@ async def get_fights(report_id: str, fight: str, player: str = ""):
     """
     user_report = UserReport.get(report_id=report_id, create=False)
     if not user_report:
-        return "Report not found.", 404
+        raise fastapi.HTTPException(status_code=404, detail="Report not found.")
 
     fight_ids = utils.str_int_list(fight)
     player_ids = utils.str_int_list(player)

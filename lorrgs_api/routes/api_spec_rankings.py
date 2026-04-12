@@ -43,7 +43,7 @@ async def get_spec_ranking(
             metric=metric,
         )
     except KeyError:
-        return "Not found.", 404
+        raise fastapi.HTTPException(status_code=404, detail="Not found.")
 
 
 @router.get("/{spec_slug}/{boss_slug}/info")
@@ -72,7 +72,7 @@ async def get_spec_ranking_info(
             metric=metric,
         )
     except KeyError:
-        return "Not found.", 404
+        raise fastapi.HTTPException(status_code=404, detail="Not found.")
 
     data.pop("reports", None)
     return data
