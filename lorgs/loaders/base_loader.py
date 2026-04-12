@@ -26,7 +26,8 @@ class BaseLoader:
     async def load(
         self,
         client: WarcraftlogsClient | None = None,
-        **kwargs: typing.Any,
+        *,
+        raise_errors: bool = False,
     ) -> None:
         """Load the data."""
         query = self.get_query()
@@ -34,5 +35,5 @@ class BaseLoader:
         if not client:
             client = WarcraftlogsClient.get_instance()
 
-        result = await client.query(query)
+        result = await client.query(query, raise_errors=raise_errors)
         self.process_query_result(result)

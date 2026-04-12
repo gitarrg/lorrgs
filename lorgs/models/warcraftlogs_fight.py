@@ -66,7 +66,7 @@ class Fight(warcraftlogs_base.BaseModel):
         self._report = value
 
     def post_init(self) -> None:
-        actors = self.players + [self.boss]
+        actors = [*self.players, self.boss]
         for actor in actors:
             if actor:
                 actor.fight = self
@@ -154,7 +154,7 @@ class Fight(warcraftlogs_base.BaseModel):
         return f"fightIDs: {self.fight_id}, startTime: {self.start_time_rel}, endTime: {self.end_time_rel}"
 
     ############################################################################
-    #   Summary
+    #   Summary (kept for UserReport flow)
     #
 
     def get_phase_query(self) -> str:
@@ -179,8 +179,8 @@ class Fight(warcraftlogs_base.BaseModel):
             }}
             """
         )
-    
-    def get_summary_query(self) -> str:      
+
+    def get_summary_query(self) -> str:
         # We're loading the fight as part of a spec ranking
         # no need to load the summary
         # TBD: maybe this could be a simple `if players` ?
@@ -263,49 +263,44 @@ class Fight(warcraftlogs_base.BaseModel):
         """Process the data retured from an Overview-Query."""
         report_data = wcl.ReportData(**query_result)
 
-        # process summary
         if summary_data := report_data.report.summary:
             self.duration = self.duration or summary_data.totalTime
             self.process_players(summary_data)
 
-        # process fights
         for fight in report_data.report.fights:
-            
+
             if fight.id not in [self.fight_id, -1]:
                 continue
 
-            # load phases
             if fight.phaseTransitions:
                 self.phases = []
                 for phase_transition in fight.phaseTransitions:
                     ts = phase_transition.startTime - self.start_time_rel
-                    if ts <= 100:  # no need to track start of P1
+                    if ts <= 100:
                         continue
                     self.add_phase(ts)
-       
-       # todo: when was this used?
-        # for player in self.players:
-        #     player.process_query_result(**query_result)
 
     ############################################################################
-    #   Load Player:
+    #   Load actors (uses new loaders for actor data)
     #
     async def load_actors(self, player_ids: list[int] | None = None):
+        from lorgs.loaders.actor import loader_for
+
         player_ids = player_ids or []
 
         if not self.players:
             await self.load()
 
-        # Get Players to load
-        actors_to_load: list["BaseActor"] = []
+        actors_to_load: list[BaseActor] = []
         actors_to_load += self.get_players(*player_ids)
         actors_to_load += [self.boss] if self.boss else []
         actors_to_load = [actor for actor in actors_to_load if not actor.casts]
         if not actors_to_load:
             return
 
-        # load
-        await self.load_many(actors_to_load)  # type: ignore
+        client = self.client
+        tasks = [loader_for(actor).load(client, raise_errors=False) for actor in actors_to_load]
+        await asyncio.gather(*tasks)
 
         # Create a new list (otherwise pydantic would consider it as unset )
         self.players = [p for p in self.players]

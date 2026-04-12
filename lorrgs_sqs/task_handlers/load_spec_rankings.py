@@ -38,11 +38,11 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
 
     # skip if updated recently
     if not clear:
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = datetime.datetime.now(datetime.UTC)
         updated = ranking.updated
         # Some persisted/initialized values may be offset-naive; treat them as UTC.
         if updated.tzinfo is None:
-            updated = updated.replace(tzinfo=datetime.timezone.utc)
+            updated = updated.replace(tzinfo=datetime.UTC)
 
         try:
             if updated > (now - datetime.timedelta(hours=2)):
