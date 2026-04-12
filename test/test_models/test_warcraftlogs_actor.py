@@ -4,6 +4,7 @@ from unittest import mock
 
 import pytest
 
+from lorgs.loaders.actor_loader import ActorLoader
 from lorgs.models.warcraftlogs_actor import BaseActor
 from lorgs.models import wow_class
 from lorgs.models import wow_role
@@ -14,7 +15,7 @@ from test import helpers
 
 # Test Classes
 # todo: move somewhere else or mock away
-MOCK_ROLE = wow_role.WowRole(id=4, name="Test")
+MOCK_ROLE = wow_role.WowRole(id=4, name="Test", code="test")
 MOCK_CLASS = wow_class.WowClass(id=4, name="Test")
 MOCK_SPEC = wow_spec.WowSpec(name="TestSpec", wow_class=MOCK_CLASS, role=MOCK_ROLE)
 
@@ -37,12 +38,13 @@ class TestBaseActor(unittest.TestCase):
         assert self.actor._has_source_id == False
 
 
-class TestBaseActorProcess(unittest.TestCase):
-    """Test processing the quest result."""
+class TestActorLoaderProcess(unittest.TestCase):
+    """Test processing the query result via the loader."""
 
     @mock.patch.multiple(BaseActor, __abstractmethods__=set())
     def setUp(self):
         self.actor = BaseActor()
+        self.loader = ActorLoader(self.actor)
 
     def test__process_casts__simple(self):
         casts_events = [
@@ -68,7 +70,7 @@ class TestBaseActorProcess(unittest.TestCase):
         casts_data = helpers.wrap_data(casts_events, "report", "events", "data")
 
         self.actor.source_id = 10
-        self.actor.process_query_result(**casts_data)
+        self.loader.process_query_result(casts_data)
 
         assert self.actor.casts != []
         assert len(self.actor.casts) == 3
@@ -84,7 +86,7 @@ class TestBaseActorProcess(unittest.TestCase):
 
         assert not self.actor.casts
         self.actor.source_id = 10
-        self.actor.process_query_result(**casts_data)
+        self.loader.process_query_result(casts_data)
         assert not self.actor.casts
 
 

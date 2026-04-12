@@ -3,6 +3,7 @@ import unittest
 
 import pytest
 from lorgs.models import warcraftlogs_player
+from lorgs.loaders.player_loader import PlayerLoader
 
 from lorgs.clients import wcl
 
@@ -10,6 +11,7 @@ from lorgs.clients import wcl
 class TestPlayer(unittest.TestCase):
     def setUp(self):
         self.player = warcraftlogs_player.Player()
+        self.loader = PlayerLoader(self.player)
 
     def test__set_source_id_from_events(self) -> None:
         events = [
@@ -19,7 +21,7 @@ class TestPlayer(unittest.TestCase):
         ]
 
         self.player.source_id = -2
-        self.player.set_source_id_from_events(events)
+        self.loader._set_source_id_from_events(events)
         assert self.player.source_id == 4
 
 
