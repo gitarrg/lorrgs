@@ -13,6 +13,7 @@ import fastapi
 from lorgs import utils
 from lorgs.clients import sqs
 from lorgs.clients.wcl import InvalidReport
+from lorgs.clients.wcl.client import WarcraftlogsClient
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader
 from lorgs.models.task import Task
 from lorgs.models.task_payloads import UserReportPayload
