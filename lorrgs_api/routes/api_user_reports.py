@@ -73,9 +73,11 @@ async def load_user_report_overview(response: fastapi.Response, report_id: str, 
 
     needs_to_load = refresh or not user_report.is_loaded
     if needs_to_load:
+        client = WarcraftlogsClient.get_instance()
+        client.raise_errors = True  # so we can catch them for user feedback
         loader = ReportOverviewLoader(report=user_report)
         try:
-            await loader.load(raise_errors=True)
+            await loader.load(client=client)
         except InvalidReport as e:
             raise fastapi.HTTPException(status_code=404, detail="Report not found.") from e
         except PermissionError as e:

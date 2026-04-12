@@ -16,9 +16,10 @@ from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_report import Report
 
-from .actor import BossLoader, PlayerLoader
 from .base_loader import BaseLoader
+from .boss_loader import BossLoader
 from .fight_phases import FightPhasesLoader
+from .player_loader import PlayerLoader
 
 
 if typing.TYPE_CHECKING:
@@ -135,7 +136,6 @@ class SpecRankingLoader(BaseLoader):
         *,
         limit: int = 50,
         clear_old: bool = False,
-        raise_errors: bool = False,
     ) -> None:
         """Load the Spec Ranking data from WarcraftLogs.
 
@@ -154,7 +154,9 @@ class SpecRankingLoader(BaseLoader):
             self.ranking.reports = []
 
         # fetch rankings
-        await super().load(client=client, raise_errors=raise_errors)
+        client = client or WarcraftlogsClient.get_instance()
+        client.raise_errors = False  # to skip invalid reports leftover in the ranking (eg.: reports which have been made private)
+        await super().load(client=client)
 
         # enforce limit
         if limit > 0:
@@ -179,7 +181,7 @@ class SpecRankingLoader(BaseLoader):
         loaders = [loader for loader in loaders if loader.needs_load()]
         logger.info(f"load {len(loaders)} items")
         if loaders:
-            await asyncio.gather(*[loader.load(client=client, raise_errors=raise_errors) for loader in loaders])
+            await asyncio.gather(*[loader.load(client=client) for loader in loaders])
 
         self.ranking.updated = datetime.datetime.now(datetime.UTC)
         self.ranking.dirty = False

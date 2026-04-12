@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-import datetime
 import textwrap
 import typing
 
@@ -9,10 +8,6 @@ import typing
 from lorgs.clients import wcl
 from lorgs.loaders.fight_loader import FightLoader
 from lorgs.logger import logger
-from lorgs.models.difficulty import RaidDifficulty
-from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.warcraftlogs_boss import Boss
-from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_report import Report
 from lorgs.models.wow_class import WowClass
@@ -21,8 +16,6 @@ from .base_loader import BaseLoader
 
 
 class ReportOverviewLoader(BaseLoader):
-
-
     def __init__(self, report: Report) -> None:
         self.report = report
 

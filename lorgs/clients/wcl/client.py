@@ -103,7 +103,7 @@ class WarcraftlogsClient(BaseClient):
 
         logger.info("NEW CLIENT: %s", self.client_id)
         self._num_queries = 0
-        self._raise_errors: bool = True
+        self.raise_errors: bool = True
 
     ################################
     #   Connection
@@ -149,7 +149,7 @@ class WarcraftlogsClient(BaseClient):
         info = await self.get_rate_info()
         return info.get("limitPerHour", 0) - info.get("pointsSpentThisHour", 0)
 
-    def raise_errors(self, result: dict[str, typing.Any]) -> None:
+    def _raise_errors(self, result: dict[str, typing.Any]) -> None:
         if result.get("error"):
             raise ValueError(result.get("error"))
 
@@ -181,8 +181,8 @@ class WarcraftlogsClient(BaseClient):
         result = await super().query(self.URL_API, query)
 
         # Check for Errors
-        if self._raise_errors:
-            self.raise_errors(result)
+        if self.raise_errors:
+            self._raise_errors(result)
 
         return result.get("data", {})
 

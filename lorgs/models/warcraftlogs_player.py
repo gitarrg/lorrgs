@@ -9,6 +9,10 @@ from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_spec import WowSpec
 
 
+if typing.TYPE_CHECKING:
+    from lorgs.clients import wcl
+
+
 class Player(BaseActor):
     """A PlayerCharacter in a Fight (or report)."""
 
@@ -59,14 +63,10 @@ class Player(BaseActor):
     ############################################################################
     # Process (kept for UserReport flow via Fight.process_players)
     #
-    def process_death_events(self, death_events: list) -> None:
+    def process_death_events(self, death_events: list[wcl.DeathEvent]) -> None:
         """Add the Death Events to the Player."""
-        from lorgs.clients import wcl
-
         self.deaths = []
         for death_event in death_events:
-            if not isinstance(death_event, wcl.DeathEvent):
-                continue
             target_id = death_event.id
             if self._has_source_id and (target_id != self.source_id):
                 continue

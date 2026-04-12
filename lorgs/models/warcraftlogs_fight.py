@@ -1,9 +1,7 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-import asyncio
 import datetime
-import textwrap
 import typing
 
 # IMPORT THIRD PARTY LIBRARIES
@@ -11,17 +9,13 @@ import pydantic
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
-from lorgs.clients import wcl
-from lorgs.logger import logger
 from lorgs.models import warcraftlogs_base
 from lorgs.models.difficulty import RaidDifficulty
-from lorgs.models.warcraftlogs_boss import Boss
-from lorgs.models.warcraftlogs_player import Player
-from lorgs.models.wow_spec import WowSpec
+from lorgs.models.warcraftlogs_boss import Boss  # noqa: TC001 # required by pydantic
+from lorgs.models.warcraftlogs_player import Player  # noqa: TC001 # required by pydantic
 
 
 if typing.TYPE_CHECKING:
-    from lorgs.models.warcraftlogs_actor import BaseActor
     from lorgs.models.warcraftlogs_report import Report
 
 
@@ -138,7 +132,6 @@ class Fight(warcraftlogs_base.BaseModel):
 
     def add_phase(self, ts: int) -> Phase:
         """Add a new phase to the fight."""
-
         if not self.phases:
             self.phases = []  # force new list to trick pydantics "excludeUnset"
 
@@ -152,28 +145,3 @@ class Fight(warcraftlogs_base.BaseModel):
     @property
     def table_query_args(self) -> str:
         return f"fightIDs: {self.fight_id}, startTime: {self.start_time_rel}, endTime: {self.end_time_rel}"
-
-    ############################################################################
-    #   Load actors (uses new loaders for actor data)
-    #
-    async def load_actors(self, player_ids: list[int] | None = None):
-        raise NotImplementedError("use loaders instead")
-
-        player_ids = player_ids or []
-
-        if not self.players:
-            await self.load()
-
-        actors_to_load: list[BaseActor] = []
-        actors_to_load += self.get_players(*player_ids)
-        actors_to_load += [self.boss] if self.boss else []
-        actors_to_load = [actor for actor in actors_to_load if not actor.casts]
-        if not actors_to_load:
-            return
-
-        client = self.client
-        tasks = [loader_for(actor).load(client, raise_errors=False) for actor in actors_to_load]
-        await asyncio.gather(*tasks)
-
-        # Create a new list (otherwise pydantic would consider it as unset )
-        self.players = [p for p in self.players]

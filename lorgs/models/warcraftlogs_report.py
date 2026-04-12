@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-# IMPORT THIRD PARTY LIBRARIES
-import asyncio
-
 # IMPORT STANDARD LIBRARIES
 import datetime
 import typing
@@ -87,22 +84,3 @@ class Report(warcraftlogs_base.BaseModel):
         fights = [self.get_fight(fight_id) for fight_id in fight_ids]
         return [f for f in fights if f]
 
-    ############################################################################
-    # Query
-    #
-    async def load_fight(self, fight_id: int, player_ids: list[int]):
-        """Load a single Fight from this Report."""
-        fight = self.get_fight(fight_id=fight_id)
-        if not fight:
-            raise ValueError("invalid fight id")
-
-        await fight.load_actors(player_ids=player_ids)
-
-    async def load_fights(self, fight_ids: list[int], player_ids: list[int]) -> None:
-        if not self.fights:
-            await self.load()
-
-        # queue all tasks at once.
-        # the client will make sure its throttled accordingly
-        tasks = [self.load_fight(fight_id=fight_id, player_ids=player_ids) for fight_id in fight_ids]
-        await asyncio.gather(*tasks)

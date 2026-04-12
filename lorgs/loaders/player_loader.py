@@ -142,25 +142,3 @@ class PlayerLoader(ActorLoader):
                 data["source_class"] = source_player.class_slug
 
         self.actor.resurrects.append(data)
-
-    def process_death_events(self, death_events: list[wcl.DeathEvent]) -> None:
-        """Add the Death Events to the Player.
-
-        TODO: where is this called?
-        """
-        # new list so that pydantic's "exclude unset" doesn't exclude it.
-        if not self.actor.deaths:
-            self.actor.deaths = []
-
-        for death_event in death_events:
-            if self.actor.source_id and (death_event.id != self.actor.source_id):
-                continue
-
-            death_ability = death_event.ability
-            death_data = {
-                "ts": death_event.deathTime,
-                "spell_name": death_ability.name,
-                "spell_icon": death_ability.abilityIcon,
-            }
-            self.actor.deaths.append(death_data)
-

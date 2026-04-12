@@ -184,10 +184,7 @@ class ActorLoader(BaseLoader):
     # Load
     ############################################################################
 
-    async def load(
-        self,
-        client: WarcraftlogsClient | None = None
-    ) -> None:
+    async def load(self, client: WarcraftlogsClient | None = None) -> None:
         """Load the data for the actor."""
         self.actor.event_actor_load.send(self.actor, status="start")
         try:
