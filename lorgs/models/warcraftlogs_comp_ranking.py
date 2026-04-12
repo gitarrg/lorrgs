@@ -55,7 +55,7 @@ class FilterExpression(pydantic.BaseModel):
         m = re.match(cls.QUERY_ARG_RE, expr)
         if not m:
             raise ValueError(f"invalid query arg: {expr}")
-        return cls.parse_obj(m.groupdict())
+        return cls.model_validate(m.groupdict())
 
     def run(self, values: dict) -> bool:
         op = self.OPS[self.op]

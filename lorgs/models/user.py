@@ -76,9 +76,9 @@ class User(base.DynamoDBModel):
             permissions.update(role_permissions)
         return permissions
 
-    def dict(self, **kwargs: typing.Any) -> dict[str, typing.Any]:
+    def model_dump(self, **kwargs: typing.Any) -> dict[str, typing.Any]:
         return {
-            **super().dict(**kwargs),
+            **super().model_dump(**kwargs),
             "permissions": self.permissions,
             # aliases to keep things agnostic
             "name": self.discord_tag,

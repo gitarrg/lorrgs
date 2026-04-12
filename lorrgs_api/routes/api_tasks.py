@@ -35,7 +35,7 @@ async def get_task(response: fastapi.Response, task_id: str):
     try:
         return _get_task_info(task_id)
     except KeyError:
-        return "Task not found.", 404
+        raise fastapi.HTTPException(status_code=404, detail="Task not found.")
 
 
 @router.websocket("/{task_id}")

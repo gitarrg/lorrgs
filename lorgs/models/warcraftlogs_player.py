@@ -39,7 +39,7 @@ class Player(BaseActor):
         return {
             **self.summary(),
             "total": int(self.total),
-            "casts": [cast.dict() for cast in self.casts],
+            "casts": [cast.model_dump() for cast in self.casts],
             "deaths": self.deaths,
             "resurrects": self.resurrects,
         }
@@ -134,7 +134,8 @@ class Player(BaseActor):
             data["spell_icon"] = spell.icon
 
         # new list so that pydantic's "exclude unset" doesn't exclude it.
-        self.resurrects = []
+        if not self.resurrects:
+            self.resurrects = []
 
         # Look for the Source ID
         source_id = event.sourceID

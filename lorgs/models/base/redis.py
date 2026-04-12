@@ -45,10 +45,10 @@ class RedisModel(base.BaseModel):
 
     def save(self, exclude_unset=True, **kwargs: Any) -> None:
         """Save the Object."""
-        key = self.get_key(**self.dict())
+        key = self.get_key(**self.model_dump())
 
         # Use pydantics json encoder to convert complex types (eg.: datetime)
-        data = json.loads(self.json(exclude_unset=exclude_unset, **kwargs))
+        data = json.loads(self.model_dump_json(exclude_unset=exclude_unset, **kwargs))
 
         redis_client.json().set(name=key, path=".", obj=data)
 
@@ -61,8 +61,7 @@ class RedisModel(base.BaseModel):
         Todo:
             reload/update the instance itself
         """
-        key = self.get_key(**self.dict())
-
+        key = self.get_key(**self.model_dump())
         for path, value in kwargs.items():
             if not path.startswith("."):
                 path = f".{path}"

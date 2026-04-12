@@ -2,7 +2,7 @@ from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
 from collections import defaultdict
-from typing import TYPE_CHECKING, Optional
+from typing import TYPE_CHECKING
 import typing
 
 # IMPORT THIRD PARTY LIBRARIES
@@ -18,30 +18,6 @@ if TYPE_CHECKING:
     from lorgs.clients import wcl
 
 
-# Maps Warcraftlogs Event Types to their corresponding ingame Comabatlog Event Types
-WCL_TO_MRT_EVENT = {
-    "cast": "SPELL_CAST_SUCCESS",
-    "begincast": "SPELL_CAST_START",
-    "applybuff": "SPELL_AURA_APPLIED",
-    "applydebuff": "SPELL_AURA_APPLIED",
-    "removebuff": "SPELL_AURA_REMOVED",
-    "removedebuff": "SPELL_AURA_REMOVED",
-    "death": "UNIT_DIED",
-}
-
-# Maps Combatlog Event Names to their shorthand versions used in MRT
-MRT_EVENT_ABBREVIATION = {
-    "SPELL_CAST_START": "SCS",
-    "SPELL_CAST_SUCCESS": "SCC",
-    "SPELL_AURA_APPLIED": "SAA",
-    "SPELL_AURA_REMOVED": "SAR",
-    "UNIT_DIED": "UD",
-    "UNIT_SPELLCAST_START": "USS",
-    "UNIT_SPELLCAST_SUCCEEDED": "USC",
-    "CHAT_MSG_MONSTER_YELL": "CMMY",
-}
-
-
 class Cast(base.BaseModel):
     """An Instance of a Cast of a specific Spell in a Fight."""
 
@@ -51,7 +27,7 @@ class Cast(base.BaseModel):
     timestamp: int = pydantic.Field(alias="ts")
     """time the spell was cast, in milliseconds relative to the start of the fight."""
 
-    duration: Optional[int] = pydantic.Field(default=None, alias="d")
+    duration: int | None = pydantic.Field(default=None, alias="d")
     """time the spell/buff was active in milliseconds."""
 
     counter: int = pydantic.Field(default=0, alias="c")
@@ -82,18 +58,8 @@ class Cast(base.BaseModel):
         return f"Cast(id={self.spell_id}, ts={time_fmt})"
 
     @property
-    def spell(self) -> Optional[WowSpell]:
+    def spell(self) -> WowSpell | None:
         return WowSpell.get(spell_id=self.spell_id)
-
-    @property
-    def combatlog_event_type(self) -> str:
-        return WCL_TO_MRT_EVENT.get(self.event_type, "UNKNOWN")
-
-    @property
-    def mrt_trigger(self) -> str:
-        """eg.: SCC:442432:1"""
-        event = MRT_EVENT_ABBREVIATION.get(self.combatlog_event_type, self.combatlog_event_type)
-        return f"{event}:{self.spell_id}:{self.counter}"
 
     def get_duration(self) -> int:
         if self.duration:

@@ -205,8 +205,8 @@ def build_spell_query(*spells: WowSpell) -> str:
     if not spells:
         return ""
 
-    spells = [spells for spells in spells if spells.query]
-
+    spells: list[WowSpell] = list(spells)
+    spells = [spell for spell in spells if spell.query]
     spells = utils.flatten([spell.expand_events() for spell in spells])
 
     queries: list[str] = []

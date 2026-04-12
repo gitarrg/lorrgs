@@ -87,7 +87,7 @@ async def get_user(response: fastapi.Response, user_id: str) -> dict[str, typing
         else:
             user.save()
 
-    return user.dict()
+    return user.model_dump()
 
 
 @router.get("/users/{user_id:str}/refresh")
@@ -101,4 +101,4 @@ async def user_refresh(response: fastapi.Response, user_id: str) -> dict[str, ty
     user.save()
 
     response.headers["Cache-Control"] = "no-cache"
-    return user.dict()
+    return user.model_dump()
