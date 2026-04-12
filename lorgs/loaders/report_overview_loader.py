@@ -104,12 +104,16 @@ class ReportOverviewLoader(BaseLoader):
 
     def _process_fights(self, fights: list[wcl.ReportFight]) -> None:
         """Create the Fights from the passed Report-Fights."""
-        self.report.fights = []  # clear out any old instances
-
         for fight_data in fights:
+            if self.report.get_fight(fight_data.id):
+                continue  # already loaded
+
             if fight := FightLoader.fight_from_wcl_fight(fight_data, report=self.report):
                 fight.report = self.report
                 self.report.fights.append(fight)
+
+        # make pydantic believe the list has changed
+        self.report.fights = self.report.fights[:]
 
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
         report_data = wcl.ReportData(**query_result)
