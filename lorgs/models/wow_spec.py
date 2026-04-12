@@ -35,8 +35,11 @@ class WowSpec(WowActor):
         self.parents.append(self.wow_class)
         return super().post_init()
 
-    def __repr__(self) -> str:
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}({self.name})"
+
+    def __repr__(self) -> str:
+        return str(self)
 
     @property
     def name_slug(self) -> str:

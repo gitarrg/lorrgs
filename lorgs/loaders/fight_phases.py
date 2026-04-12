@@ -12,7 +12,6 @@ from .base_loader import BaseLoader
 
 
 if TYPE_CHECKING:
-    from lorgs.clients.wcl.client import WarcraftlogsClient
     from lorgs.models.warcraftlogs_fight import Fight
 
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import asyncio
 import datetime
+import enum
 import functools
 import itertools
 import typing
@@ -275,7 +276,7 @@ def run_in_executor(_func):
 
 class CaseInsensitiveEnum(enum.Enum):
     """An Enum that is case-insensitive."""
-    
+
     @classmethod
     def _missing_(cls, value):
         value = str(value).lower()
@@ -283,4 +284,4 @@ class CaseInsensitiveEnum(enum.Enum):
             if member.name.lower() == value:
                 return member
 
-        super()._missing_(value)
+        return super()._missing_(value)

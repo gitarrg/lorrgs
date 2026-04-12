@@ -13,6 +13,7 @@ import fastapi
 from lorgs import utils
 from lorgs.clients import sqs
 from lorgs.clients.wcl import InvalidReport
+from lorgs.loaders.report_overview_loader import ReportOverviewLoader
 from lorgs.models.task import Task
 from lorgs.models.task_payloads import UserReportPayload
 from lorgs.models.warcraftlogs_user_report import UserReport
@@ -72,12 +73,13 @@ async def load_user_report_overview(response: fastapi.Response, report_id: str, 
 
     needs_to_load = refresh or not user_report.is_loaded
     if needs_to_load:
+        loader = ReportOverviewLoader(report=user_report)
         try:
-            await user_report.load(raise_errors=True)
-        except InvalidReport:
-            raise fastapi.HTTPException(status_code=404, detail="Report not found.")
-        except PermissionError:
-            raise fastapi.HTTPException(status_code=401, detail="No permission to view this report.")
+            await loader.load(raise_errors=True)
+        except InvalidReport as e:
+            raise fastapi.HTTPException(status_code=404, detail="Report not found.") from e
+        except PermissionError as e:
+            raise fastapi.HTTPException(status_code=401, detail="No permission to view this report.") from e
         else:
             user_report.save()
 
