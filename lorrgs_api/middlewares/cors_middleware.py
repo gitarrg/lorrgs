@@ -28,7 +28,7 @@ def init(app: fastapi.FastAPI, enabled=True):
     app.add_middleware(
         CORSMiddleware,
         allow_origins=ORIGINS,
-        allow_credentials=True,
+        allow_credentials=False,
         allow_methods=["POST", "GET", "OPTIONS"],
         allow_headers=["*"],
         max_age=3600,
