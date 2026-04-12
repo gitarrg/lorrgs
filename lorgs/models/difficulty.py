@@ -1,7 +1,9 @@
-import enum
+from __future__ import annotations
+
+from lorgs.utils import CaseInsensitiveEnum
 
 
-class RaidDifficulty(enum.Enum):
+class RaidDifficulty(CaseInsensitiveEnum):
     """Difficulty of the raid.
     
     IDs are matching the WCL IDs.

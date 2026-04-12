@@ -272,3 +272,15 @@ def run_in_executor(_func):
         return loop.run_in_executor(executor=None, func=func)
 
     return wrapped
+
+class CaseInsensitiveEnum(enum.Enum):
+    """An Enum that is case-insensitive."""
+    
+    @classmethod
+    def _missing_(cls, value):
+        value = str(value).lower()
+        for member in cls:
+            if member.name.lower() == value:
+                return member
+
+        super()._missing_(value)
