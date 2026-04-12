@@ -7,8 +7,10 @@ import datetime
 import json
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import data  # pylint: disable=unused-import
+from lorgs import data  # pylint: disable=unused-import  # noqa: F401
+from lorgs.logger import logger
 from lorgs.models import warcraftlogs_ranking
+from lorrgs_sqs.exceptions import TaskValidationError
 
 
 async def load_spec_rankings(
@@ -23,11 +25,9 @@ async def load_spec_rankings(
     ################################
     # Get inputs
 
-    # fmt: off
-    print(f"loading: {boss_slug} vs {spec_slug} | (difficulty={difficulty} / metric={metric} / limit={limit} / clear={clear})")
-    # fmt: on
+    logger.info(f"loading: {boss_slug} vs {spec_slug} | ({difficulty=} / {metric=} / {limit=} / {clear=})")
     if boss_slug is None or spec_slug is None:
-        return False, f"missing boss or spec ({boss_slug} / {spec_slug})"
+        raise TaskValidationError(f"missing boss or spec ({boss_slug} / {spec_slug})")
 
     ################################
     # get spec ranking object
@@ -38,9 +38,9 @@ async def load_spec_rankings(
         metric=metric,
     )
     if not ranking.boss:
-        return False, "invalid boss"
+        raise TaskValidationError("invalid boss")
     if not ranking.spec:
-        return False, "invalid spec"
+        raise TaskValidationError("invalid spec")
 
     # force refresh if dirty
     if ranking.dirty:
@@ -73,7 +73,7 @@ async def main(message: dict[str, str]):
     # parse the message
     message_body = message.get("body")
     if not message_body:
-        return False, "No message body."
+        raise TaskValidationError("No message body.")
     payload = json.loads(message_body)
 
     return await load_spec_rankings(

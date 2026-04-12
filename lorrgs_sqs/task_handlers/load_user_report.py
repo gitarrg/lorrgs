@@ -9,7 +9,8 @@ from __future__ import annotations
 import json
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import data  # pylint: disable=unused-import
+from lorgs import data  # pylint: disable=unused-import  # noqa: F401
+from lorgs.logger import logger
 from lorgs.models import warcraftlogs_actor
 from lorgs.models.task import Task
 from lorgs.models.warcraftlogs_user_report import UserReport
@@ -42,7 +43,7 @@ def set_task_item_status(task: Task):
 
 
 async def load_user_report(report_id: str, fight_ids: list[int] = [], player_ids: list[int] = [], **kwargs) -> None:
-    print(f"[load_user_report] report_id={report_id} fight_ids={fight_ids} player_ids={player_ids}")
+    logger.info(f"load_user_report: {report_id=} {fight_ids=} {player_ids=}")
     if not (report_id and fight_ids and player_ids):
         raise ValueError("Missing fight or player ids")
 

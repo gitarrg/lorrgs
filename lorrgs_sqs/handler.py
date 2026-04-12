@@ -11,7 +11,9 @@ import boto3
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
+from lorgs.logger import logger
 from lorrgs_sqs import helpers
+from lorrgs_sqs.exceptions import TaskValidationError
 from lorrgs_sqs.task_handlers import load_comp_rankings, load_spec_rankings, load_user_report, send_discord_message
 
 
@@ -37,18 +39,18 @@ This is required when lambda reuses the same instance for subsequent runs
 
 def submit_messages(queue_url: str, messages: list[dict], chunk_size: int = 10) -> None:
     """Submit messages to the queue in chunks."""
-    print("submit_messages", messages)
+    logger.info(f"submit_messages: {messages=}")
 
     # Inject IDs
     messages = [{"Id": str(i), **msg} for i, msg in enumerate(messages)]
 
     for entries in utils.chunks(messages, n=chunk_size):
-        print("entries", entries)
+        logger.info(f"entries: {entries=}")
         response = SQS_CLIENT.send_message_batch(
             QueueUrl=queue_url,
             Entries=entries,  # type: ignore
         )
-        print("response", response)
+        logger.info(f"response: {response=}")
 
 
 async def process_message(message: dict) -> None:
@@ -83,8 +85,10 @@ async def process_messages(messages: typing.List) -> dict[str, typing.Any]:
     for message in messages:
         try:
             await process_message(message)
-        except Exception as e:
-            print(f"[ERROR] {e}")
+        except TaskValidationError:
+            logger.warning("Validation error processing message", exc_info=True)
+        except Exception:
+            logger.exception("Error processing message")
             failures.append(message.get("MessageId"))
 
     return {
@@ -94,7 +98,7 @@ async def process_messages(messages: typing.List) -> dict[str, typing.Any]:
 
 def handler(event, context=None) -> None:
     """Main Handler called by Lambda."""
-    print("[handler]", event)
+    logger.info(f"handler: {event=}")
     records = event.get("Records") or []
 
     # We can not use `asyncio.run` here as it creates and closes fresh loop
@@ -103,4 +107,4 @@ def handler(event, context=None) -> None:
     # that are bound to a given loop.
     loop.run_until_complete(process_messages(records))
 
-    print("[handler] done.")
+    logger.info("handler done.")
