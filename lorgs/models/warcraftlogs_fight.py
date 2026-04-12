@@ -134,8 +134,7 @@ class Fight(warcraftlogs_base.BaseModel):
         players = self.players
         if source_ids:
             players = [player for player in players if player.source_id in source_ids]
-
-        return [player for player in players if player]
+        return players
 
     def add_phase(self, ts: int) -> Phase:
         """Add a new phase to the fight."""

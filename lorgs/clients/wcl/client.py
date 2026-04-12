@@ -103,6 +103,7 @@ class WarcraftlogsClient(BaseClient):
 
         logger.info("NEW CLIENT: %s", self.client_id)
         self._num_queries = 0
+        self._raise_errors: bool = True
 
     ################################
     #   Connection
@@ -169,7 +170,7 @@ class WarcraftlogsClient(BaseClient):
                 # print(query)
                 raise ValueError(msg)
 
-    async def query(self, query: str, *, raise_errors: bool = True) -> dict[str, typing.Any]:
+    async def query(self, query: str) -> dict[str, typing.Any]:
 
         # Format Inputs
         if not query:
@@ -180,7 +181,7 @@ class WarcraftlogsClient(BaseClient):
         result = await super().query(self.URL_API, query)
 
         # Check for Errors
-        if raise_errors:
+        if self._raise_errors:
             self.raise_errors(result)
 
         return result.get("data", {})

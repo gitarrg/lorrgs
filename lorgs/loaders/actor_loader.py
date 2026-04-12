@@ -18,27 +18,6 @@ if typing.TYPE_CHECKING:
     from lorgs.models.warcraftlogs_actor import BaseActor
 
 
-def _combine_queries(*queries: str, op: str = "or") -> str:
-    """Combine multiple queries.
-
-    Essentially just wraps them in parentheses and joins
-    them with the given operator.
-
-    Example:
-        >>> _combine_queries("foo", "bar", "baz", op="and")
-        "((foo) and (bar) and (baz))"
-
-        >>> _combine_queries("foo", "bar", "baz", op="or")
-        "((foo) or (bar) or (baz))"
-
-    """
-    queries: list[str] = list(queries)
-    queries = [q for q in queries if q]
-    queries = [f"({q})" for q in queries]
-    queries_combined = f" {op} ".join(queries)
-    return f"({queries_combined})"
-
-
 class ActorLoader(BaseLoader):
     """Loads event data for a single actor from WarcraftLogs."""
 
@@ -48,9 +27,7 @@ class ActorLoader(BaseLoader):
 
     def needs_load(self) -> bool:
         """Check if the data needs to be loaded."""
-        if self.actor.casts:
-            return False
-        return True
+        return len(self.actor.casts) == 0
 
     ############################################################################
     #
@@ -209,14 +186,12 @@ class ActorLoader(BaseLoader):
 
     async def load(
         self,
-        client: WarcraftlogsClient | None = None,
-        *,
-        raise_errors: bool = False,
+        client: WarcraftlogsClient | None = None
     ) -> None:
         """Load the data for the actor."""
         self.actor.event_actor_load.send(self.actor, status="start")
         try:
-            await super().load(client=client, raise_errors=raise_errors)
+            await super().load(client=client)
         except:
             self.actor.event_actor_load.send(self.actor, status="failed")
             raise

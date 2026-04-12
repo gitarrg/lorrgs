@@ -2,24 +2,38 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-import textwrap
 import typing
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import utils
-from lorgs.clients import wcl
-from lorgs.loaders.base_loader import BaseLoader
-from lorgs.models.warcraftlogs_cast import Cast, add_cast_counters, process_auras, process_until_events
 from lorgs.models.wow_spell import WowSpell, build_spell_query
+
 from .actor_loader import ActorLoader
 
 
 if typing.TYPE_CHECKING:
-    from lorgs.clients.wcl import WarcraftlogsClient
-    from lorgs.models.warcraftlogs_actor import BaseActor
-    from lorgs.models.warcraftlogs_boss import Boss
+    from lorgs.clients import wcl
     from lorgs.models.warcraftlogs_player import Player
 
+
+def _combine_queries(*queries: str, op: str = "or") -> str:
+    """Combine multiple queries.
+
+    Essentially just wraps them in parentheses and joins
+    them with the given operator.
+
+    Example:
+        >>> _combine_queries("foo", "bar", "baz", op="and")
+        "((foo) and (bar) and (baz))"
+
+        >>> _combine_queries("foo", "bar", "baz", op="or")
+        "((foo) or (bar) or (baz))"
+
+    """
+    queries: list[str] = list(queries)
+    queries = [q for q in queries if q]
+    queries = [f"({q})" for q in queries]
+    queries_combined = f" {op} ".join(queries)
+    return f"({queries_combined})"
 
 
 class PlayerLoader(ActorLoader):
