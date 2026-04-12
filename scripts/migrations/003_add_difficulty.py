@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Util to fill in some missing data."""
 import typing
-import dotenv
-dotenv.load_dotenv() # pylint: disable=wrong-import-position
 
 # from lorgs import data
 from lorgs import db

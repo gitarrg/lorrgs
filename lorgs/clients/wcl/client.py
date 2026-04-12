@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """Warcaftlogs API Client."""
 from __future__ import annotations
 
@@ -12,7 +11,6 @@ import aiohttp
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.logger import logger, timeit
-
 
 # error text we get from Warcraftlogs if a report does not exist.
 ERROR_MESSAGE_INVALID_REPORT = "This report does not exist."
@@ -35,10 +33,10 @@ class BaseClient:
     """Semaphore used to control the number of parallel Requests."""
 
     # reference used to provide a singelton interface.
-    _instance: typing.Optional["BaseClient"] = None
+    _instance: typing.Self | None = None
 
     @classmethod
-    def get_instance(cls: typing.Type[T], *args: typing.Any, **kwargs: typing.Any) -> T:
+    def get_instance(cls, *args: typing.Any, **kwargs: typing.Any) -> typing.Self:
         """Get an instance of the Client.
 
         This is a singleton-style wrapper,
@@ -46,7 +44,8 @@ class BaseClient:
         or create a new instance otherwise.
 
         Args:
-            *args, **kwargs passed to the __init__
+            *args: passed to the __init__
+            **kwargs: passed to the __init__
 
         Returns:
             <BaseClient> instance.
@@ -54,8 +53,8 @@ class BaseClient:
         """
         if cls._instance is None:
             logger.debug(f"creating new {cls.__name__} Instance.")
-            cls._instance = cls(*args, **kwargs)
-        return cls._instance  # type: ignore
+            cls._instance = cls(*args, **kwargs)  # ty:ignore[invalid-assignment]
+        return cls._instance
 
     def __init__(self) -> None:
         self.headers: dict[str, typing.Any] = {}
@@ -75,11 +74,10 @@ class BaseClient:
         parallel connections
 
         Args:
+            url (str): the url to execute the query on
             query (str): the query to execute
+
         """
-        # print("X", self.session)
-        # self.session = self.session or aiohttp.ClientSession()
-        # async with self._sem:
         await self.ensure_auth()
         async with self.session.get(url=url, json={"query": query}, headers=self.headers) as resp:
             resp.raise_for_status()
@@ -105,6 +103,7 @@ class WarcraftlogsClient(BaseClient):
 
         logger.info("NEW CLIENT: %s", self.client_id)
         self._num_queries = 0
+        self.raise_errors: bool = True
 
     ################################
     #   Connection
@@ -118,15 +117,12 @@ class WarcraftlogsClient(BaseClient):
             "client_secret": self.client_secret,
         }
         logger.debug("Auth: %s", self.client_id)
-        async with aiohttp.ClientSession() as session:
-            async with session.post(url=self.URL_AUTH, data=data) as resp:
-
-                try:
-                    response: dict[str, str] = await resp.json()
-                    # asyncio.exceptions.TimeoutError
-                except Exception as e:
-                    logger.error(resp.text())
-                    raise e
+        async with aiohttp.ClientSession() as session, session.post(url=self.URL_AUTH, data=data) as resp:
+            try:
+                response: dict[str, str] = await resp.json()
+            except Exception:
+                logger.error(resp.text())
+                raise
 
         token = response.get("access_token", "")
         self.headers["Authorization"] = "Bearer " + token
@@ -153,7 +149,7 @@ class WarcraftlogsClient(BaseClient):
         info = await self.get_rate_info()
         return info.get("limitPerHour", 0) - info.get("pointsSpentThisHour", 0)
 
-    def raise_errors(self, result: dict[str, typing.Any]) -> None:
+    def _raise_errors(self, result: dict[str, typing.Any]) -> None:
         if result.get("error"):
             raise ValueError(result.get("error"))
 
@@ -174,7 +170,7 @@ class WarcraftlogsClient(BaseClient):
                 # print(query)
                 raise ValueError(msg)
 
-    async def query(self, query: str, raise_errors=True) -> dict[str, typing.Any]:
+    async def query(self, query: str) -> dict[str, typing.Any]:
 
         # Format Inputs
         if not query:
@@ -185,20 +181,22 @@ class WarcraftlogsClient(BaseClient):
         result = await super().query(self.URL_API, query)
 
         # Check for Errors
-        if raise_errors:
-            self.raise_errors(result)
+        if self.raise_errors:
+            self._raise_errors(result)
 
-        return result.get("data", {})  # type: ignore
+        return result.get("data", {})
 
-    async def multiquery(self, queries: list[str], raise_errors=True) -> list[typing.Any]:
+    async def multiquery(self, queries: list[str], *args: typing.Any, **kwargs: typing.Any) -> list[typing.Any]:
         """Execute a list of queries as a batch.
 
         Args:
-            queries(list[str]): the queries to run
+            queries: the queries to run
+            *args: passed to the query
+            **kwargs: passed to the query
 
         Returns:
             data[object]: the results in the same order
 
         """
-        tasks = [self.query(query, raise_errors=raise_errors) for query in queries]
-        return await asyncio.gather(*tasks)  # type: ignore
+        tasks = [self.query(query, *args, **kwargs) for query in queries]
+        return await asyncio.gather(*tasks)

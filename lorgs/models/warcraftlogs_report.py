@@ -6,19 +6,10 @@ from __future__ import annotations
 import datetime
 import typing
 
-# IMPORT THIRD PARTY LIBRARIES
-import asyncio
-import textwrap
-
 # IMPORT LOCAL LIBRARIES
-from lorgs.clients import wcl
-from lorgs.logger import logger
 from lorgs.models import warcraftlogs_base
-from lorgs.models.difficulty import RaidDifficulty
-from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.warcraftlogs_boss import Boss
-from lorgs.models.warcraftlogs_fight import Fight
-from lorgs.models.warcraftlogs_player import Player
+from lorgs.models.warcraftlogs_fight import Fight  # noqa: TC001  # required by pydantic
+from lorgs.models.warcraftlogs_player import Player  # noqa: TC001  # required by pydantic
 
 
 class Report(warcraftlogs_base.BaseModel):
@@ -57,7 +48,7 @@ class Report(warcraftlogs_base.BaseModel):
             fight.post_init()
 
     def __str__(self) -> str:
-        return f"<BaseReport({self.report_id}, num_fights={len(self.fights)})>"
+        return f"<Report({self.report_id}, num_fights={len(self.fights)})>"
 
     ##########################
     # Attributes
@@ -81,177 +72,15 @@ class Report(warcraftlogs_base.BaseModel):
     ##########################
     # Methods
     #
-    def add_fight(self, fight_data: wcl.ReportFight) -> Fight | None:
-        """Add a new Fight to this Report."""
-        # skip trash fights
-        if not fight_data.encounterID:
-            return
-
-        try:
-            difficulty = RaidDifficulty(fight_data.difficulty)
-        except ValueError:
-            return
-
-        fight = Fight(
-            fight_id=fight_data.id,
-            percent=fight_data.fightPercentage,
-            kill=fight_data.kill,
-            start_time=self.start_time + datetime.timedelta(milliseconds=fight_data.startTime),
-            duration=fight_data.endTime - fight_data.startTime + 1,  # somehow there is 1ms missing
-            difficulty=difficulty,
-        )
-        fight.report = self  # TODO: replace in favor of `post_init()``
-
-        # Fight: Boss
-        raid_boss = RaidBoss.get(id=fight_data.encounterID)
-        if raid_boss:
-            fight.boss = Boss.from_raid_boss(raid_boss)
-            fight.boss.fight = fight
-
-        # Fight: Phases
-        for phase_transition in fight_data.phaseTransitions:
-            ts = phase_transition.startTime - fight_data.startTime
-            if ts <= 0:  # skip pull as phase
-                continue
-            fight.add_phase(ts=ts)
-
-        # store and return
-        self.fights.append(fight)
-        return fight
-
-    def get_fight(self, fight_id: int):
+    def get_fight(self, fight_id: int) -> Fight | None:
         """Get a single fight from this Report."""
         for fight in self.fights:
             if fight.fight_id == fight_id:
                 return fight
+        return None
 
     def get_fights(self, *fight_ids: int) -> list[Fight]:
         """Get a multiple fights based of their fight ids."""
         fights = [self.get_fight(fight_id) for fight_id in fight_ids]
         return [f for f in fights if f]
 
-    def add_player(self, actor_data: wcl.ReportActor):
-        if actor_data.type != "Player":
-            return
-
-        # guess spec from the icon
-        # WCL gives us an icon matching the spec, IF a player
-        # played the same spec in all fights inside a report.
-        # Otherwise it only includes a class-name.
-        icon_name = actor_data.icon
-        spec_slug = icon_name.lower() if "-" in icon_name else ""
-
-        # create the new player
-        player = Player(
-            source_id=actor_data.id,
-            name=actor_data.name,
-            class_slug=actor_data.subType.lower(),
-            spec_slug=spec_slug,
-        )
-
-        if player.class_ is None:
-            logger.debug("Skipping unknown Player: %s", player)
-            return
-
-        # add to to the report
-        self.players.append(player)
-
-    ############################################################################
-    # Query
-    #
-    def get_query(self):
-        """Get the Query to load this Reports Overview."""
-        return textwrap.dedent(
-            f"""
-        reportData
-        {{
-            report(code: "{self.report_id}")
-            {{
-                title
-                zone {{name id}}
-                startTime
-
-                owner {{ name }}
-
-                guild {{
-                    name
-                    server {{ name }}
-                }}
-
-                masterData
-                {{
-                    actors(type: "Player")
-                    {{
-                        name
-                        id
-                        subType
-                        icon    # the icon includes the spec name
-                    }}
-                }}
-
-                fights
-                {{
-                    id
-                    encounterID
-                    startTime
-                    endTime
-                    fightPercentage
-                    kill
-                    difficulty
-
-                    phaseTransitions {{
-                        startTime
-                    }}
-                }}
-            }}
-        }}
-        """
-        )
-
-    def process_master_data(self, master_data: wcl.ReportMasterData) -> None:
-        """Create the Players from the passed Report-MasterData"""
-        # clear out any old instances
-        self.players = []
-        for actor_data in master_data.actors:
-            self.add_player(actor_data)
-
-    def process_report_fights(self, fights: list[wcl.ReportFight]) -> None:
-        """Update the Fights in this report."""
-        # clear out any old data
-        self.fights = []
-        for fight in fights:
-            self.add_fight(fight)
-
-    def process_query_result(self, **query_result: typing.Any):
-        report_data = wcl.ReportData(**query_result)
-        report = report_data.report
-
-        # Update the Report itself
-        self.title = report.title
-        self.start_time = report.startTime
-        self.zone_id = report.zone.id
-        self.owner = report.owner.name
-
-        guild = report.guild
-        self.guild = guild.name if guild else ""
-
-        if report.masterData:
-            self.process_master_data(report.masterData)
-        self.process_report_fights(report.fights)
-
-    async def load_fight(self, fight_id: int, player_ids: list[int]):
-        """Load a single Fight from this Report."""
-        fight = self.get_fight(fight_id=fight_id)
-        if not fight:
-            raise ValueError("invalid fight id")
-
-        await fight.load_actors(player_ids=player_ids)
-
-    async def load_fights(self, fight_ids: list[int], player_ids: list[int]) -> None:
-        if not self.fights:
-            await self.load()
-
-        # queue all tasks at once.
-        # the client will make sure its throttled accordingly
-        tasks = [self.load_fight(fight_id=fight_id, player_ids=player_ids) for fight_id in fight_ids]
-        await asyncio.gather(*tasks)

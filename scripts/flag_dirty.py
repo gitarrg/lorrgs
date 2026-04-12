@@ -1,21 +1,22 @@
 #!/usr/bin/env python
 
-from re import M
+import itertools
 
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
 from lorgs.data.classes import *
-from lorgs.data.expansions.midnight import VOIDSPIRE, DREAMRIFT, MARCH_ON_QUALDANAS
-from lorgs.data.season import CURRENT_SEASON
-from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.wow_spec import WowSpec
+
+from lorgs.data.expansions.midnight import *
+from lorgs.data.expansions.midnight.raids.voidspire import *
+
 
 
 def load_spec_rankings() -> None:
     bosses = [
-        *VOIDSPIRE.bosses,
+        # *VOIDSPIRE.bosses,
+        CROWN_OF_THE_COSMOS,
         *DREAMRIFT.bosses,
         *MARCH_ON_QUALDANAS.bosses,
     ]
@@ -55,21 +56,21 @@ def load_spec_rankings() -> None:
     ]
     specs = ALL_SPECS
     # specs = DPS.specs
+    metrics = ["dps", "hps"]
+    difficulties = ["heroic", "mythic"]
 
-    for spec in specs:
-        print(spec.full_name_slug)
-        for boss in bosses:
-            print("\t", boss.full_name_slug)
+    for [spec, boss, difficulty, metric] in itertools.product(specs, bosses, difficulties, metrics):
+        print(spec.full_name_slug, boss.full_name_slug, difficulty, metric)
 
-            spec_ranking = SpecRanking.get_or_create(
-                spec_slug=spec.full_name_slug,
-                boss_slug=boss.full_name_slug,
-                difficulty="mythic",
-                metric="dps",
-            )
-            if spec_ranking:
-                spec_ranking.dirty = True
-                spec_ranking.save()
+        spec_ranking = SpecRanking.get_or_create(
+            spec_slug=spec.full_name_slug,
+            boss_slug=boss.full_name_slug,
+            difficulty=difficulty,
+            metric=metric,
+        )
+        if spec_ranking:
+            spec_ranking.dirty = True
+            spec_ranking.save()
 
 
 if __name__ == "__main__":

@@ -1,8 +1,7 @@
 from __future__ import annotations
 
-# IMPORT STANRD LIBRARIES
+# IMPORT STANDARD LIBRARIES
 import datetime
-import textwrap
 import typing
 
 # IMPORT THIRD PARTY LIBRARIES
@@ -10,17 +9,13 @@ import pydantic
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
-from lorgs.clients import wcl
-from lorgs.logger import logger
 from lorgs.models import warcraftlogs_base
-from lorgs.models.warcraftlogs_boss import Boss
-from lorgs.models.warcraftlogs_player import Player
-from lorgs.models.wow_spec import WowSpec
 from lorgs.models.difficulty import RaidDifficulty
+from lorgs.models.warcraftlogs_boss import Boss  # noqa: TC001 # required by pydantic
+from lorgs.models.warcraftlogs_player import Player  # noqa: TC001 # required by pydantic
 
 
 if typing.TYPE_CHECKING:
-    from lorgs.models.warcraftlogs_actor import BaseActor
     from lorgs.models.warcraftlogs_report import Report
 
 
@@ -66,7 +61,7 @@ class Fight(warcraftlogs_base.BaseModel):
         self._report = value
 
     def post_init(self) -> None:
-        actors = self.players + [self.boss]
+        actors = [*self.players, self.boss]
         for actor in actors:
             if actor:
                 actor.fight = self
@@ -133,12 +128,10 @@ class Fight(warcraftlogs_base.BaseModel):
         players = self.players
         if source_ids:
             players = [player for player in players if player.source_id in source_ids]
-
-        return [player for player in players if player]
+        return players
 
     def add_phase(self, ts: int) -> Phase:
         """Add a new phase to the fight."""
-
         if not self.phases:
             self.phases = []  # force new list to trick pydantics "excludeUnset"
 
@@ -152,160 +145,3 @@ class Fight(warcraftlogs_base.BaseModel):
     @property
     def table_query_args(self) -> str:
         return f"fightIDs: {self.fight_id}, startTime: {self.start_time_rel}, endTime: {self.end_time_rel}"
-
-    ############################################################################
-    #   Summary
-    #
-
-    def get_phase_query(self) -> str:
-        if self.phases:
-            return ""
-
-        if not self.boss:
-            return ""
-        if not self.boss.raid_boss:
-            return ""
-        if self.boss.raid_boss.phase_type != self.boss.raid_boss.PhaseType.DYNAMIC:
-            return ""
-
-        return textwrap.dedent(
-            f"""\
-            fights(fightIDs: {self.fight_id})
-            {{
-                phaseTransitions
-                {{
-                    startTime
-                }}
-            }}
-            """
-        )
-    
-    def get_summary_query(self) -> str:      
-        # We're loading the fight as part of a spec ranking
-        # no need to load the summary
-        # TBD: maybe this could be a simple `if players` ?
-        if len(self.players) == 1:
-            return ""
-
-        return textwrap.dedent(
-            f"""\
-            summary: table({self.table_query_args}, dataType: Summary)
-            """
-        )
-
-    def get_query_parts(self) -> list[str]:
-        return [
-            self.get_summary_query(),
-            self.get_phase_query(),
-        ]
-
-    def get_query(self) -> str:
-        """Get the Query to load the fights summary."""
-        if not self.report:
-            raise ValueError("Missing Parent Report")
-
-        parts = "\n".join(self.get_query_parts())
-
-        return textwrap.dedent(
-            f"""\
-            reportData
-            {{
-                report(code: "{self.report.report_id}")
-                {{
-                    {parts}
-                }}
-            }}
-        """
-        )
-
-    def process_players(self, summary_data: "wcl.ReportSummary"):
-        total_damage = summary_data.damageDone
-        total_healing = summary_data.healingDone
-
-        for composition_data in summary_data.composition:
-            # Get Class and Spec
-            if not composition_data.specs:
-                logger.warning("Player has no spec: %s", composition_data.name)
-                continue
-
-            spec_data = composition_data.specs[0]
-            spec_name = spec_data.spec
-            class_name = composition_data.type
-            spec = WowSpec.get(name_slug_cap=spec_name, wow_class__name_slug_cap=class_name)
-            if not spec:
-                logger.warning("Unknown Spec: %s", spec_name)
-                continue
-
-            # Get Total Damage or Healing
-            total_data = total_healing if spec.role.code == "heal" else total_damage
-            for data in total_data:
-                if data.id == composition_data.id:
-                    total = data.total / (self.duration / 1000)
-                    break
-            else:
-                total = 0
-
-            # create and return yield player object
-            player = Player(
-                source_id=composition_data.id,
-                name=composition_data.name,
-                class_slug=spec.wow_class.name_slug,
-                spec_slug=spec.full_name_slug,
-                total=int(total),
-            )
-            player.fight = self
-            player.process_death_events(summary_data.deathEvents)
-            self.players.append(player)
-
-        self.players.sort(key=lambda player: (player.spec.role, player.spec, player.name))
-
-    def process_query_result(self, **query_result: typing.Any):
-        """Process the data retured from an Overview-Query."""
-        report_data = wcl.ReportData(**query_result)
-
-        # process summary
-        if summary_data := report_data.report.summary:
-            self.duration = self.duration or summary_data.totalTime
-            self.process_players(summary_data)
-
-        # process fights
-        for fight in report_data.report.fights:
-            
-            if fight.id not in [self.fight_id, -1]:
-                continue
-
-            # load phases
-            if fight.phaseTransitions:
-                self.phases = []
-                for phase_transition in fight.phaseTransitions:
-                    ts = phase_transition.startTime - self.start_time_rel
-                    if ts <= 100:  # no need to track start of P1
-                        continue
-                    self.add_phase(ts)
-       
-       # todo: when was this used?
-        # for player in self.players:
-        #     player.process_query_result(**query_result)
-
-    ############################################################################
-    #   Load Player:
-    #
-    async def load_actors(self, player_ids: list[int] | None = None):
-        player_ids = player_ids or []
-
-        if not self.players:
-            await self.load()
-
-        # Get Players to load
-        actors_to_load: list["BaseActor"] = []
-        actors_to_load += self.get_players(*player_ids)
-        actors_to_load += [self.boss] if self.boss else []
-        actors_to_load = [actor for actor in actors_to_load if not actor.casts]
-        if not actors_to_load:
-            return
-
-        # load
-        await self.load_many(actors_to_load)  # type: ignore
-
-        # Create a new list (otherwise pydantic would consider it as unset )
-        self.players = [p for p in self.players]

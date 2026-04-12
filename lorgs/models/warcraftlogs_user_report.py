@@ -43,7 +43,7 @@ class UserReport(Report, base.DynamoDBModel):
     #
     def save(self, *args: typing.Any, **kwargs: typing.Any) -> None:  # pylint: disable=arguments-differ
         """Update the timestamp and Save the Report."""
-        self.updated = datetime.datetime.now(datetime.timezone.utc)
+        self.updated = datetime.datetime.now(datetime.UTC)
 
         ttl = self.updated + TTL_DURATION
         self.ttl = int(ttl.timestamp())

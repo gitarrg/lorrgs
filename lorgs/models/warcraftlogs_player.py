@@ -1,18 +1,20 @@
 from __future__ import annotations
 
-# IMPORT STANRD LIBRARIES
+# IMPORT STANDARD LIBRARIES
 import typing
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.clients import wcl
 from lorgs.models.warcraftlogs_actor import BaseActor
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_spec import WowSpec
-from lorgs.models.wow_spell import WowSpell, build_spell_query
+
+
+if typing.TYPE_CHECKING:
+    from lorgs.clients import wcl
 
 
 class Player(BaseActor):
-    """A PlayerCharater in a Fight (or report)."""
+    """A PlayerCharacter in a Fight (or report)."""
 
     name: str = ""
     class_slug: str = ""
@@ -59,102 +61,20 @@ class Player(BaseActor):
         return self.spec
 
     ############################################################################
-    # Query
+    # Process (kept for UserReport flow via Fight.process_players)
     #
-
-    def get_sub_query(self):
-
-        # Casts
-        casts_query = build_spell_query(*self.actor_type.all_spells)
-        if casts_query and self.name:
-            casts_query = f"source.name='{self.name}' and ({casts_query})"
-
-        # Auras
-        auras_query = build_spell_query(*self.actor_type.all_buffs, *self.actor_type.all_debuffs)
-        if auras_query and self.name:
-            auras_query = f"target.name='{self.name}' and ({auras_query})"
-
-        # Events
-        events_query = build_spell_query(*self.actor_type.all_events)
-        if events_query and self.name:
-            events_query = f"source.name='{self.name}' and ({events_query})"
-
-        resurrection_query = ""
-        if self.resurrects and self.name:
-            resurrection_query = f"target.name='{self.name}' and type='resurrect'"
-
-        return self.combine_queries(casts_query, auras_query, events_query, resurrection_query)
-
-    ############################################################################
-    # Process
-    #
-
-    def process_death_events(self, death_events: list[wcl.DeathEvent]):
-        """Add the Death Events the the Players.
-
-        Args:
-            death_events[list[dict]]
-
-        """
-
-        # TODO: add during model validation?
-        # ABILITY_OVERWRITES = {}
-        # ABILITY_OVERWRITES[1] = {"name": "Melee", "guid": 260421, "abilityIcon": "ability_meleedamage.jpg"}
-        # ABILITY_OVERWRITES[3] = {"name": "Fall Damage"}
-
-        # new list so that pydantic's "exclude unset" doesn't exclude it.
+    def process_death_events(self, death_events: list[wcl.DeathEvent]) -> None:
+        """Add the Death Events to the Player."""
         self.deaths = []
-
         for death_event in death_events:
             target_id = death_event.id
             if self._has_source_id and (target_id != self.source_id):
                 continue
 
             death_ability = death_event.ability
-            # death_ability_id = death_ability.guid
-            # death_ability = ABILITY_OVERWRITES.get(death_ability_id) or death_ability
-
             death_data = {
                 "ts": death_event.deathTime,
                 "spell_name": death_ability.name,
                 "spell_icon": death_ability.abilityIcon,
             }
             self.deaths.append(death_data)
-
-    def process_event_resurrect(self, event: "wcl.ReportEvent"):
-        fight_start = self.fight.start_time_rel if self.fight else 0
-
-        data: dict[str, typing.Any] = {}
-        data["ts"] = event.timestamp - fight_start
-
-        spell_id = event.abilityGameID
-        spell = WowSpell.get(spell_id=spell_id)
-        if spell:
-            data["spell_name"] = spell.name
-            data["spell_icon"] = spell.icon
-
-        # new list so that pydantic's "exclude unset" doesn't exclude it.
-        if not self.resurrects:
-            self.resurrects = []
-
-        # Look for the Source ID
-        source_id = event.sourceID
-        if self.fight and self.fight.report:
-            source_player = self.fight.get_player(source_id=source_id)
-            if source_player:
-                data["source_name"] = source_player.name
-                data["source_class"] = source_player.class_slug
-
-        self.resurrects.append(data)
-
-    def process_event(self, event: "wcl.ReportEvent") -> wcl.ReportEvent:
-        # Ankh doesn't shows as a regular spell
-        spell_id = event.abilityGameID
-        if spell_id in (21169,):  # Ankh
-            event.type = "resurrect"
-
-        if event.type == "resurrect":
-            self.process_event_resurrect(event)
-            event.abilityGameID = -1
-
-        return super().process_event(event)

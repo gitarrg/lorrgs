@@ -20,7 +20,7 @@ class RaidZone(base.MemoryModel):
 
     id: int | float
     """ID of the Raid Zone. aka. T28, T29 (as used in WarcraftLogs).
-    
+
     Multi raid tiers can use floats. eg. 46.1, 46.2
     """
 

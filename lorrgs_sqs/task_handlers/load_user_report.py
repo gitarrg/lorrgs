@@ -7,6 +7,7 @@ from __future__ import annotations
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import data  # pylint: disable=unused-import  # noqa: F401
+from lorgs.loaders.report_loader import ReportLoader
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_actor
 from lorgs.models.task import Task
@@ -47,7 +48,9 @@ async def load_user_report(payload: UserReportPayload) -> None:
     ################################
     # loading...
     user_report = UserReport.get_or_create(report_id=payload.report_id)
-    await user_report.load_fights(fight_ids=payload.fight_ids, player_ids=payload.player_ids)
+
+    report_loader = ReportLoader(report=user_report)
+    await report_loader.load(fight_ids=payload.fight_ids, player_ids=payload.player_ids)
     user_report.save()
 
 

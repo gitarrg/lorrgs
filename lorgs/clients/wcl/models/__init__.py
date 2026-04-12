@@ -12,5 +12,5 @@ from .report_data import Report, ReportData
 from .report_events import ReportEvent
 from .report_fight import ReportFight
 from .report_master_data import ReportMasterData
-from .report_summary import DeathEvent, ReportSummary
+from .report_summary import DeathEvent, ReportSummary, CompositionEntry
 from .world_data import WorldData

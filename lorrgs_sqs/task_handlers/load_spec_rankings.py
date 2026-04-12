@@ -7,6 +7,7 @@ import datetime
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import data  # pylint: disable=unused-import  # noqa: F401
+from lorgs.loaders.spec_ranking import SpecRankingLoader
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_ranking
 from lorgs.models.task_payloads import SpecRankingPayload
@@ -38,11 +39,11 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
 
     # skip if updated recently
     if not clear:
-        now = datetime.datetime.now(datetime.timezone.utc)
+        now = datetime.datetime.now(datetime.UTC)
         updated = ranking.updated
         # Some persisted/initialized values may be offset-naive; treat them as UTC.
         if updated.tzinfo is None:
-            updated = updated.replace(tzinfo=datetime.timezone.utc)
+            updated = updated.replace(tzinfo=datetime.UTC)
 
         try:
             if updated > (now - datetime.timedelta(hours=2)):
@@ -52,7 +53,7 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
 
     ################################
     # load and save
-    await ranking.load(limit=payload.limit, clear_old=clear)
+    await SpecRankingLoader(ranking).load(limit=payload.limit, clear_old=clear)
     ranking.save()
     return True, "done"
 
