@@ -83,7 +83,7 @@ async def task_load_comp_rankings(
     if clear:
         payloads.append(CompRankingPayload(boss_slug=boss_slug, clear=True))
 
-    pages = (limit // 50) + 1  # 50 reports per page. +1 because we need to round up
+    pages = (limit // 50)
     for page in range(pages):
         payloads.append(CompRankingPayload(
             boss_slug=boss_slug,

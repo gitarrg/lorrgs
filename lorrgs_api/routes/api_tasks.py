@@ -39,7 +39,7 @@ async def get_task(response: fastapi.Response, task_id: str):
 
 
 @router.websocket("/{task_id}")
-async def get_task(websocket: fastapi.WebSocket, task_id: str):
+async def get_task_ws(websocket: fastapi.WebSocket, task_id: str):
     """Websocket Connection to request a task's status.
 
     Sends the updated Status every 1 second.
