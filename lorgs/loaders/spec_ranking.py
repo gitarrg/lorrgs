@@ -10,6 +10,7 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import wcl
+from lorgs.clients.wcl.client import WarcraftlogsClient
 from lorgs.logger import logger
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_fight import Fight
@@ -23,7 +24,6 @@ from .player_loader import PlayerLoader
 
 
 if typing.TYPE_CHECKING:
-    from lorgs.clients.wcl.client import WarcraftlogsClient
     from lorgs.models.warcraftlogs_ranking import SpecRanking
 
 
