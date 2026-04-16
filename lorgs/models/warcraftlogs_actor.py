@@ -27,6 +27,14 @@ class BaseActor(base.BaseModel):
     """
 
     source_id: int = -1
+    """The Source ID of the actor.
+
+    - -1 = unset
+    - 0 = boss / match all casts/events
+    - >=1 = individual units
+
+    """
+
     casts: list[Cast] = []
 
     _fight: Fight | None = None

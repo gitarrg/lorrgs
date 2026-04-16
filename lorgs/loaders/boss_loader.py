@@ -22,4 +22,4 @@ class BossLoader(ActorLoader):
 
         In case of council fights there could be multiple source_ids for the same boss.
         """
-        return
+        self.actor.source_id = 0

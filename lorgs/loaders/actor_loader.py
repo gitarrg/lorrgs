@@ -129,7 +129,7 @@ class ActorLoader(BaseLoader):
                 cast_actor_id = cast_data.targetID
 
             # Skip if the Source ID doesn't match
-            if self.actor.source_id and (cast_actor_id != self.actor.source_id):
+            if self.actor.source_id > 0 and (cast_actor_id != self.actor.source_id):
                 continue
 
             # create the cast object
