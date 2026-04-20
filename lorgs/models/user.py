@@ -18,11 +18,13 @@ LORRGS_SERVER_ID = "885638678607708172"
 # Role IDs -> Permissions
 # simple map to control who can access which modules
 ROLE_PERMISSIONS = {
-    "885660648510455839": ["user_reports", "dynamic_timers", "mod", "admin"],  # Arrgmin
-    "885660390120362024": ["user_reports", "dynamic_timers", "mod"],  # Morrgerator
-    "886595672525119538": ["user_reports", "dynamic_timers"],  # Investorrg
-    "887397111975518288": ["user_reports", "dynamic_timers"],  # Contributorrg
-    "908726333369110571": ["user_reports", "dynamic_timers"],  # User Reports Alpha Tester
+    "885660648510455839":  ["user_reports", "dynamic_timers", "mod", "admin"],  # Arrgmin
+    "885660390120362024":  ["user_reports", "dynamic_timers", "mod"],  # Morrgerator
+    "1495783469073174599": ["user_reports", "dynamic_timers", "rank1"],  # Investorrg (Rank 1)
+    "1495783852113924196": ["user_reports", "dynamic_timers", "99parse"],  # Investorrg (99 Parse)
+    "886595672525119538":  ["user_reports", "dynamic_timers"],  # Investorrg
+    "887397111975518288":  ["user_reports", "dynamic_timers"],  # Contributorrg
+    "908726333369110571":  ["user_reports", "dynamic_timers"],  # User Reports Alpha Tester
     # special "role" for Liquid People
     "liquid": ["user_reports"],
 }
