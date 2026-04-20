@@ -46,6 +46,7 @@ class SpecRankingLoader(BaseLoader):
                     metric: {self.ranking.metric}
                     difficulty: {self.ranking.raid_difficulty.value}
                     includeCombatantInfo: false
+                    partition: 1
                 )
             }}
         }}
