@@ -37,8 +37,10 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
     if ranking.dirty:
         clear = True
 
+    correct_count = payload.limit = len(ranking.reports)
+
     # skip if updated recently
-    if not clear:
+    if not (clear and correct_count):
         now = datetime.datetime.now(datetime.UTC)
         updated = ranking.updated
         # Some persisted/initialized values may be offset-naive; treat them as UTC.
