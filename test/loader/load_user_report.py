@@ -1,10 +1,6 @@
-
-
-
-
 """Load a Spec Ranking from WarcraftLogs.
 
->>> PYTHONPATH=. uv --env-file=.env  run tmp.py
+>>> PYTHONPATH=. uv run --env-file=.env  test/loader/load_user_report.py
 
 """
 import asyncio
@@ -25,16 +21,16 @@ async def main():
                 # for cast in player.casts:
                 #     print("\t", cast)
 
-
-    fight_ids = [10, 12, 32]
-    player_ids = [16, 19]
-    report = UserReport.get_or_create(report_id="XQpJLB38k49ZP1Wz")
+    fight_ids = [41, 42]
+    player_ids = [5, 14, 43, 58]
+    report = UserReport.get_or_create(report_id="pzRXNvHVG8qtk9ch")
     print_info(report)
 
     loader = ReportLoader(report=report)
     await loader.load(
         fight_ids=fight_ids,
         player_ids=player_ids,
+        load_boss=True,
     )
     report.save()
 

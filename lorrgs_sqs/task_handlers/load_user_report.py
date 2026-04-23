@@ -50,7 +50,11 @@ async def load_user_report(payload: UserReportPayload) -> None:
     user_report = UserReport.get_or_create(report_id=payload.report_id)
 
     report_loader = ReportLoader(report=user_report)
-    await report_loader.load(fight_ids=payload.fight_ids, player_ids=payload.player_ids)
+    await report_loader.load(
+        fight_ids=payload.fight_ids,
+        player_ids=payload.player_ids,
+        load_boss=True,
+    )
     user_report.save()
 
 
