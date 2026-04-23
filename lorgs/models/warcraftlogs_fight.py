@@ -119,9 +119,22 @@ class Fight(warcraftlogs_base.BaseModel):
     #################################
     # Methods
     #
-    def get_player(self, **kwargs) -> typing.Optional[Player]:
+    def get_player(self, *, get_from_report: bool = False, **kwargs) -> Player | None:
         """Returns a single Player based on the kwargs."""
-        return utils.get(self.players, **kwargs)
+        if player := utils.get(self.players, **kwargs):
+            return player
+
+        if get_from_report and self.report:
+            report_player = self.report.get_player(**kwargs)
+            if not report_player:
+                return None
+            player = report_player.model_copy()
+            player.fight = self
+            self.players.append(player)
+            self.players = self.players[:] # force pydantic to update the list
+            return player
+
+        return None
 
     def get_players(self, *source_ids: int) -> list[Player]:
         """Gets multiple players based on source id."""
@@ -138,6 +151,10 @@ class Fight(warcraftlogs_base.BaseModel):
         phase = Phase(ts=ts)
         self.phases.append(phase)
         return phase
+
+    def remove_empty_players(self) -> None:
+        """Remove empty players from the fight."""
+        self.players = [player for player in self.players if player.casts]
 
     ############################################################################
     # Query

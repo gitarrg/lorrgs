@@ -7,6 +7,7 @@ import datetime
 import typing
 
 # IMPORT LOCAL LIBRARIES
+from lorgs import utils
 from lorgs.models import warcraftlogs_base
 from lorgs.models.warcraftlogs_fight import Fight  # noqa: TC001  # required by pydantic
 from lorgs.models.warcraftlogs_player import Player  # noqa: TC001  # required by pydantic
@@ -84,3 +85,15 @@ class Report(warcraftlogs_base.BaseModel):
         fights = [self.get_fight(fight_id) for fight_id in fight_ids]
         return [f for f in fights if f]
 
+    def get_player(self, **kwargs) -> Player | None:
+        """Get a single player from this Report."""
+        return utils.get(self.players, **kwargs)
+
+    def remove_empty_fights(self) -> None:
+        """Remove empty fights from the report."""
+        for fight in self.fights:
+            fight.remove_empty_players()
+            if fight.boss and not fight.boss.casts:
+                fight.boss = None
+
+        self.fights = [fight for fight in self.fights if fight.players and fight.boss]

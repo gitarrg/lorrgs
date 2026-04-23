@@ -43,11 +43,13 @@ class ReportLoader:
         fight_ids = fight_ids or []
         player_ids = player_ids or []
 
+        self.report.remove_empty_fights()
+
         # load the report overview if not already loaded
+        # TODO: might have to compare this to the requested fight ids
         if not self.report.fights:
             overview_loader = ReportOverviewLoader(report=self.report)
             await overview_loader.load(client=client)
-
 
         loaders: list[BaseLoader] = []
         # load boss and players
@@ -62,7 +64,21 @@ class ReportLoader:
                 loaders.append(BossLoader(fight.boss))
 
             # players
-            for player in fight.get_players(*player_ids):
+            for player_id in player_ids:
+
+                player = fight.get_player(source_id=player_id)
+                if not player:
+                    # copy player from report overview
+                    report_player = self.report.get_player(source_id=player_id)
+                    if report_player:
+                        player = report_player.model_copy()
+                        player.fight = fight
+                        fight.players.append(player)
+                        fight.players = fight.players[:]  # force pydantic to update the list
+
+                if not player:
+                    continue
+
                 loaders.append(PlayerLoader(player))
 
         loaders = [loader for loader in loaders if loader.needs_load()]
