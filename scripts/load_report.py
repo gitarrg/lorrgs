@@ -11,6 +11,7 @@ import pydantic
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import data  # pylint: disable=unused-import
+from lorgs.loaders.report_loader import ReportLoader
 from lorgs.models.warcraftlogs_user_report import UserReport
 
 from lorgs.data.season import CURRENT_SEASON
@@ -51,25 +52,14 @@ class WarcraftReport(pydantic.BaseModel):
 
         # Load
         user_report = UserReport.get_or_create(report_id=self.report_id, create=True)
-        await user_report.load()
 
-        await user_report.load_fights(fight_ids=self.fight_ids, player_ids=self.player_ids)
-
-        """
-        print("#" * 32)
-
-        for fight in user_report.fights:
-            print("===== Phases:")
-            print(fight.boss.phases)
-
-            print("===== d")
-            print(fight.boss.as_dict())
-
-        print("#" * 32)
-        """
+        loader = ReportLoader(report=user_report)
+        await loader.load(
+            fight_ids=self.fight_ids,
+            player_ids=self.player_ids,
+            load_boss=True,
+        )
         user_report.save()
-
-        # Return
         print(self.as_lorrgs_url())
 
 

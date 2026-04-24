@@ -6,7 +6,7 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.loaders.boss_loader import BossLoader
-from lorgs.loaders.fight_phases import FightPhasesLoader
+from lorgs.loaders.fight_loader import FightLoader
 from lorgs.loaders.player_loader import PlayerLoader
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader
 from lorgs.logger import logger
@@ -43,8 +43,6 @@ class ReportLoader:
         fight_ids = fight_ids or []
         player_ids = player_ids or []
 
-        self.report.remove_empty_fights()
-
         # load the report overview if not already loaded
         # TODO: might have to compare this to the requested fight ids
         if not self.report.fights:
@@ -52,12 +50,20 @@ class ReportLoader:
             await overview_loader.load(client=client)
 
         loaders: list[BaseLoader] = []
-        # load boss and players
-        #
-        for fight in self.report.get_fights(*fight_ids):
+        for fight_id in fight_ids:
 
-            # fight
-            loaders.append(FightPhasesLoader(fight=fight))
+            fight = self.report.get_fight(fight_id)
+            if not fight:
+                # ReportOverviewLoader should have loaded the fight
+                # this must be an invalid ID or a bug
+                logger.error(f"Fight {fight_id} not found in report")
+                continue
+
+            # make sure the fight overview is loaded
+            # we can't use the ReportOverview since player specs might be
+            # different from fight to fight
+            if not fight.players:
+                await FightLoader(fight=fight).load(client=client)
 
             # boss
             if load_boss and fight.boss:
@@ -65,18 +71,10 @@ class ReportLoader:
 
             # players
             for player_id in player_ids:
-
                 player = fight.get_player(source_id=player_id)
                 if not player:
-                    # copy player from report overview
-                    report_player = self.report.get_player(source_id=player_id)
-                    if report_player:
-                        player = report_player.model_copy()
-                        player.fight = fight
-                        fight.players.append(player)
-                        fight.players = fight.players[:]  # force pydantic to update the list
-
-                if not player:
+                    # could be a player thats benched on this fight,
+                    # on a multi-select load
                     continue
 
                 loaders.append(PlayerLoader(player))
