@@ -46,7 +46,6 @@ class SpecRankingLoader(BaseLoader):
                     metric: {self.ranking.metric}
                     difficulty: {self.ranking.raid_difficulty.value}
                     includeCombatantInfo: false
-                    partition: 1
                 )
             }}
         }}
@@ -96,28 +95,31 @@ class SpecRankingLoader(BaseLoader):
 
         """
         # build a map of old reports
-        old_reports: dict[tuple[str, int, str], Report] = {}
+        old_reports: set[tuple[str, int, str]] = set()
         for report in self.ranking.reports:
             for fight in report.fights:
                 for player in fight.players:
                     key = (report.report_id, fight.fight_id, player.name)
-                    old_reports[key] = report
+                    old_reports.add(key)
 
         # merge new rankings
-        self.ranking.reports = []
         for ranking_data in rankings:
             report_data = ranking_data.report
 
             key = (report_data.code, report_data.fightID, ranking_data.name)
 
-            # check if the report is already in the old reports
-            if old_report := old_reports.get(key):
-                self.ranking.reports.append(old_report)
+            # check if the report has already been loaded
+            if key in old_reports:
                 continue
 
             # new ranking
             if new_report := self._ranking_to_report(ranking_data):
                 self.ranking.reports.append(new_report)
+
+        # sort
+        def get_total(report: Report) -> float:
+            return sum(player.total for fight in report.fights for player in fight.players)
+        self.ranking.reports.sort(key=get_total, reverse=True)
 
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
         query_result = query_result["worldData"]

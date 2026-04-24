@@ -27,7 +27,8 @@ async def main():
     )
 
     for report in ranking.reports:
-        print(report)
+        print("OLD", report)
+        """
         for fight in report.fights:
             print("F", fight)
 
@@ -40,13 +41,14 @@ async def main():
                 print("FP", player.name)
                 for cast in player.casts:
                     print("FPC", cast.spell)
+        """
 
     loader = SpecRankingLoader(ranking=ranking)
     await loader.load(
         limit=5,
         clear_old=False,
     )
-    ranking.save()
+    # ranking.save()
 
 
 if __name__ == "__main__":
