@@ -37,7 +37,7 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
     if ranking.dirty:
         clear = True
 
-    correct_count = payload.limit = len(ranking.reports)
+    correct_count = payload.limit == len(ranking.reports)
 
     # skip if updated recently
     if not (clear and correct_count):
