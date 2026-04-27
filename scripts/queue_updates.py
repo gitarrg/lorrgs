@@ -10,9 +10,11 @@ PYTHONPATH=. uv run --env-file=.env scripts/queue_updates.py
 
 
 # IMPORT LOCAL LIBRARIES
+import asyncio
 from lorgs.clients import sqs
 from lorgs.data.classes import *
 
+from lorgs.models.task_payloads import CompRankingPayload, SpecRankingPayload
 from lorgs.models.wow_spec import WowSpec
 from lorgs.models.raid_boss import RaidBoss
 
@@ -33,32 +35,27 @@ from lorgs.data.expansions.midnight.raids.voidspire import (
 )
 
 
-def load_remote(
+async def load_remote(
     spec: WowSpec,
     boss: RaidBoss,
     difficulty="all",
     metric="all",
     limit=50,
+    *,
     clear: bool = False,
 ):
-    payload = {
-        "task": "load_spec_rankings",
-        "spec_slug": spec.full_name_slug,
-        "boss_slug": boss.full_name_slug,
-        "difficulty": difficulty,
-        "metric": metric,
-        "limit": limit,
-        "clear": clear,
-    }
-
-    # print(payload)
-    # from lorrgs_sqs import helpers
-    # for pl in helpers.expand_keywords(payload):
-    #     print(pl)
+    payload = SpecRankingPayload(
+        spec_slug=spec.full_name_slug,
+        boss_slug=boss.full_name_slug,
+        difficulty=difficulty,
+        metric=metric,
+        limit=limit,
+        clear=clear,
+    )
     return sqs.send_message(payload=payload)
 
 
-def load_local(
+async def load_local(
     spec: WowSpec,
     boss: RaidBoss,
     difficulty: str = "mythic",
@@ -67,6 +64,8 @@ def load_local(
     clear: bool = False,
 ):
     import asyncio
+    from lorgs.clients.wcl import WarcraftlogsClient
+    from lorgs.loaders.spec_ranking import SpecRankingLoader
     from lorgs.models.warcraftlogs_ranking import SpecRanking
 
     if not metric:
@@ -79,18 +78,17 @@ def load_local(
         metric=metric,
     )
 
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(spec_ranking.load(limit=limit, clear_old=clear))
+    client = WarcraftlogsClient.get_instance()
+    await SpecRankingLoader(spec_ranking).load(client, limit=limit, clear_old=clear)
 
     spec_ranking.save()
 
 
-def load_spec_rankings() -> None:
+async def load_spec_rankings() -> None:
     bosses = [
-        # *VOIDSPIRE.bosses,
-        # *DREAMRIFT.bosses,
-        # *MARCH_ON_QUALDANAS.bosses,
-        CROWN_OF_THE_COSMOS,
+        *VOIDSPIRE.bosses,
+        *DREAMRIFT.bosses,
+        *MARCH_ON_QUALDANAS.bosses,
     ]
 
     specs: list[WowSpec] = [
@@ -118,7 +116,7 @@ def load_spec_rankings() -> None:
         # Hunter
         # HUNTER_BEASTMASTERY,
         # HUNTER_MARKSMANSHIP,
-        HUNTER_SURVIVAL,
+        # HUNTER_SURVIVAL,
 
         # Mage
         # MAGE_ARCANE,
@@ -160,24 +158,24 @@ def load_spec_rankings() -> None:
         # WARRIOR_FURY,
         # WARRIOR_PROTECTION,
     ]
-    # specs = ALL_SPECS
+    specs = ALL_SPECS
     # specs = HEAL.specs
 
-    #  load = load_remote
-    load = load_local
+    load = load_remote
+    # load = load_local
 
     for spec in specs:
         print(spec.full_name_slug)
         for boss in bosses:
             print("\t", boss.full_name_slug)
 
-            load(
+            await load(
                 spec,
                 boss,
-                clear=False,
-                difficulty="heroic",
-                metric="hps",
-                limit=5,
+                clear=True,
+                difficulty="mythic",
+                # metric="hps",
+                # limit=20,
             )
 
 
@@ -197,13 +195,13 @@ def load_all():
         "boss_slug": "all",
         "difficulty": "mythic",
         "metric": "all",
-        "limit": 40,
-        "clear": True,
+        "limit": 50,
+        "clear": False,
     }
     print("q", payload)
     return sqs.send_message(payload=payload)
 
 
 if __name__ == "__main__":
-    load_spec_rankings()
-    # load_all()
+    load_all()
+    # asyncio.run(load_spec_rankings())
