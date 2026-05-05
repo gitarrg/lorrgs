@@ -57,5 +57,5 @@ BLUR = WowSpell(
     name="Blur", icon="ability_demonhunter_blur.jpg", color=DEMONHUNTER.color,
     show=False, spell_type=DEMONHUNTER.name_slug, tags=[SpellTag.DEFENSIVE],
 )
-DEMONHUNTER_HAVOC.add_buff(BLUR)
-DEMONHUNTER_DEVOURER.add_buff(BLUR)
+DEMONHUNTER_HAVOC.add_spell(BLUR)
+DEMONHUNTER_DEVOURER.add_spell(BLUR)
