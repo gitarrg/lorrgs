@@ -17,6 +17,7 @@ from lorgs.data.expansions.wrath_of_the_lich_king.dungeons import PIT_OF_SARON
 from lorgs.data.expansions.midnight.raids import VOIDSPIRE
 from lorgs.data.expansions.midnight.raids import DREAMRIFT
 from lorgs.data.expansions.midnight.raids import MARCH_ON_QUALDANAS
+from lorgs.data.expansions.midnight.raids import SPOREFALL
 
 
 MIDNIGHT_SEASON1 = Season(
@@ -27,6 +28,7 @@ MIDNIGHT_SEASON1 = Season(
         VOIDSPIRE,
         DREAMRIFT,
         MARCH_ON_QUALDANAS,
+        SPOREFALL,
     ],
     dungeons=[
         ALGETHAR_ACADEMY,
