@@ -1,11 +1,9 @@
-# Dungeons
-
 # Raids
 from .consumables import MIDNIGHT_CONSUMABLES
-from .raids import DREAMRIFT, MARCH_ON_QUALDANAS, SPOREFALL, VOIDSPIRE
+from .raids import DREAMRIFT, MARCH_ON_QUALDANAS, SPOREFALL, THE_VENOMOUS_ABYSS, VOIDSPIRE
 
 # Seasons
-from .seasons import MIDNIGHT_SEASON1
+from .seasons import MIDNIGHT_SEASON1, MIDNIGHT_SEASON2
 
 
 __all__ = [
@@ -13,6 +11,8 @@ __all__ = [
     "MARCH_ON_QUALDANAS",
     "MIDNIGHT_CONSUMABLES",
     "MIDNIGHT_SEASON1",
+    "MIDNIGHT_SEASON2",
     "SPOREFALL",
+    "THE_VENOMOUS_ABYSS",
     "VOIDSPIRE",
 ]

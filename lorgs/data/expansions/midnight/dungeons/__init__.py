@@ -1,3 +1,4 @@
+from .altar_of_fangs import ALTAR_OF_FANGS
 from .den_of_nalorakk import DEN_OF_NALORAKK
 from .magisters_terrace import MAGISTERS_TERRACE
 from .maisara_caverns import MAISARA_CAVERNS
@@ -7,7 +8,9 @@ from .the_blinding_vale import THE_BLINDING_VALE
 from .voidscar_arena import VOIDSCAR_ARENA
 from .windrunner_spire import WINDRUNNER_SPIRE
 
+
 __all__ = [
+    "ALTAR_OF_FANGS",
     "DEN_OF_NALORAKK",
     "MAGISTERS_TERRACE",
     "MAISARA_CAVERNS",
