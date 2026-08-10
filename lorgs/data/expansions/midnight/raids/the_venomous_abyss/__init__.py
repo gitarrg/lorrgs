@@ -1,5 +1,8 @@
 """RaidZone and Bosses for Patch 12.1 The Venomous Abyss.
 
+Bosses:
+    https://wago.tools/db2/DungeonEncounter?filter%5BMapID%5D=3004&page=1&sort%5BOrderIndex%5D=asc
+
 Logs:
     All Reports:
     https://www.warcraftlogs.com/zone/reports?zone=54
@@ -10,7 +13,16 @@ Logs:
 """
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.models.raid_zone import RaidZone
+from lorgs.models.raid_zone import RaidZone  # ruff: ignore[unsorted-imports]
+
+from .nekzali import NEKZALI
+from .entombed_sentinels import ENTOMBED_SENTINELS
+from .vashnik import VASHNIK
+from .lost_explorers import LOST_EXPLORERS
+from .sszorak import SSZORAK
+from .twin_fangs import TWIN_FANGS
+from .coiled_altar import COILED_ALTAR
+from .ulatek import ULATEK
 
 
 ################################################################################
@@ -18,9 +30,18 @@ from lorgs.models.raid_zone import RaidZone
 #   Tier: 54 The Venomous Abyss
 #
 ################################################################################
-THE_VENOMOUS_ABYSS = RaidZone(
+THE_VENOMOUS_ABYSS = RaidZone(  # ruff: ignore[non-empty-init-module]
     id=54,
     name="The Venomous Abyss",
     icon="inv_misc_questionmark.jpg",
-    bosses=[],
+    bosses=[
+        NEKZALI,
+        ENTOMBED_SENTINELS,
+        VASHNIK,
+        LOST_EXPLORERS,
+        SSZORAK,
+        TWIN_FANGS,
+        COILED_ALTAR,
+        ULATEK,
+    ],
 )
