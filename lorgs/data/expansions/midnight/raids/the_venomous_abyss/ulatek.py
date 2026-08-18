@@ -8,7 +8,7 @@ ULATEK = RaidBoss(
     id=3492,
     name="Ula'tek",
     nick="Ula'tek",
-    icon="inv_misc_questionmark.jpg",
+    icon="inv_121_raid_achievement_ulatek.jpg",
 )
 boss = ULATEK
 

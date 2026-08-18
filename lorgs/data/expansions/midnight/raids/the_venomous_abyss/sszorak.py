@@ -12,7 +12,7 @@ SSZORAK = RaidBoss(
     id=3420,
     name="Sszorak",
     nick="Sszorak",
-    icon="inv_misc_questionmark.jpg",
+    icon="inv_121_raid_achievement_brute.jpg",
 )
 boss = SSZORAK
 

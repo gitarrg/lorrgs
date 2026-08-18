@@ -13,7 +13,7 @@ VASHNIK = RaidBoss(
     id=3455,
     name="Vashnik the Malignant",
     nick="Vashnik",
-    icon="inv_misc_questionmark.jpg",
+    icon="inv_121_raid_achievement_alchemist.jpg",
 )
 boss = VASHNIK
 

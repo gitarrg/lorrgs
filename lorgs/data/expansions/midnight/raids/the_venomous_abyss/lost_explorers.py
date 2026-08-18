@@ -13,7 +13,7 @@ LOST_EXPLORERS = RaidBoss(
     id=3497,
     name="The Lost Explorers",
     nick="Explorers",
-    icon="inv_misc_questionmark.jpg",
+    icon="inv_121_raid_achievement_tortollans.jpg",
 )
 boss = LOST_EXPLORERS
 

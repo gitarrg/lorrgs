@@ -8,7 +8,7 @@ NEKZALI = RaidBoss(
     id=3470,
     name="Nek'zali the Soulcoiler",
     nick="Nek'zali",
-    icon="inv_misc_questionmark.jpg",
+    icon="inv_121_raid_achievement_priestess.jpg",
 )
 boss = NEKZALI
 

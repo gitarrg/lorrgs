@@ -18,7 +18,7 @@ TWIN_FANGS = RaidBoss(
     id=3421,
     name="The Twin Fangs",
     nick="Twin Fangs",
-    icon="ability_rogue_deviouspoisons.jpg",
+    icon="inv_121_raid_achievement_twins.jpg",
 )
 boss = TWIN_FANGS
 

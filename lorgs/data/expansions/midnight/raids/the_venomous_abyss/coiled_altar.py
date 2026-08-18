@@ -13,7 +13,7 @@ COILED_ALTAR = RaidBoss(
     id=3429,
     name="The Coiled Altar",
     nick="Coiled Altar",
-    icon="inv_misc_questionmark.jpg",
+    icon="inv_121_raid_achievement_zuljinmalacrass.jpg",
 )
 boss = COILED_ALTAR
 

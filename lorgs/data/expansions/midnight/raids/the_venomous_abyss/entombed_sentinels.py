@@ -8,7 +8,7 @@ ENTOMBED_SENTINELS = RaidBoss(
     id=3445,
     name="Entombed Sentinels",
     nick="Sentinels",
-    icon="inv_misc_questionmark.jpg",
+    icon="inv_121_raid_achievement_golems.jpg",
 )
 boss = ENTOMBED_SENTINELS
 

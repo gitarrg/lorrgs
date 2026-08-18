@@ -33,7 +33,7 @@ from .ulatek import ULATEK
 THE_VENOMOUS_ABYSS = RaidZone(  # ruff: ignore[non-empty-init-module]
     id=54,
     name="The Venomous Abyss",
-    icon="inv_misc_questionmark.jpg",
+    icon="8039569.jpg",
     bosses=[
         NEKZALI,
         ENTOMBED_SENTINELS,
