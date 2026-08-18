@@ -16,6 +16,7 @@ from lorgs.data.expansions.midnight.dungeons import VOIDSCAR_ARENA
 
 # Raids
 from lorgs.data.expansions.midnight.raids import THE_VENOMOUS_ABYSS
+from lorgs.data.expansions.midnight.raids import THE_TIDEBOUND_GROTTO
 
 
 MIDNIGHT_SEASON2 = Season(
@@ -24,6 +25,7 @@ MIDNIGHT_SEASON2 = Season(
     ilvl=344,
     raids=[
         THE_VENOMOUS_ABYSS,
+        THE_TIDEBOUND_GROTTO,
     ],
     dungeons=[
         ALTAR_OF_FANGS,

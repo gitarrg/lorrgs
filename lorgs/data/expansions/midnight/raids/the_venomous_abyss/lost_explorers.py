@@ -31,7 +31,8 @@ boss = LOST_EXPLORERS
 boss.add_cast(
     spell_id=1297075,
     name="Final Ascension",
-    duration=60,
+    duration=0,
+    cooldown=60,
     color="rgb(245, 163, 64)",
     icon="spell_animarevendreth_nova.jpg",
 )
