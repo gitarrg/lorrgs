@@ -12,7 +12,7 @@ from lorgs.models.raid_boss import RaidBoss
 LOST_EXPLORERS = RaidBoss(
     id=3497,
     name="The Lost Explorers",
-    nick="Explorers",
+    nick="The Lost Turtles",
     icon="inv_121_raid_achievement_tortollans.jpg",
 )
 boss = LOST_EXPLORERS
