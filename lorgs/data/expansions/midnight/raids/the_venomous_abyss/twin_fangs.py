@@ -39,7 +39,7 @@ boss.add_cast(
     duration=4,
     cooldown=14,
     color="rgb(20, 227, 55)",
-    icon="ICON_PLACEHOLDER.jpg",
+    icon="ability_rogue_deviouspoisons.jpg",
 )
 # Vexhul channels a continuous torrent of toxin in a frontal direction for 14 sec,
 # inflicting 416703 Nature damage every 0.5 sec and applying Eternal Venom to players struck.
