@@ -1,24 +1,19 @@
 #!/usr/bin/env python
 
+# IMPORT STANDARD LIBRARIES
 import itertools
 
+# IMPORT LOCAL LIBRARIES
+from lorgs.data.classes import *
+from lorgs.data.expansions.midnight import *
+from lorgs.data.expansions.midnight.raids import THE_TIDEBOUND_GROTTO, THE_VENOMOUS_ABYSS
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 
-# IMPORT LOCAL LIBRARIES
-from lorgs.clients import sqs
-from lorgs.data.classes import *
 
-from lorgs.data.expansions.midnight import *
-from lorgs.data.expansions.midnight.raids.voidspire import *
-
-
-
-def load_spec_rankings() -> None:
+def main() -> None:
     bosses = [
-        # *VOIDSPIRE.bosses,
-        CROWN_OF_THE_COSMOS,
-        *DREAMRIFT.bosses,
-        *MARCH_ON_QUALDANAS.bosses,
+        *THE_TIDEBOUND_GROTTO.bosses,
+        *THE_VENOMOUS_ABYSS.bosses,
     ]
 
     specs = [
@@ -74,5 +69,5 @@ def load_spec_rankings() -> None:
 
 
 if __name__ == "__main__":
-    load_spec_rankings()
+    main()
     # load_comp_ranking()
