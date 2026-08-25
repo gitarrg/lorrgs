@@ -9,6 +9,7 @@ ENTOMBED_SENTINELS = RaidBoss(
     name="Entombed Sentinels",
     nick="Sentinels",
     icon="inv_121_raid_achievement_golems.jpg",
+    phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = ENTOMBED_SENTINELS
 

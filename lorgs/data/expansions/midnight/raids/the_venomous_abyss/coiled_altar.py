@@ -14,6 +14,7 @@ COILED_ALTAR = RaidBoss(
     name="The Coiled Altar",
     nick="Coiled Altar",
     icon="inv_121_raid_achievement_zuljinmalacrass.jpg",
+    phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = COILED_ALTAR
 

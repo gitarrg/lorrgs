@@ -9,6 +9,7 @@ NEKZALI = RaidBoss(
     name="Nek'zali the Soulcoiler",
     nick="Nek'zali",
     icon="inv_121_raid_achievement_priestess.jpg",
+    phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = NEKZALI
 

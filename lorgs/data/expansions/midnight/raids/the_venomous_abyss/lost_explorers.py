@@ -14,6 +14,7 @@ LOST_EXPLORERS = RaidBoss(
     name="The Lost Explorers",
     nick="The Lost Turtles",
     icon="inv_121_raid_achievement_tortollans.jpg",
+    phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = LOST_EXPLORERS
 
