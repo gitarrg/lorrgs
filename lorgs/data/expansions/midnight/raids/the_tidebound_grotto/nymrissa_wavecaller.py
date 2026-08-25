@@ -14,7 +14,6 @@ NYMRISSA_WAVECALLER = RaidBoss(
     name="Nymrissa Wavecaller",
     nick="Nymrissa",
     icon="achievement_boss_elitenagamale.jpg",
-    phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = NYMRISSA_WAVECALLER
 

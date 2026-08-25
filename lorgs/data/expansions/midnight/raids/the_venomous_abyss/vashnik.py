@@ -14,7 +14,6 @@ VASHNIK = RaidBoss(
     name="Vashnik the Malignant",
     nick="Vashnik",
     icon="inv_121_raid_achievement_alchemist.jpg",
-    phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = VASHNIK
 

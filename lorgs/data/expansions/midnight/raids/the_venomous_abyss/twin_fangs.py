@@ -19,7 +19,6 @@ TWIN_FANGS = RaidBoss(
     name="The Twin Fangs",
     nick="Twin Fangs",
     icon="inv_121_raid_achievement_twins.jpg",
-    phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = TWIN_FANGS
 
