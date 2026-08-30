@@ -40,6 +40,7 @@ class FightPhasesLoader(BaseLoader):
                     {{
                         phaseTransitions
                         {{
+                            id
                             startTime
                         }}
                     }}
@@ -61,7 +62,7 @@ class FightPhasesLoader(BaseLoader):
                     ts = phase_transition.startTime - self.fight.start_time_rel
                     if ts <= 100:  # skip pull as phase
                         continue
-                    self.fight.add_phase(ts=ts)
+                    self.fight.add_phase(ts=ts, phase_id=phase_transition.id)
 
     def needs_load(self) -> bool:
         if self.fight.phases:

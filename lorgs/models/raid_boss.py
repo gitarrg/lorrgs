@@ -34,12 +34,12 @@ class RaidBoss(WowActor):
 
     class PhaseType(Enum):
         """Type of phases for a boss."""
+
         STATIC = "static"
         DYNAMIC = "dynamic"
 
     phase_type: PhaseType = PhaseType.STATIC
     """Type of phases for this boss."""
-
 
     def __repr__(self):
         return f"<RaidBoss(id={self.id} name={self.name})>"

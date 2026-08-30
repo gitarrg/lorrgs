@@ -1,3 +1,5 @@
+# ruff: file-ignore[mixed-case-variable-in-class-scope]
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -12,6 +14,9 @@ class PhaseTransition(BaseModel):
 
     https://www.warcraftlogs.com/v2-api-docs/warcraft/phasetransition.doc.html
     """
+
+    id: int = 0
+    """The 1-indexed id of the phase. Phase IDs are absolute within a fight: phases with the same ID correspond to the same semantic phase."""
 
     startTime: int
     """The start time of the phase transition. (Milliseconds relative to the start of the report)."""
@@ -51,7 +56,7 @@ class ReportFight(BaseModel):
     """The actual completion percentage of the fight.
     This is the field used to indicate how far into a fight a wipe was,
     since fights can be complicated and have multiple bosses, no bosses, bosses that heal, etc.
-    
+
     100.0 = Pull / 0.0 = Kill
     """
 
