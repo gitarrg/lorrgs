@@ -60,6 +60,7 @@ class ReportOverviewLoader(BaseLoader):
                     difficulty
 
                     phaseTransitions {{
+                        id
                         startTime
                     }}
                 }}
