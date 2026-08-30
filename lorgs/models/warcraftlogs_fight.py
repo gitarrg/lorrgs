@@ -5,6 +5,7 @@ import datetime
 import typing
 
 # IMPORT THIRD PARTY LIBRARIES
+import blinker
 import pydantic
 
 # IMPORT LOCAL LIBRARIES
@@ -51,6 +52,9 @@ class Fight(warcraftlogs_base.BaseModel):
     difficulty: RaidDifficulty = RaidDifficulty.UNKNOWN
 
     _report: Report | None = None
+
+    event_fight_load: typing.ClassVar[blinker.Signal] = blinker.signal("fight.load")
+    event_fight_phases_load: typing.ClassVar[blinker.Signal] = blinker.signal("fight.phases.load")
 
     @property
     def report(self) -> Report | None:

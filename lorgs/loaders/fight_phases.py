@@ -12,6 +12,7 @@ from .base_loader import BaseLoader
 
 
 if TYPE_CHECKING:
+    from lorgs.clients.wcl import WarcraftlogsClient
     from lorgs.models.warcraftlogs_fight import Fight
 
 
@@ -72,3 +73,14 @@ class FightPhasesLoader(BaseLoader):
         if not (raid_boss := boss.raid_boss):
             return False
         return raid_boss.phase_type == raid_boss.PhaseType.DYNAMIC
+
+    async def load(self, client: WarcraftlogsClient | None = None) -> None:
+        """Load the data for the actor."""
+        self.fight.event_fight_phases_load.send(self.fight, status="start")
+        try:
+            await super().load(client=client)
+        except:
+            self.fight.event_fight_phases_load.send(self.fight, status="failed")
+            raise
+        else:
+            self.fight.event_fight_phases_load.send(self.fight, status="success")

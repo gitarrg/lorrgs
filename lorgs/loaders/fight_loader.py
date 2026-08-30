@@ -20,6 +20,7 @@ from .base_loader import BaseLoader
 
 
 if typing.TYPE_CHECKING:
+    from lorgs.clients.wcl.client import WarcraftlogsClient
     from lorgs.models.warcraftlogs_report import Report
 
 
@@ -148,3 +149,14 @@ class FightLoader(BaseLoader):
         phase_loader = FightPhasesLoader(fight=self.fight)
         if phase_loader.needs_load():
             phase_loader.process_query_result(query_result)
+
+    async def load(self, client: WarcraftlogsClient | None = None) -> None:
+        """Load the data for the actor."""
+        self.fight.event_fight_load.send(self.fight, status="start")
+        try:
+            await super().load(client=client)
+        except:
+            self.fight.event_fight_load.send(self.fight, status="failed")
+            raise
+        else:
+            self.fight.event_fight_load.send(self.fight, status="success")
