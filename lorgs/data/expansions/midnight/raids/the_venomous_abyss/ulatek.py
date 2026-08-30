@@ -13,7 +13,6 @@ ULATEK = RaidBoss(
     name="Ula'tek",
     nick="Ula'tek",
     icon="inv_121_raid_achievement_ulatek.jpg",
-    phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = ULATEK
 

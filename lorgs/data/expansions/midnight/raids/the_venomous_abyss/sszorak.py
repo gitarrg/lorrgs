@@ -13,7 +13,6 @@ SSZORAK = RaidBoss(
     name="Sszorak",
     nick="Sszorak",
     icon="inv_121_raid_achievement_brute.jpg",
-    # phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = SSZORAK
 
