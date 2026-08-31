@@ -1,38 +1,26 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S PYTHONPATH=. uv run uv run --env-file=.env
+"""Manually load spec rankings for a given spec and boss.
 
-"""
-PYTHONPATH=. uv run --env-file=.env scripts/queue_updates.py
-
-
-
+>>> PYTHONPATH=. uv run --env-file=.env scripts/queue_updates.py
 
 """
 
+# IMPORT STANDARD LIBRARIES
+import asyncio
 
 # IMPORT LOCAL LIBRARIES
-import asyncio
 from lorgs.clients import sqs
 from lorgs.data.classes import *
-
+from lorgs.data.expansions.midnight.raids import (
+    THE_TIDEBOUND_GROTTO,
+    THE_VENOMOUS_ABYSS,
+)
+from lorgs.data.expansions.midnight.raids.the_tidebound_grotto import *
+from lorgs.data.expansions.midnight.raids.the_venomous_abyss import *
+from lorgs.data.season import CURRENT_SEASON
+from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.task_payloads import CompRankingPayload, SpecRankingPayload
 from lorgs.models.wow_spec import WowSpec
-from lorgs.models.raid_boss import RaidBoss
-
-from lorgs.data.season import CURRENT_SEASON
-from lorgs.data.expansions.midnight.raids import (
-    VOIDSPIRE,
-    DREAMRIFT,
-    MARCH_ON_QUALDANAS,
-)
-
-from lorgs.data.expansions.midnight.raids.voidspire import (
-    AVERZIAN,
-    FALLEN_KING_SALHADAAR,
-    LIGHTBLINDED_VANGUARD,
-    VORASIUS,
-    VAELGOR_EZZORAK,
-    CROWN_OF_THE_COSMOS,
-)
 
 
 async def load_remote(
@@ -86,14 +74,14 @@ async def load_local(
 
 async def load_spec_rankings() -> None:
     bosses = [
-        *VOIDSPIRE.bosses,
-        *DREAMRIFT.bosses,
-        *MARCH_ON_QUALDANAS.bosses,
+        # *THE_VENOMOUS_ABYSS.bosses,
+        # *THE_TIDEBOUND_GROTTO.bosses,
+        ENTOMBED_SENTINELS,
     ]
 
-    specs: list[WowSpec] = [
+    specs: set[WowSpec] = {
         # DK
-        # DEATHKNIGHT_BLOOD,
+        DEATHKNIGHT_BLOOD,
         # DEATHKNIGHT_FROST,
         # DEATHKNIGHT_UNHOLY,
 
@@ -157,7 +145,7 @@ async def load_spec_rankings() -> None:
         # WARRIOR_ARMS,
         # WARRIOR_FURY,
         # WARRIOR_PROTECTION,
-    ]
+    }
     specs = ALL_SPECS
     # specs = HEAL.specs
 
@@ -173,9 +161,9 @@ async def load_spec_rankings() -> None:
                 spec,
                 boss,
                 clear=True,
-                difficulty="mythic",
+                difficulty="heroic",
                 # metric="hps",
-                # limit=20,
+                # limit=1,
             )
 
 
@@ -203,5 +191,5 @@ def load_all():
 
 
 if __name__ == "__main__":
-    load_all()
-    # asyncio.run(load_spec_rankings())
+    # load_all()
+    asyncio.run(load_spec_rankings())

@@ -1,5 +1,5 @@
-#!/usr/bin/env python
-"""Load a Report given by an URL"""
+#!/usr/bin/env -S PYTHONPATH=. uv run uv run --env-file=.env
+"""Load a Report given by an URL."""
 
 # IMPORT STANDARD LIBRARIES
 from urllib.parse import urlparse, parse_qs

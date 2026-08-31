@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S PYTHONPATH=. uv run
 
 # IMPORT STANDARD LIBRARIES
 import itertools
@@ -7,13 +7,17 @@ import itertools
 from lorgs.data.classes import *
 from lorgs.data.expansions.midnight import *
 from lorgs.data.expansions.midnight.raids import THE_TIDEBOUND_GROTTO, THE_VENOMOUS_ABYSS
+from lorgs.data.expansions.midnight.raids.the_tidebound_grotto import *
+from lorgs.data.expansions.midnight.raids.the_venomous_abyss import *
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 
 
 def main() -> None:
     bosses = [
-        *THE_TIDEBOUND_GROTTO.bosses,
-        *THE_VENOMOUS_ABYSS.bosses,
+        # *THE_TIDEBOUND_GROTTO.bosses,
+        # *THE_VENOMOUS_ABYSS.bosses,
+        SSZORAK,
+        ULATEK,
     ]
 
     specs = [

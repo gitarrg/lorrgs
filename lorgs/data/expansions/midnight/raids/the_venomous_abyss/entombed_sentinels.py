@@ -33,6 +33,7 @@ def filter_phases(fight: warcraftlogs_fight.Fight, status: str) -> None:
 
 
 warcraftlogs_fight.Fight.event_fight_load.connect(filter_phases)
+warcraftlogs_fight.Fight.event_fight_phases_load.connect(filter_phases)
 
 
 ################################################################################
