@@ -60,10 +60,27 @@ POTION_OF_RECKLESSNESS = WowPotion(
 POTION_OF_RECKLESSNESS.add_specs(*ALL_SPECS)
 
 
+LIQUID_LUSTER = WowPotion(
+    spell_id=1295132,
+    duration=30,
+    color="hsl(200 80% 55%)",
+    name="Liquid Luster",
+    icon="inv_121_professions_alchemy_potion_amani_blue.jpg",
+    item=271887,
+)
+"""Stacking Versatility
+
+> Use: Drink to apply Lustrous Gleam every 6 seconds for 30 sec, increasing your
+> Versatility while this potion is active. Applications of Lustrous Gleam stack
+> up to 5 times.
+"""
+LIQUID_LUSTER.add_specs(*ALL_SPECS)
+
 
 MIDNIGHT_CONSUMABLES = [
     SILVERMOON_HEALTH_POTION,
     LIGHTS_POTENTIAL,
     POTION_OF_RECKLESSNESS,
+    LIQUID_LUSTER,
     LIGHTFUSED_MANA_POTION,
 ]
