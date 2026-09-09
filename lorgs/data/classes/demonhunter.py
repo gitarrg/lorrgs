@@ -8,6 +8,7 @@
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.data.roles import MDPS, RDPS, TANK
+from lorgs.models import warcraftlogs_actor, warcraftlogs_cast
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_spec import WowSpec
 from lorgs.models.wow_spell import SpellTag, WowSpell
@@ -46,10 +47,18 @@ DEMONHUNTER_VENGEANCE.add_debuff(spell_id=209261, cooldown=480, duration=15, col
 DEMONHUNTER_VENGEANCE.add_spell(spell_id=390163, cooldown=60, duration=2, color="#748534", name="Sigil of Spite",   icon="inv_ability_demonhunter_elysiandecree.jpg", show=False)
 
 
-DEMONHUNTER_DEVOURER.add_buff(spell_id=1217607, name="Void Metamorphosis",  icon="inv_112_ability_demonhunter_metamorphasisvoid.jpg")
+VOID_META = DEMONHUNTER_DEVOURER.add_buff(spell_id=1217607, name="Void Metamorphosis",  icon="inv_112_ability_demonhunter_metamorphasisvoid.jpg")
 DEMONHUNTER_DEVOURER.add_spell(spell_id=1221150, name="Collapsing Star",  icon="inv_12_dh_void_ability_collapsingstar.jpg", show=False)
 DEMONHUNTER_DEVOURER.add_spell(         spell_id=1246167, cooldown=90,   duration=6,  color="#2075d6", name="The Hunt",        icon="inv_12_voiddh_ability_thehunt.jpg")
 # DEMONHUNTER_DEVOURER.add_spell(         spell_id=473728, name="Void Ray",        icon="inv_12_dh_void_ability_voidray.jpg", show=False)
+
+DROP_META = DEMONHUNTER_DEVOURER.add_spell(
+    spell_id=267134,  # a random spell thats called "Drop it!"
+    name="Drop Void Meta",
+    icon="inv_12_dh_void_ability_collapsingstar.jpg",
+    show=False,
+    query=False,  # generated on the fly
+)
 
 
 BLUR = WowSpell(
@@ -59,3 +68,30 @@ BLUR = WowSpell(
 )
 DEMONHUNTER_HAVOC.add_spell(BLUR)
 DEMONHUNTER_DEVOURER.add_spell(BLUR)
+
+
+def add_drop_meta(actor: warcraftlogs_actor.BaseActor, status: str) -> None:
+    """Add "Drop Void Meta events to the."""
+    if status != "success":
+        return
+    if not actor:
+        return
+
+    new_casts = []
+    for cast in actor.casts:
+
+        if cast.spell_id != VOID_META.spell_id:
+            continue
+
+        drop_event = warcraftlogs_cast.Cast(
+            spell_id=DROP_META.spell_id,
+            timestamp=cast.timestamp + cast.get_duration(),
+            duration=0,
+        )
+        new_casts.append(drop_event)
+        print(f"Added Drop Void Meta event for {cast} at {drop_event.timestamp}")
+
+    actor.casts = sorted([*actor.casts, *new_casts], key=lambda x: x.timestamp)
+
+
+warcraftlogs_actor.BaseActor.event_actor_load.connect(add_drop_meta)
