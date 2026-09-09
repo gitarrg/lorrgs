@@ -86,7 +86,17 @@ class FightLoader(BaseLoader):
             ts = phase_transition.startTime - fight_data.startTime
             if ts <= 0:  # skip pull as phase
                 continue
-            fight.add_phase(ts=ts, phase_id=phase_transition.id)
+
+            # Map transitions into Phases
+            if raid_boss and (info := raid_boss.phase_infos.get(phase_transition.id)):
+                phase_id = info.phase_id
+                ts += info.offset
+                if info.skip:
+                    continue
+            else:
+                phase_id = phase_transition.id
+
+            fight.add_phase(ts=ts, phase_id=phase_id)
 
         return fight
 

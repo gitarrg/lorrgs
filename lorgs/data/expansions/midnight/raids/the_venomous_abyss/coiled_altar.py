@@ -19,6 +19,19 @@ COILED_ALTAR = RaidBoss(
 boss = COILED_ALTAR
 
 
+boss.add_phase_info(
+    transition_id=3,
+    phase_id=2.5,
+    offset=-8,  # cast duration
+)
+
+boss.add_phase_info(
+    transition_id=4,
+    phase_id=3,
+    offset=-4,  # guessed offset
+)
+
+
 ################################################################################
 # Trinkets
 

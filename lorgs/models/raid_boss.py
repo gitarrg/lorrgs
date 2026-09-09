@@ -3,15 +3,30 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-from enum import Enum
 import typing
+from enum import Enum
 from typing import Any
+
+# IMPORT THIRD PARTY LIBRARIES
+import pydantic
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.models.wow_actor import WowActor
 from lorgs.models.wow_spell import WowSpell
 from lorgs.models.wow_trinket import WowTrinket
+
+
+class PhaseInfo(pydantic.BaseModel):
+
+    phase_id: int | float
+    """Target Phase ID this Info is for."""
+
+    offset: int = 0
+    """Offset in seconds to apply to the phase."""
+
+    skip: bool = False
+    """Whether to skip this phase transition."""
 
 
 class RaidBoss(WowActor):
@@ -31,6 +46,9 @@ class RaidBoss(WowActor):
 
     trinkets: list[WowTrinket] = []
     """Trinkets which can drop from this Boss."""
+
+    phase_infos: dict[int, PhaseInfo] = {}
+    """Phase infos for this boss."""
 
     class PhaseType(Enum):
         """Type of phases for a boss."""
@@ -52,6 +70,11 @@ class RaidBoss(WowActor):
         trinket = WowTrinket(**kwargs)
         self.trinkets.append(trinket)
         return trinket
+
+    def add_phase_info(self, transition_id: int, **kwargs: Any) -> PhaseInfo:
+        phase_info = PhaseInfo(**kwargs)
+        self.phase_infos[transition_id] = phase_info
+        return phase_info
 
     @property
     def name_slug(self) -> str:

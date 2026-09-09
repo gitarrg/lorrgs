@@ -17,23 +17,25 @@ boss = ENTOMBED_SENTINELS
 
 # Timeline Reminder only tracks the "Phase 1" phases
 # so we get rid of the other phases
-def filter_phases(fight: warcraftlogs_fight.Fight, status: str) -> None:
-    """Filter the phases for the boss."""
-    if status != "success":
-        return
-    if not fight.boss or (fight.boss.boss_slug != ENTOMBED_SENTINELS.name_slug):
-        return
+# def filter_phases(fight: warcraftlogs_fight.Fight, status: str) -> None:
+#     """Filter the phases for the boss."""
+#     if status != "success":
+#         return
+#     if not fight.boss or (fight.boss.boss_slug != ENTOMBED_SENTINELS.name_slug):
+#         return
+# 
+#     # remove any non p1 phases
+#     fight.phases = [phase for phase in fight.phases if phase.phase_id == 1]
+# 
+#     # renumber the phases (start at 2, since p1=pull)
+#     for i, phase in enumerate(fight.phases, start=2):
+#         phase.phase_id = i
+# 
+# 
+# warcraftlogs_fight.Fight.event_fight_load.connect(filter_phases)
+# warcraftlogs_fight.Fight.event_fight_phases_load.connect(filter_phases)
 
-    # remove any non p1 phases
-    fight.phases = [phase for phase in fight.phases if phase.phase_id == 1]
-
-    # renumber the phases (start at 2, since p1=pull)
-    for i, phase in enumerate(fight.phases, start=2):
-        phase.phase_id = i
-
-
-warcraftlogs_fight.Fight.event_fight_load.connect(filter_phases)
-warcraftlogs_fight.Fight.event_fight_phases_load.connect(filter_phases)
+boss.add_phase_info(transition_id=2, skip=True)
 
 
 ################################################################################
