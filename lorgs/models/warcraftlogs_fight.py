@@ -26,7 +26,7 @@ class Phase(pydantic.BaseModel):
     timestamp: int = pydantic.Field(alias="ts")
     name: str = "Phase"
     mrt: str = ""
-    phase_id: int = 0
+    phase_id: int | float = 0
 
 
 class Fight(warcraftlogs_base.BaseModel):
@@ -148,7 +148,7 @@ class Fight(warcraftlogs_base.BaseModel):
             players = [player for player in players if player.source_id in source_ids]
         return players
 
-    def add_phase(self, ts: int, phase_id: int = 0) -> Phase:
+    def add_phase(self, ts: int, phase_id: float = 0) -> Phase:
         """Add a new phase to the fight."""
         if not self.phases:
             self.phases = []  # force new list to trick pydantics "excludeUnset"
