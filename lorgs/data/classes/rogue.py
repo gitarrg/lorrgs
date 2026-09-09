@@ -43,6 +43,8 @@ ROGUE_ASSASSINATION.add_spell( spell_id=385627, cooldown=60,  duration=14, color
 
 ROGUE_SUBTLETY.add_spell(      spell_id=121471, cooldown=180, duration=20, color="#9a1be3", name="Shadow Blades",       icon="inv_knife_1h_grimbatolraid_d_03.jpg", tags=[SpellTag.DAMAGE])
 ROGUE_SUBTLETY.add_spell(      spell_id=185313, cooldown=0,   duration=8,  color="#cf5dab", name="Shadow Dance",        icon="ability_rogue_shadowdance.jpg",            show=False)
+ROGUE_SUBTLETY.add_spell(      spell_id=280719, cooldown=25,                color="#6c4cc2", name="Secret Technique",   icon="ability_rogue_sinistercalling.jpg",        show=False)
+ROGUE_SUBTLETY.add_spell(      spell_id=426591, cooldown=45,  duration=14, color="#8a2be2", name="Goremaw's Bite",     icon="inv_knife_1h_artifactfangs_d_01.jpg",      show=False)
 
 ROGUE_OUTLAW.add_spell(        spell_id=13750,  cooldown=0,   duration=20,                  name="Adrenaline Rush",     icon="spell_shadow_shadowworddominate.jpg", tags=[SpellTag.DAMAGE])
 ROGUE_OUTLAW.add_spell(        spell_id=51690,  cooldown=120,                               name="Killing Spree",       icon="ability_rogue_murderspree.jpg", tags=[SpellTag.DAMAGE])
