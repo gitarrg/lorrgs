@@ -56,6 +56,25 @@ warcraftlogs_fight.Boss.event_actor_load.connect(filter_phases)
 ################################################################################
 # Trinkets
 
+SOULCOILER_RITUAL_VESSEL = boss.add_trinket(
+    spell_id=1291894,
+    duration=20,
+    cooldown=120,
+    name="Soulcoiler Ritual Vessel",
+    icon="inv_121_trinket_raid_ulatek_ritualvessel.jpg",
+    item=270162,
+)
+SOULCOILER_RITUAL_VESSEL.add_specs(*HEAL.specs)
+"""On-Use ally barriers (channel)
+
+> Use: Call forth 5 Soulcoiler Cultist spirits over 2 sec and sacrifice their
+> essence, each granting an ally a barrier reducing damage taken by 50% for 20 sec
+> or until the shield is consumed.
+>
+> Allied deaths reduce this cooldown by 30 sec and immediately summon a Soulcoil
+> Cultist spirit for sacrifice. (2 Min Cooldown)
+"""
+
 
 ################################################################################
 # Spells
