@@ -156,6 +156,11 @@ class Fight(warcraftlogs_base.BaseModel):
         if not phase:
             phase = Phase(**kwargs)
 
+        # auto enumerate phases
+        if not phase.phase_id:
+            # pull is "P1", first real phase is P2
+            phase.phase_id = len(self.phases) + 2
+
         self.phases.append(phase)
         return phase
 

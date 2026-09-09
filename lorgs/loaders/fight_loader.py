@@ -75,6 +75,8 @@ class FightLoader(BaseLoader):
             duration=fight_data.endTime - fight_data.startTime + 1,  # somehow there is 1ms missing
             difficulty=difficulty,
         )
+        # set before running `FightPhasesLoader` as it depends on the report
+        fight.report = report
 
         # Fight: Boss
         if raid_boss := RaidBoss.get(id=fight_data.encounterID):

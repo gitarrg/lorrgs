@@ -27,6 +27,9 @@ class EntombedSentinels(RaidBoss):
         if transition.id != 1:
             return None
 
+        # auto enumerate phases
+        transition.id = 0
+
         return super().phase_from_transition(transition)
 
 
