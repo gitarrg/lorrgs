@@ -1,6 +1,7 @@
 """Nek'zali the Soulcoiler (The Venomous Abyss)."""
 
 from lorgs.data.classes import *
+from lorgs.models import warcraftlogs_actor, warcraftlogs_boss, warcraftlogs_fight
 from lorgs.models.raid_boss import RaidBoss
 
 
@@ -12,6 +13,44 @@ NEKZALI = RaidBoss(
     phase_type=RaidBoss.PhaseType.DYNAMIC,
 )
 boss = NEKZALI
+
+
+# Timeline Reminder only tracks the "Phase 1" phases
+# so we get rid of the other phases
+def filter_phases(boss: warcraftlogs_actor.BaseActor, status: str) -> None:
+    """Filter the phases for the boss."""
+    if status != "success":
+        return
+    if not isinstance(boss, warcraftlogs_boss.Boss):
+        return
+    if not boss or (boss.boss_slug != NEKZALI.name_slug):
+        return
+
+    fight = boss.fight
+    if not fight:
+        return
+
+    old_phases = fight.phases[:]
+    fight.phases = []
+
+    # Ritual of Awakening: Intermission 1.5
+    if ritual_of_awakening_casts := [cast for cast in boss.casts if cast.spell_id == 1295124]:
+        fight.add_phase(ts=ritual_of_awakening_casts[0].timestamp, phase_id=1.5)
+
+    # Soul Transfer: Intermission 1.75
+    if soul_transfer_casts := [cast for cast in boss.casts if cast.spell_id == 1292248]:
+        fight.add_phase(
+            # event is cast end. Phase start on cast start
+            ts=soul_transfer_casts[-1].timestamp - 15_000,
+            phase_id=1.75,
+        )
+
+    # Phase 2: Uncoiling buff applied
+    phase_2 = old_phases[-1]
+    fight.add_phase(ts=phase_2.timestamp, phase_id=2)
+
+
+warcraftlogs_fight.Boss.event_actor_load.connect(filter_phases)
 
 
 ################################################################################
@@ -32,7 +71,7 @@ boss.add_cast(
 
 
 boss.add_cast(
-    spell_id=1289683,
+    spell_id=1295124,
     name="Ritual of Awakening",
     duration=20,
     color="rgb(161, 91, 66)",
