@@ -1,41 +1,37 @@
 """Entombed Sentinels (The Venomous Abyss)."""
+from __future__ import annotations
 
+# IMPORT STANDARD LIBRARIES
+import typing
+
+# IMPORT LOCAL LIBRARIES
 from lorgs.data.classes import *
-from lorgs.models import warcraftlogs_fight
 from lorgs.models.raid_boss import RaidBoss
 
 
-ENTOMBED_SENTINELS = RaidBoss(
-    id=3445,
-    name="Entombed Sentinels",
-    nick="Sentinels",
-    icon="inv_121_raid_achievement_golems.jpg",
-    phase_type=RaidBoss.PhaseType.DYNAMIC,
-)
+if typing.TYPE_CHECKING:
+    from lorgs.clients import wcl
+    from lorgs.models.warcraftlogs_fight import Phase
+
+
+class EntombedSentinels(RaidBoss):
+
+    id: int = 3445
+    name: str = "Entombed Sentinels"
+    nick: str = "Sentinels"
+    icon: str = "inv_121_raid_achievement_golems.jpg"
+    phase_type: RaidBoss.PhaseType = RaidBoss.PhaseType.DYNAMIC
+
+    def phase_from_transition(self, transition: wcl.PhaseTransition) -> Phase | None:
+        # Timeline Reminder only tracks the "Phase 1" phases
+        if transition.id != 1:
+            return None
+
+        return super().phase_from_transition(transition)
+
+
+ENTOMBED_SENTINELS = EntombedSentinels()
 boss = ENTOMBED_SENTINELS
-
-
-# Timeline Reminder only tracks the "Phase 1" phases
-# so we get rid of the other phases
-# def filter_phases(fight: warcraftlogs_fight.Fight, status: str) -> None:
-#     """Filter the phases for the boss."""
-#     if status != "success":
-#         return
-#     if not fight.boss or (fight.boss.boss_slug != ENTOMBED_SENTINELS.name_slug):
-#         return
-# 
-#     # remove any non p1 phases
-#     fight.phases = [phase for phase in fight.phases if phase.phase_id == 1]
-# 
-#     # renumber the phases (start at 2, since p1=pull)
-#     for i, phase in enumerate(fight.phases, start=2):
-#         phase.phase_id = i
-# 
-# 
-# warcraftlogs_fight.Fight.event_fight_load.connect(filter_phases)
-# warcraftlogs_fight.Fight.event_fight_phases_load.connect(filter_phases)
-
-boss.add_phase_info(transition_id=2, skip=True)
 
 
 ################################################################################

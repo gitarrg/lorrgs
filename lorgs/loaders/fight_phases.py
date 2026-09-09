@@ -50,20 +50,29 @@ class FightPhasesLoader(BaseLoader):
             """,
         )
 
+    def process_phase_transitions(self, phase_transitions: list[wcl.PhaseTransition]) -> None:
+
+        if not phase_transitions:
+            return
+
+        raid_boss = self.fight.boss.raid_boss if self.fight.boss else None
+        if not raid_boss:
+            return
+
+        for phase_transition in phase_transitions:
+            # convert to relative time
+            phase_transition.startTime -= self.fight.start_time_rel
+            if phase := raid_boss.phase_from_transition(phase_transition):
+                self.fight.add_phase(phase)
+
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
         report_data = wcl.ReportData(**query_result)
 
         for fight in report_data.report.fights:
-            if fight.id not in [self.fight.fight_id, -1]:
+            if fight.id not in {self.fight.fight_id, -1}:
                 continue
 
-            if fight.phaseTransitions:
-                self.fight.phases = []
-                for phase_transition in fight.phaseTransitions:
-                    ts = phase_transition.startTime - self.fight.start_time_rel
-                    if ts <= 100:  # skip pull as phase
-                        continue
-                    self.fight.add_phase(ts=ts, phase_id=phase_transition.id)
+            self.process_phase_transitions(fight.phaseTransitions)
 
     def needs_load(self) -> bool:
         if self.fight.phases:

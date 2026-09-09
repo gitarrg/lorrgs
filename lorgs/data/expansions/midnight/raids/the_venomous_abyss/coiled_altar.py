@@ -4,32 +4,44 @@ NS:
 https://www.warcraftlogs.com/reports/pfkrcn7xPdDL1jqH?fight=45
 
 """
+from __future__ import annotations
 
+# IMPORT STANDARD LIBRARIES
+import typing
+
+# IMPORT LOCAL LIBRARIES
 from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
+from lorgs.models.warcraftlogs_fight import Phase
 
 
-COILED_ALTAR = RaidBoss(
-    id=3429,
-    name="The Coiled Altar",
-    nick="Coiled Altar",
-    icon="inv_121_raid_achievement_zuljinmalacrass.jpg",
-    phase_type=RaidBoss.PhaseType.DYNAMIC,
-)
+if typing.TYPE_CHECKING:
+    from lorgs.clients import wcl
+
+
+class CoiledAltar(RaidBoss):
+
+    id: int = 3429
+    name: str = "The Coiled Altar"
+    nick: str = "Coiled Altar"
+    icon: str = "inv_121_raid_achievement_zuljinmalacrass.jpg"
+    phase_type: RaidBoss.PhaseType = RaidBoss.PhaseType.DYNAMIC
+
+    def phase_from_transition(self, transition: wcl.PhaseTransition) -> Phase | None:
+
+        # Intermission
+        if transition.id == 3:  # ruff: ignore[magic-value-comparison]
+            return Phase(ts=transition.startTime - 8_000, phase_id=2.5)
+
+        # shifted by 1 due to intermission
+        if transition.id == 4:  # ruff: ignore[magic-value-comparison]
+            return Phase(ts=transition.startTime - 4_000, phase_id=3)
+
+        return super().phase_from_transition(transition)
+
+
+COILED_ALTAR = CoiledAltar()
 boss = COILED_ALTAR
-
-
-boss.add_phase_info(
-    transition_id=3,
-    phase_id=2.5,
-    offset=-8,  # cast duration
-)
-
-boss.add_phase_info(
-    transition_id=4,
-    phase_id=3,
-    offset=-4,  # guessed offset
-)
 
 
 ################################################################################

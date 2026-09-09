@@ -7,26 +7,16 @@ import typing
 from enum import Enum
 from typing import Any
 
-# IMPORT THIRD PARTY LIBRARIES
-import pydantic
-
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.models.wow_actor import WowActor
-from lorgs.models.wow_spell import WowSpell
 from lorgs.models.wow_trinket import WowTrinket
 
 
-class PhaseInfo(pydantic.BaseModel):
-
-    phase_id: int | float
-    """Target Phase ID this Info is for."""
-
-    offset: int = 0
-    """Offset in seconds to apply to the phase."""
-
-    skip: bool = False
-    """Whether to skip this phase transition."""
+if typing.TYPE_CHECKING:
+    from lorgs.clients import wcl
+    from lorgs.models.warcraftlogs_fight import Phase
+    from lorgs.models.wow_spell import WowSpell
 
 
 class RaidBoss(WowActor):
@@ -47,9 +37,6 @@ class RaidBoss(WowActor):
     trinkets: list[WowTrinket] = []
     """Trinkets which can drop from this Boss."""
 
-    phase_infos: dict[int, PhaseInfo] = {}
-    """Phase infos for this boss."""
-
     class PhaseType(Enum):
         """Type of phases for a boss."""
 
@@ -58,6 +45,13 @@ class RaidBoss(WowActor):
 
     phase_type: PhaseType = PhaseType.STATIC
     """Type of phases for this boss."""
+
+    def post_init(self) -> None:
+        super().post_init()
+        # Subclasses are stored under their own type; also index them as RaidBoss
+        # so RaidBoss.get() / list() still find them.
+        if type(self) is not RaidBoss:
+            self.__instances__[RaidBoss].add(self)
 
     def __repr__(self):
         return f"<RaidBoss(id={self.id} name={self.name})>"
@@ -71,10 +65,18 @@ class RaidBoss(WowActor):
         self.trinkets.append(trinket)
         return trinket
 
-    def add_phase_info(self, transition_id: int, **kwargs: Any) -> PhaseInfo:
-        phase_info = PhaseInfo(**kwargs)
-        self.phase_infos[transition_id] = phase_info
-        return phase_info
+    def phase_from_transition(self, transition: wcl.PhaseTransition) -> Phase | None:  # ruff: ignore[no-self-use]
+        """Map a WCL phase transition into a fight Phase.
+
+        Returns None if this transition should be skipped.
+        """
+        # inlined to avoid a cycle: Fight -> Boss -> RaidBoss
+        from lorgs.models.warcraftlogs_fight import Phase  # ruff: ignore[import-outside-top-level]
+
+        if transition.startTime <= 100:  # skip pull as phase
+            return None
+
+        return Phase(ts=transition.startTime, phase_id=transition.id)
 
     @property
     def name_slug(self) -> str:
