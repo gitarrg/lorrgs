@@ -36,6 +36,25 @@ FONT_OF_VENOMOUS_RAGE.add_specs(*ALL_SPECS)
 > (4 Min Cooldown)
 """
 
+VORACIOUS_HEART_OF_ULATEK = boss.add_trinket(
+    spell_id=1297761,
+    duration=20,
+    cooldown=90,
+    name="Voracious Heart of Ula'tek",
+    icon="inv_121_trinket_raid_ulatek_heart.jpg",
+    item=270175,
+)
+VORACIOUS_HEART_OF_ULATEK.add_specs(*AGI_SPECS, *STR_SPECS)
+"""On-Use Strength/Agility
+
+> Use: Bite the heart and embrace the ravening hunger, gaining Strength or Agility
+> for 20 sec.
+>
+> While the hunger persists, gain a very high chance to devour a morsel of your
+> target with every attack, dealing Physical damage and further increasing your
+> Strength or Agility. (1 Min, 30 Sec Cooldown)
+"""
+
 
 ################################################################################
 # Spells
