@@ -20,6 +20,22 @@ boss = ULATEK
 ################################################################################
 # Trinkets
 
+FONT_OF_VENOMOUS_RAGE = boss.add_trinket(
+    spell_id=1297908,
+    duration=2,
+    cooldown=240,
+    name="Font of Venomous Rage",
+    icon="inv_10_dungeonjewelry_dragon_trinket_3djardintrophy_green.jpg",
+    item=270168,
+)
+FONT_OF_VENOMOUS_RAGE.add_specs(*ALL_SPECS)
+"""On-Use Nature Damage (channel)
+
+> Use: Channel a torrent of venomous rage over 2 sec, dealing Nature damage
+> to your target and splattering all nearby enemies. Damage reduced beyond 8 targets.
+> (4 Min Cooldown)
+"""
+
 
 ################################################################################
 # Spells
