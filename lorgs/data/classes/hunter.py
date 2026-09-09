@@ -41,6 +41,7 @@ HUNTER_BEASTMASTERY.add_spell( spell_id=19574,  cooldown=30,  duration=15, color
 
 HUNTER_MARKSMANSHIP.add_buff( spell_id=288613, cooldown=120,                                name="Trueshot",            icon="ability_trueshot.jpg", tags=[SpellTag.DAMAGE])
 HUNTER_MARKSMANSHIP.add_spell( spell_id=260243, cooldown=45,  duration=6, color="#bf8686",  name="Volley",              icon="ability_hunter_rapidkilling.jpg", show=False)
+HUNTER_MARKSMANSHIP.add_spell( spell_id=212431, cooldown=30,  duration=3, color="#e67e22",  name="Explosive Shot",     icon="ability_hunter_explosiveshot.jpg", show=False)
 
 
 HUNTER_SURVIVAL.add_spell(     spell_id=1250646, cooldown=90, duration=8, color="hsl(25, 60%, 50%)", name="Takedown", icon="inv12_ability_hunter_takedown.jpg")
