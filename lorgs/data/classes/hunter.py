@@ -41,9 +41,34 @@ HUNTER_BEASTMASTERY.add_spell( spell_id=19574,  cooldown=30,  duration=15, color
 
 HUNTER_MARKSMANSHIP.add_buff( spell_id=288613, cooldown=120,                                name="Trueshot",            icon="ability_trueshot.jpg", tags=[SpellTag.DAMAGE])
 HUNTER_MARKSMANSHIP.add_spell( spell_id=260243, cooldown=45,  duration=6, color="#bf8686",  name="Volley",              icon="ability_hunter_rapidkilling.jpg", show=False)
-HUNTER_MARKSMANSHIP.add_spell( spell_id=212431, cooldown=30,  duration=3, color="#e67e22",  name="Explosive Shot",     icon="ability_hunter_explosiveshot.jpg", show=False)
+EXPLOSIVE_SHOT = HUNTER_MARKSMANSHIP.add_spell( spell_id=212431, cooldown=30,  duration=3, color="#e67e22",  name="Explosive Shot",     icon="ability_hunter_explosiveshot.jpg", show=False)
 
 
 HUNTER_SURVIVAL.add_spell(     spell_id=1250646, cooldown=90, duration=8, color="hsl(25, 60%, 50%)", name="Takedown", icon="inv12_ability_hunter_takedown.jpg")
 HUNTER_SURVIVAL.add_spell(     spell_id=1261193, cooldown=60, duration=3, color="hsl(40, 40%, 70%)", name="Boomstick", icon="inv_musket_04.jpg")
 HUNTER_SURVIVAL.add_spell(     spell_id=186289,  cooldown=90, duration=15,                  name="Aspect of the Eagle", icon="spell_hunter_aspectoftheironhawk.jpg")
+
+
+def filter_explosive_shot_recasts(actor: warcraftlogs_actor.BaseActor | None, status: str) -> None:
+    """Explosive Shot always triggers 2 casts back to back. Keep the first and drop extras within 10s."""
+    if status != "success":
+        return
+    if not actor:
+        return
+
+    threshold = 10_000  # 10 seconds
+    prev = None
+    for cast in actor.casts:
+        if cast.spell_id != EXPLOSIVE_SHOT.spell_id:
+            continue
+
+        if prev and (cast.timestamp - prev.timestamp) < threshold:
+            cast.spell_id = -1
+            continue
+
+        prev = cast
+
+    actor.casts = [cast for cast in actor.casts if cast.spell_id > 0]
+
+
+warcraftlogs_actor.BaseActor.event_actor_load.connect(filter_explosive_shot_recasts)
