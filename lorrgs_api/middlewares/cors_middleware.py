@@ -16,8 +16,8 @@ DEBUG = os.getenv("DEBUG")
 if DEBUG:
     ORIGINS.append("*")
 
-# 32/03/2025: tmp fix
-# ORIGINS = ["*"]
+# 14/09/2026: tmp fix
+ORIGINS = ["*"]
 
 
 def init(app: fastapi.FastAPI, enabled=True):
