@@ -4,18 +4,35 @@ PTR NS 31%
 https://www.warcraftlogs.com/reports/pfkrcn7xPdDL1jqH?fight=11
 
 """
+from __future__ import annotations
+
+# IMPORT STANDARD LIBRARIES
+import typing
 
 from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 
-LOST_EXPLORERS = RaidBoss(
-    id=3497,
-    name="The Lost Explorers",
-    nick="The Lost Turtles",
-    icon="inv_121_raid_achievement_tortollans.jpg",
-    phase_type=RaidBoss.PhaseType.DYNAMIC,
-)
+if typing.TYPE_CHECKING:
+    from lorgs.clients import wcl
+    from lorgs.models.warcraftlogs_fight import Phase
+
+
+class LostExplorers(RaidBoss):
+
+    id: int = 3497
+    name: str = "The Lost Explorers"
+    nick: str = "The Lost Turtles"
+    icon: str = "inv_121_raid_achievement_tortollans.jpg"
+    phase_type: RaidBoss.PhaseType = RaidBoss.PhaseType.DYNAMIC
+
+    def phase_from_transition(self, transition: wcl.PhaseTransition) -> Phase | None:
+        # WCL transition IDs are unreliable; auto-enumerate by timestamp order
+        transition.id = 0
+        return super().phase_from_transition(transition)
+
+
+LOST_EXPLORERS = LostExplorers()
 boss = LOST_EXPLORERS
 
 
