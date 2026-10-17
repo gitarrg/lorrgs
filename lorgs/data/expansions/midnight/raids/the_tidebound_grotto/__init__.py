@@ -21,11 +21,11 @@ from .nymrissa_wavecaller import NYMRISSA_WAVECALLER
 
 ################################################################################
 #
-#   Tier: 51 The Tidebound Grotto
+#   Tier: 53 The Tidebound Grotto
 #
 ################################################################################
 THE_TIDEBOUND_GROTTO = RaidZone(
-    id=51.2,
+    id=53.2,
     name="The Tidebound Grotto",
     icon="achievement_boss_elitenagamale.jpg",
     bosses=[
