@@ -36,6 +36,3 @@ dist
 # Config Files
 .env
 tsconfig.tsbuildinfo
-
-# wip
-docs
