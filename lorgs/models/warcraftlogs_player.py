@@ -65,9 +65,6 @@ class Player(BaseActor):
     #
     def process_death_events(self, death_events: list[wcl.DeathEvent]) -> None:
         """Add the Death Events to the Player."""
-        if not self.fight:
-            raise ValueError("missing fight")
-
         self.deaths = []
         for death_event in death_events:
             target_id = death_event.id
@@ -75,8 +72,11 @@ class Player(BaseActor):
                 continue
 
             death_ability = death_event.ability
+            death_time = death_event.deathTime
+            if self.fight:
+                death_time = self.fight.to_fight_time(death_time)
             death_data = {
-                "ts": self.fight.to_fight_time(death_event.deathTime),
+                "ts": death_time,
                 "spell_name": death_ability.name,
                 "spell_icon": death_ability.abilityIcon,
             }

@@ -15,7 +15,7 @@ from lorgs.models.warcraftlogs_report import Report
 from ..helpers import load_fixture
 
 
-# 21s after the report starts. A report-time event at 25s is 4s into the pull.
+# 21s after the report starts. A report-time event at 25s is 4s into the fight.
 REPORT_START = datetime.datetime.fromtimestamp(100, datetime.UTC)
 FIGHT_START = datetime.datetime.fromtimestamp(121, datetime.UTC)
 

@@ -134,9 +134,8 @@ class ActorLoader(BaseLoader):
 
             # create the cast object
             cast = Cast.from_report_event(cast_data)
-            if not self.actor.fight:
-                raise ValueError("missing fight")
-            cast.timestamp = self.actor.fight.to_fight_time(cast.timestamp)
+            if self.actor.fight:
+                cast.timestamp = self.actor.fight.to_fight_time(cast.timestamp)
             self.actor.casts.append(cast)
 
         ##############################

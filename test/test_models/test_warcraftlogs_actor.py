@@ -7,7 +7,6 @@ import pytest
 from lorgs.loaders.actor_loader import ActorLoader
 from lorgs.models.warcraftlogs_actor import BaseActor
 from lorgs.models.warcraftlogs_player import Player
-from lorgs.models.warcraftlogs_report import Report
 from lorgs.models import wow_class
 from lorgs.models import wow_role
 from lorgs.models import wow_spec
@@ -47,10 +46,6 @@ class TestActorLoaderProcess(unittest.TestCase):
     @mock.patch.multiple(BaseActor, __abstractmethods__=set())
     def setUp(self):
         self.actor = BaseActor()
-        # Pull starts with the report, so report timestamps are already fight timestamps.
-        fight = _fight(start_time=FIGHT_START)
-        fight.report = Report(report_id="REPORT_ID", start_time=FIGHT_START)
-        self.actor.fight = fight
         self.loader = ActorLoader(self.actor)
 
     def test__process_casts__simple(self):

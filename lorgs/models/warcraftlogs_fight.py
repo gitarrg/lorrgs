@@ -122,7 +122,7 @@ class Fight(warcraftlogs_base.BaseModel):
         return int(1000 * (self.end_time.timestamp() - t))
 
     def to_fight_time(self, report_time: int) -> int:
-        """Convert a Warcraft Logs report timestamp into milliseconds since pull."""
+        """Convert a Warcraft Logs report timestamp into milliseconds since the fight started."""
         if not self.report:
             raise ValueError("Missing Parent Report")
         return report_time - self.start_time_rel
