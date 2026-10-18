@@ -31,6 +31,7 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
 - Spell names: `data/SpellName.csv`; other DB2 tables in `data/*.csv` (gitignored, refresh with `data/download.sh` from wago.tools). Icons: `curl -sL https://nether.wowhead.com/tooltip/spell/<id>` → `<icon>.jpg`.
 - Bosses with non-standard phases subclass `RaidBoss` and override `phase_from_transition()` (e.g. Venomous Abyss: Coiled Altar, Entombed Sentinels, Lost Explorers).
 - Minor rotational spells and tank hits get `show=False`. Replacement spell IDs go in `variations=[...]`.
+- A `process_casts` test feeds Casts that Actor Type would load: spell ids registered with `add_spell`, `add_buff`, or `add_debuff` and `query=True`, durations from the spell tooltip. Spell ids come from those registrations, not from an old `actor.load` handler.
 
 ## Commands
 
