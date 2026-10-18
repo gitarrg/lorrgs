@@ -60,9 +60,10 @@ class FightPhasesLoader(BaseLoader):
             return
 
         for phase_transition in phase_transitions:
-            # convert to relative time
-            phase_transition.startTime -= self.fight.start_time_rel
-            if phase := raid_boss.phase_from_transition(phase_transition):
+            converted = phase_transition.model_copy(
+                update={"startTime": self.fight.to_fight_time(phase_transition.startTime)},
+            )
+            if phase := raid_boss.phase_from_transition(converted):
                 self.fight.add_phase(phase)
 
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
