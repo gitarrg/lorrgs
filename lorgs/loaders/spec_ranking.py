@@ -193,11 +193,11 @@ class SpecRankingLoader(BaseLoader):
                 loaders.append(PlayerLoader(player))
 
         loaders = [loader for loader in loaders if loader.needs_load()]
-        if not loaders:
-            return None
-
         try:
-            await asyncio.gather(*[loader.load(client=client) for loader in loaders])
+            if loaders:
+                await asyncio.gather(*[loader.load(client=client) for loader in loaders])
+            else:
+                await client.query(f'reportData {{ report(code: "{report.report_id}") {{ code }} }}')
         except (PrivateReportError, UnknownReportError):
             logger.warning("Skipping report %s during spec ranking refresh", report.report_id)
             return report.report_id
