@@ -8,6 +8,7 @@ import pytest
 
 import lorgs.data.classes.demonhunter  # noqa: F401  # registers Devourer and its load handler
 import lorgs.data.classes.druid  # noqa: F401  # registers Restoration Druid
+import lorgs.data.classes.evoker  # noqa: F401  # registers Preservation and its load handlers
 import lorgs.data.classes.hunter  # noqa: F401  # registers Marksmanship and its load handler
 import lorgs.data.classes.shaman  # noqa: F401  # registers Restoration Shaman and its load handler
 from lorgs.data.roles import HEAL
@@ -50,10 +51,18 @@ def _aura(timestamp: int, spell_id: int, event_type: str, source_id: int = 10) -
     }
 
 
-def _process(spec_slug: str, events: dict) -> list[tuple[int, int, int]]:
+def _load(spec_slug: str, events: dict) -> Player:
     player = Player(source_id=10, spec_slug=spec_slug, name="Healer")
     ActorLoader(player).process_query_result(events)
-    return [(cast.spell_id, cast.timestamp, cast.counter) for cast in player.casts]
+    return player
+
+
+def _process(spec_slug: str, events: dict) -> list[tuple[int, int, int]]:
+    return [(cast.spell_id, cast.timestamp, cast.counter) for cast in _load(spec_slug, events).casts]
+
+
+def _with_duration(spec_slug: str, events: dict) -> list[tuple[int, int, int | None, int]]:
+    return [(cast.spell_id, cast.timestamp, cast.duration, cast.counter) for cast in _load(spec_slug, events).casts]
 
 
 def test_tree_of_life_recast_within_cooldown_is_dropped_and_remaining_casts_are_numbered() -> None:
@@ -224,6 +233,68 @@ def test_actor_load_does_not_drop_marksmanship_explosive_shot_recasts() -> None:
     assert [(cast.spell_id, cast.timestamp) for cast in player.casts] == [
         (EXPLOSIVE_SHOT, 0),
         (EXPLOSIVE_SHOT, 5_000),
+    ]
+
+
+STASIS = 370537
+STASIS_POP = 370564
+STASIS_RELEASE_AURA = 370562
+DREAM_BREATH = 355936
+
+
+def test_stasis_charge_keeps_the_duration_until_release() -> None:
+    """A Stasis charge followed by its release carries the time until that release."""
+    events = _events(
+        _cast(5_000, STASIS),
+        _cast(25_000, STASIS_POP),
+    )
+
+    assert _with_duration("evoker-preservation", events) == [
+        (STASIS, 5_000, 20_000, 1),
+        (STASIS_POP, 25_000, None, 1),
+    ]
+
+
+def test_stasis_charged_before_the_pull_starts_at_zero() -> None:
+    """A release with no charge becomes a charge at 0:00 lasting until that release."""
+    events = _events(_cast(12_000, STASIS_POP))
+
+    assert _with_duration("evoker-preservation", events) == [
+        (STASIS, 0, 12_000, 1),
+    ]
+
+
+def test_dream_breath_released_by_stasis_is_dropped_and_a_later_one_is_numbered_alone() -> None:
+    """Dream Breath within about a second of Stasis releasing is removed; a later one stays."""
+    events = _events(
+        _cast(10_000, STASIS_RELEASE_AURA),
+        _cast(10_500, DREAM_BREATH),
+        _cast(12_000, DREAM_BREATH),
+    )
+
+    assert _process("evoker-preservation", events) == [
+        (STASIS_RELEASE_AURA, 10_000, 1),
+        (DREAM_BREATH, 12_000, 1),
+    ]
+
+
+def test_actor_load_does_not_apply_preservation_stasis_fixes() -> None:
+    """actor.load does not change Stasis durations or drop spells Stasis released."""
+    player = Player(source_id=10, spec_slug="evoker-preservation", name="Evoker")
+    player.casts = [
+        Cast(spell_id=STASIS, timestamp=5_000),
+        Cast(spell_id=STASIS_POP, timestamp=25_000),
+        Cast(spell_id=STASIS_RELEASE_AURA, timestamp=25_000),
+        Cast(spell_id=DREAM_BREATH, timestamp=25_500),
+    ]
+
+    player.event_actor_load.send(player, status="success")
+
+    assert [(cast.spell_id, cast.timestamp, cast.duration) for cast in player.casts] == [
+        (STASIS, 5_000, None),
+        (STASIS_POP, 25_000, None),
+        (STASIS_RELEASE_AURA, 25_000, None),
+        (DREAM_BREATH, 25_500, None),
     ]
 
 
