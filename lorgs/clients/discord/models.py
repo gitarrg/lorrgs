@@ -1,12 +1,11 @@
-import typing
 import typing_extensions
-
 from pydantic import BaseModel
 
 
 class DiscordUser(BaseModel):
-    """
-    https://discord.com/developers/docs/resources/user#user-object
+    """User object.
+
+    ref: https://discord.com/developers/docs/resources/user#user-object
     """
 
     id: str
@@ -18,13 +17,14 @@ class DiscordUser(BaseModel):
 
     @property
     def tag(self):
-        """Users full Tag. eg.: `Arrg#2048`"""
+        """Users full Tag. eg.: `Arrg#2048`."""
         return f"{self.username}#{self.discriminator}"
 
 
 class DiscordGuildMember(BaseModel):
-    """
-    https://discord.com/developers/docs/resources/guild#guild-member-object
+    """Guild member object.
+
+    ref: https://discord.com/developers/docs/resources/guild#guild-member-object
     """
 
     user: DiscordUser
@@ -32,7 +32,7 @@ class DiscordGuildMember(BaseModel):
 
     roles: list[str]
     """Role IDs.
-    
+
     They come in as Ints.. but due to them represting very large numbers
     I found it safer to convert them to string instead.
     """
@@ -43,7 +43,8 @@ class DiscordGuildMember(BaseModel):
 
 
 class DiscordAccessTokenResponse(typing_extensions.TypedDict):
-    """
+    """Access token response.
+
     Ref:
         https://discord.com/developers/docs/topics/oauth2#authorization-code-grant-access-token-exchange-example
 
@@ -59,9 +60,9 @@ class DiscordAccessTokenResponse(typing_extensions.TypedDict):
 
     access_token: str
     token_type: str  # eg.: "Bearer",
-    expires_in: typing.Optional[int]
-    refresh_token: typing.Optional[str]
-    scope: typing.Optional[str]  # eg.: "identify"
+    expires_in: int | None
+    refresh_token: str | None
+    scope: str | None  # eg.: "identify"
 
 
 class DiscordErrorResponse(typing_extensions.TypedDict):

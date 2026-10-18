@@ -1,19 +1,28 @@
 """Very Basic Discord "client"."""
 
 from .client import (
-    # Core
     api_request,
     bot_request,
-    # auth
     exchange_code,
-    # user info
-    get_user_profile,
-    get_user_info,
     get_member_info,
+    get_user_info,
+    get_user_profile,
 )
-
 from .models import (
+    DiscordAccessTokenResponse,
     DiscordGuildMember,
     DiscordUser,
-    DiscordAccessTokenResponse,
 )
+
+
+__all__ = [
+    "DiscordAccessTokenResponse",
+    "DiscordGuildMember",
+    "DiscordUser",
+    "api_request",
+    "bot_request",
+    "exchange_code",
+    "get_member_info",
+    "get_user_info",
+    "get_user_profile",
+]
