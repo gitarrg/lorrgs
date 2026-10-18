@@ -1,6 +1,7 @@
 from lorgs.data.classes import *
 from lorgs.models.wow_trinket import WowTrinket
 
+
 query = False
 
 

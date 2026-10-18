@@ -1,5 +1,4 @@
-"""Vaelgor & Ezzorak (Voidspire)
-
+"""Vaelgor & Ezzorak (Voidspire).
 
 >>> PYTHONPATH=. uv run --env-file=.env scripts/load_report.py "https://www.warcraftlogs.com/reports/QCcJTmxyrGdpZNgK?fight=26"
 
@@ -35,7 +34,7 @@ GLOOM_SPATTERED_DREADSCALE.add_specs(*TANK.specs)
 > Use: Unleash a burst of hungering Gloom, dealing 125487 Shadow damage split
 > between nearby enemies and absorbing up to 50% of incoming damage until an
 > equal amount of damage has been prevented.
-> 
+>
 > Damage increased by 30% per additional enemy, up to 150%. (2 Min Cooldown)
 """
 

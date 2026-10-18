@@ -79,7 +79,6 @@ def calculate_stasis_duration(actor: warcraftlogs_actor.BaseActor, status: str) 
     if not actor:
         return
 
-
     charge_event = None
 
     for cast in actor.casts:
@@ -93,14 +92,10 @@ def calculate_stasis_duration(actor: warcraftlogs_actor.BaseActor, status: str) 
             if charge_event:
                 charge_event.duration = cast.timestamp - charge_event.timestamp
 
-                # keep the release spell for MRT purposes
-                ## cast.spell_id = -1  # we no longer need this.
-
-            else: # stasis was charged pre pull
+            else:  # stasis was charged pre pull
                 cast.spell_id = STASIS_CHARGE.spell_id
-                cast.duration = cast.timestamp # create a charge event at 0:00
+                cast.duration = cast.timestamp  # create a charge event at 0:00
                 cast.timestamp = 0
-
 
     actor.casts = [cast for cast in actor.casts if cast.spell_id > 0]
 
@@ -110,13 +105,13 @@ warcraftlogs_actor.BaseActor.event_actor_load.connect(calculate_stasis_duration)
 
 # list[int]: Spells that are able to be stores in Stasis
 STATIS_SPELLS = [
-    355936, # Dream Breath
+    355936,  # Dream Breath
 ]
 
 
 def filter_stasis_spells(actor: warcraftlogs_actor.BaseActor, status: str) -> None:
     """Remove Spells cast by stasis.
-    
+
     Those are no manual casts, and thus can be confusing if they show up in the timeline
 
     """
@@ -124,7 +119,7 @@ def filter_stasis_spells(actor: warcraftlogs_actor.BaseActor, status: str) -> No
         return
     if not actor:
         return
-    
+
     last_stasis_end = -99999
     threashold = 1000  # 1sec. I takes around 1sec for Stasis to release.
 

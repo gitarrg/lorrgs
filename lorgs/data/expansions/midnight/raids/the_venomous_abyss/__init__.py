@@ -35,7 +35,7 @@ THE_VENOMOUS_ABYSS = RaidZone(  # ruff: ignore[non-empty-init-module]
     name="The Venomous Abyss",
     icon="8039569.jpg",
     bosses=[
-        NEKZALI, # done
+        NEKZALI,
         ENTOMBED_SENTINELS,
         VASHNIK,
         LOST_EXPLORERS,

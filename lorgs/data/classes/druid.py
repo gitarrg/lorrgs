@@ -49,10 +49,10 @@ DRUID.add_spell(             spell_id=391528, cooldown=60,  duration=4,  color=C
 #     show=False,
 #     tags=[SpellTag.TANK]
 #     variations=[
-# 
+#
 #     ]
 # )
-# 
+#
 
 # Utils
 DRUID.add_spell(             spell_id=106898, cooldown=120, duration=8,                   name="Stampeding Roar",                icon="spell_druid_stampedingroar_cat.jpg",        show=False, variations=[77764, 77761], tags=[SpellTag.MOVE])
@@ -86,10 +86,10 @@ CELESTIAL_ALIGNMENT = DRUID_BALANCE.add_spell(
     icon="spell_nature_natureguardian.jpg",
     tags=[SpellTag.DAMAGE],
     variations=[
-        383410, # CA + Orbital Strike
-        194223, # CA + Whirling Stars (2 charges)
-        390414, # Incarn + Orbital Strike
-        102560, # Incarn + Whirling Stars (2 charges)
+        383410,  # CA + Orbital Strike
+        194223,  # CA + Whirling Stars (2 charges)
+        390414,  # Incarn + Orbital Strike
+        102560,  # Incarn + Whirling Stars (2 charges)
     ],
 )
 DRUID_BALANCE.add_spell(     spell_id=205636, cooldown=60,  duration=10, color="#C7B064", name="Force of Nature",                icon="ability_druid_forceofnature.jpg",           show=False)
@@ -152,5 +152,6 @@ def remove_tol_recasts(actor: warcraftlogs_actor.BaseActor | None, status: str):
 
         prev = cast
     actor.casts = [cast for cast in actor.casts if cast.spell_id > 0]
-    
+
+
 warcraftlogs_actor.BaseActor.event_actor_load.connect(remove_tol_recasts)

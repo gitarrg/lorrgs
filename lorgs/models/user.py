@@ -56,12 +56,12 @@ class User(base.DynamoDBModel):
     #
     @property
     def name(self) -> str:
-        """The Users Name only (eg.: Arrg#2048 -> Arrg)"""
+        """The Users Name only (eg.: Arrg#2048 -> Arrg)."""
         return self.discord_tag.split("#")[0]
 
     @property
     def discriminator(self) -> str:
-        """The Users discriminator (eg.: Arrg#2048 -> 2048)"""
+        """The Users discriminator (eg.: Arrg#2048 -> 2048)."""
         return self.discord_tag.split("#")[-1]
 
     @property
@@ -94,7 +94,6 @@ class User(base.DynamoDBModel):
 
     async def refresh(self) -> None:
         """Refresh the User Info from Discord."""
-
         # update discord roles / avatar
         member_info = await discord.get_member_info(server_id=LORRGS_SERVER_ID, user_id=self.discord_id)
         user_info = member_info.user

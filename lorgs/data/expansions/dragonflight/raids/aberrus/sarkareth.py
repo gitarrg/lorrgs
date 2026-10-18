@@ -1,4 +1,4 @@
-"""09: Scalecommander Sarkareth"""
+"""09: Scalecommander Sarkareth."""
 
 from lorgs.models.raid_boss import RaidBoss
 

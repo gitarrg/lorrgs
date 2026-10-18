@@ -23,6 +23,7 @@ async def get_season(season_slug: str) -> dict:
 
     Returns:
         dict: Season data.
+
     """
     if season_slug.lower() == "current":
         season = CURRENT_SEASON

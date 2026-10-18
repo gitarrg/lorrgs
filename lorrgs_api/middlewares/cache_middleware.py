@@ -20,7 +20,7 @@ def init(app: fastapi.FastAPI, enabled=True):
         start_time = time.time()
         response = await call_next(request)
         process_time = time.time() - start_time
-        response.headers["X-Process-Time"] = f"{process_time*1000:.04f}ms"
+        response.headers["X-Process-Time"] = f"{process_time * 1000:.04f}ms"
         return response
 
     @app.middleware("http")

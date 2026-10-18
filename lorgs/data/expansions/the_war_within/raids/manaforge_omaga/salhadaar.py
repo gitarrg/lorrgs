@@ -1,5 +1,4 @@
-"""0:
-
+"""0: Salhadaar.
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/pmbqxtTkGAdf9FMK?fight=34"
 
@@ -47,7 +46,7 @@ PERFIDIOUS_PROJECTOR = boss.add_trinket(
 # boss.add_cast(
 #     spell_id=1227384,
 #     name="Fel Rush",
-#     duration=23,  # todo: check what duration to display
+#     duration=23,
 #     color="rgb(74, 135, 232)",
 #     icon="inv_cosmicvoid_missile.jpg",
 # )

@@ -29,8 +29,8 @@ class Season(base.MemoryModel):
     """Dungeon which part of the Seasons M+ Pool."""
 
     @property
-    def trinkets(self) -> typing.Generator[WowTrinket, None, None]:
-        """All Trinkets from Raid & Dungeon"""
+    def trinkets(self) -> typing.Generator[WowTrinket]:
+        """All Trinkets from Raid & Dungeon."""
         for raid in self.raids:
             for boss in raid.bosses:
                 yield from boss.trinkets
@@ -38,7 +38,7 @@ class Season(base.MemoryModel):
             yield from dungeon.trinkets
 
     @property
-    def spells(self) -> typing.Generator[WowSpell, None, None]:
+    def spells(self) -> typing.Generator[WowSpell]:
         for raid in self.raids:
             for boss in raid.bosses:
                 yield from boss.spells

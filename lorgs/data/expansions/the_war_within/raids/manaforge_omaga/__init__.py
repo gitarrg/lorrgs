@@ -19,6 +19,7 @@ Logs:
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models.raid_zone import RaidZone
+
 from .araz import ARAZ
 from .dimensius import DIMENSIUS
 from .fractillus import FRACTILLUS
@@ -34,7 +35,7 @@ from .soul_hunters import SOUL_HUNTERS
 #   Tier: 42 Liberation of Undermine
 #
 ################################################################################
-MANAFORGE_OMEGA = RaidZone(
+MANAFORGE_OMEGA = RaidZone(  # ruff: ignore[non-empty-init-module]
     id=44,
     name="Manaforge Omega",
     icon="inv_112_achievement_raid_manaforgeomega.jpg",

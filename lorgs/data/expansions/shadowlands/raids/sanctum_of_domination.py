@@ -86,7 +86,7 @@ FATESCRIBE.add_buff(spell_id=357739, color="#4bbf68", name="Intermisson", icon="
 ################################################################################
 # 09: Kel'Thuzad
 KELTHUZAD = SANCTUM_OF_DOMINATION.add_boss(id=2422, name="Kel'Thuzad", icon="achievement_raid_torghast_kel-thuzad.jpg")
-KELTHUZAD.add_cast(spell_id=362569, duration=8, color="#03eaff", name="Frost Blast",  icon="spell_frost_glacier.jpg", variations=[358999]) # different ID for last phase
+KELTHUZAD.add_cast(spell_id=362569, duration=8, color="#03eaff", name="Frost Blast",  icon="spell_frost_glacier.jpg", variations=[358999])  # different ID for last phase
 KELTHUZAD.add_cast(spell_id=362565, duration=0, color="#03fcc6", name="Soul Fracture",  icon="spell_necro_deathlyecho.jpg", show=False)
 KELTHUZAD.add_buff(spell_id=362494, color="#c7eaff", name="Howling Blizzard",  icon="spell_frost_arcticwinds.jpg")
 KELTHUZAD.add_event(event_type="applydebuff", spell_id=346530, duration=10, color="#ff4538", name="Spike",  icon="ability_mage_coldasice.jpg", extra_filter="target.role='tank'")

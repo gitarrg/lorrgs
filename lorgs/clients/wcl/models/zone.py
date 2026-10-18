@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 class Zone(BaseModel):
     """A single zone from an expansion that represents a raid, dungeon, arena, etc.
-    
+
     https://www.warcraftlogs.com/v2-api-docs/warcraft/zone.doc.html
     """
 

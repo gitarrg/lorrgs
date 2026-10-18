@@ -1,11 +1,11 @@
 """Define and setup Logger-Instances."""
-from typing import Callable
 import datetime
 import functools
 import inspect
 import logging
 import os
 import time
+from collections.abc import Callable
 
 
 LOG_FORMAT = "[%(reltime)s][%(name)s] %(levelname)s: [%(funcName)s] %(message)s"
@@ -48,7 +48,7 @@ class Timer:
 
     def print(self) -> None:
         extra = {"funcNameCustom": self.name}  # add custom funcName for our LoggerFormatter
-        logger.info(f"{self.elapsed_time*1000:.02f}ms", extra=extra)
+        logger.info(f"{self.elapsed_time * 1000:.02f}ms", extra=extra)
 
     def __enter__(self) -> "Timer":
         self.start_time = time.time()

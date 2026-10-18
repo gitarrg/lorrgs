@@ -13,11 +13,11 @@ from lorgs.data.constants import *
 # we track the "Sated-Debuff" instead
 # we use the Bloodlust Buffs Spell ID to get a cleaner tooltip and ease the migration from Buff -> Debuff
 BLOODLUST = OTHER_EXTERNALS.add_debuff(color="#5465ff", spell_id=2825, duration=40, name="Bloodlust", icon="spell_nature_bloodlust.jpg")
-BLOODLUST.add_variation(57723) # Exhaustion
-BLOODLUST.add_variation(390435) # Exhaustion v2
-BLOODLUST.add_variation(57724) # Sated
-BLOODLUST.add_variation(80354) # Temporal Displacement
-BLOODLUST.add_variation(264689) # Fatigued
+BLOODLUST.add_variation(57723)  # Exhaustion
+BLOODLUST.add_variation(390435)  # Exhaustion v2
+BLOODLUST.add_variation(57724)  # Sated
+BLOODLUST.add_variation(80354)  # Temporal Displacement
+BLOODLUST.add_variation(264689)  # Fatigued
 
 
 ################################################################################

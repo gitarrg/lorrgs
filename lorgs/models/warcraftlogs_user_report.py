@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-import typing
 import datetime
+import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models import base

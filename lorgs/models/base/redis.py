@@ -3,7 +3,7 @@
 # IMPORT STANDARD LIBRARIES
 import json
 import os
-from typing import Any, ClassVar, Optional, Type, TypeVar
+from typing import Any, ClassVar, Self, TypeVar
 
 # IMPORT THIRD PARTY LIBRARIES
 import redis
@@ -30,14 +30,13 @@ class RedisModel(base.BaseModel):
     #
 
     @classmethod
-    def get(cls: Type[TRedisModel], **kwargs: Any) -> Optional[TRedisModel]:
+    def get(cls, **kwargs: Any) -> Self | None:
         """Get a Object using its Key."""
         key = cls.get_key(**kwargs)
         data = redis_client.json().get(key) or {}
         if data:
             return cls(**data)
-        else:
-            return None
+        return None
 
     ############################################################################
     # SET
@@ -56,10 +55,11 @@ class RedisModel(base.BaseModel):
             redis_client.expire(key, self.ttl)
 
     def set(self, **kwargs: Any) -> None:
-        """Update values on the Object,
+        """Update values on the Object.
 
         Todo:
             reload/update the instance itself
+
         """
         key = self.get_key(**self.model_dump())
         for path, value in kwargs.items():

@@ -108,7 +108,7 @@ class wclclient_mixin:
     def process_query_result(self, **query_result: typing.Any) -> None:
         """Implement some custom logic here to process our results from the query."""
 
-    async def load_many(self: W, items: list[W], raise_errors=False) -> None:
+    async def load_many(self, items: list[typing.Self], raise_errors=False) -> None:
         """Load multiple objects at once.
 
         Args:

@@ -10,7 +10,7 @@ import blinker
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models import base
-from lorgs.models.warcraftlogs_cast import Cast  # noqa: TC001 # pydantic requires this import
+from lorgs.models.warcraftlogs_cast import Cast  # ruff: ignore[typing-only-first-party-import] # pydantic requires this import
 from lorgs.models.wow_spell import SpellType, WowSpell
 
 

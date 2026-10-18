@@ -1,5 +1,4 @@
-"""0:
-
+"""0: Loom'ithar.
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/AvbNVBmyrKPDCT4L?fight=13"
 
@@ -33,7 +32,7 @@ LOOMITHARS_LIVING_SILK = boss.add_trinket(
 
 > Use: Weave an arcane cocoon around yourself and four nearby allies for 10 sec,
 > reducing their damage taken by 75% until 3001672 damage has been prevented.
-> 
+>
 > If a cocoon expires, it bursts to heal an injured ally for 50% of its remaining power.
 > (1 Min, 30 Sec Cooldown)
 

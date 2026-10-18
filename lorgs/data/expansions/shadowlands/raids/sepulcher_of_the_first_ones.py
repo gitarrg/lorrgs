@@ -36,7 +36,7 @@ VIGILANT_GUARDIAN.add_buff(spell_id=360414, duration=45, name="Pneumatic Impact"
 ################################################################################
 # 02: Skolex, the Insatiable Ravener
 SKOLEX = SEPULCHER_OF_THE_FIRST_ONES.add_boss(id=2542, name="Skolex, the Insatiable Ravener", nick="Skolex", icon="inv_achievement_raid_progenitorraid_progenium_devourer_worm.jpg")
-SKOLEX.add_cast(spell_id=359770, duration=7.0, color="#19d9e3", name="Ravening Burrow", icon="ability_argus_soulburst.jpg") # Phase Trigger
+SKOLEX.add_cast(spell_id=359770, duration=7.0, color="#19d9e3", name="Ravening Burrow", icon="ability_argus_soulburst.jpg")  # Phase Trigger
 SKOLEX.add_cast(spell_id=360451, duration=6.5, color="#9919e3", name="Retch", icon="spell_nature_acid_01.jpg")              # Frontal
 SKOLEX.add_cast(spell_id=359829, duration=2.5, color="#e3ad19", name="Dust Flail", icon="ability_butcher_whirl.jpg")        # Debuff Stacks
 SKOLEX.add_cast(spell_id=359975, duration=2.5, color="", name="Riftmaw", icon="inv_netherportal.jpg", show=False)
@@ -47,10 +47,10 @@ SKOLEX.add_cast(spell_id=364622, duration=0.0, color="", name="Final Consumption
 ################################################################################
 # 03: Artificer Xy'mox
 XYMOX = SEPULCHER_OF_THE_FIRST_ONES.add_boss(id=2553, name="Artificer Xy'mox", nick="Xy'mox", icon="inv_achievement_raid_progenitorraid_broker_incursion.jpg")
-XYMOX.add_cast(spell_id=362801, duration=5.5, color="#e61919", name="Glyph of Relocation", icon="inv_axe_2h_broker_c_01.jpg") # Tank Grip
-XYMOX.add_cast(spell_id=364465,               color="", name="Forerunner Rings",    icon="spell_broker_groundstate.jpg") # Rings
-XYMOX.add_cast(spell_id=362721, duration=8.0, color="#ffc800", name="Dimensional Tear",    icon="spell_arcane_portalironforge.jpg") # Portals
-XYMOX.add_buff(spell_id=367573,               color="#00ff00", name="Genesis Bulwark",     icon="inv_progenitor_runevessel.jpg") # Intermission
+XYMOX.add_cast(spell_id=362801, duration=5.5, color="#e61919", name="Glyph of Relocation", icon="inv_axe_2h_broker_c_01.jpg")  # Tank Grip
+XYMOX.add_cast(spell_id=364465,               color="", name="Forerunner Rings",    icon="spell_broker_groundstate.jpg")  # Rings
+XYMOX.add_cast(spell_id=362721, duration=8.0, color="#ffc800", name="Dimensional Tear",    icon="spell_arcane_portalironforge.jpg")  # Portals
+XYMOX.add_buff(spell_id=367573,               color="#00ff00", name="Genesis Bulwark",     icon="inv_progenitor_runevessel.jpg")  # Intermission
 XYMOX.add_cast(spell_id=362885, duration=2.0, color="#00ffea", name="Stasis Trap",         icon="spell_broker_buff.jpg")
 
 
@@ -108,12 +108,12 @@ ANDUIN.add_cast(spell_id=365030, duration=3.0, color="#d42020", name="Wicked Sta
 ANDUIN.add_buff(spell_id=362505,               color="#00ff00", name="Domination's Grasp (Intermission)", icon="spell_animamaw_buff.jpg")
 
 # P1
-ANDUIN.add_cast(spell_id=361989, duration=8.75,color="#a134eb", name="Blasphemy",                         icon="ability_priest_focusedwill.jpg")
+ANDUIN.add_cast(spell_id=361989, duration=8.75, color="#a134eb", name="Blasphemy",                         icon="ability_priest_focusedwill.jpg")
 ANDUIN.add_cast(spell_id=362405, duration=35,  color="#34c6eb", name="Kingsmourne Hungers",               icon="ability_deathknight_hungeringruneblade.jpg")
 ANDUIN.add_cast(spell_id=365295, duration=2.0, color="#ebde34", name="Befouled Barrier",                  icon="inv_soulbarrier.jpg")
 
 # P3
-ANDUIN.add_cast(spell_id=365958, duration=2.75,color="#a134eb", name="Hopelessness",                      icon="ability_priest_halo_shadow.jpg")
+ANDUIN.add_cast(spell_id=365958, duration=2.75, color="#a134eb", name="Hopelessness",                      icon="ability_priest_halo_shadow.jpg")
 ANDUIN.add_cast(spell_id=365805, duration=3.5, color="#17b6e6", name="Empowered Hopebreaker",             icon="inv_sword_1h_artifactruneblade_d_01.jpg")
 
 
@@ -122,7 +122,7 @@ ANDUIN.add_cast(spell_id=365805, duration=3.5, color="#17b6e6", name="Empowered 
 LORDS = SEPULCHER_OF_THE_FIRST_ONES.add_boss(id=2543, name="Lords of Dread", icon="inv_achievement_raid_progenitorraid_dreadlord_duo.jpg")
 LORDS.add_cast(spell_id=360300, duration=20, name="Swarm of Decay", color="#e62e2e", icon="spell_nature_naturetouchdecay.jpg")
 
-LORDS.add_cast(spell_id=360145, duration=2+8, name="Fearful Trepidation", color="#5f29cc", icon="spell_nzinsanity_fearofdeath.jpg", show=False)
+LORDS.add_cast(spell_id=360145, duration=2 + 8, name="Fearful Trepidation", color="#5f29cc", icon="spell_nzinsanity_fearofdeath.jpg", show=False)
 LORDS.add_cast(spell_id=360006, duration=2.5, name="Cloud of Carrion", color="#51cc14", icon="spell_shadow_carrionswarm.jpg", show=False)
 
 # Among Us Intermission

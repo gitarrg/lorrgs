@@ -3,6 +3,7 @@ from __future__ import annotations
 
 # IMPORT THIRD PARTY LIBRARIES
 import asyncio
+
 import fastapi
 
 # IMPORT LOCAL LIBRARIES
@@ -63,5 +64,4 @@ async def get_task_ws(websocket: fastapi.WebSocket, task_id: str):
             await websocket.send_json(info)
             await asyncio.sleep(1)
 
-    else:
-        await websocket.send_json({"status": "timeout"})
+    await websocket.send_json({"status": "timeout"})

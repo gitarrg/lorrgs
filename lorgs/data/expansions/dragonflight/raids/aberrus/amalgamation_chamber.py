@@ -74,7 +74,7 @@ boss.add_cast(
 boss.add_cast(
     spell_id=404896,
     name="Molten Eruption",
-    duration=1,  # todo: check duration
+    duration=1,
     color="#ed5f2f",
     icon="ability_rhyolith_volcano.jpg",
     show=False,

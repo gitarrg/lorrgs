@@ -31,7 +31,7 @@ WowTrinket(
     item=232546,
     ilvl=636,
 )
-"""On-Use AoE DMG 
+"""On-Use AoE DMG
 
 > Use: Channel to vent flames for 2 sec, dealing 1583517 Fire damage split between all nearby enemies.
 > Mechanical enemies become Superheated, taking 75294  additional Fire damage when struck by your next harmful ability. (2 Min Cooldown)

@@ -1,5 +1,5 @@
-from .dungeons import GRIM_BATOL
-from .dungeons import SKYREACH
+from .dungeons import GRIM_BATOL, SKYREACH
+
 
 __all__ = [
     "GRIM_BATOL",

@@ -11,7 +11,7 @@ from lorgs import utils
 from lorgs.models.base.s3 import S3Model
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.warcraftlogs_report import Report  # noqa: TC001 # pydantic requires this import
+from lorgs.models.warcraftlogs_report import Report  # ruff: ignore[typing-only-first-party-import] # pydantic requires this import
 from lorgs.models.wow_spec import WowSpec
 
 
@@ -74,4 +74,3 @@ class SpecRanking(S3Model):
     @property
     def raid_difficulty(self) -> RaidDifficulty:
         return RaidDifficulty(self.difficulty)
-

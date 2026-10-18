@@ -1,6 +1,7 @@
 #!/usr/bin/env -S PYTHONPATH=. uv run
 
 # IMPORT STANDARD LIBRARIES
+import datetime
 import itertools
 
 # IMPORT LOCAL LIBRARIES
@@ -14,10 +15,11 @@ from lorgs.models.warcraftlogs_ranking import SpecRanking
 
 def main() -> None:
     bosses = [
-        # *THE_TIDEBOUND_GROTTO.bosses,
-        # *THE_VENOMOUS_ABYSS.bosses,
-        SSZORAK,
-        ULATEK,
+        *THE_TIDEBOUND_GROTTO.bosses,
+        *THE_VENOMOUS_ABYSS.bosses,
+        # ENTOMBED_SENTINELS,
+        # SSZORAK,
+        # ULATEK,
     ]
 
     specs = [
@@ -69,6 +71,7 @@ def main() -> None:
         )
         if spec_ranking:
             spec_ranking.dirty = True
+            spec_ranking.updated = datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=4)
             spec_ranking.save()
 
 

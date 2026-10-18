@@ -1,12 +1,11 @@
-"""Lightblinded Vanguard
-
+"""Lightblinded Vanguard.
 
 >>> PYTHONPATH=. uv run --env-file=.env scripts/load_report.py "https://www.warcraftlogs.com/reports/QCcJTmxyrGdpZNgK?fight=32"
 
 
 """
 
-from lorgs.data.classes import *  # noqa: F403
+from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 
@@ -27,7 +26,6 @@ boss = LIGHTBLINDED_VANGUARD
 
 ################################################################################
 # Spells
-
 
 
 #################################
@@ -64,7 +62,6 @@ boss.add_buff(
     color="rgb(36, 67, 242)",
     icon="spell_holy_devotionaura.jpg",
     extra_filter="target.id=240431",  # track only on Bellamy
-    #
 )
 
 
@@ -77,9 +74,6 @@ boss.add_cast(
     icon="inv_ability_paladin_divinetoll.jpg",
     show=False,
 )
-
-
-
 
 
 #################################
@@ -102,7 +96,6 @@ boss.add_cast(
     color="rgb(203, 126, 207)",
     icon="inv_ability_holyfire_debuff.jpg",
 )
-
 
 
 # heal absorbs
@@ -140,7 +133,6 @@ boss.add_cast(
     icon="spell_holy_avengersshield.jpg",
     show=False,
 )
-
 
 
 # Tank Hits

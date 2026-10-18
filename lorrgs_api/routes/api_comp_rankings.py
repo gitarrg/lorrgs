@@ -28,6 +28,7 @@ async def get_comp_ranking(
 
     Args:
         boss_slug (str): name of the boss (full_name_slug)
+
     """
     # shorter cache timeout for the start of the tier (where frequent changes happen)
     response.headers["Cache-Control"] = "max-age=300"
@@ -38,12 +39,10 @@ async def get_comp_ranking(
         raise fastapi.HTTPException(status_code=404, detail="Not Found.")
 
     def fight_filter(fight: CompRankingFight):
-        if killtime_min:
-            if fight.duration < (killtime_min * 1000):
-                return False
-        if killtime_max:
-            if fight.duration > (killtime_max * 1000):
-                return False
+        if killtime_min and fight.duration < (killtime_min * 1000):
+            return False
+        if killtime_max and fight.duration > (killtime_max * 1000):
+            return False
 
         if not fight.composition:
             return False
@@ -73,7 +72,7 @@ async def get_comp_ranking(
 #
 @router.get("/comp_ranking/load/{boss_slug}")
 async def task_load_comp_rankings(
-    response: fastapi.Response, boss_slug: str = "all", limit: int = 50, clear: bool = False
+    response: fastapi.Response, boss_slug: str = "all", limit: int = 50, clear: bool = False,
 ):
     """Submit a scheduled task to update a single or all Comp Rankings."""
     response.headers["Cache-Control"] = "no-cache"

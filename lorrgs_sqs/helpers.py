@@ -1,5 +1,7 @@
 from __future__ import annotations
-from typing import Any, Callable
+
+from collections.abc import Callable
+from typing import Any
 
 from lorgs.data.classes import ALL_SPECS
 from lorgs.data.season import CURRENT_SEASON
@@ -11,8 +13,8 @@ def expand_metric(payload: dict) -> list[str]:
     spec_slug = payload.get("spec_slug", "")
 
     spec = WowSpec.get(full_name_slug=spec_slug)
-    role = spec and spec.role or WowRole.get(code="tank")
-    return role and role.metrics or []
+    role = (spec and spec.role) or WowRole.get(code="tank")
+    return (role and role.metrics) or []
 
 
 ALL_BOSSES = []
@@ -29,7 +31,6 @@ PAYLOAD_EXPANDERS: dict[str, list[str] | Callable[[Any], list[str]]] = {
 
 
 def expand_payload(keyword: str, payload: dict) -> list[dict]:
-    """"""
     if payload.get(keyword) != "all":
         return [payload]
 
@@ -50,7 +51,6 @@ def expand_keyword(keyword, payloads) -> list[dict]:
 
 def expand_keywords(payload, cap=10) -> list[dict]:
     """Expand a single Payload replacing `all` Keywords with the actual values."""
-
     payloads = [payload]
 
     steps = 0

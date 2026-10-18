@@ -5,9 +5,10 @@ from lorgs.utils import CaseInsensitiveEnum
 
 class RaidDifficulty(CaseInsensitiveEnum):
     """Difficulty of the raid.
-    
+
     IDs are matching the WCL IDs.
     """
+
     UNKNOWN = 0
 
     LFR = 1

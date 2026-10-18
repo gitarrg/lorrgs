@@ -51,7 +51,7 @@ class RaidZone(base.MemoryModel):
             "bosses": [boss.as_dict() for boss in self.bosses],
         }
 
-    def add_boss(self, boss: typing.Optional[RaidBoss] = None, **kwargs: typing.Any) -> RaidBoss:
+    def add_boss(self, boss: RaidBoss | None = None, **kwargs: typing.Any) -> RaidBoss:
         """Add a new RaidBoss to this zone."""
         boss = boss or RaidBoss(**kwargs)
         self.bosses.append(boss)

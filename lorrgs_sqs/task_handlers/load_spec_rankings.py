@@ -6,7 +6,7 @@ from __future__ import annotations
 import datetime
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import data  # pylint: disable=unused-import  # noqa: F401
+from lorgs import data  # pylint: disable=unused-import  # ruff: ignore[unused-import]
 from lorgs.loaders.spec_ranking import SpecRankingLoader
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_ranking
@@ -63,7 +63,6 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
 
 async def main(message: dict[str, str]):
     """Load the Spec Ranking Data from Warcraftlogs and save it to the Database."""
-
     message_body = message.get("body")
     if not message_body:
         raise TaskValidationError("No message body.")

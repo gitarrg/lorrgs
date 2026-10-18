@@ -9,8 +9,9 @@ import glob
 import hashlib
 import io
 import os
+import pathlib
 import shutil
-import subprocess
+import subprocess  # ruff: ignore[suspicious-subprocess-import]
 import typing
 
 import boto3
@@ -41,13 +42,12 @@ PREFIX = os.getenv("DEPLOY_PREFIX") or ""
 
 def calc_checksum(path) -> str:
     """Calc an MD5 Checksum for a given path."""
-    hash = hashlib.md5()
+    hash_obj = hashlib.md5()  # ruff: ignore[hashlib-insecure-hash-function]
 
-    for filepath in glob.glob(path, recursive=True):
-        with open(filepath, "rb") as f:
-            hash.update(f.read())
+    for filepath in glob.glob(path, recursive=True):  # ruff: ignore[glob]
+        hash_obj.update(pathlib.Path(filepath).read_bytes())
 
-    return hash.hexdigest()
+    return hash_obj.hexdigest()
 
 
 def zip_folder(src: str, tar: str) -> str:
@@ -91,9 +91,7 @@ class LambdaLayer:
         self.name = name
         self.src_dir = src_dir or self.name
 
-        self.latest_version: typing.Union[
-            "LayerVersionsListItemTypeDef", "PublishLayerVersionResponseTypeDef", None
-        ] = None
+        self.latest_version: LayerVersionsListItemTypeDef | PublishLayerVersionResponseTypeDef | None = None
 
     @property
     def full_name(self) -> str:
@@ -135,7 +133,7 @@ class LambdaLayer:
     def deploy(self) -> None:
         """Deploy a Lambda Layer."""
         if checksum_compare(name=self.full_name, files=f"{self.src_dir}/**/*.py"):
-            return None
+            return
 
         path = f"{DEPLOY_DIR}/{self.full_name}"
         shutil.copytree(self.src_dir, f"{path}/python/{self.src_dir}")
@@ -151,8 +149,8 @@ class RequirementsLayer(LambdaLayer):
 
     def _export_requirements(self) -> str:
         """Generate a requirements.txt from pyproject.toml / uv.lock."""
-        subprocess.check_call(
-            [
+        subprocess.check_call(  # ruff: ignore[subprocess-without-shell-equals-true]
+            [  # ruff: ignore[start-process-with-partial-path]
                 "uv",
                 "export",
                 "--no-annotate",
@@ -162,7 +160,7 @@ class RequirementsLayer(LambdaLayer):
                 "--no-header",
                 "-o",
                 self.GENERATED_REQUIREMENTS,
-            ]
+            ],
         )
         return self.GENERATED_REQUIREMENTS
 
@@ -174,8 +172,8 @@ class RequirementsLayer(LambdaLayer):
 
         path = f"{DEPLOY_DIR}/{self.full_name}"
 
-        subprocess.call(
-            [
+        subprocess.call(  # ruff: ignore[subprocess-without-shell-equals-true]
+            [  # ruff: ignore[start-process-with-partial-path]
                 "uv",
                 "run",
                 "pip",
@@ -184,7 +182,7 @@ class RequirementsLayer(LambdaLayer):
                 "--only-binary=:all:",
                 "-r", reqs,
                 f"--target={path}/python",
-            ]
+            ],
         )
         self.delete_layer_versions()
         self.deploy_version(path)
@@ -211,7 +209,7 @@ class Lambda:
         # upload and update
         S3_CLIENT.upload_file(zip_file, DEPLOY_BUCKET, f"{self.full_name}.zip")
         LAMBDA_CLIENT.update_function_code(
-            FunctionName=self.full_name, S3Bucket=DEPLOY_BUCKET, S3Key=f"{self.full_name}.zip"
+            FunctionName=self.full_name, S3Bucket=DEPLOY_BUCKET, S3Key=f"{self.full_name}.zip",
         )
 
         # Wait for the update to complete
@@ -221,7 +219,6 @@ class Lambda:
 
     def update_used_layers(self, *layers: LambdaLayer, force=False) -> None:
         """Update the given Lambdas to use the latest version of each Layer."""
-
         needs_update = force or any(layer.latest_version for layer in layers)
         if not needs_update:
             return
@@ -236,9 +233,9 @@ class Lambda:
 
 def main() -> None:
     """Deploy everything."""
-    if os.path.exists(DEPLOY_DIR):
+    if pathlib.Path(DEPLOY_DIR).exists():
         shutil.rmtree(DEPLOY_DIR)
-    os.mkdir(DEPLOY_DIR)
+    pathlib.Path(DEPLOY_DIR).mkdir()
 
     # Layers
     core_layer = LambdaLayer("lorrgs-core", src_dir="lorgs")
@@ -257,7 +254,6 @@ def main() -> None:
     # Update if one of them got deployed
     api_lambda.update_used_layers(reqs_layer, core_layer)
     sqs_lambda.update_used_layers(reqs_layer, core_layer)
-    return
 
 
 if __name__ == "__main__":

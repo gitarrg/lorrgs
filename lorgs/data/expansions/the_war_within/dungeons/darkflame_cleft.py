@@ -44,7 +44,7 @@ REMNANT_OF_DARKNESS = "[Remnant of Darkness]"
 """Accumulates stacks -> aoe damage split
 
 > Equip: Your abilities have a chance to call the Darkness to you,
-> increasing your <Primary Stat> by 245, up to 1225.  
+> increasing your <Primary Stat> by 245, up to 1225.
 > Upon reaching full power, the Darkness is unleashed, inflicting 99665 Shadow damage
 > split between nearby enemies over 15 sec before fading back into the remnant.
 """

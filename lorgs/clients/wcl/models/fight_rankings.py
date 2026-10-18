@@ -1,12 +1,13 @@
 """Models represeting the Data we recive from WCL under the worldData.encounter.fightRankings."""
-
 from __future__ import annotations
 
+# IMPORT STANDARD LIBRARIES
 import datetime
-from typing import Optional
 
+# IMPORT THIRD PARTY LIBRARIES
 from pydantic import BaseModel
 
+# IMPORT LOCAL LIBRARIES
 from .guild import Guild
 
 
@@ -39,7 +40,7 @@ class FightRankingsFight(BaseModel):
     startTime: datetime.datetime = datetime.datetime.fromtimestamp(0)
     """Fight Start Time in Milliseconds."""
 
-    guild: Optional[Guild] = None
+    guild: Guild | None = None
 
     report: FightRankingsItemsReport = FightRankingsItemsReport()
     """Parent Report Info."""

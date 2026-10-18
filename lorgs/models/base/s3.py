@@ -5,7 +5,7 @@ from __future__ import annotations
 # IMPORT STANDARD LIBRARIES
 import json
 import os
-from typing import Any, ClassVar, Optional, Type, TypeVar
+from typing import Any, ClassVar, Self, TypeVar
 
 # IMPORT THIRD PARTY LIBRARIES
 import boto3
@@ -47,7 +47,7 @@ class S3Model(base.BaseModel):
         return json.loads(body.read())
 
     @classmethod
-    def get(cls: Type[T], **kwargs: Any) -> Optional[T]:
+    def get(cls, **kwargs: Any) -> Self | None:
         """Get an Item from the Store."""
         try:
             content = cls.get_json(**kwargs)

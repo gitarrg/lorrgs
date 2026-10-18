@@ -47,7 +47,6 @@ def send_message(payload: payload_type, queue_url="", message_group=""):
 
 def send_message_batch(payloads: Iterable[payload_type], queue_url="", chunk_size=10):
     """Batch Submit multiple Messages."""
-
     # Wrap Payloads
     messages = [
         {

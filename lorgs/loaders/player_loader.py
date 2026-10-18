@@ -108,7 +108,7 @@ class PlayerLoader(ActorLoader):
         spell_id = event.abilityGameID
 
         # special case: Ankh
-        if spell_id == 21169:   # noqa: PLR2004
+        if spell_id == 21169:   # ruff: ignore[magic-value-comparison]
             event.type = "resurrect"
 
         if event.type == "resurrect":

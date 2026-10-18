@@ -1,12 +1,10 @@
-"""Fallen-King Salhadaar (Voidspire)
-
-
+"""Fallen-King Salhadaar (Voidspire).
 
 >>> PYTHONPATH=. uv run --env-file=.env scripts/load_report.py "https://www.warcraftlogs.com/reports/9hZTAp8gFjJcCaNz?fight=21"
 
 """
 
-from lorgs.data.classes import *  # noqa: F403
+from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 
@@ -31,7 +29,7 @@ boss = FALLEN_KING_SALHADAAR
 
 
 # [Wraps of Cosmic Madness]
- 
+
 
 ################################################################################
 # Spells
@@ -75,7 +73,6 @@ boss.add_cast(
     color="rgb(234, 138, 237)",
     icon="inv_112_raidtrinkets_netheroverlaymatrix.jpg",
 )
-
 
 
 # random debuff (heal absorb, needs dispel)

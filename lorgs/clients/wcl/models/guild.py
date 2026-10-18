@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 class Guild(BaseModel):
     """A single guild. Guilds earn their own rankings and contain characters.
-    
+
     They may correspond to a guild in-game or be a custom guild created just to hold reports and rankings.
     """
 

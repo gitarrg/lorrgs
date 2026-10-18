@@ -3,17 +3,18 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
+import datetime
 import operator
 import re
 import textwrap
 import typing
 from collections import defaultdict
-import datetime
-from typing import Any, Callable, ClassVar, Optional
-import typing_extensions
+from collections.abc import Callable
+from typing import Any, ClassVar
 
 # IMPORT THIRD PARTY LIBRARIES
 import pydantic
+import typing_extensions
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import wcl
@@ -23,7 +24,6 @@ from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_player import Player
-from lorgs.models.warcraftlogs_report import Report
 from lorgs.models.wow_spell import SpellTag, WowSpell, build_spell_query
 
 
@@ -47,11 +47,8 @@ class FilterExpression(pydantic.BaseModel):
     QUERY_ARG_RE: ClassVar[str] = rf"(?P<attr>{RE_KEY})\.((?P<op>{RE_OPS})\.)?(?P<value>{RE_VAL})"
 
     @classmethod
-    def parse_str(cls, expr: str) -> "FilterExpression":
-        """
-        query: filter/check expression. eg.: "my_attr.lt.3" => "my_attr" is less than 3.
-
-        """
+    def parse_str(cls, expr: str) -> FilterExpression:
+        """query: filter/check expression. eg.: "my_attr.lt.3" => "my_attr" is less than 3."""
         m = re.match(cls.QUERY_ARG_RE, expr)
         if not m:
             raise ValueError(f"invalid query arg: {expr}")
@@ -92,7 +89,7 @@ def get_composition(players: typing.Iterable[Player]) -> FightComposition:
 class CompRankingFight(Fight):
     """A single Fight showing in the Comp Rankings."""
 
-    composition: Optional[FightComposition] = None
+    composition: FightComposition | None = None
 
     damage_taken: int = 0
     deaths: int = 0
@@ -136,7 +133,7 @@ class CompRanking(base.S3Model, warcraftlogs_base.wclclient_mixin):
     key: typing.ClassVar[str] = "{boss_slug}"
 
     @property
-    def boss(self) -> Optional[RaidBoss]:
+    def boss(self) -> RaidBoss | None:
         return RaidBoss.get(full_name_slug=self.boss_slug)
 
     ############################################################################
@@ -159,7 +156,7 @@ class CompRanking(base.S3Model, warcraftlogs_base.wclclient_mixin):
                     )
                 }}
             }}
-            """
+            """,
         )
 
     def add_report(self, fight_data: wcl.FightRankingsFight):
@@ -186,7 +183,6 @@ class CompRanking(base.S3Model, warcraftlogs_base.wclclient_mixin):
 
     async def load_page(self, page=0, metric: str = "execution"):
         """Get Top Fights for a given encounter."""
-
         # build a list of old Reports
         old_reports: list[tuple[str, int]] = []
         for report in self.reports:
@@ -217,7 +213,6 @@ class CompRanking(base.S3Model, warcraftlogs_base.wclclient_mixin):
             clear_old (bool): if true old reports will be deleted.
 
         """
-
         # copy the list, to make pydantic belive it has changed
         self.reports = self.reports[:]
 
@@ -239,7 +234,7 @@ class CompRanking(base.S3Model, warcraftlogs_base.wclclient_mixin):
         await self.load_many(fights_to_load, raise_errors=False)  # type: ignore
 
         self.sort_reports()
-        self.updated = datetime.datetime.now(datetime.timezone.utc)
+        self.updated = datetime.datetime.now(datetime.UTC)
 
     def sort_reports(self) -> None:
         self.reports = sort_reports(self.reports)

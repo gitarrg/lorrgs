@@ -1,5 +1,4 @@
-"""0:
-
+"""0: Araz.
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/B8TZkGKaXQn6rCFA?fight=9"
 
@@ -7,6 +6,7 @@
 
 from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
+
 
 ARAZ = RaidBoss(
     id=3132,

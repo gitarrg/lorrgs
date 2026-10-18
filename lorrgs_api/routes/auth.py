@@ -74,7 +74,7 @@ async def get_user_all():
 
 @router.get("/users/{user_id:str}")
 async def get_user(response: fastapi.Response, user_id: str) -> dict[str, typing.Any]:
-    response.headers["Cache-Control"] = f"private, max-age={60*5}"
+    response.headers["Cache-Control"] = f"private, max-age={60 * 5}"
 
     user = User.get(discord_id=user_id)
 

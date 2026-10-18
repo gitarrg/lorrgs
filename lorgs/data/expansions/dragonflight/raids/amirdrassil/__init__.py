@@ -2,6 +2,7 @@
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models.raid_zone import RaidZone
+
 from .council import COUNCIL_OF_DREAMS
 from .fyrakk import FYRAKK
 from .gnarlroot import GNARLROOT
@@ -10,8 +11,8 @@ from .larodar import LARODAR
 from .nymue import NYMUE
 from .smolderon import SMOLDERON
 from .tindral import TINDRAL
-from .volcoross import VOLCOROSS
 from .trinkets import *
+from .volcoross import VOLCOROSS
 
 
 ################################################################################
@@ -19,7 +20,7 @@ from .trinkets import *
 #   Tier: 35 Amirdrassil, the Dream's Hope
 #
 ################################################################################
-AMIRDRASSIL = RaidZone(
+AMIRDRASSIL = RaidZone(  # ruff: ignore[non-empty-init-module]
     id=35,
     name="Amirdrassil, the Dream's Hope",
     icon="inv_achievement_raidemeralddream_raid.jpg",

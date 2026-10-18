@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-from typing import Any, ClassVar, Type, TypeVar
+from typing import Any, ClassVar, Self, TypeVar
 
 # IMPORT THIRD PARTY LIBRARIES
 import pydantic
@@ -21,7 +21,6 @@ class BaseModel(pydantic.BaseModel):
 
     def post_init(self) -> None:
         """Hook to implement some custom initialization logic."""
-        pass
 
     def __init__(self, *args, **kwargs) -> None:
         super().__init__(*args, **kwargs)
@@ -38,11 +37,11 @@ class BaseModel(pydantic.BaseModel):
         return cls.key.format(**kwargs)
 
     @classmethod
-    def get(cls: Type[T], **kwargs: Any) -> T | None:
+    def get(cls, **kwargs: Any) -> Self | None:
         ...
 
     @classmethod
-    def get_or_create(cls: Type[T], **kwargs: Any) -> T:
+    def get_or_create(cls, **kwargs: Any) -> Self:
         return cls.get(**kwargs) or cls(**kwargs)
 
     def save(self) -> None:

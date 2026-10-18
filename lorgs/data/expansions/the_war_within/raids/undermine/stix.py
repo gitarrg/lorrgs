@@ -1,5 +1,4 @@
-"""04: Stix Bunkjunker
-
+"""04: Stix Bunkjunker.
 
 PTR Logs:
     Heroic / Melee Mechanics
@@ -58,7 +57,7 @@ SCRAPFIELD_9001 = boss.add_trinket(
 > Equip: Falling below 60% health surrounds you with a protective vortex of junk,
 > reducing damage taken by 50% for 15 sec or until 996802 damage is prevented.
 > This effect may only occur every 30 sec.
-> 
+>
 > After 20 sec without activating while in combat, the Scrapfield overloads
 > to energize you with 2651 Haste for 12 sec.
 
@@ -67,7 +66,7 @@ SCRAPFIELD_9001 = boss.add_trinket(
 
 
 ################################################################################
-#### Phase 1:
+# Phase 1:
 
 # Electromagnetic Sorting =
 # - tank + random players transform into balls

@@ -16,7 +16,7 @@ T = typing.TypeVar("T")
 U = typing.TypeVar("U")
 
 
-def chunks(lst: list[T], n: int) -> typing.Generator[list[T], None, None]:
+def chunks(lst: list[T], n: int) -> typing.Generator[list[T]]:
     """Yield successive n-sized chunks from lst."""
     if n <= 0:  # special case to allow unchucked
         yield lst
@@ -85,6 +85,7 @@ def slug(text: str, space="", delete_chars="(),'-") -> str:
 
     Returns:
         str: the slugified text.
+
     """
     text = text.lower()
     for c in delete_chars:
@@ -95,7 +96,7 @@ def slug(text: str, space="", delete_chars="(),'-") -> str:
 
 def to_snake_case(name) -> str:
     """Convert CamelCase to snake case."""
-    return "".join("_%s" % c if c.isupper() else c for c in name).strip("_").lower()
+    return "".join(f"_{c}" if c.isupper() else c for c in name).strip("_").lower()
 
 
 def str_int_list(string: str, sep=".") -> list[int]:
@@ -140,11 +141,12 @@ def flatten(values: typing.Iterable[typing.Iterable[T]]) -> list[T]:
     Example:
         >>> flatten( [[a, b], [c, d]] )
         [a, b, c, d]
+
     """
     return list(itertools.chain.from_iterable(values))
 
 
-def as_list(func: typing.Callable[[U], typing.Generator[T, None, None]]) -> typing.Callable[[U], list[T]]:
+def as_list(func: typing.Callable[[U], typing.Generator[T]]) -> typing.Callable[[U], list[T]]:
     """Wrap a Generator to return a list."""
 
     @functools.wraps(func)
@@ -163,12 +165,13 @@ def uniqify(iterable: typing.Iterable[T], key: typing.Callable[[T], typing.Hasha
 
     Returns:
         list[T]: filtered list
+
     """
     d = {key(item): item for item in iterable}
     return list(d.values())
 
 
-def find(predicate: typing.Callable[[T], typing.Any], seq: typing.Iterable[T]) -> typing.Optional[T]:
+def find(predicate: typing.Callable[[T], typing.Any], seq: typing.Iterable[T]) -> T | None:
     """A helper to return the first element found in the sequence
     that meets the predicate. For example: ::
 
@@ -181,20 +184,20 @@ def find(predicate: typing.Callable[[T], typing.Any], seq: typing.Iterable[T]) -
     a valid entry.
 
     Parameters
-    -----------
+    ----------
     predicate
         A function that returns a boolean-like result.
     seq: iterable
         The iterable to search through.
-    """
 
+    """
     for element in seq:
         if predicate(element):
             return element
     return None
 
 
-def get(iterable: typing.Iterable[T], **attrs) -> typing.Optional[T]:
+def get(iterable: typing.Iterable[T], **attrs) -> T | None:
     r"""A helper that returns the first element in the iterable that meets
     all the traits passed in ``attrs``. This is an alternative for
     :func:`~discord.utils.find`.
@@ -210,8 +213,7 @@ def get(iterable: typing.Iterable[T], **attrs) -> typing.Optional[T]:
     ``None`` is returned.
 
     Examples
-    ---------
-
+    --------
     Basic usage:
 
     .. code-block:: python3
@@ -231,15 +233,15 @@ def get(iterable: typing.Iterable[T], **attrs) -> typing.Optional[T]:
         channel = discord.utils.get(client.get_all_channels(), guild__name='Cool', name='general')
 
     Parameters
-    -----------
+    ----------
     iterable
         An iterable to search through.
     \*\*attrs
         Keyword arguments that denote attributes to search with.
-    """
 
+    """
     # global -> local
-    _all = all
+    all_ = all
     attrget = attrgetter
 
     # Special case the single element call
@@ -254,7 +256,7 @@ def get(iterable: typing.Iterable[T], **attrs) -> typing.Optional[T]:
     converted = [(attrget(attr.replace("__", ".")), value) for attr, value in attrs.items()]
 
     for elem in iterable:
-        if _all(pred(elem) == value for pred, value in converted):
+        if all_(pred(elem) == value for pred, value in converted):
             return elem
     return None
 
@@ -273,6 +275,7 @@ def run_in_executor(_func):
         return loop.run_in_executor(executor=None, func=func)
 
     return wrapped
+
 
 class CaseInsensitiveEnum(enum.Enum):
     """An Enum that is case-insensitive."""

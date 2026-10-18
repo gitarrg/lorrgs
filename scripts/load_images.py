@@ -1,7 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S PYTHONPATH=. uv run uv run --env-file=.env
 """Fetches spell icons from wowhead and uploads them to our S3 bucket.
 
-PYTHONPATH=. uv run scripts/load_images.py 
+PYTHONPATH=. uv run scripts/load_images.py
 
 """
 from __future__ import annotations
@@ -9,6 +9,7 @@ from __future__ import annotations
 # IMPORT STANDARD LIBRARIES
 import io
 import os
+import pathlib
 
 # IMPORT THIRD PARTY LIBRARIES
 import boto3
@@ -16,7 +17,6 @@ import requests
 from PIL import Image
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import data
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.raid_zone import RaidZone
 from lorgs.models.wow_potion import WowPotion
@@ -36,13 +36,14 @@ FOLDER = "images/spells/"
 
 
 def get_images(folder: str) -> list[str]:
-    """Retrieve a list of images from the S3 bucket
+    """Retrieve a list of images from the S3 bucket.
 
     Args:
         folder (str): The folder path in the S3 bucket.
 
     Returns:
         list[str]: List of image filenames.
+
     """
     images = [obj.key for obj in BUCKET.objects.filter(Prefix=folder)]
     images = [img for img in images if not img.endswith(".webp")]
@@ -57,19 +58,20 @@ def convert_to_webp(data: bytes) -> bytes:
     return buffer.getvalue()
 
 
-def upload(filname: str) -> None:
+def upload(filename: str) -> None:
     """Download an image from wowhead and upload it to S3.
 
     Args:
         filename (str): The filename of the image to upload.
+
     """
     # Download the file from the HTTP URL
-    url = f"https://wow.zamimg.com/images/wow/icons/large/{filname}"
+    url = f"https://wow.zamimg.com/images/wow/icons/large/{filename}"
     response = requests.get(url)
     if not response:
         response.raise_for_status()
 
-    path = f"{FOLDER}{filname}"
+    path = f"{FOLDER}{filename}"
 
     # upload jpeg to S3
     BUCKET.put_object(
@@ -82,13 +84,13 @@ def upload(filname: str) -> None:
     # convert jpeg to webp
     webp_data = convert_to_webp(response.content)
 
-    basename, _ = os.path.splitext(filname)
-    webp_path = f"{FOLDER}{basename}.webp"
+    webp_path = pathlib.Path(FOLDER) / filename
+    webp_path = webp_path.with_suffix(".webp")
 
     # upload webp to S3
     BUCKET.put_object(
         Body=webp_data,
-        Key=webp_path,
+        Key=webp_path.as_posix(),
         ContentType="image/webp",
         CacheControl="public, max-age=31536000, immutable",
     )

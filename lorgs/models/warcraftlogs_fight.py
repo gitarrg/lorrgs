@@ -12,8 +12,8 @@ import pydantic
 from lorgs import utils
 from lorgs.models import warcraftlogs_base
 from lorgs.models.difficulty import RaidDifficulty
-from lorgs.models.warcraftlogs_boss import Boss  # noqa: TC001 # required by pydantic
-from lorgs.models.warcraftlogs_player import Player  # noqa: TC001 # required by pydantic
+from lorgs.models.warcraftlogs_boss import Boss  # ruff: ignore[typing-only-first-party-import] # required by pydantic
+from lorgs.models.warcraftlogs_player import Player  # ruff: ignore[typing-only-first-party-import] # required by pydantic
 
 
 if typing.TYPE_CHECKING:
@@ -79,7 +79,7 @@ class Fight(warcraftlogs_base.BaseModel):
 
         return {
             # required for spec rankings
-            "report_id": self.report and self.report.report_id or "",
+            "report_id": (self.report and self.report.report_id) or "",
             "fight_id": self.fight_id,
             "percent": self.percent,
             "kill": self.kill,
@@ -117,7 +117,7 @@ class Fight(warcraftlogs_base.BaseModel):
 
     @property
     def end_time_rel(self) -> int:
-        """fight end time, relative to the report (in milliseconds)."""
+        """Fight end time, relative to the report (in milliseconds)."""
         t = self.report.start_time.timestamp() if self.report else 0
         return int(1000 * (self.end_time.timestamp() - t))
 
@@ -136,7 +136,7 @@ class Fight(warcraftlogs_base.BaseModel):
             player = report_player.model_copy()
             player.fight = self
             self.players.append(player)
-            self.players = self.players[:] # force pydantic to update the list
+            self.players = self.players[:]  # force pydantic to update the list
             return player
 
         return None
