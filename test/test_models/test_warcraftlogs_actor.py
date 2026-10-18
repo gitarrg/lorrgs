@@ -6,11 +6,13 @@ import pytest
 
 from lorgs.loaders.actor_loader import ActorLoader
 from lorgs.models.warcraftlogs_actor import BaseActor
+from lorgs.models.warcraftlogs_player import Player
 from lorgs.models import wow_class
 from lorgs.models import wow_role
 from lorgs.models import wow_spec
 
 from test import helpers
+from test.test_models.test_warcraftlogs_fight import _fight, _fight_in_report, FIGHT_START
 
 
 # Test Classes
@@ -88,6 +90,31 @@ class TestActorLoaderProcess(unittest.TestCase):
         self.actor.source_id = 10
         self.loader.process_query_result(casts_data)
         assert not self.actor.casts
+
+
+def _cast_query(timestamp: int) -> dict:
+    return helpers.wrap_data(
+        [{"timestamp": timestamp, "type": "cast", "sourceID": 10, "abilityGameID": 101}],
+        "report",
+        "events",
+        "data",
+    )
+
+
+def test_casts_are_fight_relative() -> None:
+    player = Player(source_id=10, name="Caster")
+    player.fight = _fight_in_report()
+    ActorLoader(player).process_query_result(_cast_query(25_000))
+
+    assert player.casts[0].timestamp == 4_000
+
+
+def test_casts_raise_when_the_fight_has_no_report() -> None:
+    player = Player(source_id=10, name="Caster")
+    player.fight = _fight(start_time=FIGHT_START)
+
+    with pytest.raises(ValueError, match="Missing Parent Report"):
+        ActorLoader(player).process_query_result(_cast_query(25_000))
 
 
 if __name__ == "__main__":

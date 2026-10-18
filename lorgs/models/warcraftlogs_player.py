@@ -72,8 +72,11 @@ class Player(BaseActor):
                 continue
 
             death_ability = death_event.ability
+            death_time = death_event.deathTime
+            if self.fight:
+                death_time = self.fight.to_fight_time(death_time)
             death_data = {
-                "ts": death_event.deathTime,
+                "ts": death_time,
                 "spell_name": death_ability.name,
                 "spell_icon": death_ability.abilityIcon,
             }

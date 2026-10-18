@@ -118,10 +118,11 @@ class PlayerLoader(ActorLoader):
         return super().process_event(event)
 
     def _process_resurrect(self, event: wcl.ReportEvent) -> None:
-        fight_start = self.actor.fight.start_time_rel if self.actor.fight else 0
-
         data: dict[str, typing.Any] = {}
-        data["ts"] = event.timestamp - fight_start
+        if self.actor.fight:
+            data["ts"] = self.actor.fight.to_fight_time(event.timestamp)
+        else:
+            data["ts"] = event.timestamp
 
         spell_id = event.abilityGameID
         spell = WowSpell.get(spell_id=spell_id)
