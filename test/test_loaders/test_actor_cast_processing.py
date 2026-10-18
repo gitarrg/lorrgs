@@ -8,6 +8,7 @@ import pytest
 
 import lorgs.data.classes.demonhunter  # noqa: F401  # registers Devourer and its load handler
 import lorgs.data.classes.druid  # noqa: F401  # registers Restoration Druid
+import lorgs.data.classes.hunter  # noqa: F401  # registers Marksmanship and its load handler
 import lorgs.data.classes.shaman  # noqa: F401  # registers Restoration Shaman and its load handler
 from lorgs.data.roles import HEAL
 from lorgs.loaders.actor_loader import ActorLoader
@@ -187,6 +188,42 @@ def test_actor_load_does_not_split_restoration_shaman_ascendance_procs() -> None
 
     assert [(cast.spell_id, cast.timestamp) for cast in player.casts] == [
         (ASCENDANCE, 0),
+    ]
+
+
+EXPLOSIVE_SHOT = 212431
+VOLLEY = 260243
+
+
+def test_explosive_shot_recasts_within_ten_seconds_are_dropped_and_renumbered() -> None:
+    """Explosive Shots within 10s collapse to the first; shots more than 10s apart both remain."""
+    events = _events(
+        _cast(0, EXPLOSIVE_SHOT),
+        _cast(5_000, EXPLOSIVE_SHOT),
+        _cast(8_000, VOLLEY),
+        _cast(16_000, EXPLOSIVE_SHOT),
+    )
+
+    assert _process("hunter-marksmanship", events) == [
+        (EXPLOSIVE_SHOT, 0, 1),
+        (VOLLEY, 8_000, 1),
+        (EXPLOSIVE_SHOT, 16_000, 2),
+    ]
+
+
+def test_actor_load_does_not_drop_marksmanship_explosive_shot_recasts() -> None:
+    """actor.load does not drop Explosive Shot recasts."""
+    player = Player(source_id=10, spec_slug="hunter-marksmanship", name="Hunter")
+    player.casts = [
+        Cast(spell_id=EXPLOSIVE_SHOT, timestamp=0),
+        Cast(spell_id=EXPLOSIVE_SHOT, timestamp=5_000),
+    ]
+
+    player.event_actor_load.send(player, status="success")
+
+    assert [(cast.spell_id, cast.timestamp) for cast in player.casts] == [
+        (EXPLOSIVE_SHOT, 0),
+        (EXPLOSIVE_SHOT, 5_000),
     ]
 
 

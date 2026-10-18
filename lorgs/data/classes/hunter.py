@@ -6,11 +6,15 @@
 # pylint: disable=unused-wildcard-import
 # fmt: off
 
+# IMPORT STANDARD LIBRARIES
+from typing import override
+
 # IMPORT LOCAL LIBRARIES
 from lorgs.data.constants import *
 from lorgs.data.roles import *
-from lorgs.models import warcraftlogs_actor
+from lorgs.models.warcraftlogs_cast import Cast
 from lorgs.models.wow_class import WowClass
+from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spec import WowSpec
 from lorgs.models.wow_spell import SpellTag
 
@@ -24,7 +28,32 @@ HUNTER = WowClass(id=3, name="Hunter", color="#AAD372")
 # Specs
 #
 HUNTER_BEASTMASTERY   = WowSpec(id=253, index=1, role=RDPS, wow_class=HUNTER,       name="Beast Mastery")
-HUNTER_MARKSMANSHIP   = WowSpec(id=254, index=2, role=RDPS, wow_class=HUNTER,       name="Marksmanship")
+
+
+class MarksmanshipHunter(WowSpec):
+
+    id: int = 254
+    index: int = 2
+    name: str = "Marksmanship"
+    role: WowRole = RDPS
+    wow_class: WowClass = HUNTER
+
+    @override
+    def process_casts(self, casts: list[Cast]) -> list[Cast]:
+        """Keep the first Explosive Shot and drop extras within 10 seconds."""
+        recast_window_ms = 10_000
+        kept: list[Cast] = []
+        previous: Cast | None = None
+        for cast in casts:
+            if cast.spell_id == EXPLOSIVE_SHOT.spell_id:
+                if previous is not None and cast.timestamp - previous.timestamp < recast_window_ms:
+                    continue
+                previous = cast
+            kept.append(cast)
+        return kept
+
+
+HUNTER_MARKSMANSHIP = MarksmanshipHunter()
 HUNTER_SURVIVAL       = WowSpec(id=255, index=3, role=MDPS, wow_class=HUNTER,       name="Survival")
 
 ################################################################################
@@ -47,28 +76,3 @@ EXPLOSIVE_SHOT = HUNTER_MARKSMANSHIP.add_spell( spell_id=212431, cooldown=30,  d
 HUNTER_SURVIVAL.add_spell(     spell_id=1250646, cooldown=90, duration=8, color="hsl(25, 60%, 50%)", name="Takedown", icon="inv12_ability_hunter_takedown.jpg")
 HUNTER_SURVIVAL.add_spell(     spell_id=1261193, cooldown=60, duration=3, color="hsl(40, 40%, 70%)", name="Boomstick", icon="inv_musket_04.jpg")
 HUNTER_SURVIVAL.add_spell(     spell_id=186289,  cooldown=90, duration=15,                  name="Aspect of the Eagle", icon="spell_hunter_aspectoftheironhawk.jpg")
-
-
-def filter_explosive_shot_recasts(actor: warcraftlogs_actor.BaseActor | None, status: str) -> None:
-    """Explosive Shot always triggers 2 casts back to back. Keep the first and drop extras within 10s."""
-    if status != "success":
-        return
-    if not actor:
-        return
-
-    threshold = 10_000  # 10 seconds
-    prev = None
-    for cast in actor.casts:
-        if cast.spell_id != EXPLOSIVE_SHOT.spell_id:
-            continue
-
-        if prev and (cast.timestamp - prev.timestamp) < threshold:
-            cast.spell_id = -1
-            continue
-
-        prev = cast
-
-    actor.casts = [cast for cast in actor.casts if cast.spell_id > 0]
-
-
-warcraftlogs_actor.BaseActor.event_actor_load.connect(filter_explosive_shot_recasts)
