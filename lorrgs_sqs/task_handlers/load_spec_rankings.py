@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-# IMPORT STANDARD LIBRARIES
-import datetime
-
 # IMPORT LOCAL LIBRARIES
 from lorgs import data  # pylint: disable=unused-import  # ruff: ignore[unused-import]
 from lorgs.loaders.spec_ranking import SpecRankingLoader
@@ -31,32 +28,12 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
     if not ranking.spec:
         raise TaskValidationError("invalid spec")
 
-    clear = payload.clear
+    needs_refresh = payload.clear or ranking.needs_refresh(limit=payload.limit)
+    if not needs_refresh:
+        logger.info(f"already updated: {payload=}")
+        return True, "already updated"
 
-    # force refresh if dirty
-    if ranking.dirty:
-        clear = True
-
-    correct_count = payload.limit == len(ranking.reports)
-
-    # skip if updated recently
-    if not (clear and correct_count):
-        now = datetime.datetime.now(datetime.UTC)
-        updated = ranking.updated
-        # Some persisted/initialized values may be offset-naive; treat them as UTC.
-        if updated.tzinfo is None:
-            updated = updated.replace(tzinfo=datetime.UTC)
-
-        try:
-            if updated > (now - datetime.timedelta(hours=2)):
-                logger.info(f"already updated: {payload=}")
-                return True, "already updated"
-        except TypeError:
-            logger.warning(f"Failed to compare timestamp ({now=}, {updated=}) for {payload=}")
-
-    ################################
-    # load and save
-    await SpecRankingLoader(ranking).load(limit=payload.limit, clear_old=clear)
+    await SpecRankingLoader(ranking).load(limit=payload.limit, clear_old=payload.clear)
     ranking.save()
     return True, "done"
 
