@@ -1,14 +1,14 @@
 """Models represeting the Data we recive from WCL under the worldData.encounter.fightRankings."""
 from __future__ import annotations
 
+# IMPORT STANDARD LIBRARIES
 import datetime
-from typing import TYPE_CHECKING
 
+# IMPORT THIRD PARTY LIBRARIES
 from pydantic import BaseModel
 
-
-if TYPE_CHECKING:
-    from .guild import Guild
+# IMPORT LOCAL LIBRARIES
+from .guild import Guild
 
 
 class FightRankingsItemsReport(BaseModel):

@@ -119,6 +119,11 @@ extend-ignore = [
 ]
 
 
+[lint.flake8-type-checking]
+# Pydantic resolves field annotations when the model class is created.
+# this stops ruff from suggesting to move them into TYPE_CHECKING-Blocks
+runtime-evaluated-base-classes = ["pydantic.BaseModel"]
+
 [lint.isort]
 length-sort = false
 combine-as-imports = true
