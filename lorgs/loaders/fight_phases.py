@@ -60,9 +60,10 @@ class FightPhasesLoader(BaseLoader):
             return
 
         for phase_transition in phase_transitions:
-            converted = phase_transition.model_copy(
-                update={"startTime": self.fight.to_fight_time(phase_transition.startTime)},
-            )
+
+            start_time = self.fight.to_fight_time(phase_transition.startTime)
+            converted = phase_transition.model_copy(update={"startTime": start_time})
+
             if phase := raid_boss.phase_from_transition(converted):
                 self.fight.add_phase(phase)
 
