@@ -35,6 +35,24 @@ class SpecRanking(S3Model):
 
     # Config
     key: typing.ClassVar[str] = "{spec_slug}/{boss_slug}__{difficulty}__{metric}"
+    refresh_after: typing.ClassVar[datetime.timedelta] = datetime.timedelta(hours=2)
+
+    def needs_refresh(self, now: datetime.datetime, limit: int) -> bool:
+        """Whether this ranking should be re-fetched from Warcraft Logs.
+
+        A Dirty ranking is refreshed however recently it was last refreshed.
+        A ranking whose stored report count does not match ``limit`` is refreshed.
+        Otherwise a ranking is refreshed only when its last Refresh is more than
+        ``refresh_after`` old. Timestamps stored without a timezone are treated as UTC.
+        """
+        if self.dirty:
+            return True
+        if len(self.reports) != limit:
+            return True
+        updated = self.updated
+        if updated.tzinfo is None:
+            updated = updated.replace(tzinfo=datetime.UTC)
+        return now - updated > self.refresh_after
 
     def post_init(self) -> None:
         for report in self.reports:
