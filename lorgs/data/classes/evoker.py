@@ -6,11 +6,15 @@
 # pylint: disable=unused-wildcard-import
 # fmt: off
 
+# IMPORT STANDARD LIBRARIES
+from typing import override
+
 # IMPORT LOCAL LIBRARIES
 from lorgs.data.constants import *
 from lorgs.data.roles import *
-from lorgs.models import warcraftlogs_actor
+from lorgs.models.warcraftlogs_cast import Cast
 from lorgs.models.wow_class import WowClass
+from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spec import WowSpec
 from lorgs.models.wow_spell import SpellTag
 
@@ -29,7 +33,79 @@ EVOKER = WowClass(id=13, name="Evoker", color="#33937F")
 # Specs
 #
 EVOKER_DEVASTATION  = WowSpec(id=1467, index=1, role=RDPS, wow_class=EVOKER, name="Devastation")
-EVOKER_PRESERVATION = WowSpec(id=1468, index=2, role=HEAL, wow_class=EVOKER, name="Preservation")
+
+
+class PreservationEvoker(WowSpec):
+
+    id: int = 1468
+    index: int = 2
+    name: str = "Preservation"
+    role: WowRole = HEAL
+    wow_class: WowClass = EVOKER
+
+    @override
+    def process_casts(self, casts: list[Cast]) -> list[Cast]:
+        """Give Stasis charges their real duration, then drop spells Stasis released."""
+        casts = self._calculate_stasis_duration(casts)
+        casts = self._filter_stasis_release_spells(casts)
+        return casts
+
+    def _calculate_stasis_duration(self, casts: list[Cast]) -> list[Cast]:  # ruff: ignore[no-self-use]
+        """Charge then release sets the charge duration. A lone release was charged for the full duration before the pull."""
+        charge: Cast | None = None
+        prepull: list[Cast] = []
+        full_duration_ms = int(STASIS_STORE.duration * 1000)
+
+        for cast in casts:
+
+            # new store
+            if cast.spell_id == STASIS_STORE.spell_id:
+                charge = cast
+                continue
+
+            # new release
+            if cast.spell_id == STASIS_RELEASE.spell_id:
+
+                if charge:
+                    charge.duration = cast.timestamp - charge.timestamp
+                else:
+                    prepull.append(Cast(
+                        spell_id=STASIS_STORE.spell_id,
+                        timestamp=cast.timestamp - full_duration_ms,
+                        duration=full_duration_ms,
+                    ))
+
+        # no need to sort, prepull is first
+        return [*prepull,*casts]
+
+    def _filter_stasis_release_spells(self, casts: list[Cast]) -> list[Cast]:  # ruff: ignore[no-self-use]
+        """Drop a stored spell cast within a second of Stasis Pop."""
+        release_window_ms = 1_000
+
+        stasis_storable_spells = {
+            DREAM_BREATH.spell_id,  # the only spell that we track
+        }
+
+        stasis_release: int = -1000
+
+        stasis_casts: list[Cast] = []
+        # spells that have been released from Stasis
+
+        for cast in casts:
+
+            if cast.spell_id == STASIS_RELEASE.spell_id:
+                stasis_release = cast.timestamp + cast.get_duration()
+
+            can_be_stored = cast.spell_id in stasis_storable_spells
+            within_release_window = cast.timestamp - stasis_release < release_window_ms
+
+            if can_be_stored and within_release_window:
+                stasis_casts.append(cast)
+
+        return [cast for cast in casts if cast not in stasis_casts]
+
+
+EVOKER_PRESERVATION = PreservationEvoker()
 EVOKER_AUGMENTATION = WowSpec(id=1473, index=3, role=RDPS, wow_class=EVOKER, name="Augmentation")
 
 
@@ -62,82 +138,11 @@ EVOKER_DEVASTATION.add_spell(spell_id=382411, name="Eternity Surge", cooldown=30
 EVOKER_PRESERVATION.add_spell(spell_id=370960, name="Emerald Communion",  cooldown=180, duration=5,                      icon="ability_evoker_green_01.jpg", tags=[SpellTag.RAID_CD])
 EVOKER_PRESERVATION.add_spell(spell_id=363534, name="Rewind",             cooldown=180,              color=COLOR_BRONZE, icon="ability_evoker_rewind.jpg", tags=[SpellTag.RAID_CD])
 EVOKER_PRESERVATION.add_spell(spell_id=359816, name="Dreamflight",        cooldown=120, duration=15, color="#33a36d",    icon="ability_evoker_dreamflight.jpg", tags=[SpellTag.RAID_CD])
-EVOKER_PRESERVATION.add_spell(spell_id=355936, name="Dream Breath",       cooldown=30,               color="#59ebb3",  icon="ability_evoker_dreambreath.jpg", show=False)
-STASIS_CHARGE = EVOKER_PRESERVATION.add_spell(spell_id=370537, name="Stasis", cooldown=90, color=COLOR_BRONZE, icon="ability_evoker_stasis.jpg", tags=[SpellTag.RAID_CD])
-STASIS_RELEASE = EVOKER_PRESERVATION.add_spell(spell_id=370564, name="Stasis Pop", icon=STASIS_CHARGE.icon, show=False)
+DREAM_BREATH = EVOKER_PRESERVATION.add_spell(spell_id=355936, name="Dream Breath",       cooldown=30,               color="#59ebb3",  icon="ability_evoker_dreambreath.jpg", show=False)
+STASIS_STORE = EVOKER_PRESERVATION.add_spell(spell_id=370537, name="Stasis", cooldown=90, duration=30, color=COLOR_BRONZE, icon="ability_evoker_stasis.jpg", tags=[SpellTag.RAID_CD])
+STASIS_RELEASE = EVOKER_PRESERVATION.add_spell(spell_id=370564, name="Stasis Pop", icon=STASIS_STORE.icon, show=False)
 
 # Augmentation
 EVOKER_AUGMENTATION.add_buff( spell_id=395296, name="Ebon Might Buff",                            color="#bf8330", icon="spell_sarkareth.jpg", show=False)
 EVOKER_AUGMENTATION.add_spell(spell_id=403631, name="Breath of Eons",  cooldown=120, duration=12, color="#e4e267", icon="ability_evoker_breathofeons.jpg", tags=[SpellTag.DAMAGE], variations=[442204])
 EVOKER_AUGMENTATION.add_spell(spell_id=404977, name="Time Skip",       cooldown=180,              color="#e8bf46", icon="ability_evoker_timeskip.jpg")
-
-
-def calculate_stasis_duration(actor: warcraftlogs_actor.BaseActor, status: str) -> None:
-    """Calculates the duration between charging and releasing the stasis."""
-    if status != "success":
-        return
-    if not actor:
-        return
-
-    charge_event = None
-
-    for cast in actor.casts:
-
-        if cast.spell == STASIS_CHARGE:
-            charge_event = cast
-            continue
-
-        if cast.spell == STASIS_RELEASE:
-
-            if charge_event:
-                charge_event.duration = cast.timestamp - charge_event.timestamp
-
-            else:  # stasis was charged pre pull
-                cast.spell_id = STASIS_CHARGE.spell_id
-                cast.duration = cast.timestamp  # create a charge event at 0:00
-                cast.timestamp = 0
-
-    actor.casts = [cast for cast in actor.casts if cast.spell_id > 0]
-
-
-warcraftlogs_actor.BaseActor.event_actor_load.connect(calculate_stasis_duration)
-
-
-# list[int]: Spells that are able to be stores in Stasis
-STATIS_SPELLS = [
-    355936,  # Dream Breath
-]
-
-
-def filter_stasis_spells(actor: warcraftlogs_actor.BaseActor, status: str) -> None:
-    """Remove Spells cast by stasis.
-
-    Those are no manual casts, and thus can be confusing if they show up in the timeline
-
-    """
-    if status != "success":
-        return
-    if not actor:
-        return
-
-    last_stasis_end = -99999
-    threashold = 1000  # 1sec. I takes around 1sec for Stasis to release.
-
-    for cast in actor.casts:
-
-        # Update Stasis Release Time
-        if cast.spell_id == 370562:
-            last_stasis_end = cast.timestamp + cast.get_duration()
-            continue
-
-        # Filter out Spells within 1sec of Stasis Release,
-        # assuming they arn't real casts
-        in_stasis_threashold = (cast.timestamp - last_stasis_end) < threashold
-        statis_spell_id = cast.spell_id in STATIS_SPELLS
-        if in_stasis_threashold and statis_spell_id:
-            cast.spell_id = -1
-
-    actor.casts = [cast for cast in actor.casts if cast.spell_id > 0]
-
-
-warcraftlogs_actor.BaseActor.event_actor_load.connect(filter_stasis_spells)
