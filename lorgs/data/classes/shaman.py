@@ -6,11 +6,15 @@
 # pylint: disable=unused-wildcard-import
 # fmt: off
 
+# IMPORT STANDARD LIBRARIES
+from typing import override
+
 # IMPORT LOCAL LIBRARIES
 from lorgs.data.constants import *
 from lorgs.data.roles import HEAL, MDPS, RDPS
-from lorgs.models import warcraftlogs_actor
+from lorgs.models.warcraftlogs_cast import Cast
 from lorgs.models.wow_class import WowClass
+from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spec import WowSpec
 from lorgs.models.wow_spell import SpellTag
 
@@ -25,7 +29,35 @@ SHAMAN = WowClass(id=7, name="Shaman", color="#0070DD")
 #
 SHAMAN_ELEMENTAL   = WowSpec(id=262, index=1, role=RDPS, wow_class=SHAMAN, name="Elemental")
 SHAMAN_ENHANCEMENT = WowSpec(id=263, index=2, role=MDPS, wow_class=SHAMAN, name="Enhancement")
-SHAMAN_RESTORATION = WowSpec(id=264, index=3, role=HEAL, wow_class=SHAMAN, name="Restoration",   short_name="Resto")
+
+
+class RestorationShaman(WowSpec):
+
+    id: int = 264
+    index: int = 3
+    name: str = "Restoration"
+    short_name: str = "Resto"
+    role: WowRole = HEAL
+    wow_class: WowClass = SHAMAN
+
+    @override
+    def process_casts(self, casts: list[Cast]) -> list[Cast]:
+        """Report a short Ascendance buff as a Deeply Rooted Elements proc."""
+        # Full Ascendance is 15s or more. A proc is about 6s; 13s still counts as a proc
+        # so a double proc is not reported as a manual cast.
+        proc_duration_ms = 6_000
+        proc_max_ms = 13_000
+        for cast in casts:
+            if cast.spell_id != ASCENDANCE.spell_id or cast.event_type != "applybuff":
+                continue
+            duration = cast.duration or proc_duration_ms
+            cast.duration = duration
+            if duration < proc_max_ms:
+                cast.spell_id = DEEPLY_ROOTED_ELEMENTS.spell_id
+        return casts
+
+
+SHAMAN_RESTORATION = RestorationShaman()
 
 ################################################################################
 # Spells
@@ -55,26 +87,6 @@ SHAMAN_ENHANCEMENT.add_spell(  spell_id=1218090,                           color
 SHAMAN_RESTORATION.add_spell(  spell_id=108280, cooldown=180, duration=10,                    name="Healing Tide Totem",         icon="ability_shaman_healingtide.jpg", tags=[SpellTag.RAID_CD])
 SHAMAN_RESTORATION.add_spell(  spell_id=98008,  cooldown=180, duration=6,  color="#24b385", name="Spirit Link Totem",          icon="spell_shaman_spiritlink.jpg", tags=[SpellTag.RAID_CD])
 
-# we query for all Ascendance buffs and split them into DRE procs later
-SHAMAN_RESTORATION.add_buff(   spell_id=114052, cooldown=180,              color="hsl(40 100% 70%)", name="Ascendance",             icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.RAID_CD])
-SHAMAN_RESTORATION.add_buff(   spell_id=378270,                            color="hsl(40 90% 60%)",  name="Deeply Rooted Elements", icon="inv_misc_herb_liferoot_stem.jpg", show=False, query=False)
-
-
-def split_ascendance_procs(actor: warcraftlogs_actor.BaseActor | None, status: str):
-    if status != "success":
-        return
-    if not actor:
-        return
-
-    buffs = [cast for cast in actor.casts if cast.spell_id == 114052 and cast.event_type == "applybuff"]
-    if not buffs:
-        return
-
-    for buff in buffs:
-        buff.duration = buff.duration or 6_000
-        is_proc = buff.duration < 13_000  # Ascendance is 30s / proc 6. using 13s in case of a double proc  # ruff: ignore[magic-value-comparison]
-        if is_proc:
-            buff.spell_id = 378270  # DRE
-
-
-warcraftlogs_actor.BaseActor.event_actor_load.connect(split_ascendance_procs)
+# Queried as Ascendance; a short buff is reported as a Deeply Rooted Elements proc.
+ASCENDANCE = SHAMAN_RESTORATION.add_buff(   spell_id=114052, cooldown=180,              color="hsl(40 100% 70%)", name="Ascendance",             icon="spell_fire_elementaldevastation.jpg", tags=[SpellTag.RAID_CD])
+DEEPLY_ROOTED_ELEMENTS = SHAMAN_RESTORATION.add_buff(   spell_id=378270,                            color="hsl(40 90% 60%)",  name="Deeply Rooted Elements", icon="inv_misc_herb_liferoot_stem.jpg", show=False, query=False)

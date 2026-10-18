@@ -8,6 +8,7 @@ import pytest
 
 import lorgs.data.classes.demonhunter  # noqa: F401  # registers Devourer and its load handler
 import lorgs.data.classes.druid  # noqa: F401  # registers Restoration Druid
+import lorgs.data.classes.shaman  # noqa: F401  # registers Restoration Shaman and its load handler
 from lorgs.data.roles import HEAL
 from lorgs.loaders.actor_loader import ActorLoader
 from lorgs.models.warcraftlogs_actor import BaseActor
@@ -155,6 +156,37 @@ def test_actor_load_does_not_add_drop_void_meta_casts() -> None:
 
     assert [(cast.spell_id, cast.timestamp) for cast in player.casts] == [
         (VOID_METAMORPHOSIS, 0),
+    ]
+
+
+ASCENDANCE = 114052
+DEEPLY_ROOTED_ELEMENTS = 378270
+
+
+def test_short_ascendance_is_a_proc_and_full_ascendance_keeps_its_own_counter() -> None:
+    """A short Ascendance buff is Deeply Rooted Elements; a full one stays Ascendance, counted apart."""
+    events = _events(
+        _aura(0, ASCENDANCE, "applybuff"),
+        _aura(6_000, ASCENDANCE, "removebuff"),
+        _aura(20_000, ASCENDANCE, "applybuff"),
+        _aura(50_000, ASCENDANCE, "removebuff"),
+    )
+
+    assert _process("shaman-restoration", events) == [
+        (DEEPLY_ROOTED_ELEMENTS, 0, 1),
+        (ASCENDANCE, 20_000, 1),
+    ]
+
+
+def test_actor_load_does_not_split_restoration_shaman_ascendance_procs() -> None:
+    """actor.load does not rewrite a short Ascendance buff."""
+    player = Player(source_id=10, spec_slug="shaman-restoration", name="Resto")
+    player.casts = [Cast(spell_id=ASCENDANCE, timestamp=0, duration=6_000, event_type="applybuff")]
+
+    player.event_actor_load.send(player, status="success")
+
+    assert [(cast.spell_id, cast.timestamp) for cast in player.casts] == [
+        (ASCENDANCE, 0),
     ]
 
 
