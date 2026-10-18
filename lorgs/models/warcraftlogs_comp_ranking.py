@@ -231,7 +231,7 @@ class CompRanking(base.S3Model, warcraftlogs_base.wclclient_mixin):
                     fights_to_load.append(fight)
 
         logger.info(f"Load {len(fights_to_load)} Fights")
-        await self.load_many(fights_to_load, raise_errors=False)  # type: ignore
+        await self.load_many(fights_to_load)
 
         self.sort_reports()
         self.updated = datetime.datetime.now(datetime.UTC)

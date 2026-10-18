@@ -10,7 +10,7 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import wcl
-from lorgs.clients.wcl.client import WarcraftlogsClient
+from lorgs.clients.wcl.client import PrivateReportError, UnknownReportError, WarcraftlogsClient
 from lorgs.logger import logger
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_fight import Fight
@@ -146,7 +146,6 @@ class SpecRankingLoader(BaseLoader):
             client: WarcraftlogsClient instance to use for the request.
             limit: Maximum number of reports to load.
             clear_old: If True, old reports will be deleted.
-            raise_errors: If True, raise errors.
 
         """
         logger.info(f"{self.ranking.boss.name} vs. {self.ranking.spec.name} START | {limit=} | {clear_old=}")
@@ -158,7 +157,6 @@ class SpecRankingLoader(BaseLoader):
 
         # fetch rankings
         client = client or WarcraftlogsClient.get_instance()
-        client.raise_errors = False  # to skip invalid reports leftover in the ranking (eg.: reports which have been made private)
         await super().load(client=client)
 
         # enforce limit
@@ -166,26 +164,41 @@ class SpecRankingLoader(BaseLoader):
             self.ranking.reports = self.ranking.reports[:limit]
 
         ##############################################
-        # secondary tasks
-        loaders: list[BaseLoader] = []
-
-        # load phases for all fights
-        for fight in self.ranking.fights:
-            loaders.append(FightPhasesLoader(fight))
-
-        # load boss for first fight
-        if (top_fight := self.ranking.get_top_fight()) and top_fight.boss:
-            loaders.append(BossLoader(top_fight.boss))
-
-        # load actors
-        for player in self.ranking.players:
-            loaders.append(PlayerLoader(player))
-
-        loaders = [loader for loader in loaders if loader.needs_load()]
-        logger.info(f"load {len(loaders)} items")
-        if loaders:
-            await asyncio.gather(*[loader.load(client=client) for loader in loaders])
+        # Load each report separately so a private or deleted one can be dropped.
+        top_fight = self.ranking.get_top_fight()
+        skipped = await asyncio.gather(
+            *[SpecRankingLoader._load_report(report, client, top_fight) for report in self.ranking.reports],
+        )
+        skipped_ids = {report_id for report_id in skipped if report_id}
+        if skipped_ids:
+            self.ranking.reports = [report for report in self.ranking.reports if report.report_id not in skipped_ids]
 
         self.ranking.updated = datetime.datetime.now(datetime.UTC)
         self.ranking.dirty = False
         logger.info("done")
+
+    @staticmethod
+    async def _load_report(
+        report: Report,
+        client: WarcraftlogsClient,
+        top_fight: Fight | None,
+    ) -> str | None:
+        """Load one report. Return its id when Warcraft Logs refuses it."""
+        loaders: list[BaseLoader] = []
+        for fight in report.fights:
+            loaders.append(FightPhasesLoader(fight))
+            if top_fight is not None and fight is top_fight and top_fight.boss:
+                loaders.append(BossLoader(top_fight.boss))
+            for player in fight.players:
+                loaders.append(PlayerLoader(player))
+
+        loaders = [loader for loader in loaders if loader.needs_load()]
+        if not loaders:
+            return None
+
+        try:
+            await asyncio.gather(*[loader.load(client=client) for loader in loaders])
+        except (PrivateReportError, UnknownReportError):
+            logger.warning("Skipping report %s during spec ranking refresh", report.report_id)
+            return report.report_id
+        return None

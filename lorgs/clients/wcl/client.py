@@ -15,10 +15,27 @@ from lorgs.logger import logger, timeit
 
 # error text we get from Warcraftlogs if a report does not exist.
 ERROR_MESSAGE_INVALID_REPORT = "This report does not exist."
+ERROR_MESSAGE_PRIVATE_REPORT = "You do not have permission to view this report."
 
 
 class InvalidReport(ValueError):
     """Exception raised when a report was not found."""
+
+
+class UnknownReportError(InvalidReport):
+    """The report was deleted or never existed."""
+
+
+class PrivateReportError(Exception):
+    """The report exists, but Warcraft Logs refused access to it."""
+
+
+class WarcraftlogsQueryError(Exception):
+    """Warcraft Logs returned GraphQL errors that are not a known report state."""
+
+    def __init__(self, messages: list[str]) -> None:
+        self.messages = messages
+        super().__init__("\n".join(messages))
 
 
 T = typing.TypeVar("T", bound="BaseClient")
@@ -104,7 +121,6 @@ class WarcraftlogsClient(BaseClient):
 
         logger.info("NEW CLIENT: %s", self.client_id)
         self._num_queries = 0
-        self.raise_errors: bool = True
 
     ################################
     #   Connection
@@ -150,26 +166,22 @@ class WarcraftlogsClient(BaseClient):
         info = await self.get_rate_info()
         return info.get("limitPerHour", 0) - info.get("pointsSpentThisHour", 0)
 
-    def _raise_errors(self, result: dict[str, typing.Any]) -> None:
+    @staticmethod
+    def _raise_errors(result: dict[str, typing.Any]) -> None:
         if result.get("error"):
-            raise ValueError(result.get("error"))
+            raise WarcraftlogsQueryError([str(result["error"])])
 
-        errors = result.get("errors") or []
-        if errors:
-            msg = ""
-            for error in errors:
-                message = error.get("message")
-
-                if message == "This report does not exist.":
-                    raise InvalidReport
-                if message == "You do not have permission to view this report.":
-                    # some reports are private.. but still show up in rankings..
-                    raise PermissionError("Private Report!")
-
-                msg += "\n" + error.get("message") + " path:" + "/".join(error.get("path", []))
-            if msg:
-                # print(query)
-                raise ValueError(msg)
+        messages: list[str] = []
+        for error in result.get("errors") or []:
+            message = error.get("message") or ""
+            if message == ERROR_MESSAGE_INVALID_REPORT:
+                raise UnknownReportError(message)
+            if message == ERROR_MESSAGE_PRIVATE_REPORT:
+                raise PrivateReportError(message)
+            if message:
+                messages.append(message)
+        if messages:
+            raise WarcraftlogsQueryError(messages)
 
     async def query(self, query: str) -> dict[str, typing.Any]:
 
@@ -181,10 +193,7 @@ class WarcraftlogsClient(BaseClient):
         # Run
         result = await super().query(self.URL_API, query)
 
-        # Check for Errors
-        if self.raise_errors:
-            self._raise_errors(result)
-
+        self._raise_errors(result)
         return result.get("data", {})
 
     async def multiquery(self, queries: list[str], *args: typing.Any, **kwargs: typing.Any) -> list[typing.Any]:
