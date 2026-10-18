@@ -1,12 +1,11 @@
-"""0:
-
+"""0: Dimensius, the All-Devouring.
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/PGNkyfmYKn6vHCAB?fight=20"
 
 """
 
-from lorgs.models.raid_boss import RaidBoss
 from lorgs.data.classes import *
+from lorgs.models.raid_boss import RaidBoss
 
 
 DIMENSIUS = RaidBoss(

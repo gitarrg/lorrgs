@@ -1,5 +1,4 @@
-"""03: Soulbinder Naazindhri
-
+"""03: Soulbinder Naazindhri.
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/AvbNVBmyrKPDCT4L?fight=17"
 
@@ -86,7 +85,6 @@ boss.add_cast(
     spell_id=1241100,
     name="Mystic Lash",
     duration=4,
-    # cooldown=15, # todo
     color="rgb(201, 162, 113)",
     icon="spell_arcane_arcane01_nightborne.jpg",
     show=False,

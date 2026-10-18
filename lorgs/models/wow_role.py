@@ -29,12 +29,12 @@ class WowRole(base.MemoryModel):
     metrics: list[str] = ["dps", "hps", "bossdps"]
 
     @property
-    def specs(self) -> set["WowSpec"]:
+    def specs(self) -> set[WowSpec]:
         from lorgs.models.wow_spec import WowSpec
 
         return set(spec for spec in WowSpec.list() if spec.role == self)
 
-    def __lt__(self, other: "WowRole") -> bool:
+    def __lt__(self, other: WowRole) -> bool:
         return self.id < other.id
 
     def as_dict(self) -> dict[str, typing.Any]:

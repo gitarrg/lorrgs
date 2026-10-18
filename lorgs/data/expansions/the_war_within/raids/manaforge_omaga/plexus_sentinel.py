@@ -1,12 +1,11 @@
-"""01: Plexus Sentinel
-
+"""01: Plexus Sentinel.
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/AvbNVBmyrKPDCT4L?fight=5"
 
 """
 
-from lorgs.models.raid_boss import RaidBoss
 from lorgs.data.classes import *
+from lorgs.models.raid_boss import RaidBoss
 
 
 PLEXUS_SENTINEL = RaidBoss(

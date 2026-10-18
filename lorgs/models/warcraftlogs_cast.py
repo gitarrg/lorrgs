@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
+import typing
 from collections import defaultdict
 from typing import TYPE_CHECKING
-import typing
 
 # IMPORT THIRD PARTY LIBRARIES
 import pydantic
@@ -40,7 +40,7 @@ class Cast(base.BaseModel):
     #############################
 
     @classmethod
-    def from_report_event(cls, event: "wcl.ReportEvent") -> "Cast":
+    def from_report_event(cls, event: wcl.ReportEvent) -> Cast:
         spell_id = WowSpell.resolve_spell_id(event.abilityGameID, event.type)
         return cls(
             spell_id=spell_id,
@@ -134,7 +134,6 @@ def process_auras(events: list[Cast]) -> list[Cast]:
 
 def process_until_events(casts: list[Cast]) -> list[Cast]:
     """Dynamically set the duration from the corresponding "until"-event."""
-
     for cast in casts:
         spell = cast.spell
         if not (spell and spell.until):

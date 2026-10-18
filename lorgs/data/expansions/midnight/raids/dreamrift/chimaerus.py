@@ -1,5 +1,4 @@
-"""Chimaerus
-
+"""Chimaerus.
 
 # mythic ptr kill
 >>> PYTHONPATH=. uv run --env-file=.env scripts/load_report.py "https://www.warcraftlogs.com/reports/8dKxaHfhgrpTL4q2?fight=10"
@@ -10,7 +9,7 @@
 
 """
 
-from lorgs.data.classes import *  # noqa: F403
+from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 
@@ -71,7 +70,6 @@ boss.add_cast(
     color="rgb(168, 204, 75)",
     icon="inv_ability_poison_orb.jpg",
 )
-
 
 
 ######################

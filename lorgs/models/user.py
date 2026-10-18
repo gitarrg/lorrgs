@@ -94,7 +94,6 @@ class User(base.DynamoDBModel):
 
     async def refresh(self) -> None:
         """Refresh the User Info from Discord."""
-
         # update discord roles / avatar
         member_info = await discord.get_member_info(server_id=LORRGS_SERVER_ID, user_id=self.discord_id)
         user_info = member_info.user

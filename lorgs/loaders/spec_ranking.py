@@ -49,7 +49,7 @@ class SpecRankingLoader(BaseLoader):
                 )
             }}
         }}
-        """
+        """,
         )
 
     def _ranking_to_report(self, ranking_data: wcl.CharacterRanking) -> Report | None:

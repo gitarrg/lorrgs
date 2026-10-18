@@ -1,5 +1,4 @@
-"""04: Stix Bunkjunker
-
+"""04: Stix Bunkjunker.
 
 PTR Logs:
     Heroic / Melee Mechanics
@@ -67,7 +66,7 @@ SCRAPFIELD_9001 = boss.add_trinket(
 
 
 ################################################################################
-#### Phase 1:
+# Phase 1:
 
 # Electromagnetic Sorting =
 # - tank + random players transform into balls

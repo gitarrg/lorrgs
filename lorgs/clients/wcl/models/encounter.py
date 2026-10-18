@@ -1,6 +1,3 @@
-# IMPORT STANDARD LIBRARIES
-import typing
-
 # IMPORT THIRD PARTY LIBRARIES
 from pydantic import BaseModel
 
@@ -19,7 +16,7 @@ class Encounter(BaseModel):
     name: str = ""
     """The localized name of the encounter."""
 
-    zone: typing.Optional[Zone] = None
+    zone: Zone | None = None
     """The zone that this encounter is found in."""
 
     characterRankings: CharacterRankings = CharacterRankings()

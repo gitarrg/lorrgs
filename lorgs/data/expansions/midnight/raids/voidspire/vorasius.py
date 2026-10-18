@@ -1,11 +1,10 @@
-"""Vorasius
-
+"""Vorasius.
 
 >>> PYTHONPATH=. uv run --env-file=.env scripts/load_report.py "https://www.warcraftlogs.com/reports/9hZTAp8gFjJcCaNz?fight=14"
 
 """
 
-from lorgs.data.classes import *  # noqa: F403
+from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 
@@ -16,7 +15,6 @@ VORASIUS = RaidBoss(
     icon="inv_120_raid_voidspire_kaiju.jpg",
 )
 boss = VORASIUS
-
 
 
 # slam soak on tank
@@ -49,7 +47,6 @@ boss.add_cast(
 #     icon="spell_nature_earthquake.jpg",
 #     show=False,
 # )
-
 
 
 # big breath across the room

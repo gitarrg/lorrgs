@@ -1,6 +1,6 @@
 from lorgs.data.classes import ALL_SPECS, HEAL
-from lorgs.models.wow_potion import WowPotion
 from lorgs.data.constants import COL_MANA
+from lorgs.models.wow_potion import WowPotion
 
 
 SILVERMOON_HEALTH_POTION = WowPotion(

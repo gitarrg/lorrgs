@@ -1,5 +1,4 @@
-"""0:
-
+"""0: Loom'ithar.
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/AvbNVBmyrKPDCT4L?fight=13"
 

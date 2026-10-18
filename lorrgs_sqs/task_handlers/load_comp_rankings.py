@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import data  # pylint: disable=unused-import  # noqa: F401
+from lorgs import data  # pylint: disable=unused-import  # ruff: ignore[unused-import]
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_comp_ranking
 from lorgs.models.task_payloads import CompRankingPayload

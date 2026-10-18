@@ -9,8 +9,8 @@ import typing
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.models import warcraftlogs_base
-from lorgs.models.warcraftlogs_fight import Fight  # noqa: TC001  # required by pydantic
-from lorgs.models.warcraftlogs_player import Player  # noqa: TC001  # required by pydantic
+from lorgs.models.warcraftlogs_fight import Fight  # ruff: ignore[typing-only-first-party-import]  # required by pydantic
+from lorgs.models.warcraftlogs_player import Player  # ruff: ignore[typing-only-first-party-import]  # required by pydantic
 
 
 class Report(warcraftlogs_base.BaseModel):

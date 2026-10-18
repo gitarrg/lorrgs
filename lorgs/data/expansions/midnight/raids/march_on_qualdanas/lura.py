@@ -1,6 +1,6 @@
-"""L'ura (March on Qual'danas)"""
+"""L'ura (March on Qual'danas)."""
 
-from lorgs.data.classes import *  # noqa: F403
+from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 
@@ -137,7 +137,7 @@ boss.add_cast(
 #     color="rgb(42, 19, 125)",
 #     icon="inv_cosmicvoid_wave.jpg",
 # )
-# 
+#
 # boss.add_cast(
 #     spell_id=1266388,
 #     name="Dark Constellation",
@@ -145,7 +145,7 @@ boss.add_cast(
 #     color="rgb(88, 215, 237)",
 #     icon="inv_12_dh_void_ability_starfragments.jpg",
 # )
-# 
+#
 # boss.add_cast(
 #     spell_id=1266897,
 #     name="Light Siphon",

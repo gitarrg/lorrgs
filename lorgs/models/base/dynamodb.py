@@ -33,7 +33,7 @@ class DynamoDBModel(base.BaseModel):
     skey: typing.ClassVar[str] = ""
 
     @classmethod
-    def get_table(cls) -> "Table":
+    def get_table(cls) -> Table:
         return dynamodb.Table(cls.get_table_name())
 
     @classmethod
@@ -48,7 +48,7 @@ class DynamoDBModel(base.BaseModel):
     #
 
     @classmethod
-    def get(cls: typing.Type[TBaseModel], **kwargs: typing.Any) -> TBaseModel | None:
+    def get(cls, **kwargs: typing.Any) -> typing.Self | None:
         table = cls.get_table()
         keys = cls.get_keys(**kwargs)
 
@@ -63,9 +63,8 @@ class DynamoDBModel(base.BaseModel):
             return cls(**item)
 
     @classmethod
-    def first(cls: typing.Type[TBaseModel], **kwargs: typing.Any) -> TBaseModel | None:
+    def first(cls, **kwargs: typing.Any) -> typing.Self | None:
         """Returns the first Item matching the given keywords."""
-
         table = cls.get_table()
 
         if not kwargs:

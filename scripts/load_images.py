@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S PYTHONPATH=. uv run uv run --env-file=.env
 """Fetches spell icons from wowhead and uploads them to our S3 bucket.
 
 PYTHONPATH=. uv run scripts/load_images.py 
@@ -16,7 +16,6 @@ import requests
 from PIL import Image
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import data
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.raid_zone import RaidZone
 from lorgs.models.wow_potion import WowPotion
@@ -43,6 +42,7 @@ def get_images(folder: str) -> list[str]:
 
     Returns:
         list[str]: List of image filenames.
+
     """
     images = [obj.key for obj in BUCKET.objects.filter(Prefix=folder)]
     images = [img for img in images if not img.endswith(".webp")]
@@ -62,6 +62,7 @@ def upload(filname: str) -> None:
 
     Args:
         filename (str): The filename of the image to upload.
+
     """
     # Download the file from the HTTP URL
     url = f"https://wow.zamimg.com/images/wow/icons/large/{filname}"

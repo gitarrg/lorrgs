@@ -1,17 +1,14 @@
-# IMPORT STANDARD LIBRARIES
-import typing
-
 # IMPORT THIRD PARTY LIBRARIES
 from pydantic import BaseModel, root_validator
 
 # IMPORT LOCAL LIBRARIES
-from .report_data import Report, ReportData
+from .report_data import Report
 from .world_data import WorldData
 
 
 class Query(BaseModel):
-    """Root Query Object
-   
+    """Root Query Object.
+
     ref: https://www.warcraftlogs.com/v2-api-docs/warcraft/query.doc.html
     """
 
@@ -30,7 +27,7 @@ class Query(BaseModel):
     # rateLimitData: RateLimitData
     # Obtain the rate limit data object to see how many points have been spent by this key.
 
-    report: typing.Optional[Report]
+    report: Report | None
 
     # reportData: typing.Optional[ReportData]
     # """Obtain the report data object that allows the retrieval of individual reports
@@ -39,10 +36,10 @@ class Query(BaseModel):
     # userData: UserData
     # Obtain the user object that allows the retrieval of the authorized user's id and username.
 
-    worldData: typing.Optional[WorldData]
+    worldData: WorldData | None
     """The world data object contains collections of data such as
     expansions, zones, encounters, regions, subregions, etc."""
 
     @root_validator(pre=True)
     def unwrap_data(cls, v):
-        return v["data"] if "data" in v else v
+        return v.get("data", v)

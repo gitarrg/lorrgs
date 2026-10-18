@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env -S PYTHONPATH=. uv run
 """Generate a token to be used with Desktop Clients like Insomnia."""
 
 import asyncio

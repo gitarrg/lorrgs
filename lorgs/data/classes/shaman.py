@@ -12,7 +12,7 @@ from lorgs.data.roles import HEAL, MDPS, RDPS
 from lorgs.models import warcraftlogs_actor
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_spec import WowSpec
-from lorgs.models.wow_spell import SpellTag, WowSpell
+from lorgs.models.wow_spell import SpellTag
 
 
 ################################################################################
@@ -69,12 +69,12 @@ def split_ascendance_procs(actor: warcraftlogs_actor.BaseActor | None, status: s
     buffs = [cast for cast in actor.casts if cast.spell_id == 114052 and cast.event_type == "applybuff"]
     if not buffs:
         return
-    
+
     for buff in buffs:
         buff.duration = buff.duration or 6_000
-        is_proc = buff.duration < 13_000 # Ascendance is 30s / proc 6. using 13s in case of a double proc
+        is_proc = buff.duration < 13_000  # Ascendance is 30s / proc 6. using 13s in case of a double proc  # ruff: ignore[magic-value-comparison]
         if is_proc:
-            buff.spell_id = 378270 # DRE
+            buff.spell_id = 378270  # DRE
 
 
 warcraftlogs_actor.BaseActor.event_actor_load.connect(split_ascendance_procs)

@@ -1,5 +1,4 @@
-"""Vaelgor & Ezzorak (Voidspire)
-
+"""Vaelgor & Ezzorak (Voidspire).
 
 >>> PYTHONPATH=. uv run --env-file=.env scripts/load_report.py "https://www.warcraftlogs.com/reports/QCcJTmxyrGdpZNgK?fight=26"
 

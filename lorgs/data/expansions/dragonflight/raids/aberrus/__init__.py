@@ -2,16 +2,17 @@
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models.raid_zone import RaidZone
-from .kazzara import KAZZARA
+
 from .amalgamation_chamber import AMALGAMATION_CHAMBER
-from .forgotten_experiments import FORGOTTEN_EXPERIMENTS
 from .assault_of_the_zaqali import ASSAULT_OF_THE_ZAQALI
-from .rashok import RASHOK
-from .zskarn import ZSKARN
+from .forgotten_experiments import FORGOTTEN_EXPERIMENTS
+from .kazzara import KAZZARA
 from .magmorax import MAGMORAX
 from .neltharion import NELTHARION
+from .rashok import RASHOK
 from .sarkareth import SARKARETH
 from .trinkets import *
+from .zskarn import ZSKARN
 
 
 ################################################################################
@@ -19,7 +20,7 @@ from .trinkets import *
 #   Tier: 33 Aberrus, the Shadowed Crucible
 #
 ################################################################################
-ABERRUS = RaidZone(
+ABERRUS = RaidZone(  # ruff: ignore[non-empty-init-module]
     id=33,
     name="Aberrus, the Shadowed Crucible",
     icon="inv_achievement_raiddragon_raid.jpg",

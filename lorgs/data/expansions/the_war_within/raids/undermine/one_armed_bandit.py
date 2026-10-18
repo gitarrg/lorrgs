@@ -1,4 +1,4 @@
-"""06: One-Armed Bandit
+"""06: One-Armed Bandit.
 
 PTR Logs:
     Mythic / Northern Sky:
@@ -129,7 +129,6 @@ rewards = boss.add_cast(
     ],
 )
 
-# todo: implement something like this?
 # rewards.add_variation(spell_id=464772, name="Reward: Shock and Flame", icon="ability_mage_fierypayback.jpg")
 # rewards.add_variation(spell_id=464801, name="Reward: Shock and Bomb", icon="inv_eng_bombicestun.jpg")
 # rewards.add_variation(spell_id=464804, name="Reward: Flame and Bomb", icon="inv_eng_bombfire.jpg")

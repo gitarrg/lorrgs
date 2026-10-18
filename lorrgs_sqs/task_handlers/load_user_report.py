@@ -6,7 +6,7 @@ to be triggered via SQS
 from __future__ import annotations
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import data  # pylint: disable=unused-import  # noqa: F401
+from lorgs import data  # pylint: disable=unused-import  # ruff: ignore[unused-import]
 from lorgs.loaders.report_loader import ReportLoader
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_actor
@@ -18,7 +18,6 @@ from lorrgs_sqs.exceptions import TaskValidationError
 
 def set_task_item_status(task: Task):
     """Create a Callback to update an Item in Task."""
-
     # map event names to task status
     event_to_status = {
         "start": task.STATUS.IN_PROGRESS,

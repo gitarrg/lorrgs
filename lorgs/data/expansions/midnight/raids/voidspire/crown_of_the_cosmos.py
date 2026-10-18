@@ -1,12 +1,11 @@
-"""Crown of the Cosmos (Voidspire)
-
+"""Crown of the Cosmos (Voidspire).
 
 >>> PYTHONPATH=. uv run --env-file=.env scripts/load_report.py "https://www.warcraftlogs.com/reports/n7Zh4VCL2crjm1RJ?fight=5"
 
 
 """
 
-from lorgs.data.classes import *  # noqa: F403
+from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 
@@ -30,7 +29,6 @@ boss = CROWN_OF_THE_COSMOS
 # Spells
 #
 # Spell IDs / phase grouping from TimelineReminders CrownOfTheCosmos.lua (heroic).
-
 
 
 # heal absorbs

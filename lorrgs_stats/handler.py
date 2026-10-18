@@ -1,11 +1,12 @@
 import asyncio
-import os
 import datetime
+import os
 
 import aiohttp
 
 from lorgs.clients import wcl
 from lorgs.logger import timeit
+
 
 GRAFANA_URL = os.getenv("GRAFANA_URL") or ""
 GRAFANA_APIKEY = os.getenv("GRAFANA_APIKEY") or ""

@@ -30,11 +30,11 @@ class Boss(warcraftlogs_actor.BaseActor):
             raise ValueError(f"Invalid boss_slug: {self.boss_slug}")
         return raid_boss
 
-    def get_actor_type(self) -> "WowActor":
+    def get_actor_type(self) -> WowActor:
         return self.raid_boss
 
     @classmethod
-    def from_raid_boss(cls, raid_boss: RaidBoss) -> "Boss":
+    def from_raid_boss(cls, raid_boss: RaidBoss) -> Boss:
         return cls(boss_slug=raid_boss.full_name_slug)
 
     def as_dict(self) -> dict[str, typing.Any]:

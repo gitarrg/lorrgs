@@ -1,12 +1,11 @@
-"""02: Cauldron of Carnage
-
+"""02: Cauldron of Carnage.
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/DzLQG1Rkp4xtdJgh?fight=16"
 
 """
 
-from lorgs.models.raid_boss import RaidBoss
 from lorgs.data.classes import *
+from lorgs.models.raid_boss import RaidBoss
 
 
 CAULDRON = RaidBoss(

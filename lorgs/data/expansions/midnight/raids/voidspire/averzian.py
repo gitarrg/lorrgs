@@ -1,9 +1,9 @@
-"""Imperator Averzian (Voidspire)
+"""Imperator Averzian (Voidspire).
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/9hZTAp8gFjJcCaNz?fight=5"
 """
 
-from lorgs.data.classes import *  # noqa: F403
+from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 
@@ -67,7 +67,6 @@ boss.add_cast(
 )
 
 
-
 """
 boss.add_cast(
     spell_id=1262036,
@@ -112,7 +111,5 @@ boss.add_cast(
 """
 
 
-
 ################################################################################
 # Phases
-

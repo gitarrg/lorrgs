@@ -19,6 +19,7 @@ Logs:
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models.raid_zone import RaidZone
+
 from .cauldron import CAULDRON
 from .gallywix import GALLYWIX
 from .lockenstock import LOCKENSTOCK
@@ -34,7 +35,7 @@ from .vexie import VEXIE
 #   Tier: 42 Liberation of Undermine
 #
 ################################################################################
-LIBERATION_OF_UNDERMINE = RaidZone(
+LIBERATION_OF_UNDERMINE = RaidZone(  # ruff: ignore[non-empty-init-module]
     id=42,
     name="Liberation of Undermine",
     icon="inv_achievement_zone_undermine.jpg",

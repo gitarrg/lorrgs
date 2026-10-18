@@ -1,4 +1,4 @@
-"""RaidZone and Bosses for Patch 12.0 March on Qual'danas
+"""RaidZone and Bosses for Patch 12.0 March on Qual'danas.
 
 Bosses:
     https://wago.tools/db2/DungeonEncounter?filter%5BMapID%5D=2913&page=1&sort%5BMapID%5D=desc
@@ -14,15 +14,17 @@ Logs:
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models.raid_zone import RaidZone
+
 from .beloren import BELOREN
 from .lura import LURA
+
 
 ################################################################################
 #
 #   Tier: 46 March on Qual'danas
 #
 ################################################################################
-MARCH_ON_QUALDANAS = RaidZone(
+MARCH_ON_QUALDANAS = RaidZone(  # ruff: ignore[non-empty-init-module]
     id=46.3,
     name="March on Qual'danas",
     icon="inv_achievement_raid_darkwell.jpg",

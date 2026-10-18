@@ -7,7 +7,6 @@ import fastapi
 from fastapi.middleware.gzip import GZipMiddleware
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import data  # pylint: disable=unused-import
 from lorrgs_api.middlewares import cache_middleware, cors_middleware
 from lorrgs_api.routes import api
 
@@ -19,7 +18,6 @@ def create_app() -> fastapi.FastAPI:
         <Quart>: the new Quart-app instance
 
     """
-
     # Quart
     app = fastapi.FastAPI(
         docs_url="/api/docs",

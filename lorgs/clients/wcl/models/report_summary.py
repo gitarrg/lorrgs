@@ -1,8 +1,5 @@
 from __future__ import annotations
 
-# IMPORT STANDARD LIBRARIES
-import typing
-
 # IMPORT THIRD PARTY LIBRARIES
 from pydantic import BaseModel, root_validator
 
@@ -18,9 +15,9 @@ class UnitInfo(BaseModel):
     """Unit Type. ClassName for Players."""
 
 
-
 class PlayerTotal(UnitInfo):
     """Per Player Name and Total."""
+
     total: int = 0
 
 
@@ -40,6 +37,7 @@ class DeathEventAbility(BaseModel):
 
 class DeathEvent(UnitInfo):
     """Event describing a players death."""
+
     deathTime: int
     ability: DeathEventAbility = DeathEventAbility(name="")
 

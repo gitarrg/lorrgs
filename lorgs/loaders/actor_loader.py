@@ -120,7 +120,7 @@ class ActorLoader(BaseLoader):
         # Process Casts
         self.actor.casts = []
         for cast_data in casts_data:
-            cast_data = self.process_event(cast_data)  # noqa: PLW2901
+            cast_data = self.process_event(cast_data)  # ruff: ignore[redefined-loop-name]
 
             # Some Types (eg.: Buffs) are tracked based on the target.
             # eg.: PowerInfusion shows on the Target, not the Priest.

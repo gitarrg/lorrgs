@@ -1,11 +1,10 @@
-"""Belo'ren, Child of Al'ar
-
+"""Belo'ren, Child of Al'ar.
 
 >>> PYTHONPATH=. uv run --env-file=.env scripts/load_report.py "https://www.warcraftlogs.com/reports/QCcJTmxyrGdpZNgK?fight=13"
 
 """
 
-from lorgs.data.classes import *  # noqa: F403
+from lorgs.data.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 
@@ -68,7 +67,6 @@ boss.add_cast(
 )
 
 
-
 # Tank Combo
 # - void edict
 # - light edict
@@ -84,8 +82,6 @@ boss.add_cast(
     icon="inv_12_dualityphoenix_phoenix_rebirth.jpg",
     event_type="begincast",
 )
-
-
 
 
 """

@@ -24,9 +24,9 @@ class WowSpec(WowActor):
 
     name: str
 
-    role: "WowRole"
+    role: WowRole
 
-    wow_class: "WowClass"
+    wow_class: WowClass
 
     short_name: str = ""
     """Short Version of the Name. eg.: "Prot" or "Resto". Defaults to `self.name`"""
@@ -61,8 +61,8 @@ class WowSpec(WowActor):
         """Slugified version of the full name. eg.: "demonhunter-havoc"."""
         return f"{self.wow_class.name_slug}-{self.name_slug}"
 
-    def __lt__(self, other: "WowSpec") -> bool:
-        def sort_key(obj: WowSpec) -> tuple["WowRole", "WowClass", str]:
+    def __lt__(self, other: WowSpec) -> bool:
+        def sort_key(obj: WowSpec) -> tuple[WowRole, WowClass, str]:
             return (obj.role, obj.wow_class, obj.name)
 
         return sort_key(self) < sort_key(other)
@@ -84,18 +84,18 @@ class WowSpec(WowActor):
     ##########################
     # Methods
     #
-    def add_spell(self, spell: typing.Optional[WowSpell] = None, **kwargs: typing.Any) -> WowSpell:
+    def add_spell(self, spell: WowSpell | None = None, **kwargs: typing.Any) -> WowSpell:
         kwargs.setdefault("color", self.wow_class.color)
         return super().add_spell(spell, **kwargs)
 
-    def add_buff(self, spell: typing.Optional[WowSpell] = None, **kwargs) -> WowSpell:
+    def add_buff(self, spell: WowSpell | None = None, **kwargs) -> WowSpell:
         kwargs.setdefault("color", self.wow_class.color)
         return super().add_buff(spell, **kwargs)
 
-    def add_debuff(self, spell: typing.Optional[WowSpell] = None, **kwargs) -> WowSpell:
+    def add_debuff(self, spell: WowSpell | None = None, **kwargs) -> WowSpell:
         kwargs.setdefault("color", self.wow_class.color)
         return super().add_debuff(spell, **kwargs)
 
-    def add_event(self, event: typing.Optional[WowSpell] = None, **kwargs: typing.Any) -> WowSpell:
+    def add_event(self, event: WowSpell | None = None, **kwargs: typing.Any) -> WowSpell:
         kwargs.setdefault("color", self.wow_class.color)
         return super().add_event(event, **kwargs)

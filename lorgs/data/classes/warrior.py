@@ -50,7 +50,6 @@ WARRIOR_PROTECTION.add_spell(  spell_id=871,    cooldown=120, duration=8,  color
 WARRIOR_PROTECTION.add_spell(  spell_id=1160,   cooldown=45,  duration=8,  color="#36b336", name="Demoralizing Shout",  icon="ability_warrior_warcry.jpg", show=False, tags=[SpellTag.TANK])
 
 
-
 ################################################################################
 # Hero Talents
 Demolish = WowSpell(

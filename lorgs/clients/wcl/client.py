@@ -12,6 +12,7 @@ import aiohttp
 # IMPORT LOCAL LIBRARIES
 from lorgs.logger import logger, timeit
 
+
 # error text we get from Warcraftlogs if a report does not exist.
 ERROR_MESSAGE_INVALID_REPORT = "This report does not exist."
 
@@ -160,7 +161,7 @@ class WarcraftlogsClient(BaseClient):
                 message = error.get("message")
 
                 if message == "This report does not exist.":
-                    raise InvalidReport()
+                    raise InvalidReport
                 if message == "You do not have permission to view this report.":
                     # some reports are private.. but still show up in rankings..
                     raise PermissionError("Private Report!")

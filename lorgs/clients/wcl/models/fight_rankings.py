@@ -1,13 +1,14 @@
 """Models represeting the Data we recive from WCL under the worldData.encounter.fightRankings."""
-
 from __future__ import annotations
 
 import datetime
-from typing import Optional
+from typing import TYPE_CHECKING
 
 from pydantic import BaseModel
 
-from .guild import Guild
+
+if TYPE_CHECKING:
+    from .guild import Guild
 
 
 class FightRankingsItemsReport(BaseModel):
@@ -39,7 +40,7 @@ class FightRankingsFight(BaseModel):
     startTime: datetime.datetime = datetime.datetime.fromtimestamp(0)
     """Fight Start Time in Milliseconds."""
 
-    guild: Optional[Guild] = None
+    guild: Guild | None = None
 
     report: FightRankingsItemsReport = FightRankingsItemsReport()
     """Parent Report Info."""

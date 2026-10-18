@@ -55,7 +55,6 @@ def submit_messages(queue_url: str, messages: list[dict], chunk_size: int = 10) 
 
 async def process_message(message: dict) -> None:
     """Process a single message."""
-
     payload = json.loads(message.get("body") or "")
     task = payload.get("task") or "unknown"
 
@@ -76,7 +75,7 @@ async def process_message(message: dict) -> None:
     await handler(message)
 
 
-async def process_messages(messages: typing.List) -> dict[str, typing.Any]:
+async def process_messages(messages: list) -> dict[str, typing.Any]:
     """Wrapper to process all messages in the batch."""
     failures: list[str] = []
 

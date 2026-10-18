@@ -7,11 +7,11 @@ import typing
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.models.wow_actor import WowActor
-from lorgs.models.wow_spell import WowSpell
 
 
 if typing.TYPE_CHECKING:
     from lorgs.models.wow_spec import WowSpec
+    from lorgs.models.wow_spell import WowSpell
 
 
 class WowClass(WowActor):
@@ -44,7 +44,7 @@ class WowClass(WowActor):
     def __repr__(self) -> str:
         return f"<Class(name='{self.name}')>"
 
-    def __lt__(self, other: "WowClass") -> bool:
+    def __lt__(self, other: WowClass) -> bool:
         return self.id < other.id
 
     def as_dict(self) -> dict[str, typing.Any]:
@@ -57,30 +57,30 @@ class WowClass(WowActor):
         }
 
     @property
-    def specs(self) -> set["WowSpec"]:
-        from lorgs.models.wow_spec import WowSpec
+    def specs(self) -> set[WowSpec]:
+        from lorgs.models.wow_spec import WowSpec  # ruff: ignore[import-outside-top-level]
 
         return {spec for spec in WowSpec.list() if spec.wow_class == self}
 
     ##########################
     # Methods
     #
-    def add_spell(self, spell: typing.Optional[WowSpell] = None, **kwargs: typing.Any) -> WowSpell:
+    def add_spell(self, spell: WowSpell | None = None, **kwargs: typing.Any) -> WowSpell:
         kwargs.setdefault("spell_type", self.name_slug)
         kwargs.setdefault("color", self.color)
         return super().add_spell(spell, **kwargs)
 
-    def add_buff(self, spell: typing.Optional[WowSpell] = None, **kwargs: typing.Any) -> WowSpell:
+    def add_buff(self, spell: WowSpell | None = None, **kwargs: typing.Any) -> WowSpell:
         kwargs.setdefault("spell_type", self.name_slug)
         kwargs.setdefault("color", self.color)
         return super().add_buff(spell, **kwargs)
 
-    def add_debuff(self, spell: typing.Optional[WowSpell] = None, **kwargs: typing.Any) -> WowSpell:
+    def add_debuff(self, spell: WowSpell | None = None, **kwargs: typing.Any) -> WowSpell:
         kwargs.setdefault("spell_type", self.name_slug)
         kwargs.setdefault("color", self.color)
         return super().add_debuff(spell, **kwargs)
 
-    def add_event(self, event: typing.Optional[WowSpell] = None, **kwargs: typing.Any) -> WowSpell:
+    def add_event(self, event: WowSpell | None = None, **kwargs: typing.Any) -> WowSpell:
         kwargs.setdefault("spell_type", self.name_slug)
         kwargs.setdefault("color", self.color)
         return super().add_event(event, **kwargs)

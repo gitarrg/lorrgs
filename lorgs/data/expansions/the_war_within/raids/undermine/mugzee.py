@@ -1,4 +1,4 @@
-"""07: Mug'Zee, Heads of Security
+"""07: Mug'Zee, Heads of Security.
 
 PTR Logs:
 
@@ -76,7 +76,7 @@ ZEES_THUG_HOTLINE = MUGZEE.add_trinket(
 boss.add_cast(
     spell_id=472631,
     name="Earthshaker Gaol",
-    duration=10,  # todo: check duration
+    duration=10,
     color="hsl(30, 50%, 60%)",
     icon="inv_elementalearth2.jpg",
 )

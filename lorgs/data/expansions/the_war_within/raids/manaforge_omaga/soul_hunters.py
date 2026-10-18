@@ -1,12 +1,11 @@
-"""03: The Soul Hunters
-
+"""03: The Soul Hunters.
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/B8TZkGKaXQn6rCFA?fight=16"
 
 """
 
-from lorgs.models.raid_boss import RaidBoss
 from lorgs.data.classes import *
+from lorgs.models.raid_boss import RaidBoss
 
 
 SOUL_HUNTERS = RaidBoss(

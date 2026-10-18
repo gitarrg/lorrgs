@@ -1,5 +1,4 @@
-"""0:
-
+"""0: Fractillus.
 
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/B8TZkGKaXQn6rCFA?fight=25"
 
