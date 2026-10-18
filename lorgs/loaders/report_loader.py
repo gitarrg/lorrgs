@@ -7,6 +7,7 @@ import typing
 # IMPORT LOCAL LIBRARIES
 from lorgs.loaders.boss_loader import BossLoader
 from lorgs.loaders.fight_loader import FightLoader
+from lorgs.loaders.fight_phases import correct_loaded_phases
 from lorgs.loaders.player_loader import PlayerLoader
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader
 from lorgs.logger import logger
@@ -15,6 +16,7 @@ from lorgs.logger import logger
 if typing.TYPE_CHECKING:
     from lorgs.clients.wcl.client import WarcraftlogsClient
     from lorgs.loaders.base_loader import BaseLoader
+    from lorgs.models.warcraftlogs_fight import Fight
     from lorgs.models.warcraftlogs_report import Report
 
 
@@ -49,7 +51,30 @@ class ReportLoader:
             overview_loader = ReportOverviewLoader(report=self.report)
             await overview_loader.load(client=client)
 
+        loaders, boss_fights = await self._collect_loaders(
+            client,
+            fight_ids,
+            player_ids,
+            load_boss=load_boss,
+        )
+        loaders = [loader for loader in loaders if loader.needs_load()]
+        logger.info(f"load {len(loaders)} items")
+        if loaders:
+            await asyncio.gather(*[loader.load(client=client) for loader in loaders])
+
+        for fight in boss_fights:
+            correct_loaded_phases(fight)
+
+    async def _collect_loaders(
+        self,
+        client: WarcraftlogsClient | None,
+        fight_ids: list[int],
+        player_ids: list[int],
+        *,
+        load_boss: bool,
+    ) -> tuple[list[BaseLoader], list[Fight]]:
         loaders: list[BaseLoader] = []
+        boss_fights: list[Fight] = []
         for fight_id in fight_ids:
 
             fight = self.report.get_fight(fight_id)
@@ -67,7 +92,10 @@ class ReportLoader:
 
             # boss
             if load_boss and fight.boss:
-                loaders.append(BossLoader(fight.boss))
+                boss_loader = BossLoader(fight.boss)
+                if boss_loader.needs_load():
+                    boss_fights.append(fight)
+                loaders.append(boss_loader)
 
             # players
             for player_id in player_ids:
@@ -79,7 +107,4 @@ class ReportLoader:
 
                 loaders.append(PlayerLoader(player))
 
-        loaders = [loader for loader in loaders if loader.needs_load()]
-        logger.info(f"load {len(loaders)} items")
-        if loaders:
-            await asyncio.gather(*[loader.load(client=client) for loader in loaders])
+        return loaders, boss_fights

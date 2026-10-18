@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import wcl
+from lorgs.logger import logger
 
 from .base_loader import BaseLoader
 
@@ -14,6 +15,21 @@ from .base_loader import BaseLoader
 if TYPE_CHECKING:
     from lorgs.clients.wcl import WarcraftlogsClient
     from lorgs.models.warcraftlogs_fight import Fight
+
+
+def correct_loaded_phases(fight: Fight) -> None:
+    """Apply the boss's phase correction once its Casts are loaded.
+
+    A failure is logged and the Fight's Phases stay as they were.
+    """
+    boss = fight.boss
+    if boss is None:
+        return
+
+    try:
+        fight.phases = boss.raid_boss.process_phases(fight.phases, boss.casts)
+    except Exception:  # ruff: ignore[blind-except]  # one boss must not fail the load
+        logger.exception("Failed to correct phases for fight %s", fight.fight_id)
 
 
 class FightPhasesLoader(BaseLoader):
