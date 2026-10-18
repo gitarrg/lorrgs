@@ -1,5 +1,3 @@
-# ruff: file-ignore[mixed-case-variable-in-class-scope]
-
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -69,7 +67,7 @@ class ReportFight(BaseModel):
 
     @validator("fightPercentage", "bossPercentage")
     def fix_percentage(cls, value: float, values: dict[str, typing.Any]):
-        """Set Fight/Boss Percentage for Kills to 0.0
+        """Set Fight/Boss Percentage for Kills to 0.0.
 
         Sometimes we receive very low values like 0.01-0.04
         for kills rather than exact 0.0.

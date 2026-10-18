@@ -30,7 +30,7 @@ WARLOCK_DESTRUCTION = WowSpec(id=267, index=3, role=RDPS, wow_class=WARLOCK, nam
 # Spells
 #
 WARLOCK.add_spell(             spell_id=104773, cooldown=300, duration=8,                   name="Unending Resolve",       icon="spell_shadow_demonictactics.jpg", show=False, tags=[SpellTag.DEFENSIVE])
-WARLOCK.add_buff(              spell_id=108416, cooldown=60,                                name="Dark Pact",              icon="spell_shadow_deathpact.jpg",      show=False, tags=[SpellTag.DEFENSIVE]) # auto duration
+WARLOCK.add_buff(              spell_id=108416, cooldown=60,                                name="Dark Pact",              icon="spell_shadow_deathpact.jpg",      show=False, tags=[SpellTag.DEFENSIVE])  # auto duration
 WARLOCK.add_spell(             spell_id=452930, cooldown=60, duration=6,   color="#cc5252", name="Demonic Healthstone",  icon="warlock_-bloodstone.jpg",         show=False, tags=[SpellTag.DEFENSIVE])
 
 WARLOCK_AFFLICTION.add_spell(  spell_id=205180, cooldown=120, duration=8,  color="#49ad6e", name="Summon Darkglare",       icon="inv_beholderwarlock.jpg", tags=[SpellTag.DAMAGE])

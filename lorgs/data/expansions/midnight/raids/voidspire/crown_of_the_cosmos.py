@@ -127,8 +127,6 @@ boss.add_cast(
 )
 
 
-
-
 #### Add Spells
 # - Rift Slash = Tank Hit
 

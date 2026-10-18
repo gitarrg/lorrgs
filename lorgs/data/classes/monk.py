@@ -34,7 +34,7 @@ MONK.add_spell(spell_id=115203, cooldown=180, duration=15, color="#ffb145", name
 MONK.add_spell(           spell_id=322109, cooldown=180,              color="#c72649", name="Touch of Death",                  icon="ability_monk_touchofdeath.jpg")
 
 
-MONK_MISTWEAVER.add_spell(spell_id=322118, cooldown=120, duration=4.5 ,                 name="Invoke Yu'lon, the Jade Serpent", icon="ability_monk_dragonkick.jpg", tags=[SpellTag.RAID_CD])
+MONK_MISTWEAVER.add_spell(spell_id=322118, cooldown=120, duration=4.5,                 name="Invoke Yu'lon, the Jade Serpent", icon="ability_monk_dragonkick.jpg", tags=[SpellTag.RAID_CD])
 MONK_MISTWEAVER.add_spell(spell_id=115310, cooldown=180,              color="#00FF98", name="Revival",                          icon="spell_monk_revival.jpg", tags=[SpellTag.RAID_CD], variations=[388615])
 MONK_MISTWEAVER.add_spell(spell_id=325197, cooldown=120, duration=25, color="#e0bb36", name="Invoke Chi-Ji, the Red Crane",     icon="inv_pet_cranegod.jpg", tags=[SpellTag.RAID_CD])
 MONK_MISTWEAVER.add_spell(spell_id=116680, cooldown=30,               color="#22a5e6", name="Thunder Focus Tea",                icon="ability_monk_thunderfocustea.jpg", show=False)
