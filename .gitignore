@@ -36,3 +36,5 @@ dist
 # Config Files
 .env
 tsconfig.tsbuildinfo
+
+.worktrees/

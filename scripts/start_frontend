@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+# shellcheck disable=SC2164
+cd ../lorrgs-frontend
+
+exec npm run server

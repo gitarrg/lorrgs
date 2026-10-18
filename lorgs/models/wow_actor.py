@@ -1,12 +1,16 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.models import base
 from lorgs.models.wow_spell import WowSpell
+
+
+if TYPE_CHECKING:
+    from lorgs.models.warcraftlogs_cast import Cast
 
 
 class WowActor(base.MemoryModel):
@@ -112,3 +116,7 @@ class WowActor(base.MemoryModel):
     def add_events(self, *spells: WowSpell) -> None:
         """Add multiple events to the actor."""
         self.events.extend(spells)
+
+    def process_casts(self, casts: list[Cast]) -> list[Cast]:  # ruff: ignore[no-self-use]
+        """Return this Actor Type's Casts. The default leaves them unchanged."""
+        return casts

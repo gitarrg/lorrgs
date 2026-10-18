@@ -9,6 +9,7 @@ import typing
 from lorgs import utils
 from lorgs.clients import wcl
 from lorgs.loaders.base_loader import BaseLoader
+from lorgs.logger import logger
 from lorgs.models.warcraftlogs_cast import Cast, add_cast_counters, process_auras, process_until_events
 from lorgs.models.wow_spell import WowSpell, build_spell_query
 
@@ -92,7 +93,7 @@ class ActorLoader(BaseLoader):
         """
         return events
 
-    def process_event(self, event: wcl.ReportEvent) -> wcl.ReportEvent:
+    def process_event(self, event: wcl.ReportEvent) -> wcl.ReportEvent:  # ruff: ignore[no-self-use]
         """Hook to preprocess each Cast/Event.
 
         Args:
@@ -103,6 +104,13 @@ class ActorLoader(BaseLoader):
 
         """
         return event
+
+    def _process_casts(self, casts: list[Cast]) -> list[Cast]:
+        """Run process_casts along the Actor Type chain, parent types first."""
+        actor_type = self.actor.actor_type
+        for step in (*actor_type.parents, actor_type):
+            casts = step.process_casts(casts)
+        return casts
 
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
         query_result = query_result.get("reportData") or query_result
@@ -153,33 +161,13 @@ class ActorLoader(BaseLoader):
         # avoids weird UI overlaps, and just feels cleaner
         self.actor.casts = sorted(self.actor.casts, key=lambda cast: cast.timestamp)
 
+        # Actor Type cast processing, parent types first, then re-sort so counters
+        # reflect the final Casts (including synthetic ones).
+        self.actor.casts = self._process_casts(self.actor.casts)
+        self.actor.casts = sorted(self.actor.casts, key=lambda cast: cast.timestamp)
+
         # we do this at the very end after all the filtering has been done.
         self.actor.casts = add_cast_counters(self.actor.casts)
-
-    def remove_buffs_from_casts(
-        self,
-        cast_spell_ids: set[int],
-        buff_spell_ids: set[int],
-        tolerance: int = 500,
-    ) -> None:
-        """Remove buffs that happen at the same time as a cast.
-
-        for example Ascendance buffs at the same time as a casts.
-        This helps to later identify manually cast buffs vs. procs.
-
-        NOTE: currently unused
-
-        """
-        casts = [c for c in self.actor.casts if c.spell_id in cast_spell_ids and c.event_type == "cast"]
-        buffs = [c for c in self.actor.casts if c.spell_id in buff_spell_ids and c.event_type == "applybuff"]
-        if not casts and buffs:
-            return
-
-        for buff in buffs:
-            closest = min(casts, key=lambda c: abs(c.timestamp - buff.timestamp))
-            if abs(buff.timestamp - closest.timestamp) < tolerance:
-                buff.spell_id = -1
-        self.actor.casts = [c for c in self.actor.casts if c.spell_id > 0]
 
     ############################################################################
     # Load
