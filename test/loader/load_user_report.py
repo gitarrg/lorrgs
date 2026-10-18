@@ -1,3 +1,4 @@
+#!/usr/bin/env -S PYTHONPATH=. uv run
 """Load a Spec Ranking from WarcraftLogs.
 
 >>> PYTHONPATH=. uv run --env-file=.env  test/loader/load_user_report.py

@@ -21,7 +21,7 @@ async def main():
 
     ranking = SpecRanking.get_or_create(
         spec_slug="druid-restoration",
-        boss_slug="beloren-child-of-alar",
+        boss_slug="imperator-averzian",
         difficulty="mythic",
         metric="hps",
     )
@@ -45,7 +45,7 @@ async def main():
 
     loader = SpecRankingLoader(ranking=ranking)
     await loader.load(
-        limit=5,
+        limit=50,
         clear_old=False,
     )
     # ranking.save()

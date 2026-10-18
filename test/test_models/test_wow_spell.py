@@ -31,15 +31,15 @@ def test_spell_ids_str():
 class TestBuildQuery:
     def test_build_query_empty(self) -> None:
 
-        result = build_spell_query([])
+        result = build_spell_query()
         assert result == ""
 
     def test_build_query_check_type(self) -> None:
 
         spell = WowSpell(spell_id=10, event_type="foo")
 
-        result = build_spell_query([spell])
-        assert result == "(type=foo and ability.id in (10))"
+        result = build_spell_query(spell)
+        assert result == "(type='foo' and ability.id in (10))"
 
     def test_build_query__multiple_spells_same_type(self) -> None:
 
@@ -49,8 +49,8 @@ class TestBuildQuery:
             WowSpell(spell_id=20, event_type="foo"),
         ]
 
-        result = build_spell_query(spells)
-        assert result == "(type=foo and ability.id in (10,20,30))"
+        result = build_spell_query(*spells)
+        assert result == "(type='foo' and ability.id in (10,20,30))"
 
     def test_build_query__multiple_spells_diff_type(self) -> None:
 
@@ -60,30 +60,20 @@ class TestBuildQuery:
             WowSpell(spell_id=20, event_type="foo"),
         ]
 
-        expected = "(type=foo and ability.id in (10,20)) or (type=bar and ability.id in (30))"
+        expected = "(type='foo' and ability.id in (10,20)) or (type='bar' and ability.id in (30))"
 
-        result = build_spell_query(spells)
+        result = build_spell_query(*spells)
         assert result == expected
 
     def test_build_query__aura_type(self) -> None:
-        """For Buffs/Debuffs we automatically add the correct renove-trigger"""
+        """Buffs and debuffs also query the matching remove event."""
 
-        spell = WowSpell(spell_id=10, event_type="buff")
-        print(spell.expand_events())
+        spell = WowSpell(spell_id=10, event_type="applybuff")
 
-        expected = "(type=applybuff and ability.id in (10)) or (type=removebuff and ability.id in (10))"
+        expected = "(type='applybuff' and ability.id in (10)) or (type='removebuff' and ability.id in (10))"
 
-        result = build_spell_query([spell])
+        result = build_spell_query(spell)
         assert result == expected
-
-    def test_build_query__example(self) -> None:
-
-        from lorgs import data
-
-        spec = data.DRUID_RESTORATION
-
-        # assert build_spell_query(spec.all_spells) == ""
-        # assert build_spell_query(spec.all_buffs) == ""
 
 
 if __name__ == "__main__":

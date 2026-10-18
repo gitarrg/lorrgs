@@ -14,7 +14,7 @@ from lorgs.models.task import Task
 from lorrgs_sqs.handler import load_user_report
 
 
-async def test1() -> None:
+async def run() -> None:
 
     # Inputs
     message_id = "23a984b5-1184-4e45-af1b-e926963a731f"
@@ -46,7 +46,7 @@ async def test1() -> None:
 
 
 async def main() -> None:
-    await test1()
+    await run()
 
 
 if __name__ == "__main__":

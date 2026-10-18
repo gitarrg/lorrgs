@@ -2,7 +2,7 @@
 import unittest
 from unittest import mock
 
-from lorgs.models import warcraftlogs_fight
+from lorgs.models.warcraftlogs_comp_ranking import get_composition
 
 
 def create_fake_player(role="", spec="", **kwargs):
@@ -25,13 +25,13 @@ class TestGetComposition(unittest.TestCase):
 
     def test_empty(self):
         """Test an empty Comp."""
-        result = warcraftlogs_fight.get_composition(players=[])
+        result = get_composition(players=[])
         expected = {"roles": {}, "specs": {}, "classes": {}}
         assert result == expected
 
     def test_roles(self):
         """Verify roles get calculated correctly."""
-        result = warcraftlogs_fight.get_composition(players=FAKE_PLAYERS)
+        result = get_composition(players=FAKE_PLAYERS)
         result_roles = result["roles"]
         assert result_roles["tank"] == 2
         assert result_roles["heal"] == 1
@@ -40,7 +40,7 @@ class TestGetComposition(unittest.TestCase):
 
     def test_specs(self):
         """Verify specs get calculated correctly."""
-        result = warcraftlogs_fight.get_composition(players=FAKE_PLAYERS)
+        result = get_composition(players=FAKE_PLAYERS)
         result_specs = result["specs"]
         assert result_specs["specA"] == 2
         assert result_specs["specB"] == 2

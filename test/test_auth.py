@@ -12,7 +12,7 @@ from lorgs.clients import discord
 #
 
 
-async def test_exchange_code():
+async def exchange_code():
     """
     visit: https://discord.com/oauth2/authorize?client_id={CLIENT_ID}&redirect_uri={REDIRECT_URL}&response_type=code&scope=identify
     and login to obtain a code
@@ -23,7 +23,7 @@ async def test_exchange_code():
     return creds
 
 
-async def test_get_user_profile():
+async def get_user_profile():
     """
     get creds via `auth.exchange_code`
     """
@@ -39,27 +39,27 @@ async def test_get_user_profile():
     print(user_info)
 
 
-async def test_get_user_info():
+async def get_user_info():
     user_id = "392483139991240714"  # thats me!
     user_info = await discord.get_user_info(user_id)
     print(user_info)
 
 
-async def test_get_member_info():
+async def get_member_info():
     user_id = "392483139991240714"  # thats me!
     server_id = "885638678607708172"
     member_info = await discord.get_member_info(server_id, user_id)
     print(member_info)
 
 
-async def test_get_member_info_with_invalid_id():
+async def get_member_info_with_invalid_id():
     user_id = "123123123"
     server_id = "885638678607708172"
     member_info = await discord.get_member_info(server_id, user_id)
     print(member_info)
 
 
-async def test_get_member_info_user_who_is_not_in_lorrgs():
+async def get_member_info_user_who_is_not_in_lorrgs():
     user_id = "775774321318297630"  # my test bot account
     server_id = "885638678607708172"
     member_info = await discord.get_member_info(server_id, user_id)
@@ -71,13 +71,13 @@ async def test_get_member_info_user_who_is_not_in_lorrgs():
 #
 
 
-async def test_get_member_roles():
+async def get_member_roles():
     user_id = "392483139991240714"  # thats me!
     roles = await auth.get_member_roles(user_id)
     print(roles)
 
 
-async def test_get_member_permissions():
+async def get_member_permissions():
     user_id = "392483139991240714"  # thats me!
     user_id = "1321313"  # thats me!
 

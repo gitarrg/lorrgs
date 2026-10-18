@@ -14,7 +14,7 @@ def build_test_message(**kwargs: typing.Any) -> dict[str, str]:
     return {"body": json.dumps(kwargs)}
 
 
-async def test1() -> None:
+async def run() -> None:
 
     # Inputs
     message = build_test_message(boss_slug="lords-of-dread", spec_slug="paladin-holy", limit=10)
@@ -22,7 +22,7 @@ async def test1() -> None:
 
 
 async def main():
-    await test1()
+    await run()
 
 
 if __name__ == "__main__":

@@ -1,47 +1,39 @@
-import asyncio
-from unittest import mock
-import arrow
-import json
-import os
-import pytest
+import datetime
 import unittest
+
 from lorgs.clients import wcl
+from lorgs.loaders.fight_loader import FightLoader
+from lorgs.models.warcraftlogs_comp_ranking import get_composition
+from lorgs.models.warcraftlogs_fight import Fight
 
-
-from lorgs.models import warcraftlogs_fight
-from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.raid_zone import RaidZone
 from ..helpers import load_fixture
 
-from lorgs import data
+
+def _fight(**kwargs) -> Fight:
+    values = {
+        "fight_id": 5,
+        "start_time": datetime.datetime.fromtimestamp(101, datetime.UTC),
+        "duration": 3000,
+    }
+    values.update(kwargs)
+    return Fight(**values)
 
 
 class TestFight(unittest.TestCase):
-
-
     def setUp(self):
-
-        # Create a test Fight Instance
-        self.fight = warcraftlogs_fight.Fight(
-            fight_id = 5,
-            start_time=arrow.get(101.000),
-            duration=3000,
-            boss_id=2000,
-        )
-
-        # a mock parent report
-        self.fight.report = mock.MagicMock()
-        self.fight.report.start_time = arrow.get(100.000)
+        self.fight = _fight()
+        self.fight.report = unittest.mock.MagicMock()
+        self.fight.report.start_time = datetime.datetime.fromtimestamp(100, datetime.UTC)
         self.fight.report.report_id = "REPORT_ID"
 
     def test_start_time_rel(self):
-        self.fight.report.start_time = arrow.get(100.000)
-        self.fight.start_time = arrow.get(121.000)
+        self.fight.report.start_time = datetime.datetime.fromtimestamp(100, datetime.UTC)
+        self.fight.start_time = datetime.datetime.fromtimestamp(121, datetime.UTC)
         assert self.fight.start_time_rel == 21000
 
     def test_end_time_rel(self):
-        self.fight.report.start_time = arrow.get(100.000)
-        self.fight.start_time = arrow.get(120.000)
+        self.fight.report.start_time = datetime.datetime.fromtimestamp(100, datetime.UTC)
+        self.fight.start_time = datetime.datetime.fromtimestamp(120, datetime.UTC)
         self.fight.duration = 600 * 1000
         assert self.fight.end_time_rel == 620 * 1000
 
@@ -50,87 +42,67 @@ class TestFight(unittest.TestCase):
         assert result == "fightIDs: 5, startTime: 1000, endTime: 4000"
 
 
-class TestFight_ProcessPlayers(unittest.TestCase):
-
+class TestFightProcessPlayers(unittest.TestCase):
     def setUp(self):
-        self.fight = warcraftlogs_fight.Fight()
+        self.fight = _fight()
+        self.loader = FightLoader(self.fight)
 
-    ##########################################
+    def test_empty(self):
+        self.loader._process_summary(wcl.ReportSummary())
+        assert self.fight.players == []
 
-    def test__empty(self):
-        """Make sure no players get added."""
-        self.fight.add_player = mock.MagicMock()
-        self.fight.process_players(wcl.ReportSummary())
-        assert not self.fight.add_player.called
+    def test_valid_player(self):
+        import lorgs.data  # noqa: F401
 
-    def test__valid_player(self):
+        summary = wcl.ReportSummary(
+            composition=[
+                {
+                    "id": 1,
+                    "name": "Some Player",
+                    "type": "Druid",
+                    "specs": [{"spec": "Restoration"}],
+                },
+                {
+                    "id": 2,
+                    "name": "Other Player",
+                    "type": "DemonHunter",
+                    "specs": [{"spec": "Vengeance"}],
+                },
+            ],
+        )
+        self.loader._process_summary(summary)
 
-        composition = [
-            {
-                "id": 1,
-                "name": "Some Player",
-                "type": "Druid",
-                "specs": [{"spec": "Restoration"}]
-            },
-            {
-                "id": 2,
-                "name": "Other Player",
-                "type": "DemonHunter",
-                "specs": [{"spec": "Vengeance"}]
-            },
-        ]
-
-        # print("summary_data", summary_data)
-        # return
-        # Run
-        summary_data = wcl.ReportSummary(composition=composition)
-        self.fight.process_players(summary_data)
-
-        # Test
         assert len(self.fight.players) == 2
-        assert list(self.fight.players.keys()) == ["1", "2"]
 
-        player1 = self.fight.players["1"]
+        player1 = self.fight.get_player(source_id=1)
+        assert player1 is not None
         assert player1.name == "Some Player"
-        assert player1.spec.full_name_slug == "druid-restoration"
-        player2 = self.fight.players["2"]
+        assert player1.spec_slug == "druid-restoration"
+
+        player2 = self.fight.get_player(source_id=2)
+        assert player2 is not None
         assert player2.name == "Other Player"
-        assert player2.spec.full_name_slug == "demonhunter-vengeance"
+        assert player2.spec_slug == "demonhunter-vengeance"
 
+    def test_example_fixture(self):
+        import lorgs.data  # noqa: F401
 
-    def test__example_fixture1(self):
-        """Test an example Response.
-
-        load via:
-        >>> query {
-        >>>     reportData {
-        >>>         report(code: "Jx1cWpb8nFLhBfPa") {
-        >>>             summary: table(fightIDs: 19, startTime: 10881328, endTime: 11609926, dataType: Summary)
-        >>>         }
-        >>>     }
-        >>> }
-
-        """
-        fight = self.fight
+        self.fight.duration = 0
         fight_data = load_fixture("fight_summary_1.json")
-        fight_data = fight_data["data"]["reportData"]
+        self.loader.process_query_result(fight_data["data"]["reportData"])
 
-        # run
-        fight.process_query_result(**fight_data)
+        assert len(self.fight.players) == 20
+        assert self.fight.duration == 728598
 
-        assert len(fight.players) == 20
-        assert fight.duration == 728598
-
-        # check if the comp was loaded
-        comp = fight.composition
+        comp = get_composition(self.fight.players)
         assert comp["roles"]["tank"] == 2
         assert comp["roles"]["heal"] == 4
         assert comp["specs"]["hunter-marksmanship"] == 2
         assert comp["specs"]["monk-windwalker"] == 1
         assert comp["classes"]["warlock"] == 2
 
-        # test a player from the report
-        player_arrg = fight.get_player(source_id=17)
-        assert player_arrg.name == "Arrg"  # thats me!!
+        player_arrg = self.fight.get_player(source_id=17)
+        assert player_arrg is not None
+        assert player_arrg.name == "Arrg"
         assert player_arrg.spec_slug == "druid-restoration"
         assert player_arrg.total == 10761

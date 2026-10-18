@@ -90,23 +90,16 @@ class Test_Cast(unittest.TestCase):
         assert event.event_type == "applybuff"
         assert event == Cast(spell_id=10, timestamp=-2000, event_type="applybuff")
 
-    def test__process_auras__fixed_length(self) -> None:
-        """Multiple Appliactions of an Aura with fixed length. (we don't request the remove-debuff events here)."""
+    def test__process_auras__second_apply_without_remove_is_dropped(self) -> None:
+        """A second apply of an already active aura is dropped until it is removed."""
         events = [
             Cast(spell_id=10, timestamp=1000, event_type="applybuff"),
             Cast(spell_id=10, timestamp=5000, event_type="applybuff"),
         ]
 
-        # mock the spell to return 6sec as its default duration
-        with mock.patch("lorgs.models.wow_spell.WowSpell.get") as mock_get_spell:
-            mock_get_spell.return_value = mock.MagicMock()
-            mock_get_spell.return_value.duration = 2
+        result = process_auras(events)
 
-            # Run
-            result = process_auras(events)
-
-        # Events should be unchanged
-        assert result == events
+        assert result == [Cast(spell_id=10, timestamp=1000, event_type="applybuff")]
 
     ############################################################################
     # Process Until Events
