@@ -6,11 +6,15 @@
 # pylint: disable=unused-wildcard-import
 # fmt: off
 
+# IMPORT STANDARD LIBRARIES
+from typing import override
+
 # IMPORT LOCAL LIBRARIES
 from lorgs.data.constants import *
 from lorgs.data.roles import *
-from lorgs.models import warcraftlogs_actor
+from lorgs.models.warcraftlogs_cast import Cast
 from lorgs.models.wow_class import WowClass
+from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spec import WowSpec
 from lorgs.models.wow_spell import SpellTag, WowSpell
 
@@ -29,7 +33,34 @@ DRUID = WowClass(id=11, name="Druid", color="#FF7C0A")
 DRUID_BALANCE     = WowSpec(id=102, index=1, role=RDPS, wow_class=DRUID, name="Balance")
 DRUID_FERAL       = WowSpec(id=103, index=2, role=MDPS, wow_class=DRUID, name="Feral")
 DRUID_GUARDIAN    = WowSpec(id=104, index=3, role=TANK, wow_class=DRUID, name="Guardian")
-DRUID_RESTORATION = WowSpec(id=105, index=4, role=HEAL, wow_class=DRUID, name="Restoration")
+
+
+class RestorationDruid(WowSpec):
+    """Restoration Druid. Drops Tree of Life recasts inside its cooldown."""
+
+    id: int = 105
+    index: int = 4
+    name: str = "Restoration"
+    role: WowRole = HEAL
+    wow_class: WowClass = DRUID
+
+    @override
+    def process_casts(self, casts: list[Cast]) -> list[Cast]:
+        """Drop Tree of Life recasts that fall inside its cooldown."""
+        cooldown_ms = int(TREE_OF_LIFE.cooldown * 1000)
+        kept: list[Cast] = []
+        previous: Cast | None = None
+        for cast in casts:
+            is_tree_of_life = cast.spell_id == TREE_OF_LIFE.spell_id and cast.event_type == "cast"
+            if is_tree_of_life and previous is not None and cast.timestamp - previous.timestamp < cooldown_ms:
+                continue
+            kept.append(cast)
+            if is_tree_of_life:
+                previous = cast
+        return kept
+
+
+DRUID_RESTORATION = RestorationDruid()
 
 ################################################################################
 # Spells
@@ -130,28 +161,3 @@ REFORESTATION = DRUID_RESTORATION.add_buff(
 
 # Additional Spells (not tracked)
 REBIRTH = WowSpell(spell_id=20484, name="Rebirth", icon="spell_nature_reincarnation.jpg")
-
-
-def remove_tol_recasts(actor: warcraftlogs_actor.BaseActor | None, status: str):
-    """Remove tol recasts during extended buff duration."""
-    if status != "success":
-        return
-    if not actor:
-        return
-
-    tol_casts = [cast for cast in actor.casts if cast.spell_id == TREE_OF_LIFE.spell_id and cast.event_type == "cast"]
-    duration = TREE_OF_LIFE.cooldown * 1000
-
-    prev = None
-    for cast in tol_casts:
-        if prev:
-            diff = cast.timestamp - prev.timestamp
-            if diff < duration:
-                cast.spell_id = -1
-                continue
-
-        prev = cast
-    actor.casts = [cast for cast in actor.casts if cast.spell_id > 0]
-
-
-warcraftlogs_actor.BaseActor.event_actor_load.connect(remove_tol_recasts)
