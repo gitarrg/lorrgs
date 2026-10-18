@@ -93,7 +93,7 @@ class ActorLoader(BaseLoader):
         """
         return events
 
-    def process_event(self, event: wcl.ReportEvent) -> wcl.ReportEvent:
+    def process_event(self, event: wcl.ReportEvent) -> wcl.ReportEvent:  # ruff: ignore[no-self-use]
         """Hook to preprocess each Cast/Event.
 
         Args:
@@ -108,13 +108,8 @@ class ActorLoader(BaseLoader):
     def _process_casts(self, casts: list[Cast]) -> list[Cast]:
         """Run process_casts along the Actor Type chain, parent types first."""
         actor_type = self.actor.actor_type
-        if actor_type is None:
-            return casts
         for step in (*actor_type.parents, actor_type):
-            try:
-                casts = step.process_casts(casts)
-            except Exception:  # ruff: ignore[blind-except] a failing Actor Type fix must not fail the load
-                logger.exception("Actor Type %s cast processing failed", type(step).__name__)
+            casts = step.process_casts(casts)
         return casts
 
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:

@@ -22,10 +22,15 @@ MOCK_CLASS = wow_class.WowClass(id=4, name="Test")
 MOCK_SPEC = wow_spec.WowSpec(name="TestSpec", wow_class=MOCK_CLASS, role=MOCK_ROLE)
 
 
+class _TestActor(BaseActor):
+    def get_actor_type(self):
+        return MOCK_SPEC
+
+
 class TestBaseActor(unittest.TestCase):
     @mock.patch.multiple(BaseActor, __abstractmethods__=set())
     def setUp(self):
-        self.actor = BaseActor()
+        self.actor = _TestActor()
 
     ################################
     # source id
@@ -43,9 +48,8 @@ class TestBaseActor(unittest.TestCase):
 class TestActorLoaderProcess(unittest.TestCase):
     """Test processing the query result via the loader."""
 
-    @mock.patch.multiple(BaseActor, __abstractmethods__=set())
     def setUp(self):
-        self.actor = BaseActor()
+        self.actor = _TestActor()
         self.loader = ActorLoader(self.actor)
 
     def test__process_casts__simple(self):
