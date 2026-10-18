@@ -4,7 +4,6 @@
 >>> PYTHONPATH=. uv run --env-file=.env scripts/queue_updates.py
 
 """
-
 # IMPORT STANDARD LIBRARIES
 import asyncio
 
@@ -12,24 +11,26 @@ import asyncio
 from lorgs.clients import sqs
 from lorgs.data.classes import *
 from lorgs.data.expansions.midnight.raids import (
-    THE_TIDEBOUND_GROTTO,
-    THE_VENOMOUS_ABYSS,
+    THE_TIDEBOUND_GROTTO,  # ruff: ignore[unused-import]
+    THE_UNBINDING_OF_KITHIX,  # ruff: ignore[unused-import]
+    THE_VENOMOUS_ABYSS,  # ruff: ignore[unused-import]
 )
 from lorgs.data.expansions.midnight.raids.the_tidebound_grotto import *
+from lorgs.data.expansions.midnight.raids.the_unbinding_of_kithix import *
 from lorgs.data.expansions.midnight.raids.the_venomous_abyss import *
-from lorgs.data.season import CURRENT_SEASON
+from lorgs.data.season import CURRENT_SEASON  # ruff: ignore[unused-import]
 from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.task_payloads import CompRankingPayload, SpecRankingPayload
+from lorgs.models.task_payloads import SpecRankingPayload
 from lorgs.models.wow_spec import WowSpec
 
 
-async def load_remote(
+async def load_remote(  # ruff: ignore[too-many-arguments, unused-async]
     spec: WowSpec,
     boss: RaidBoss,
     difficulty="all",
     metric="all",
-    limit=50,
     *,
+    limit=50,
     clear: bool = False,
 ):
     payload = SpecRankingPayload(
@@ -43,18 +44,20 @@ async def load_remote(
     return sqs.send_message(payload=payload)
 
 
-async def load_local(
+async def load_local(  # ruff: ignore[too-many-arguments]
     spec: WowSpec,
     boss: RaidBoss,
     difficulty: str = "mythic",
     metric: str = "",
-    limit=50,
+    *,
+    limit: int = 50,
     clear: bool = False,
 ):
-    import asyncio
+    # ruff: disable[import-outside-top-level]
     from lorgs.clients.wcl import WarcraftlogsClient
     from lorgs.loaders.spec_ranking import SpecRankingLoader
     from lorgs.models.warcraftlogs_ranking import SpecRanking
+    # ruff: enable[import-outside-top-level]
 
     if not metric:
         metric = spec.role.metric
@@ -76,12 +79,16 @@ async def load_spec_rankings() -> None:
     bosses = [
         # *THE_VENOMOUS_ABYSS.bosses,
         # *THE_TIDEBOUND_GROTTO.bosses,
-        ENTOMBED_SENTINELS,
+        # ENTOMBED_SENTINELS,
+        # LOST_EXPLORERS,
+        KITHIX,
     ]
 
     specs: set[WowSpec] = {
+        *ALL_SPECS,
+
         # DK
-        DEATHKNIGHT_BLOOD,
+        # DEATHKNIGHT_BLOOD,
         # DEATHKNIGHT_FROST,
         # DEATHKNIGHT_UNHOLY,
 
@@ -146,7 +153,6 @@ async def load_spec_rankings() -> None:
         # WARRIOR_FURY,
         # WARRIOR_PROTECTION,
     }
-    specs = ALL_SPECS
     # specs = HEAL.specs
 
     load = load_remote
@@ -161,9 +167,9 @@ async def load_spec_rankings() -> None:
                 spec,
                 boss,
                 clear=True,
-                difficulty="heroic",
-                # metric="hps",
-                # limit=1,
+                difficulty="mythic",
+                # metric="dps",
+                limit=35,
             )
 
 

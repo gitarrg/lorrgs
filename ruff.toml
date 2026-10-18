@@ -102,6 +102,15 @@ extend-ignore = [
 
 
 
+[lint.per-file-ignores]
+"test/**" = ["ALL"]
+"lorgs/data/**" = [
+    "whitespace-after-open-bracket",
+    "multiple-spaces-before-operator",
+    "multiple-spaces-after-comma"
+]
+
+
 [lint.isort]
 length-sort = false
 combine-as-imports = true
