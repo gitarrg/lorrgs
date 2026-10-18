@@ -36,7 +36,6 @@ DRUID_GUARDIAN    = WowSpec(id=104, index=3, role=TANK, wow_class=DRUID, name="G
 
 
 class RestorationDruid(WowSpec):
-    """Restoration Druid. Drops Tree of Life recasts inside its cooldown."""
 
     id: int = 105
     index: int = 4

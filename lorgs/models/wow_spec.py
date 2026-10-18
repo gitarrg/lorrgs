@@ -7,20 +7,20 @@ import typing
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.models.wow_actor import WowActor
-from lorgs.models.wow_class import WowClass
-from lorgs.models.wow_role import WowRole
-from lorgs.models.wow_spell import WowSpell
+from lorgs.models.wow_class import WowClass  # ruff: ignore[typing-only-first-party-import] pydantic required
+from lorgs.models.wow_role import WowRole  # ruff: ignore[typing-only-first-party-import]
+from lorgs.models.wow_spell import WowSpell  # ruff: ignore[typing-only-first-party-import]
 
 
 class WowSpec(WowActor):
-    """docstring for Spec"""
+    """docstring for Spec."""
 
-    id: int | None = None
+    id: int = 0
     """Blizzard specialization id (ChrSpecialization.ID).
-    None for utility specs (e.g. Other)."""
+    Zero for utility specs (e.g. Other)."""
 
-    index: int | None = None
-    """Index of the Spec (1-4)"""
+    index: int = 0
+    """Index of the Spec (1-4)."""
 
     name: str
 
