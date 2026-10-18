@@ -108,7 +108,7 @@ class wclclient_mixin:
     def process_query_result(self, **query_result: typing.Any) -> None:
         """Implement some custom logic here to process our results from the query."""
 
-    async def load_many(self, items: list[typing.Self], raise_errors=False) -> None:
+    async def load_many(self, items: list[typing.Self]) -> None:
         """Load multiple objects at once.
 
         Args:
@@ -116,15 +116,15 @@ class wclclient_mixin:
             chunks_size[int, optional]: load in chunks of this size.
 
         """
-        tasks = [item.load(raise_errors=raise_errors) for item in items]
+        tasks = [item.load() for item in items]
         await asyncio.gather(*tasks)
 
-    async def load(self, raise_errors=False) -> None:
+    async def load(self) -> None:
         query = self.get_query()
         if not query:
             return
 
-        result = await self.client.query(query=query, raise_errors=raise_errors)
+        result = await self.client.query(query=query)
 
         if not result:
             return
