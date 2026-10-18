@@ -8,7 +8,12 @@ from typing import override
 import pytest
 
 import lorgs.data  # noqa: F401  # registers specs and bosses
-from lorgs.data.expansions.midnight.raids.the_venomous_abyss.nekzali import NEKZALI
+from lorgs.data.expansions.midnight.raids.the_venomous_abyss.nekzali import (
+    NEKZALI,
+    RITUAL_OF_AWAKENING,
+    SOUL_TRANSFER,
+    UNCOILING_TRANSITION,
+)
 from lorgs.loaders.report_loader import ReportLoader
 from lorgs.loaders.spec_ranking import SpecRankingLoader
 from lorgs.models.raid_boss import RaidBoss
@@ -18,12 +23,6 @@ from lorgs.models.warcraftlogs_fight import Fight, Phase
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 from lorgs.models.warcraftlogs_report import Report
-
-
-# WCL phase id 3 is the Uncoiling transition. Phase id 2 is an earlier transition we drop.
-RITUAL_OF_AWAKENING = 1295124
-SOUL_TRANSFER = 1292248
-UNCOILING = 3
 
 
 def test_other_bosses_phases_are_unchanged() -> None:
@@ -44,7 +43,7 @@ def test_kill_with_intermissions_and_uncoiling_has_phases_at_the_right_times() -
     """A kill keeps Phase 1, both intermissions, and Phase 2 at the Uncoiling transition."""
     phases = [
         Phase(ts=110_000, phase_id=2),
-        Phase(ts=180_000, phase_id=UNCOILING),
+        Phase(ts=180_000, phase_id=UNCOILING_TRANSITION),
     ]
     casts = [
         Cast(spell_id=RITUAL_OF_AWAKENING, timestamp=90_000),
@@ -84,7 +83,7 @@ def test_nekzali_actor_load_does_not_rewrite_phases() -> None:
     fight = Fight(
         fight_id=14,
         start_time=datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC),
-        phases=[Phase(ts=180_000, phase_id=UNCOILING)],
+        phases=[Phase(ts=180_000, phase_id=UNCOILING_TRANSITION)],
     )
     boss = Boss(boss_slug=NEKZALI.full_name_slug)
     boss.fight = fight
@@ -95,10 +94,10 @@ def test_nekzali_actor_load_does_not_rewrite_phases() -> None:
 
     Boss.event_actor_load.send(boss, status="success")
 
-    assert [(phase.phase_id, phase.timestamp) for phase in fight.phases] == [(UNCOILING, 180_000)]
+    assert [(phase.phase_id, phase.timestamp) for phase in fight.phases] == [(UNCOILING_TRANSITION, 180_000)]
 
 
-PULL_MS = 1_700_000_000_000
+FIGHT_START_MS = 1_700_000_000_000
 REPORT_CODE = "nekzreport000001"
 FIGHT_ID = 14
 
@@ -122,11 +121,11 @@ def _ranking_payload() -> dict[str, object]:
                             "spec": "Holy",
                             "amount": 100,
                             "duration": 300_000,
-                            "startTime": PULL_MS,
+                            "startTime": FIGHT_START_MS,
                             "report": {
                                 "code": REPORT_CODE,
                                 "fightID": FIGHT_ID,
-                                "startTime": PULL_MS,
+                                "startTime": FIGHT_START_MS,
                             },
                         },
                     ],
@@ -162,7 +161,7 @@ def _phase_transitions() -> dict[str, object]:
                         "phaseTransitions": [
                             {"id": 1, "startTime": 0},
                             {"id": 2, "startTime": 110_000},
-                            {"id": UNCOILING, "startTime": 180_000},
+                            {"id": UNCOILING_TRANSITION, "startTime": 180_000},
                         ],
                     },
                 ],
@@ -268,6 +267,54 @@ def test_spec_ranking_keeps_phases_when_process_phases_raises(caplog: pytest.Log
     assert "phase correction failed" in caplog.text
 
 
+def test_spec_ranking_corrects_phases_loaded_after_the_boss_casts() -> None:
+    """Phases loaded in this pass are corrected when the boss Casts were already loaded."""
+    fight = Fight(
+        fight_id=FIGHT_ID,
+        start_time=datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC),
+        players=[
+            Player(
+                name="Healer",
+                spec_slug="paladin-holy",
+                casts=[Cast(spell_id=1, timestamp=1)],
+            ),
+        ],
+        boss=Boss(
+            boss_slug=NEKZALI.full_name_slug,
+            casts=[
+                Cast(spell_id=RITUAL_OF_AWAKENING, timestamp=90_000),
+                Cast(spell_id=SOUL_TRANSFER, timestamp=120_000),
+                Cast(spell_id=SOUL_TRANSFER, timestamp=150_000),
+            ],
+        ),
+    )
+    ranking = SpecRanking(
+        spec_slug="paladin-holy",
+        boss_slug=NEKZALI.full_name_slug,
+        metric="hps",
+        reports=[
+            Report(
+                report_id=REPORT_CODE,
+                start_time=fight.start_time,
+                fights=[fight],
+            ),
+        ],
+    )
+
+    asyncio.run(SpecRankingLoader(ranking).load(client=_PhasesAlreadyHaveCastsClient(), limit=10))
+
+    assert [(phase.phase_id, phase.timestamp) for phase in fight.phases] == KILL_PHASES
+
+
+class _PhasesAlreadyHaveCastsClient:
+    async def query(self, query: str) -> dict[str, object]:
+        if "characterRankings" in query:
+            return {"worldData": {"encounter": {"characterRankings": {"rankings": []}}}}
+        if "phaseTransitions" in query:
+            return _phase_transitions()
+        return {"reportData": {"report": {"events": {"data": []}, "fights": []}}}
+
+
 def test_user_report_corrects_phases_after_the_boss_loads() -> None:
     """A user report corrects Phases after the boss Casts finish loading."""
     fight = Fight(
@@ -275,7 +322,7 @@ def test_user_report_corrects_phases_after_the_boss_loads() -> None:
         start_time=datetime.datetime(2026, 1, 1, tzinfo=datetime.UTC),
         phases=[
             Phase(ts=110_000, phase_id=2),
-            Phase(ts=180_000, phase_id=UNCOILING),
+            Phase(ts=180_000, phase_id=UNCOILING_TRANSITION),
         ],
         players=[Player(name="Healer", spec_slug="paladin-holy", source_id=10)],
         boss=Boss(boss_slug=NEKZALI.full_name_slug),

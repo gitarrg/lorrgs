@@ -10,11 +10,49 @@ from lorgs.clients import wcl
 from lorgs.logger import logger
 
 from .base_loader import BaseLoader
+from .boss_loader import BossLoader
 
 
 if TYPE_CHECKING:
     from lorgs.clients.wcl import WarcraftlogsClient
     from lorgs.models.warcraftlogs_fight import Fight
+
+
+def queue_boss_loader(
+    fight: Fight,
+    loaders: list[BaseLoader],
+    fights_loading_boss: list[Fight],
+) -> None:
+    """Queue the boss load, and remember the Fight when that load will run."""
+    if fight.boss is None:
+        return
+
+    boss_loader = BossLoader(fight.boss)
+    if boss_loader.needs_load():
+        fights_loading_boss.append(fight)
+    loaders.append(boss_loader)
+
+
+def fights_ready_for_phase_correction(
+    fights_loading_phases: list[Fight],
+    fights_loading_boss: list[Fight],
+) -> list[Fight]:
+    """Fights whose Phases and boss Casts are both available after this load."""
+    ready: list[Fight] = []
+    seen: set[int] = set()
+
+    def add(fight: Fight) -> None:
+        if id(fight) in seen:
+            return
+        seen.add(id(fight))
+        ready.append(fight)
+
+    for fight in fights_loading_boss:
+        add(fight)
+    for fight in fights_loading_phases:
+        if fight.boss is not None and fight.boss.casts:
+            add(fight)
+    return ready
 
 
 def correct_loaded_phases(fight: Fight) -> None:

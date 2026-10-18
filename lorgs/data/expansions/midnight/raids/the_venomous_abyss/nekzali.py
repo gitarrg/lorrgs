@@ -33,7 +33,7 @@ class Nekzali(RaidBoss):
 
         soul_transfer_casts = [cast for cast in casts if cast.spell_id == SOUL_TRANSFER]
         if soul_transfer_casts:
-            # The logged event is the cast end. The intermission starts when the cast starts.
+            # This Cast is the end of Soul Transfer. The intermission starts when the cast starts.
             soul_transfer = next(spell for spell in self.spells if spell.spell_id == SOUL_TRANSFER)
             cast_start = soul_transfer_casts[-1].timestamp - int(soul_transfer.duration * 1000)
             corrected.append(Phase(ts=cast_start, phase_id=1.75))

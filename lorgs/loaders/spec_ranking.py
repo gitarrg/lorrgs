@@ -18,8 +18,12 @@ from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_report import Report
 
 from .base_loader import BaseLoader
-from .boss_loader import BossLoader
-from .fight_phases import FightPhasesLoader, correct_loaded_phases
+from .fight_phases import (
+    FightPhasesLoader,
+    correct_loaded_phases,
+    fights_ready_for_phase_correction,
+    queue_boss_loader,
+)
 from .player_loader import PlayerLoader
 
 
@@ -185,14 +189,15 @@ class SpecRankingLoader(BaseLoader):
     ) -> str | None:
         """Load one report. Return its id when Warcraft Logs refuses it."""
         loaders: list[BaseLoader] = []
-        boss_fights: list[Fight] = []
+        fights_loading_boss: list[Fight] = []
+        fights_loading_phases: list[Fight] = []
         for fight in report.fights:
-            loaders.append(FightPhasesLoader(fight))
-            if top_fight is not None and fight is top_fight and top_fight.boss:
-                boss_loader = BossLoader(top_fight.boss)
-                if boss_loader.needs_load():
-                    boss_fights.append(fight)
-                loaders.append(boss_loader)
+            phase_loader = FightPhasesLoader(fight)
+            if phase_loader.needs_load():
+                fights_loading_phases.append(fight)
+            loaders.append(phase_loader)
+            if top_fight is not None and fight is top_fight:
+                queue_boss_loader(fight, loaders, fights_loading_boss)
             for player in fight.players:
                 loaders.append(PlayerLoader(player))
 
@@ -206,6 +211,6 @@ class SpecRankingLoader(BaseLoader):
             logger.warning("Skipping report %s during spec ranking refresh", report.report_id)
             return report.report_id
 
-        for fight in boss_fights:
+        for fight in fights_ready_for_phase_correction(fights_loading_phases, fights_loading_boss):
             correct_loaded_phases(fight)
         return None
