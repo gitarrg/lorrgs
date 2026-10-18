@@ -37,7 +37,7 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
         logger.info(f"already updated: {payload=}")
         return True, "already updated"
 
-    await SpecRankingLoader(ranking).load(limit=payload.limit, clear_old=payload.clear or ranking.dirty)
+    await SpecRankingLoader(ranking).load(limit=payload.limit, clear_old=payload.clear or ranking.full_reload())
     ranking.save()
     return True, "done"
 

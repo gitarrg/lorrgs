@@ -26,9 +26,7 @@ def _ranking(
 
 
 def test_dirty_ranking_refreshes_even_when_recent() -> None:
-    # A Dirty ranking whose report count does not match the limit used to be
-    # skipped when it had been refreshed within the last two hours.
-    ranking = _ranking(dirty=True, report_count=LIMIT - 1)
+    ranking = _ranking(dirty=True)
 
     assert ranking.needs_refresh(NOW, LIMIT) is True
 

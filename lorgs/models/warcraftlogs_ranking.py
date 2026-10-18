@@ -54,6 +54,10 @@ class SpecRanking(S3Model):
             updated = updated.replace(tzinfo=datetime.UTC)
         return now - updated > self.refresh_after
 
+    def full_reload(self) -> bool:
+        """A Dirty ranking replaces its stored reports on Refresh."""
+        return self.dirty
+
     def post_init(self) -> None:
         for report in self.reports:
             report.post_init()
