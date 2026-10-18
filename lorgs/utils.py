@@ -96,7 +96,7 @@ def slug(text: str, space="", delete_chars="(),'-") -> str:
 
 def to_snake_case(name) -> str:
     """Convert CamelCase to snake case."""
-    return "".join("_%s" % c if c.isupper() else c for c in name).strip("_").lower()
+    return "".join(f"_{c}" if c.isupper() else c for c in name).strip("_").lower()
 
 
 def str_int_list(string: str, sep=".") -> list[int]:
@@ -241,7 +241,7 @@ def get(iterable: typing.Iterable[T], **attrs) -> T | None:
 
     """
     # global -> local
-    _all = all
+    all_ = all
     attrget = attrgetter
 
     # Special case the single element call
@@ -256,7 +256,7 @@ def get(iterable: typing.Iterable[T], **attrs) -> T | None:
     converted = [(attrget(attr.replace("__", ".")), value) for attr, value in attrs.items()]
 
     for elem in iterable:
-        if _all(pred(elem) == value for pred, value in converted):
+        if all_(pred(elem) == value for pred, value in converted):
             return elem
     return None
 

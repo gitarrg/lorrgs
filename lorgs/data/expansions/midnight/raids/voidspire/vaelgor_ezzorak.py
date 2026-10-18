@@ -34,7 +34,7 @@ GLOOM_SPATTERED_DREADSCALE.add_specs(*TANK.specs)
 > Use: Unleash a burst of hungering Gloom, dealing 125487 Shadow damage split
 > between nearby enemies and absorbing up to 50% of incoming damage until an
 > equal amount of damage has been prevented.
-> 
+>
 > Damage increased by 30% per additional enemy, up to 150%. (2 Min Cooldown)
 """
 

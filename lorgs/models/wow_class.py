@@ -38,7 +38,7 @@ class WowClass(WowActor):
 
     @property
     def is_other(self) -> bool:
-        """bool: flag for the trinkets/potions groups"""
+        """bool: flag for the trinkets/potions groups."""
         return self.name.lower() == "other"
 
     def __repr__(self) -> str:

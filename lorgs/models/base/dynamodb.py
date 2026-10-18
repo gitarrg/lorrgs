@@ -76,9 +76,9 @@ class DynamoDBModel(base.BaseModel):
             if not expr:
                 expr = attr
             else:
-                expr = expr & attr
+                expr &= attr
 
-        response = table.scan(FilterExpression=expr)  # type: ignore
+        response = table.scan(FilterExpression=expr)  # ty: ignore[invalid-argument-type]
         items = response["Items"]
         if not items:
             return None

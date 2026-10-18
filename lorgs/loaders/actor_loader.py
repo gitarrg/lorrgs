@@ -125,7 +125,7 @@ class ActorLoader(BaseLoader):
             # Some Types (eg.: Buffs) are tracked based on the target.
             # eg.: PowerInfusion shows on the Target, not the Priest.
             cast_actor_id = cast_data.sourceID
-            if cast_data.type in ("applybuff", "removebuff", "resurrect"):
+            if cast_data.type in {"applybuff", "removebuff", "resurrect"}:
                 cast_actor_id = cast_data.targetID
 
             # Skip if the Source ID doesn't match

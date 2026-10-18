@@ -102,7 +102,7 @@ def process_auras(events: list[Cast]) -> list[Cast]:
         spell_id = event.spell_id
 
         # track the applications (pref initial)
-        if event.event_type in ("applybuff", "applydebuff"):
+        if event.event_type in {"applybuff", "applydebuff"}:
             # Buffs with predefined/fixed duration need to custom logic.
             # we can simply pass over them here
 
@@ -117,7 +117,7 @@ def process_auras(events: list[Cast]) -> list[Cast]:
             active_buffs[spell_id] = event
             continue
 
-        if event.event_type in ("removebuff", "removedebuff"):
+        if event.event_type in {"removebuff", "removedebuff"}:
             start_event = active_buffs.get(spell_id)
 
             # calc dynamic duration from start -> end

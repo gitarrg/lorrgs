@@ -31,7 +31,6 @@ PAYLOAD_EXPANDERS: dict[str, list[str] | Callable[[Any], list[str]]] = {
 
 
 def expand_payload(keyword: str, payload: dict) -> list[dict]:
-    """"""
     if payload.get(keyword) != "all":
         return [payload]
 

@@ -12,6 +12,6 @@ class WowTrinket(wow_item.WowItem):
 
     query: bool = False
     """Whether to query for the spell or not.
-    
+
     Default is False for Trinkets.
     """

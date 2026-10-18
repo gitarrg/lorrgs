@@ -30,9 +30,9 @@ class WowRole(base.MemoryModel):
 
     @property
     def specs(self) -> set[WowSpec]:
-        from lorgs.models.wow_spec import WowSpec
+        from lorgs.models.wow_spec import WowSpec  # ruff: ignore[import-outside-top-level]
 
-        return set(spec for spec in WowSpec.list() if spec.role == self)
+        return {spec for spec in WowSpec.list() if spec.role == self}
 
     def __lt__(self, other: WowRole) -> bool:
         return self.id < other.id

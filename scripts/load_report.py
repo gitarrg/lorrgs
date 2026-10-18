@@ -89,8 +89,8 @@ class WarcraftReport(pydantic.BaseModel):
 
     def as_lorrgs_url(self) -> str:
 
-        def to_str(l: list, j: str = ".") -> str:
-            return j.join([str(i) for i in l])
+        def to_str(items: list, sep: str = ".") -> str:
+            return sep.join(str(item) for item in items)
 
         fight_ids_str = to_str(self.fight_ids)
         player_ids_str = to_str(self.player_ids)

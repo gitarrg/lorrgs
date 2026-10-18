@@ -48,10 +48,7 @@ class FilterExpression(pydantic.BaseModel):
 
     @classmethod
     def parse_str(cls, expr: str) -> FilterExpression:
-        """
-        query: filter/check expression. eg.: "my_attr.lt.3" => "my_attr" is less than 3.
-
-        """
+        """query: filter/check expression. eg.: "my_attr.lt.3" => "my_attr" is less than 3."""
         m = re.match(cls.QUERY_ARG_RE, expr)
         if not m:
             raise ValueError(f"invalid query arg: {expr}")

@@ -89,7 +89,7 @@ class WowSpell(base.MemoryModel):
 
     event_type: str = "cast"
     """type of event (eg.: "cast", "applybuff", "applydebuffstack").
-    
+
     Can be a comma separated list to define multiple events, eg.:
     >>> "applybuff, applybuffstack"
     """
@@ -119,8 +119,8 @@ class WowSpell(base.MemoryModel):
         """Converts a list of Spells to their spell_ids."""
         ids = []  # [spell.spell_id for spell in spells]
         for spell in spells:
-            ids += [spell.spell_id] + spell.variations
-        ids = sorted(list(set(ids)))
+            ids += [spell.spell_id, *spell.variations]
+        ids = sorted(set(ids))
         return ids
 
     @classmethod
@@ -189,7 +189,7 @@ class WowSpell(base.MemoryModel):
             return [self, self.until]
 
         # automatic mirror_events for buffs/debuffs
-        if self.event_type in ("applybuff", "applydebuff"):
+        if self.event_type in {"applybuff", "applydebuff"}:
             event_type = self.event_type.replace("apply", "remove")
             end = self.model_copy(update={"event_type": event_type})
             return [self, end]
@@ -197,7 +197,7 @@ class WowSpell(base.MemoryModel):
         return [self]
 
     def add_specs(self, *specs: WowSpec) -> None:
-        """Add the Spell to all the given Specs,"""
+        """Add the Spell to all the given Specs."""
         for spec in specs:
             spec.add_spells(self)
 
@@ -218,7 +218,7 @@ def build_spell_query(*spells: WowSpell) -> str:
 
     for spell in spells_with_extra_filter:
         for event_type in spell.event_types:
-            event_query = f"type='{spell.event_type}' and ability.id = {spell.spell_id} and {spell.extra_filter}"
+            event_query = f"type='{event_type}' and ability.id = {spell.spell_id} and {spell.extra_filter}"
             event_query = f"({event_query})"
             queries.append(event_query)
 

@@ -56,12 +56,12 @@ class User(base.DynamoDBModel):
     #
     @property
     def name(self) -> str:
-        """The Users Name only (eg.: Arrg#2048 -> Arrg)"""
+        """The Users Name only (eg.: Arrg#2048 -> Arrg)."""
         return self.discord_tag.split("#")[0]
 
     @property
     def discriminator(self) -> str:
-        """The Users discriminator (eg.: Arrg#2048 -> 2048)"""
+        """The Users discriminator (eg.: Arrg#2048 -> 2048)."""
         return self.discord_tag.split("#")[-1]
 
     @property

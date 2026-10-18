@@ -30,9 +30,11 @@ async def send_metric(prefix: str, **values: int) -> None:
     # result = requests.post(GRAFANA_URL, json=data, headers=headers)
     # print(result, result.text)
 
-    async with aiohttp.ClientSession() as session:
-        async with session.post(url=GRAFANA_URL, json=data, headers=headers) as resp:
-            print(resp)
+    async with (
+        aiohttp.ClientSession() as session,
+        session.post(url=GRAFANA_URL, json=data, headers=headers) as resp,
+    ):
+        print(resp)
 
 
 async def get_rate_info() -> dict[str, int]:

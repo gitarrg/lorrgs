@@ -1,4 +1,4 @@
-"""Relevant Racials
+"""Relevant Racials.
 
 Ref: https://www.wowhead.com/spells/racial-traits
 """

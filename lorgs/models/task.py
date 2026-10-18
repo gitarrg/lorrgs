@@ -13,8 +13,6 @@ from lorgs.models.base import redis
 
 
 class Task(redis.RedisModel):
-    """"""
-
     class STATUS:
         NEW = "new"
         WAITING = "waiting"

@@ -90,10 +90,17 @@ async def load_user_report_overview(response: fastapi.Response, report_id: str, 
 
 
 @router.get("/{report_id}/load")
-async def load_user_report(response: fastapi.Response, report_id: str, fight: str, player: str, user_id: int = 0):
-    """Load a Report
+async def load_user_report(
+    response: fastapi.Response,
+    report_id: str,
+    fight: str,
+    player: str,
+    user_id: int = 0,
+):
+    """Load a Report.
 
     Args:
+        response(fastapi.Response): the response object
         report_id(str): the report to load
         fight (str): dot separated list of fight ids (eg.: 2.4.15)
         player (str): dot separated list of player ids (eg.: 1.5.20)

@@ -111,7 +111,7 @@ STATIS_SPELLS = [
 
 def filter_stasis_spells(actor: warcraftlogs_actor.BaseActor, status: str) -> None:
     """Remove Spells cast by stasis.
-    
+
     Those are no manual casts, and thus can be confusing if they show up in the timeline
 
     """

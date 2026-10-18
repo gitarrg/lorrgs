@@ -11,7 +11,7 @@ import io
 import os
 import pathlib
 import shutil
-import subprocess
+import subprocess  # ruff: ignore[suspicious-subprocess-import]
 import typing
 
 import boto3
@@ -42,13 +42,12 @@ PREFIX = os.getenv("DEPLOY_PREFIX") or ""
 
 def calc_checksum(path) -> str:
     """Calc an MD5 Checksum for a given path."""
-    hash = hashlib.md5()
+    hash_obj = hashlib.md5()  # ruff: ignore[hashlib-insecure-hash-function]
 
-    for filepath in glob.glob(path, recursive=True):
-        with pathlib.Path(filepath).open("rb") as f:
-            hash.update(f.read())
+    for filepath in glob.glob(path, recursive=True):  # ruff: ignore[glob]
+        hash_obj.update(pathlib.Path(filepath).read_bytes())
 
-    return hash.hexdigest()
+    return hash_obj.hexdigest()
 
 
 def zip_folder(src: str, tar: str) -> str:
@@ -150,8 +149,8 @@ class RequirementsLayer(LambdaLayer):
 
     def _export_requirements(self) -> str:
         """Generate a requirements.txt from pyproject.toml / uv.lock."""
-        subprocess.check_call(
-            [
+        subprocess.check_call(  # ruff: ignore[subprocess-without-shell-equals-true]
+            [  # ruff: ignore[start-process-with-partial-path]
                 "uv",
                 "export",
                 "--no-annotate",
@@ -173,8 +172,8 @@ class RequirementsLayer(LambdaLayer):
 
         path = f"{DEPLOY_DIR}/{self.full_name}"
 
-        subprocess.call(
-            [
+        subprocess.call(  # ruff: ignore[subprocess-without-shell-equals-true]
+            [  # ruff: ignore[start-process-with-partial-path]
                 "uv",
                 "run",
                 "pip",

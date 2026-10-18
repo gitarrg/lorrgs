@@ -37,8 +37,8 @@ class CharacterRankingReportServerData(BaseModel):
 
 class CharacterRanking(BaseModel):
     """Represents a Character/Player on the Rankings for a given Boss/Difficulty/Metric.
-    Ref: https://www.warcraftlogs.com/v2-api-docs/warcraft/encounter.doc.html
 
+    Ref: https://www.warcraftlogs.com/v2-api-docs/warcraft/encounter.doc.html
     """
 
     name: str
