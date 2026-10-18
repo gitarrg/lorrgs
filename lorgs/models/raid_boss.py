@@ -46,13 +46,6 @@ class RaidBoss(WowActor):
     phase_type: PhaseType = PhaseType.STATIC
     """Type of phases for this boss."""
 
-    def post_init(self) -> None:
-        super().post_init()
-        # Subclasses are stored under their own type; also index them as RaidBoss
-        # so RaidBoss.get() / list() still find them.
-        if type(self) is not RaidBoss:
-            self.__instances__[RaidBoss].add(self)
-
     def __repr__(self):
         return f"<RaidBoss(id={self.id} name={self.name})>"
 

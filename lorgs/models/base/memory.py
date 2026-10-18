@@ -28,7 +28,11 @@ class MemoryModel(base.BaseModel):
 
     def post_init(self) -> None:
         super().post_init()
-        self.__instances__[type(self)].add(self)
+        # Index under every in-memory model class in the inheritance chain so a
+        # base Actor Type lookup finds subclass instances.
+        for model_cls in type(self).__mro__:
+            if issubclass(model_cls, MemoryModel):
+                self.__instances__[model_cls].add(self)
 
     @classmethod
     def get(cls, **kwargs) -> Self | None:
