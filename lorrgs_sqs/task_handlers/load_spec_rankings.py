@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-# IMPORT STANDARD LIBRARIES
-import datetime
-
 # IMPORT LOCAL LIBRARIES
 from lorgs import data  # pylint: disable=unused-import  # noqa: F401
 from lorgs.loaders.spec_ranking import SpecRankingLoader
@@ -31,13 +28,12 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
     if not ranking.spec:
         raise TaskValidationError("invalid spec")
 
-    # `clear` is an explicit reload request. Freshness lives on the ranking.
-    now = datetime.datetime.now(datetime.UTC)
-    if not payload.clear and not ranking.needs_refresh(now, payload.limit):
+    needs_refresh = payload.clear or ranking.needs_refresh(limit=payload.limit)
+    if not needs_refresh:
         logger.info(f"already updated: {payload=}")
         return True, "already updated"
 
-    await SpecRankingLoader(ranking).load(limit=payload.limit, clear_old=payload.clear or ranking.full_reload())
+    await SpecRankingLoader(ranking).load(limit=payload.limit, clear_old=payload.clear)
     ranking.save()
     return True, "done"
 

@@ -28,36 +28,42 @@ def _ranking(
 def test_dirty_ranking_refreshes_even_when_recent() -> None:
     ranking = _ranking(dirty=True)
 
-    assert ranking.needs_refresh(NOW, LIMIT) is True
+    assert ranking.needs_refresh(LIMIT, now=NOW) is True
 
 
 def test_clean_stale_ranking_refreshes() -> None:
     ranking = _ranking(updated=NOW - datetime.timedelta(hours=2, seconds=1))
 
-    assert ranking.needs_refresh(NOW, LIMIT) is True
+    assert ranking.needs_refresh(LIMIT, now=NOW) is True
 
 
 def test_clean_recent_ranking_with_the_right_report_count_skips() -> None:
     ranking = _ranking(updated=NOW - datetime.timedelta(hours=2))
 
-    assert ranking.needs_refresh(NOW, LIMIT) is False
+    assert ranking.needs_refresh(LIMIT, now=NOW) is False
 
 
-def test_wrong_report_count_refreshes_even_when_recent() -> None:
+def test_fewer_reports_than_the_limit_refreshes_even_when_recent() -> None:
     ranking = _ranking(report_count=LIMIT - 1)
 
-    assert ranking.needs_refresh(NOW, LIMIT) is True
+    assert ranking.needs_refresh(LIMIT, now=NOW) is True
+
+
+def test_extra_reports_do_not_force_a_refresh() -> None:
+    ranking = _ranking(report_count=LIMIT + 1)
+
+    assert ranking.needs_refresh(LIMIT, now=NOW) is False
 
 
 def test_naive_recent_timestamp_is_treated_as_utc() -> None:
     updated = (NOW - datetime.timedelta(minutes=30)).replace(tzinfo=None)
     ranking = _ranking(updated=updated)
 
-    assert ranking.needs_refresh(NOW, LIMIT) is False
+    assert ranking.needs_refresh(LIMIT, now=NOW) is False
 
 
 def test_naive_stale_timestamp_is_treated_as_utc() -> None:
     updated = (NOW - datetime.timedelta(hours=3)).replace(tzinfo=None)
     ranking = _ranking(updated=updated)
 
-    assert ranking.needs_refresh(NOW, LIMIT) is True
+    assert ranking.needs_refresh(LIMIT, now=NOW) is True
