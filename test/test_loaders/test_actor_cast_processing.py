@@ -6,6 +6,7 @@ import logging
 
 import pytest
 
+import lorgs.data.classes.demonhunter  # noqa: F401  # registers Devourer and its load handler
 import lorgs.data.classes.druid  # noqa: F401  # registers Restoration Druid
 from lorgs.data.roles import HEAL
 from lorgs.loaders.actor_loader import ActorLoader
@@ -33,6 +34,16 @@ def _cast(timestamp: int, spell_id: int, source_id: int = 10) -> dict[str, int |
         "timestamp": timestamp,
         "type": "cast",
         "sourceID": source_id,
+        "abilityGameID": spell_id,
+    }
+
+
+def _aura(timestamp: int, spell_id: int, event_type: str, source_id: int = 10) -> dict[str, int | str]:
+    return {
+        "timestamp": timestamp,
+        "type": event_type,
+        "sourceID": source_id,
+        "targetID": source_id,
         "abilityGameID": spell_id,
     }
 
@@ -108,6 +119,42 @@ def test_class_process_casts_runs_before_spec_process_casts() -> None:
         (CLASS_MARK, 1, 1),
         (SPEC_AFTER_CLASS, 2, 1),
         (50, 1_000, 1),
+    ]
+
+
+VOID_METAMORPHOSIS = 1217607
+DROP_VOID_META = 267134
+
+
+def test_void_metamorphosis_gains_a_drop_cast_at_its_end_in_time_order(capsys: pytest.CaptureFixture[str]) -> None:
+    """Each Void Metamorphosis yields a Drop Void Meta Cast at its end, numbered in time order."""
+    events = _events(
+        _aura(0, VOID_METAMORPHOSIS, "applybuff"),
+        _cast(5_000, 1246167),
+        _aura(10_000, VOID_METAMORPHOSIS, "removebuff"),
+        _aura(20_000, VOID_METAMORPHOSIS, "applybuff"),
+        _aura(28_000, VOID_METAMORPHOSIS, "removebuff"),
+    )
+
+    assert _process("demonhunter-devourer", events) == [
+        (VOID_METAMORPHOSIS, 0, 1),
+        (1246167, 5_000, 1),
+        (DROP_VOID_META, 10_000, 1),
+        (VOID_METAMORPHOSIS, 20_000, 2),
+        (DROP_VOID_META, 28_000, 2),
+    ]
+    assert capsys.readouterr().out == ""
+
+
+def test_actor_load_does_not_add_drop_void_meta_casts() -> None:
+    """actor.load does not add Drop Void Meta Casts."""
+    player = Player(source_id=10, spec_slug="demonhunter-devourer", name="Devourer")
+    player.casts = [Cast(spell_id=VOID_METAMORPHOSIS, timestamp=0, duration=10_000)]
+
+    player.event_actor_load.send(player, status="success")
+
+    assert [(cast.spell_id, cast.timestamp) for cast in player.casts] == [
+        (VOID_METAMORPHOSIS, 0),
     ]
 
 
