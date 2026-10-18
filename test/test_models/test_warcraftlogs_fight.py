@@ -127,7 +127,7 @@ def _fight_in_report(**kwargs) -> Fight:
     return fight
 
 
-def test_report_time_converts_to_milliseconds_since_pull() -> None:
+def test_report_time_converts_to_milliseconds_since_the_fight_started() -> None:
     fight = _fight_in_report()
 
     assert fight.to_fight_time(25_000) == 4_000
