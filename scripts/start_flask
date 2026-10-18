@@ -1,32 +1,10 @@
 #!/usr/bin/env bash
 
-echo "sourcing .env"
-set -a
-source .env
-set +a
-
-
-# env
-if [ "$VIRTUAL_ENV" = "" ]
-then
-    source ./venv/bin/activate
-fi
-export PYTHONPATH=.  # adds current dir, so we can import
-
-
 # config
 export APP="lorrgs_api.app:create_app"
 export PORT=5012
 export DEBUG=1
 export DEFAULT_CACHE_TIMEOUT=60
+export PYTHONPATH=.  # adds current dir, so we can import
 
-
-# Dev Servers
-# flask run --host=0.0.0.0 --port=$PORT
-# quart run --host=0.0.0.0 --port=$PORT
-uvicorn --factory $APP --port=$PORT --reload
-
-
-# Prod Commands
-# gunicorn -b :$PORT --timeout=240 "lorgs.app:create_app()" --workers 1
-# hypercorn -b :$PORT "lorgs.app:create_app()" --workers 4
+uv run uvicorn --factory $APP --port=$PORT --reload
