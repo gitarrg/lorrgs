@@ -46,38 +46,63 @@ class PreservationEvoker(WowSpec):
     @override
     def process_casts(self, casts: list[Cast]) -> list[Cast]:
         """Give Stasis charges their real duration, then drop spells Stasis released."""
+        casts = self._calculate_stasis_duration(casts)
+        casts = self._filter_stasis_release_spells(casts)
+        return casts
+
+    def _calculate_stasis_duration(self, casts: list[Cast]) -> list[Cast]:  # ruff: ignore[no-self-use]
+        """Charge then release sets the charge duration. A lone release was charged for the full duration before the pull."""
         charge: Cast | None = None
+        prepull: list[Cast] = []
+        full_duration_ms = int(STASIS_STORE.duration * 1000)
+
         for cast in casts:
-            if cast.spell_id == STASIS_CHARGE.spell_id:
+
+            # new store
+            if cast.spell_id == STASIS_STORE.spell_id:
                 charge = cast
                 continue
-            if cast.spell_id != STASIS_RELEASE.spell_id:
-                continue
-            if charge is not None:
-                charge.duration = cast.timestamp - charge.timestamp
-                continue
-            charged_for = cast.timestamp
-            cast.spell_id = STASIS_CHARGE.spell_id
-            cast.duration = charged_for
-            cast.timestamp = 0
 
+            # new release
+            if cast.spell_id == STASIS_RELEASE.spell_id:
+
+                if charge:
+                    charge.duration = cast.timestamp - charge.timestamp
+                else:
+                    prepull.append(Cast(
+                        spell_id=STASIS_STORE.spell_id,
+                        timestamp=cast.timestamp - full_duration_ms,
+                        duration=full_duration_ms,
+                    ))
+
+        # no need to sort, prepull is first
+        return [*prepull,*casts]
+
+    def _filter_stasis_release_spells(self, casts: list[Cast]) -> list[Cast]:  # ruff: ignore[no-self-use]
+        """Drop a stored spell cast within a second of Stasis Pop."""
         release_window_ms = 1_000
-        stored_spell_ids = {spell.spell_id for spell in STASIS_STORED_SPELLS}
-        last_stasis_end: int | None = None
-        kept: list[Cast] = []
+
+        stasis_storable_spells = {
+            DREAM_BREATH.spell_id,  # the only spell that we track
+        }
+
+        stasis_release: int = -1000
+
+        stasis_casts: list[Cast] = []
+        # spells that have been released from Stasis
+
         for cast in casts:
-            if cast.spell_id == STASIS_RELEASE_AURA:
-                last_stasis_end = cast.timestamp + cast.get_duration()
-                kept.append(cast)
-                continue
-            released = (
-                last_stasis_end is not None
-                and cast.spell_id in stored_spell_ids
-                and cast.timestamp - last_stasis_end < release_window_ms
-            )
-            if not released:
-                kept.append(cast)
-        return kept
+
+            if cast.spell_id == STASIS_RELEASE.spell_id:
+                stasis_release = cast.timestamp + cast.get_duration()
+
+            can_be_stored = cast.spell_id in stasis_storable_spells
+            within_release_window = cast.timestamp - stasis_release < release_window_ms
+
+            if can_be_stored and within_release_window:
+                stasis_casts.append(cast)
+
+        return [cast for cast in casts if cast not in stasis_casts]
 
 
 EVOKER_PRESERVATION = PreservationEvoker()
@@ -114,11 +139,8 @@ EVOKER_PRESERVATION.add_spell(spell_id=370960, name="Emerald Communion",  cooldo
 EVOKER_PRESERVATION.add_spell(spell_id=363534, name="Rewind",             cooldown=180,              color=COLOR_BRONZE, icon="ability_evoker_rewind.jpg", tags=[SpellTag.RAID_CD])
 EVOKER_PRESERVATION.add_spell(spell_id=359816, name="Dreamflight",        cooldown=120, duration=15, color="#33a36d",    icon="ability_evoker_dreamflight.jpg", tags=[SpellTag.RAID_CD])
 DREAM_BREATH = EVOKER_PRESERVATION.add_spell(spell_id=355936, name="Dream Breath",       cooldown=30,               color="#59ebb3",  icon="ability_evoker_dreambreath.jpg", show=False)
-STASIS_CHARGE = EVOKER_PRESERVATION.add_spell(spell_id=370537, name="Stasis", cooldown=90, color=COLOR_BRONZE, icon="ability_evoker_stasis.jpg", tags=[SpellTag.RAID_CD])
-STASIS_RELEASE = EVOKER_PRESERVATION.add_spell(spell_id=370564, name="Stasis Pop", icon=STASIS_CHARGE.icon, show=False)
-# Aura whose end is the moment Stasis releases what it stored. Distinct from Stasis Pop.
-STASIS_RELEASE_AURA = 370562
-STASIS_STORED_SPELLS = (DREAM_BREATH,)
+STASIS_STORE = EVOKER_PRESERVATION.add_spell(spell_id=370537, name="Stasis", cooldown=90, duration=30, color=COLOR_BRONZE, icon="ability_evoker_stasis.jpg", tags=[SpellTag.RAID_CD])
+STASIS_RELEASE = EVOKER_PRESERVATION.add_spell(spell_id=370564, name="Stasis Pop", icon=STASIS_STORE.icon, show=False)
 
 # Augmentation
 EVOKER_AUGMENTATION.add_buff( spell_id=395296, name="Ebon Might Buff",                            color="#bf8330", icon="spell_sarkareth.jpg", show=False)

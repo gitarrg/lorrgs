@@ -238,7 +238,6 @@ def test_actor_load_does_not_drop_marksmanship_explosive_shot_recasts() -> None:
 
 STASIS = 370537
 STASIS_POP = 370564
-STASIS_RELEASE_AURA = 370562
 DREAM_BREATH = 355936
 
 
@@ -255,25 +254,28 @@ def test_stasis_charge_keeps_the_duration_until_release() -> None:
     ]
 
 
-def test_stasis_charged_before_the_pull_starts_at_zero() -> None:
-    """A release with no charge becomes a charge at 0:00 lasting until that release."""
-    events = _events(_cast(12_000, STASIS_POP))
+def test_stasis_charged_before_the_pull_starts_a_full_duration_earlier() -> None:
+    """A lone release stays put and gains a charge one full Stasis duration earlier."""
+    events = _events(_cast(26_000, STASIS_POP))
 
     assert _with_duration("evoker-preservation", events) == [
-        (STASIS, 0, 12_000, 1),
+        (STASIS, -4_000, 30_000, 1),
+        (STASIS_POP, 26_000, None, 1),
     ]
 
 
 def test_dream_breath_released_by_stasis_is_dropped_and_a_later_one_is_numbered_alone() -> None:
-    """Dream Breath within about a second of Stasis releasing is removed; a later one stays."""
+    """Dream Breath within about a second of Stasis Pop is removed; a later one stays."""
     events = _events(
-        _cast(10_000, STASIS_RELEASE_AURA),
+        _cast(0, STASIS),
+        _cast(10_000, STASIS_POP),
         _cast(10_500, DREAM_BREATH),
         _cast(12_000, DREAM_BREATH),
     )
 
     assert _process("evoker-preservation", events) == [
-        (STASIS_RELEASE_AURA, 10_000, 1),
+        (STASIS, 0, 1),
+        (STASIS_POP, 10_000, 1),
         (DREAM_BREATH, 12_000, 1),
     ]
 
@@ -284,7 +286,6 @@ def test_actor_load_does_not_apply_preservation_stasis_fixes() -> None:
     player.casts = [
         Cast(spell_id=STASIS, timestamp=5_000),
         Cast(spell_id=STASIS_POP, timestamp=25_000),
-        Cast(spell_id=STASIS_RELEASE_AURA, timestamp=25_000),
         Cast(spell_id=DREAM_BREATH, timestamp=25_500),
     ]
 
@@ -293,7 +294,6 @@ def test_actor_load_does_not_apply_preservation_stasis_fixes() -> None:
     assert [(cast.spell_id, cast.timestamp, cast.duration) for cast in player.casts] == [
         (STASIS, 5_000, None),
         (STASIS_POP, 25_000, None),
-        (STASIS_RELEASE_AURA, 25_000, None),
         (DREAM_BREATH, 25_500, None),
     ]
 

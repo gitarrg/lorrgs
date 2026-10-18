@@ -40,7 +40,7 @@ class DevourerDemonHunter(WowSpec):
 
     @override
     def process_casts(self, casts: list[Cast]) -> list[Cast]:
-        """Add a Drop Void Meta Cast at the end of each Void Metamorphosis."""
+        """Add a "Drop Void Meta"-Cast at the end of each Void Metamorphosis."""
         drops = [
             Cast(
                 spell_id=DROP_META.spell_id,
@@ -50,8 +50,6 @@ class DevourerDemonHunter(WowSpec):
             for cast in casts
             if cast.spell_id == VOID_META.spell_id
         ]
-        if not drops:
-            return casts
         return sorted([*casts, *drops], key=lambda cast: cast.timestamp)
 
 
