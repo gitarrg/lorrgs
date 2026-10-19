@@ -26,5 +26,10 @@ def init(app: fastapi.FastAPI, enabled=True):
     @app.middleware("http")
     async def add_default_cache_control(request: fastapi.Request, call_next):
         response = await call_next(request)
-        response.headers.setdefault("Cache-Control", DEFAULT_CACHE_HEADER)
+        if response.status_code >= 400:
+            response.headers["Cache-Control"] = "no-store"
+        else:
+            response.headers.setdefault("Cache-Control", DEFAULT_CACHE_HEADER)
+        # CloudFront must include Origin in the cache key for this to take effect.
+        response.headers.add_vary_header("Origin")
         return response

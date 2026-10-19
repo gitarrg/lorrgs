@@ -9,25 +9,25 @@ from fastapi.middleware.cors import CORSMiddleware
 
 ORIGINS = [
     "https://lorrgs.io",
-    "https://*.lorrgs-frontend.pages.dev",  # CloudFlare Pages preview Builds
 ]
 
-DEBUG = os.getenv("DEBUG")
-if DEBUG:
-    ORIGINS.append("*")
-
-# 14/09/2026: tmp fix
-ORIGINS = ["*"]
-
+# Pages production host and preview hosts such as https://<branch>.lorrgs-frontend.pages.dev.
+# allow_origins matches literally, so the wildcard has to be a regex.
+ORIGIN_REGEX = r"https://([A-Za-z0-9-]+\.)?lorrgs-frontend\.pages\.dev"
 
 def init(app: fastapi.FastAPI, enabled=True):
 
     if not enabled:
         return
 
+    origins = list(ORIGINS)
+    if os.getenv("DEBUG"):
+        origins.append("*")
+
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=ORIGINS,
+        allow_origins=origins,
+        allow_origin_regex=ORIGIN_REGEX,
         allow_credentials=False,
         allow_methods=["POST", "GET", "OPTIONS"],
         allow_headers=["*"],
