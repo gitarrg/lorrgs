@@ -5,8 +5,13 @@ import asyncio
 import typing
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.loaders.boss_loader import BossLoader
 from lorgs.loaders.fight_loader import FightLoader
+from lorgs.loaders.fight_phases import (
+    FightPhasesLoader,
+    correct_loaded_phases,
+    fights_ready_for_phase_correction,
+    queue_boss_loader,
+)
 from lorgs.loaders.player_loader import PlayerLoader
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader
 from lorgs.logger import logger
@@ -15,6 +20,7 @@ from lorgs.logger import logger
 if typing.TYPE_CHECKING:
     from lorgs.clients.wcl.client import WarcraftlogsClient
     from lorgs.loaders.base_loader import BaseLoader
+    from lorgs.models.warcraftlogs_fight import Fight
     from lorgs.models.warcraftlogs_report import Report
 
 
@@ -49,7 +55,32 @@ class ReportLoader:
             overview_loader = ReportOverviewLoader(report=self.report)
             await overview_loader.load(client=client)
 
+        loaders, fights_loading_phases, fights_loading_boss = await self._collect_loaders(
+            client,
+            fight_ids,
+            player_ids,
+            load_boss=load_boss,
+        )
+        loaders = [loader for loader in loaders if loader.needs_load()]
+        logger.info(f"load {len(loaders)} items")
+        if loaders:
+            await asyncio.gather(*[loader.load(client=client) for loader in loaders])
+
+        ready = fights_ready_for_phase_correction(fights_loading_phases, fights_loading_boss)
+        for fight in ready:
+            correct_loaded_phases(fight)
+
+    async def _collect_loaders(
+        self,
+        client: WarcraftlogsClient | None,
+        fight_ids: list[int],
+        player_ids: list[int],
+        *,
+        load_boss: bool,
+    ) -> tuple[list[BaseLoader], list[Fight], list[Fight]]:
         loaders: list[BaseLoader] = []
+        fights_loading_phases: list[Fight] = []
+        fights_loading_boss: list[Fight] = []
         for fight_id in fight_ids:
 
             fight = self.report.get_fight(fight_id)
@@ -63,11 +94,14 @@ class ReportLoader:
             # we can't use the ReportOverview since player specs might be
             # different from fight to fight
             if not fight.players:
+                phases_need_load = FightPhasesLoader(fight).needs_load()
                 await FightLoader(fight=fight).load(client=client)
+                if phases_need_load:
+                    fights_loading_phases.append(fight)
 
             # boss
-            if load_boss and fight.boss:
-                loaders.append(BossLoader(fight.boss))
+            if load_boss:
+                queue_boss_loader(fight, loaders, fights_loading_boss)
 
             # players
             for player_id in player_ids:
@@ -79,7 +113,4 @@ class ReportLoader:
 
                 loaders.append(PlayerLoader(player))
 
-        loaders = [loader for loader in loaders if loader.needs_load()]
-        logger.info(f"load {len(loaders)} items")
-        if loaders:
-            await asyncio.gather(*[loader.load(client=client) for loader in loaders])
+        return loaders, fights_loading_phases, fights_loading_boss

@@ -7,13 +7,67 @@ from typing import TYPE_CHECKING
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import wcl
+from lorgs.logger import logger
 
 from .base_loader import BaseLoader
+from .boss_loader import BossLoader
 
 
 if TYPE_CHECKING:
     from lorgs.clients.wcl import WarcraftlogsClient
     from lorgs.models.warcraftlogs_fight import Fight
+
+
+def queue_boss_loader(
+    fight: Fight,
+    loaders: list[BaseLoader],
+    fights_loading_boss: list[Fight],
+) -> None:
+    """Queue the boss load, and remember the Fight when that load will run."""
+    if fight.boss is None:
+        return
+
+    boss_loader = BossLoader(fight.boss)
+    if boss_loader.needs_load():
+        fights_loading_boss.append(fight)
+    loaders.append(boss_loader)
+
+
+def fights_ready_for_phase_correction(
+    fights_loading_phases: list[Fight],
+    fights_loading_boss: list[Fight],
+) -> list[Fight]:
+    """Fights whose Phases and boss Casts are both available after this load."""
+    ready: list[Fight] = []
+    seen: set[int] = set()
+
+    def add(fight: Fight) -> None:
+        if id(fight) in seen:
+            return
+        seen.add(id(fight))
+        ready.append(fight)
+
+    for fight in fights_loading_boss:
+        add(fight)
+    for fight in fights_loading_phases:
+        if fight.boss is not None and fight.boss.casts:
+            add(fight)
+    return ready
+
+
+def correct_loaded_phases(fight: Fight) -> None:
+    """Apply the boss's phase correction once its Casts are loaded.
+
+    A failure is logged and the Fight's Phases stay as they were.
+    """
+    boss = fight.boss
+    if boss is None:
+        return
+
+    try:
+        fight.phases = boss.raid_boss.process_phases(fight.phases, boss.casts)
+    except Exception:  # ruff: ignore[blind-except]  # one boss must not fail the load
+        logger.exception("Failed to correct phases for fight %s", fight.fight_id)
 
 
 class FightPhasesLoader(BaseLoader):

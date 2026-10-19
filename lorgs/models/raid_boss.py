@@ -15,6 +15,7 @@ from lorgs.models.wow_trinket import WowTrinket
 
 if typing.TYPE_CHECKING:
     from lorgs.clients import wcl
+    from lorgs.models.warcraftlogs_cast import Cast
     from lorgs.models.warcraftlogs_fight import Phase
     from lorgs.models.wow_spell import WowSpell
 
@@ -57,6 +58,10 @@ class RaidBoss(WowActor):
         trinket = WowTrinket(**kwargs)
         self.trinkets.append(trinket)
         return trinket
+
+    def process_phases(self, phases: list[Phase], casts: list[Cast]) -> list[Phase]:  # ruff: ignore[no-self-use, unused-method-argument]
+        """Return this boss's Phases. The default leaves them unchanged."""
+        return phases
 
     def phase_from_transition(self, transition: wcl.PhaseTransition) -> Phase | None:  # ruff: ignore[no-self-use]
         """Map a WCL phase transition into a fight Phase.
