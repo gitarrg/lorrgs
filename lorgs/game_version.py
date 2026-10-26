@@ -1,4 +1,4 @@
-"""The Game Version (Retail, WoW Forever, ...) this deployment serves.
+"""The Game Version (Retail, Classic, Forever, ...) this deployment serves.
 
 Each deployment serves exactly one Game Version, picked by the `LORRGS_GAME_VERSION`
 environment variable (default: `retail`). It is resolved once, at import time.
@@ -15,10 +15,6 @@ import os
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models.difficulty import RaidDifficulty
-
-
-ENV_VAR = "LORRGS_GAME_VERSION"
-DEFAULT_NAME = "retail"
 
 
 @dataclasses.dataclass(frozen=True)
@@ -60,23 +56,10 @@ FOREVER = GameVersion(
     data_package="lorgs.data.forever",
 )
 
-GAME_VERSIONS: dict[str, GameVersion] = {gv.name: gv for gv in (RETAIL, FOREVER)}
+GAME_VERSIONS: dict[str, GameVersion] = {}
+GAME_VERSIONS[FOREVER.name] = FOREVER
+GAME_VERSIONS[RETAIL.name] = RETAIL
 
 
-def resolve(name: str | None) -> GameVersion:
-    """Look up a Game Version by name (case-insensitive). Empty/None means the default.
-
-    Raises:
-        ValueError: if `name` is not a known Game Version.
-
-    """
-    key = (name or "").strip().lower() or DEFAULT_NAME
-    try:
-        return GAME_VERSIONS[key]
-    except KeyError:
-        valid = ", ".join(sorted(GAME_VERSIONS))
-        msg = f"Invalid {ENV_VAR}={name!r}. Expected one of: {valid}"
-        raise ValueError(msg) from None
-
-
-ACTIVE: GameVersion = resolve(os.getenv(ENV_VAR))
+current_game_version = os.getenv("LORRGS_GAME_VERSION") or RETAIL.name
+ACTIVE = GAME_VERSIONS[current_game_version]
