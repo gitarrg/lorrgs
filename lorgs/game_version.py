@@ -69,7 +69,7 @@ CLASSIC_MOP = GameVersion(
     name="classic_mop",
     s3_prefix="classic_mop/",
     difficulties=(RaidDifficulty.NORMAL, RaidDifficulty.HEROIC),
-    wcl_game_versions=frozenset(),  # placeholder until we know the WCL id
+    wcl_game_versions=frozenset({6}),
     data_package="lorgs.data.classic_mop",
 )
 

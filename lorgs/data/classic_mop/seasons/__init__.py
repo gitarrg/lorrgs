@@ -1,6 +1,6 @@
-from .placeholder import CLASSIC_MOP_PLACEHOLDER_SEASON
+from .mop import CLASSIC_MOP_SEASON
 
 
 __all__ = [
-    "CLASSIC_MOP_PLACEHOLDER_SEASON",
+    "CLASSIC_MOP_SEASON",
 ]

@@ -40,5 +40,5 @@ def test_only_the_active_game_versions_package_is_loaded(env_value: str | None, 
     modules = result.stdout.strip()
     assert loaded in modules
     assert not_loaded not in modules
-    if env_value in {"forever", "classic_mop"}:
-        assert "expansions" not in modules, "Forever and Classic MoP import no expansions yet"
+    if env_value == "forever":
+        assert "expansions" not in modules, "Forever imports no expansions yet"

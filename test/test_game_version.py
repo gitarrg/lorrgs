@@ -69,6 +69,7 @@ def test_game_version_config() -> None:
     assert CLASSIC_MOP.s3_prefix == "classic_mop/"
     assert CLASSIC_MOP.difficulties == (RaidDifficulty.NORMAL, RaidDifficulty.HEROIC)
     assert CLASSIC_MOP.default_difficulty is RaidDifficulty.HEROIC
+    assert CLASSIC_MOP.wcl_game_versions == frozenset({6})
     assert CLASSIC_MOP.data_package == "lorgs.data.classic_mop"
 
 

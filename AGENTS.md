@@ -21,7 +21,7 @@ Shared library `lorgs/`:
 - `clients/discord/`: OAuth login + bot messages.
 - `loaders/`: WCL query building and response parsing (loader extraction is an ongoing refactor; some models still query WCL themselves via `wclclient_mixin`).
 - `models/`: persistence per type: S3 (`SpecRanking`, `CompRanking`), DynamoDB (`UserReport`, `User`), Redis (`Task`), in-memory `MemoryModel` for static game data.
-- `data/`: hand-written game data. `roles.py` and `constants.py` are shared; `expansions/<xpac>/{raids,dungeons}/` is the shared boss/dungeon library (one file per boss); each Game Version has its own package that `LORRGS_GAME_VERSION` picks: `retail/` (`classes/` for spec cooldowns, `racials.py`, `externals.py`, `items/`, `seasons/`, `season.py` with `CURRENT_SEASON`, and it imports the expansions Retail uses), `forever/` and `classic_mop/` (empty skeletons). Code outside `data/` reads game data via `from lorgs.data import ...` or the registries, never from a version package.
+- `data/`: hand-written game data. `roles.py` and `constants.py` are shared; `expansions/<xpac>/{raids,dungeons}/` is the shared boss/dungeon library (one file per boss); each Game Version has its own package that `LORRGS_GAME_VERSION` picks: `retail/` (`classes/` for spec cooldowns, `racials.py`, `externals.py`, `items/`, `seasons/`, `season.py` with `CURRENT_SEASON`, and it imports the expansions Retail uses), `forever/` (empty skeleton) and `classic_mop/` (classes with their major cooldowns, and the Mists of Pandaria raids; no boss spells yet). Code outside `data/` reads game data via `from lorgs.data import ...` or the registries, never from a version package.
 
 ## Game data
 
