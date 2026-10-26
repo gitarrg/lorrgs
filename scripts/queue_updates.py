@@ -9,7 +9,7 @@ import asyncio
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.data.expansions.midnight.raids import (
     THE_TIDEBOUND_GROTTO,  # ruff: ignore[unused-import]
     THE_UNBINDING_OF_KITHIX,  # ruff: ignore[unused-import]
@@ -18,7 +18,7 @@ from lorgs.data.expansions.midnight.raids import (
 from lorgs.data.expansions.midnight.raids.the_tidebound_grotto import *
 from lorgs.data.expansions.midnight.raids.the_unbinding_of_kithix import *
 from lorgs.data.expansions.midnight.raids.the_venomous_abyss import *
-from lorgs.data.season import CURRENT_SEASON  # ruff: ignore[unused-import]
+from lorgs.data import CURRENT_SEASON  # ruff: ignore[unused-import]
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.task_payloads import SpecRankingPayload
 from lorgs.models.wow_spec import WowSpec

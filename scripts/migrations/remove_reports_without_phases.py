@@ -10,7 +10,7 @@
 import asyncio
 import logging
 
-from lorgs.data.season import CURRENT_SEASON
+from lorgs.data import CURRENT_SEASON
 from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_report import Report
 
@@ -21,7 +21,7 @@ from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 
 # data
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.data.expansions.the_war_within.raids.nerubar_palace import *
 
 

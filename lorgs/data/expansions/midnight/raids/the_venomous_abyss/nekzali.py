@@ -1,6 +1,6 @@
 """Nek'zali the Soulcoiler (The Venomous Abyss)."""
 
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.models import warcraftlogs_actor, warcraftlogs_boss, warcraftlogs_fight
 from lorgs.models.raid_boss import RaidBoss
 

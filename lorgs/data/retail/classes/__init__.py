@@ -1,20 +1,20 @@
 """All Playable Classes in the Game."""
 from __future__ import annotations
 
-from lorgs.data.classes.deathknight import *
-from lorgs.data.classes.demonhunter import *
-from lorgs.data.classes.druid import *
-from lorgs.data.classes.evoker import *
-from lorgs.data.classes.hunter import *
-from lorgs.data.classes.mage import *
-from lorgs.data.classes.monk import *
-from lorgs.data.classes.other import *
-from lorgs.data.classes.paladin import *
-from lorgs.data.classes.priest import *
-from lorgs.data.classes.rogue import *
-from lorgs.data.classes.shaman import *
-from lorgs.data.classes.warlock import *
-from lorgs.data.classes.warrior import *
+from lorgs.data.retail.classes.deathknight import *
+from lorgs.data.retail.classes.demonhunter import *
+from lorgs.data.retail.classes.druid import *
+from lorgs.data.retail.classes.evoker import *
+from lorgs.data.retail.classes.hunter import *
+from lorgs.data.retail.classes.mage import *
+from lorgs.data.retail.classes.monk import *
+from lorgs.data.retail.classes.other import *
+from lorgs.data.retail.classes.paladin import *
+from lorgs.data.retail.classes.priest import *
+from lorgs.data.retail.classes.rogue import *
+from lorgs.data.retail.classes.shaman import *
+from lorgs.data.retail.classes.warlock import *
+from lorgs.data.retail.classes.warrior import *
 
 
 # a few collections used to assign trinkets and consumables

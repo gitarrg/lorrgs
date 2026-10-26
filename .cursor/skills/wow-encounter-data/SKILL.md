@@ -24,6 +24,7 @@ Copy an existing file in the same expansion. Match style of nearby bosses, not o
 - Multi-wing tiers may use floats (`46.1`, `51.2`)
 - Encounter IDs also in `https://wago.tools/db2/DungeonEncounter/csv` (filter `MapID`)
 - Export from `raids/__init__.py` and the expansion `__init__.py`
+- A new expansion package must also be imported by `lorgs/data/retail/__init__.py` (each Game Version's package imports the expansions it uses)
 
 **Boss file**
 
@@ -34,9 +35,9 @@ Copy an existing file in the same expansion. Match style of nearby bosses, not o
 
 **Season**
 
-- Copy `seasons/<exp>_sN.py`: `Season(name, slug, ilvl, raids, dungeons)`
-- Export from `seasons/__init__.py` and expansion `__init__.py`
-- Only change `lorgs/data/season.py` `CURRENT_SEASON` when asked
+- Copy `lorgs/data/retail/seasons/<exp>_sN.py`: `Season(name, slug, ilvl, raids, dungeons)`
+- Export from `lorgs/data/retail/seasons/__init__.py`
+- Only change `lorgs/data/retail/season.py` `CURRENT_SEASON` when asked
 
 ## Find spell information (icons, names, cast times, infos)
 

@@ -3,8 +3,8 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from lorgs.data.classes import ALL_SPECS
-from lorgs.data.season import CURRENT_SEASON
+from lorgs.data import CURRENT_SEASON
+from lorgs.data.roles import ALL_ROLES
 from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spec import WowSpec
 
@@ -17,6 +17,7 @@ def expand_metric(payload: dict) -> list[str]:
     return (role and role.metrics) or []
 
 
+ALL_SPECS = {spec for role in ALL_ROLES for spec in role.specs}  # class specs only, no item pseudo-specs
 ALL_BOSSES = []
 for raid in CURRENT_SEASON.raids:
     ALL_BOSSES.extend(raid.bosses)

@@ -1,5 +1,4 @@
 # Raids
-from .consumables import MIDNIGHT_CONSUMABLES
 from .raids import (
     DREAMRIFT,
     MARCH_ON_QUALDANAS,
@@ -10,16 +9,10 @@ from .raids import (
     VOIDSPIRE,
 )
 
-# Seasons
-from .seasons import MIDNIGHT_SEASON1, MIDNIGHT_SEASON2
-
 
 __all__ = [
     "DREAMRIFT",
     "MARCH_ON_QUALDANAS",
-    "MIDNIGHT_CONSUMABLES",
-    "MIDNIGHT_SEASON1",
-    "MIDNIGHT_SEASON2",
     "SPOREFALL",
     "THE_TIDEBOUND_GROTTO",
     "THE_UNBINDING_OF_KITHIX",

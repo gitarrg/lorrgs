@@ -9,7 +9,7 @@ from __future__ import annotations
 # IMPORT STANDARD LIBRARIES
 import typing
 
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 

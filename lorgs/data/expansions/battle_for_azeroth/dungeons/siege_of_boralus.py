@@ -1,5 +1,5 @@
 # IMPORT LOCAL LIBRARIES
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.models.dungeon import Dungeon
 
 

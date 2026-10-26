@@ -3,9 +3,9 @@
 # fmt: off
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data.classes import *  # for Colors
-from lorgs.data.classes import ALL_SPECS
-from lorgs.data.classes.other import OTHER_EXTERNALS
+from lorgs.data.retail.classes import *  # for Colors
+from lorgs.data.retail.classes import ALL_SPECS
+from lorgs.data.retail.classes.other import OTHER_EXTERNALS
 from lorgs.data.constants import *
 
 

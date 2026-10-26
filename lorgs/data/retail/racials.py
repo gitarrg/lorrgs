@@ -7,7 +7,7 @@ Ref: https://www.wowhead.com/spells/racial-traits
 # pylint: disable=wildcard-import
 # pylint: disable=unused-wildcard-import
 # fmt: off
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.models.wow_spell import SpellType
 
 

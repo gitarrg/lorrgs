@@ -6,7 +6,7 @@ from __future__ import annotations
 import fastapi
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data.season import CURRENT_SEASON
+from lorgs.data import CURRENT_SEASON
 from lorgs.models.season import Season
 
 

@@ -5,7 +5,7 @@ import datetime
 import itertools
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.data.expansions.midnight import *
 from lorgs.data.expansions.midnight.raids import THE_TIDEBOUND_GROTTO, THE_VENOMOUS_ABYSS
 from lorgs.data.expansions.midnight.raids.the_tidebound_grotto import *

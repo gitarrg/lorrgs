@@ -5,7 +5,7 @@ PTR Logs:
     https://www.warcraftlogs.com/reports/YxpKjwFbkrC4VGv3?fight=71&type=casts&hostility=1
 """
 
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 
