@@ -27,6 +27,7 @@ def _run(code: str, env_value: str | None) -> subprocess.CompletedProcess[str]:
         ("", "retail"),  # a blank line in `.env` means "use the default"
         ("retail", "retail"),
         ("forever", "forever"),
+        ("classic_mop", "classic_mop"),
     ],
 )
 def test_active_game_version_follows_env(env_value: str | None, expected: str) -> None:
@@ -42,7 +43,7 @@ def test_unknown_game_version_fails_at_import(env_value: str) -> None:
     assert "KeyError" in result.stderr
 
 
-@pytest.mark.parametrize("env_value", [None, "forever"])
+@pytest.mark.parametrize("env_value", [None, "forever", "classic_mop"])
 def test_importing_game_version_does_not_import_game_data(env_value: str | None) -> None:
     code = "import sys; import lorgs.game_version; print(sorted(m for m in sys.modules if m.startswith('lorgs.data')))"
     result = _run(code, env_value)
@@ -50,8 +51,8 @@ def test_importing_game_version_does_not_import_game_data(env_value: str | None)
     assert result.stdout.strip() == "[]"
 
 
-def test_retail_and_forever_config() -> None:
-    from lorgs.game_version import FOREVER, RETAIL
+def test_game_version_config() -> None:
+    from lorgs.game_version import CLASSIC_MOP, FOREVER, RETAIL
     from lorgs.models.difficulty import RaidDifficulty
 
     assert RETAIL.s3_prefix == ""
@@ -65,6 +66,11 @@ def test_retail_and_forever_config() -> None:
     assert FOREVER.default_difficulty is RaidDifficulty.NORMAL
     assert FOREVER.data_package == "lorgs.data.forever"
 
+    assert CLASSIC_MOP.s3_prefix == "classic_mop/"
+    assert CLASSIC_MOP.difficulties == (RaidDifficulty.NORMAL, RaidDifficulty.HEROIC)
+    assert CLASSIC_MOP.default_difficulty is RaidDifficulty.HEROIC
+    assert CLASSIC_MOP.data_package == "lorgs.data.classic_mop"
+
 
 ################################################################################
 # Difficulties come from the active Game Version
@@ -72,17 +78,19 @@ def test_retail_and_forever_config() -> None:
 
 
 def test_difficulty_names() -> None:
-    from lorgs.game_version import FOREVER, RETAIL
+    from lorgs.game_version import CLASSIC_MOP, FOREVER, RETAIL
 
     assert RETAIL.difficulty_names == ("heroic", "mythic")
     assert RETAIL.default_difficulty_name == "mythic"
     assert FOREVER.difficulty_names == ("normal",)
     assert FOREVER.default_difficulty_name == "normal"
+    assert CLASSIC_MOP.difficulty_names == ("normal", "heroic")
+    assert CLASSIC_MOP.default_difficulty_name == "heroic"
 
 
 @pytest.mark.parametrize(
     ("env_value", "expected"),
-    [(None, "mythic"), ("forever", "normal")],
+    [(None, "mythic"), ("forever", "normal"), ("classic_mop", "heroic")],
 )
 def test_default_difficulty_follows_active_game_version(env_value: str | None, expected: str) -> None:
     code = (
@@ -103,7 +111,7 @@ def test_default_difficulty_follows_active_game_version(env_value: str | None, e
 
 @pytest.mark.parametrize(
     ("env_value", "expected"),
-    [(None, ["heroic", "mythic"]), ("forever", ["normal"])],
+    [(None, ["heroic", "mythic"]), ("forever", ["normal"]), ("classic_mop", ["normal", "heroic"])],
 )
 def test_difficulty_all_expands_to_the_game_version_difficulties(env_value: str | None, expected: list[str]) -> None:
     code = (
@@ -124,8 +132,11 @@ def test_difficulty_all_expands_to_the_game_version_difficulties(env_value: str 
     ("directory", "wrong_env_value", "right_env_value"),
     [
         ("test/data_retail", "forever", None),
+        ("test/data_retail", "classic_mop", None),
         ("test/data_forever", None, "forever"),
         ("test/data_forever", "retail", "forever"),
+        ("test/data_forever", "classic_mop", "forever"),
+        ("test/data_classic_mop", None, "classic_mop"),
     ],
 )
 def test_data_directories_fail_under_the_wrong_game_version(

@@ -65,7 +65,16 @@ FOREVER = GameVersion(
     data_package="lorgs.data.forever",
 )
 
+CLASSIC_MOP = GameVersion(
+    name="classic_mop",
+    s3_prefix="classic_mop/",
+    difficulties=(RaidDifficulty.NORMAL, RaidDifficulty.HEROIC),
+    wcl_game_versions=frozenset(),  # placeholder until we know the WCL id
+    data_package="lorgs.data.classic_mop",
+)
+
 GAME_VERSIONS: dict[str, GameVersion] = {}
+GAME_VERSIONS[CLASSIC_MOP.name] = CLASSIC_MOP
 GAME_VERSIONS[FOREVER.name] = FOREVER
 GAME_VERSIONS[RETAIL.name] = RETAIL
 

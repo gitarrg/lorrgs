@@ -5,7 +5,7 @@ Compares how top players and raid groups use their cooldowns, using fights recor
 ## Language
 
 **Game Version**:
-A separately released edition of World of Warcraft with its own classes, spells, raids and Warcraft Logs rankings, e.g. Retail or WoW Forever. Each Game Version is compared only against itself.
+A separately released edition of World of Warcraft with its own classes, spells, raids and Warcraft Logs rankings, e.g. Retail, WoW Forever or WoW Classic: Mists of Pandaria. Each Game Version is compared only against itself.
 _Avoid_: game, flavor, version (alone)
 
 **Patch**:

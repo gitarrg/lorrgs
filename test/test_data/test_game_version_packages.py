@@ -26,18 +26,19 @@ def _run(code: str, env_value: str | None) -> subprocess.CompletedProcess[str]:
     [
         (None, "lorgs.data.retail", "lorgs.data.forever"),
         ("forever", "lorgs.data.forever", "lorgs.data.retail"),
+        ("classic_mop", "lorgs.data.classic_mop", "lorgs.data.retail"),
     ],
 )
 def test_only_the_active_game_versions_package_is_loaded(env_value: str | None, loaded: str, not_loaded: str) -> None:
     code = (
         "import sys, lorgs.data\n"
         "print(sorted(m for m in sys.modules if m.startswith('lorgs.data.')\n"
-        "             and m.split('.')[2] in {'retail', 'forever', 'expansions'}))"
+        "             and m.split('.')[2] in {'retail', 'forever', 'classic_mop', 'expansions'}))"
     )
     result = _run(code, env_value)
     assert result.returncode == 0, result.stderr
     modules = result.stdout.strip()
     assert loaded in modules
     assert not_loaded not in modules
-    if env_value == "forever":
-        assert "expansions" not in modules, "Forever imports no expansions yet"
+    if env_value in {"forever", "classic_mop"}:
+        assert "expansions" not in modules, "Forever and Classic MoP import no expansions yet"
