@@ -9,6 +9,7 @@ Logs:
 """
 
 # IMPORT LOCAL LIBRARIES
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_zone import RaidZone
 
 from .council import COUNCIL
@@ -35,6 +36,7 @@ THRONE_OF_THUNDER = RaidZone(  # ruff: ignore[non-empty-init-module]
     id=1046,
     name="Throne of Thunder",
     icon="achievement_raid_thunder_king.jpg",
+    difficulty=RaidDifficulty.HEROIC,  # WCL has no higher one
     bosses=[
         JINROKH,
         HORRIDON,

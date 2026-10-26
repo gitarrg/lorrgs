@@ -29,6 +29,7 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
 
 - Copy the nearest finished boss/spec in the same raid or expansion for style (colors, comments, `show=False`).
 - Spell names: `data/SpellName.csv`; other DB2 tables in `data/*.csv` (gitignored, refresh with `data/download.sh` from wago.tools). Icons: `curl -sL https://nether.wowhead.com/tooltip/spell/<id>` → `<icon>.jpg`.
+- A `RaidZone` that ranks a single difficulty sets `difficulty=` (all MoP raids: Heroic, the highest WCL has). The `auto` difficulty token (routes, payloads, `queue_updates.py`) resolves to it per boss via `RaidZone.resolve_difficulty()`, and `all` only expands to it; the frontend then hides the difficulty dropdown.
 - Bosses with non-standard phases subclass `RaidBoss` and override `phase_from_transition()` (e.g. Venomous Abyss: Coiled Altar, Entombed Sentinels, Lost Explorers).
 - Minor rotational spells and tank hits get `show=False`. Replacement spell IDs go in `variations=[...]`.
 - A `process_casts` test feeds Casts that Actor Type would load: spell ids registered with `add_spell`, `add_buff`, or `add_debuff` and `query=True`, durations from the spell tooltip. Spell ids come from those registrations, not from an old `actor.load` handler.

@@ -46,7 +46,20 @@ def test_bosses_have_unique_ids_and_slugs() -> None:
 def test_task_keywords_expand_to_the_classes_and_raids() -> None:
     assert len(PAYLOAD_EXPANDERS["spec_slug"]) == 34
     assert len(PAYLOAD_EXPANDERS["boss_slug"]) == sum(RAID_BOSS_COUNTS.values())
-    assert PAYLOAD_EXPANDERS["difficulty"] == ["normal", "heroic"]
+    assert PAYLOAD_EXPANDERS["difficulty"]({"boss_slug": "the-stone-guard"}) == ["heroic"]
+
+
+def test_every_raid_ranks_only_its_highest_difficulty() -> None:
+    """WCL has Normal and Heroic (10 and 25 player) for every MoP raid, so `auto` is always Heroic."""
+    from lorgs.data import CURRENT_SEASON
+    from lorgs.models.raid_zone import AUTO_DIFFICULTY, RaidZone
+
+    routes = get_api_routes("/api/zones")
+    assert {zone["difficulty"] for zone in routes["/api/zones"][1]} == {"heroic"}
+
+    for boss in (boss for raid in CURRENT_SEASON.raids for boss in raid.bosses):
+        assert RaidZone.resolve_difficulty(boss.full_name_slug, AUTO_DIFFICULTY) == "heroic"
+        assert RaidZone.difficulties_for_boss(boss.full_name_slug) == ["heroic"]
 
 
 def test_every_spec_has_major_cooldowns() -> None:

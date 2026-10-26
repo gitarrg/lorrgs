@@ -9,6 +9,7 @@ Logs:
 """
 
 # IMPORT LOCAL LIBRARIES
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_zone import RaidZone
 
 from .garalon import GARALON
@@ -28,6 +29,7 @@ HEART_OF_FEAR = RaidZone(  # ruff: ignore[non-empty-init-module]
     id=1051.1,
     name="Heart of Fear",
     icon="achievement_raid_mantidraid01.jpg",
+    difficulty=RaidDifficulty.HEROIC,  # WCL has no higher one
     bosses=[
         ZORLOK,
         TAYAK,

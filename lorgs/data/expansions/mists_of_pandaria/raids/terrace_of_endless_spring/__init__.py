@@ -9,6 +9,7 @@ Logs:
 """
 
 # IMPORT LOCAL LIBRARIES
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_zone import RaidZone
 
 from .lei_shi import LEI_SHI
@@ -26,6 +27,7 @@ TERRACE_OF_ENDLESS_SPRING = RaidZone(  # ruff: ignore[non-empty-init-module]
     id=1051.2,
     name="Terrace of Endless Spring",
     icon="achievement_raid_terraceofendlessspring04.jpg",
+    difficulty=RaidDifficulty.HEROIC,  # WCL has no higher one
     bosses=[
         PROTECTORS,
         TSULONG,

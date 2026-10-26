@@ -5,7 +5,7 @@ from typing import Any
 
 from lorgs.data import CURRENT_SEASON
 from lorgs.data.roles import ALL_ROLES
-from lorgs.game_version import ACTIVE
+from lorgs.models.raid_zone import RaidZone
 from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spec import WowSpec
 
@@ -18,6 +18,10 @@ def expand_metric(payload: dict) -> list[str]:
     return (role and role.metrics) or []
 
 
+def expand_difficulty(payload: dict) -> list[str]:
+    return RaidZone.difficulties_for_boss(payload.get("boss_slug", ""))
+
+
 ALL_SPECS = {spec for role in ALL_ROLES for spec in role.specs}  # class specs only, no item pseudo-specs
 ALL_BOSSES = []
 for raid in CURRENT_SEASON.raids:
@@ -27,7 +31,7 @@ for raid in CURRENT_SEASON.raids:
 PAYLOAD_EXPANDERS: dict[str, list[str] | Callable[[Any], list[str]]] = {
     "spec_slug": [spec.full_name_slug for spec in ALL_SPECS],
     "boss_slug": [boss.full_name_slug for boss in ALL_BOSSES],
-    "difficulty": list(ACTIVE.difficulty_names),
+    "difficulty": expand_difficulty,
     "metric": expand_metric,
 }
 

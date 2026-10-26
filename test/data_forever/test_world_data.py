@@ -30,4 +30,4 @@ def test_current_season_is_the_placeholder() -> None:
 def test_task_keywords_expand_to_nothing() -> None:
     assert PAYLOAD_EXPANDERS["spec_slug"] == []
     assert PAYLOAD_EXPANDERS["boss_slug"] == []
-    assert PAYLOAD_EXPANDERS["difficulty"] == ["normal"]
+    assert PAYLOAD_EXPANDERS["difficulty"]({}) == ["normal"]

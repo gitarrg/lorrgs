@@ -9,6 +9,7 @@ from lorgs.clients import sqs
 from lorgs.game_version import ACTIVE
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_ranking
+from lorgs.models.raid_zone import RaidZone
 from lorgs.models.task_payloads import SpecRankingPayload
 from lorgs.models.wow_spec import WowSpec
 
@@ -40,7 +41,7 @@ async def get_spec_ranking(
         return warcraftlogs_ranking.SpecRanking.get_json(
             boss_slug=boss_slug,
             spec_slug=spec_slug,
-            difficulty=difficulty,
+            difficulty=RaidZone.resolve_difficulty(boss_slug, difficulty),
             metric=metric,
         )
     except KeyError:
@@ -69,7 +70,7 @@ async def get_spec_ranking_info(
         data = warcraftlogs_ranking.SpecRanking.get_json(
             boss_slug=boss_slug,
             spec_slug=spec_slug,
-            difficulty=difficulty,
+            difficulty=RaidZone.resolve_difficulty(boss_slug, difficulty),
             metric=metric,
         )
     except KeyError:
@@ -133,7 +134,7 @@ async def flag_dirty(
     spec_ranking = warcraftlogs_ranking.SpecRanking.get_or_create(
         spec_slug=spec_slug,
         boss_slug=boss_slug,
-        difficulty=difficulty,
+        difficulty=RaidZone.resolve_difficulty(boss_slug, difficulty),
         metric=metric,
     )
     if spec_ranking:

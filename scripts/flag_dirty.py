@@ -5,7 +5,7 @@ import datetime
 import itertools
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.game_version import ACTIVE
+from lorgs.models.raid_zone import RaidZone
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 from lorrgs_sqs.helpers import ALL_BOSSES, ALL_SPECS
 
@@ -14,9 +14,11 @@ def main() -> None:
     bosses = ALL_BOSSES  # the current Season's bosses
     specs = ALL_SPECS
     metrics = ["dps", "hps"]
-    difficulties = ACTIVE.difficulty_names
+    combos = [(spec, boss, difficulty, metric)
+              for spec, boss, metric in itertools.product(specs, bosses, metrics)
+              for difficulty in RaidZone.difficulties_for_boss(boss.full_name_slug)]
 
-    for [spec, boss, difficulty, metric] in itertools.product(specs, bosses, difficulties, metrics):
+    for [spec, boss, difficulty, metric] in combos:
         print(spec.full_name_slug, boss.full_name_slug, difficulty, metric)
 
         spec_ranking = SpecRanking.get_or_create(

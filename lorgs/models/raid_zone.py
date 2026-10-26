@@ -7,12 +7,17 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
+from lorgs.game_version import ACTIVE
 from lorgs.models import base
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.wow_trinket import WowTrinket
 
 
 # pylint: disable=too-few-public-methods
+
+AUTO_DIFFICULTY = "auto"
+"""Difficulty token (in URLs, routes and task payloads) that stands for the zone's `RaidZone.difficulty`."""
 
 
 class RaidZone(base.MemoryModel):
@@ -35,6 +40,41 @@ class RaidZone(base.MemoryModel):
 
     trinkets: list[WowTrinket] = []
 
+    difficulty: RaidDifficulty | None = None
+    """The one difficulty we rank in this Zone. eg.: Heroic, as the only difficulty with 25-man logs.
+
+    `None` lets the user pick from the Game Version's difficulties.
+    """
+
+    @classmethod
+    def for_boss(cls, boss_slug: str) -> RaidZone | None:
+        """The Zone the given Boss belongs to."""
+        for zone in cls.list():
+            if any(boss.full_name_slug == boss_slug for boss in zone.bosses):
+                return zone
+        return None
+
+    @classmethod
+    def resolve_difficulty(cls, boss_slug: str, difficulty: str) -> str:
+        """Replace the `auto` token with the difficulty we rank for this Boss's Zone.
+
+        Any other value is returned unchanged.
+        """
+        if difficulty != AUTO_DIFFICULTY:
+            return difficulty
+        zone = cls.for_boss(boss_slug)
+        if zone and zone.difficulty:
+            return zone.difficulty.name.lower()
+        return ACTIVE.default_difficulty_name
+
+    @classmethod
+    def difficulties_for_boss(cls, boss_slug: str) -> list[str]:
+        """All difficulties we rank for this Boss."""
+        zone = cls.for_boss(boss_slug)
+        if zone and zone.difficulty:
+            return [zone.difficulty.name.lower()]
+        return list(ACTIVE.difficulty_names)
+
     @property
     def name_slug(self) -> str:
         return utils.slug(self.name, space="-")
@@ -48,6 +88,7 @@ class RaidZone(base.MemoryModel):
             "name": self.name,
             "name_slug": self.name_slug,
             "icon": self.icon,
+            "difficulty": self.difficulty.name.lower() if self.difficulty else None,
             "bosses": [boss.as_dict() for boss in self.bosses],
         }
 

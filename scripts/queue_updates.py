@@ -65,7 +65,7 @@ from lorgs.clients import sqs
 from lorgs.data import CURRENT_SEASON
 from lorgs.data.roles import ALL_ROLES
 from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.raid_zone import RaidZone
+from lorgs.models.raid_zone import AUTO_DIFFICULTY, RaidZone
 from lorgs.models.task_payloads import SpecRankingPayload
 from lorgs.models.wow_spec import WowSpec
 from lorrgs_sqs.helpers import ALL_SPECS
@@ -130,7 +130,7 @@ def load_all():
         "task": "load_spec_rankings",
         "spec_slug": "all",
         "boss_slug": "all",
-        "difficulty": ACTIVE.default_difficulty_name,
+        "difficulty": AUTO_DIFFICULTY,
         "metric": "all",
         "limit": 50,
         "clear": False,
@@ -187,7 +187,14 @@ def select_specs(parser: argparse.ArgumentParser, args: argparse.Namespace) -> l
     return sorted(specs)
 
 
-def build_tasks(specs: list[WowSpec], bosses: list[RaidBoss], difficulties: list[str], metric: str) -> list[RankingTask]:
+def difficulties_for(boss: RaidBoss, difficulty: str) -> list[str]:
+    """The difficulties to update for a boss. `all` is every difficulty we rank for it, `auto` its zone's one."""
+    if difficulty == "all":
+        return RaidZone.difficulties_for_boss(boss.full_name_slug)
+    return [RaidZone.resolve_difficulty(boss.full_name_slug, difficulty)]
+
+
+def build_tasks(specs: list[WowSpec], bosses: list[RaidBoss], difficulty: str, metric: str) -> list[RankingTask]:
     tasks = []
     for spec in specs:
         if metric == "all":
@@ -195,9 +202,9 @@ def build_tasks(specs: list[WowSpec], bosses: list[RaidBoss], difficulties: list
         else:
             metrics = [metric or spec.role.metric]
         tasks.extend(
-            RankingTask(spec, boss, difficulty, spec_metric)
+            RankingTask(spec, boss, boss_difficulty, spec_metric)
             for boss in bosses
-            for difficulty in difficulties
+            for boss_difficulty in difficulties_for(boss, difficulty)
             for spec_metric in metrics
         )
     return tasks
@@ -228,9 +235,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     parser.add_argument(
         "--difficulty",
-        default=ACTIVE.default_difficulty_name,
-        choices=[*ACTIVE.difficulty_names, "all"],
-        help="default: %(default)s",
+        default=AUTO_DIFFICULTY,
+        choices=[AUTO_DIFFICULTY, *ACTIVE.difficulty_names, "all"],
+        help="`auto` = the one difficulty ranked per raid, `all` = every difficulty ranked per raid. default: %(default)s",
     )
     parser.add_argument("--metric", default="", help="dps, hps, ... or `all`. default: the spec's role metric")
     parser.add_argument("--limit", type=int, default=50, help="players per ranking. default: %(default)s")
@@ -241,11 +248,11 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def print_summary(args: argparse.Namespace, specs: list[WowSpec], bosses: list[RaidBoss], difficulties: list[str], tasks: list[RankingTask]) -> None:
+def print_summary(args: argparse.Namespace, specs: list[WowSpec], bosses: list[RaidBoss], tasks: list[RankingTask]) -> None:
     print(f"game version: {ACTIVE.name}   mode: {args.mode}   limit: {args.limit}   clear: {args.clear}")
     print(f"bosses ({len(bosses)}): {', '.join(boss.full_name_slug for boss in bosses)}")
     print(f"specs ({len(specs)}): {', '.join(spec.full_name_slug for spec in specs)}")
-    print(f"difficulties: {', '.join(difficulties)}   metric: {args.metric or '(role default)'}")
+    print(f"difficulties: {', '.join(sorted({task.difficulty for task in tasks}))}   metric: {args.metric or '(role default)'}")
     print(f"=> {len(tasks)} tasks")
 
 
@@ -269,12 +276,11 @@ def main() -> None:
 
     bosses = select_bosses(parser, args)
     specs = select_specs(parser, args)
-    difficulties = list(ACTIVE.difficulty_names) if args.difficulty == "all" else [args.difficulty]
-    tasks = build_tasks(specs, bosses, difficulties, args.metric)
+    tasks = build_tasks(specs, bosses, args.difficulty, args.metric)
     if not tasks:
         parser.error("nothing selected")
 
-    print_summary(args, specs, bosses, difficulties, tasks)
+    print_summary(args, specs, bosses, tasks)
     if args.dry_run:
         return
     if not args.yes and not confirm():

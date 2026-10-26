@@ -9,6 +9,7 @@ Logs:
 """
 
 # IMPORT LOCAL LIBRARIES
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_zone import RaidZone
 
 from .elegon import ELEGON
@@ -28,6 +29,7 @@ MOGUSHAN_VAULTS = RaidZone(  # ruff: ignore[non-empty-init-module]
     id=1050,
     name="Mogu'shan Vaults",
     icon="achievement_moguraid_01.jpg",
+    difficulty=RaidDifficulty.HEROIC,  # WCL has no higher one
     bosses=[
         STONE_GUARD,
         FENG,

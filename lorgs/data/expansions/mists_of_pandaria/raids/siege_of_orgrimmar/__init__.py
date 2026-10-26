@@ -9,6 +9,7 @@ Logs:
 """
 
 # IMPORT LOCAL LIBRARIES
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_zone import RaidZone
 
 from .blackfuse import BLACKFUSE
@@ -36,6 +37,7 @@ SIEGE_OF_ORGRIMMAR = RaidZone(  # ruff: ignore[non-empty-init-module]
     id=1054,
     name="Siege of Orgrimmar",
     icon="achievement_raid_soo_orgrimmar_outdoors.jpg",
+    difficulty=RaidDifficulty.HEROIC,  # WCL has no higher one
     bosses=[
         IMMERSEUS,
         FALLEN_PROTECTORS,
