@@ -1,5 +1,4 @@
 # Dungeons
-from .consumables import TWW_CONSUMABLES
 from .dungeons import (
     ARA_KARA,
     CINDERBREW_MEADERY,
@@ -16,9 +15,6 @@ from .dungeons import (
 # Raids
 from .raids import LIBERATION_OF_UNDERMINE, MANAFORGE_OMEGA, NERUBAR_PALACE
 
-# Seasons
-from .seasons import TWW_SEASON1, TWW_SEASON2, TWW_SEASON3
-
 
 __all__ = [
     "ARA_KARA",
@@ -34,8 +30,4 @@ __all__ = [
     "PRIORY_OF_THE_SACRED_FLAME",
     "STONEVAULT",
     "THE_ROOKERY",
-    "TWW_CONSUMABLES",
-    "TWW_SEASON1",
-    "TWW_SEASON2",
-    "TWW_SEASON3",
 ]

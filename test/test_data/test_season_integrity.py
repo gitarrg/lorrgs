@@ -15,18 +15,19 @@ if TYPE_CHECKING:
     from lorgs.models.wow_spell import WowSpell
 
 
-EXPANSIONS = Path(__file__).resolve().parents[2] / "lorgs" / "data" / "expansions"
+DATA = Path(__file__).resolve().parents[2] / "lorgs" / "data"
+EXPANSIONS = DATA / "expansions"
+SEASONS = DATA / "retail" / "seasons"
 
 
 def _module_name(path: Path) -> str:
-    relative = path.relative_to(EXPANSIONS).with_suffix("")
-    return "lorgs.data.expansions." + ".".join(relative.parts)
+    return f"lorgs.data.retail.seasons.{path.stem}"
 
 
 def _seasons() -> list[Season]:
     found: list[Season] = []
     seen: set[int] = set()
-    for path in sorted(EXPANSIONS.glob("*/seasons/*.py")):
+    for path in sorted(SEASONS.glob("*.py")):
         if path.name == "__init__.py":
             continue
         module = importlib.import_module(_module_name(path))

@@ -10,7 +10,7 @@ https://www.warcraftlogs.com/reports/X8Vfm3W7gczqGdaJ?fight=43
 
 """
 
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 

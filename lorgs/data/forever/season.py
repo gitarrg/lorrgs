@@ -1,9 +1,9 @@
 """Defines which Raid/Dungeon the current Season includes."""
 
-from lorgs.data.expansions.midnight.seasons.midnight_s2 import MIDNIGHT_SEASON2
+from lorgs.data.forever.seasons import FOREVER_PLACEHOLDER_SEASON
 
 
-CURRENT_SEASON = MIDNIGHT_SEASON2
+CURRENT_SEASON = FOREVER_PLACEHOLDER_SEASON
 CURRENT_SEASON.activate()
 
 

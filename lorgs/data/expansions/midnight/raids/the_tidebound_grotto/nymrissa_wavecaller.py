@@ -5,7 +5,7 @@ PYTHONPATH=. uv run --env-file=.env scripts/load_report.py "https://www.warcraft
 
 """
 
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 

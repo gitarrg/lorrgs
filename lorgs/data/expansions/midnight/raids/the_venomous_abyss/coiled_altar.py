@@ -10,7 +10,7 @@ from __future__ import annotations
 import typing
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.warcraftlogs_fight import Phase
 

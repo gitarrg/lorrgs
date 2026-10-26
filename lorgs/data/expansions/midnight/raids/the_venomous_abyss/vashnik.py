@@ -5,7 +5,7 @@ https://www.warcraftlogs.com/reports/pfkrcn7xPdDL1jqH?fight=31
 
 """
 
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.models.raid_boss import RaidBoss
 
 

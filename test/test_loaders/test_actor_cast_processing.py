@@ -6,11 +6,11 @@ import logging
 
 import pytest
 
-import lorgs.data.classes.demonhunter  # noqa: F401  # registers Devourer and its load handler
-import lorgs.data.classes.druid  # noqa: F401  # registers Restoration Druid
-import lorgs.data.classes.evoker  # noqa: F401  # registers Preservation and its load handlers
-import lorgs.data.classes.hunter  # noqa: F401  # registers Marksmanship and its load handler
-import lorgs.data.classes.shaman  # noqa: F401  # registers Restoration Shaman and its load handler
+import lorgs.data.retail.classes.demonhunter  # noqa: F401  # registers Devourer and its load handler
+import lorgs.data.retail.classes.druid  # noqa: F401  # registers Restoration Druid
+import lorgs.data.retail.classes.evoker  # noqa: F401  # registers Preservation and its load handlers
+import lorgs.data.retail.classes.hunter  # noqa: F401  # registers Marksmanship and its load handler
+import lorgs.data.retail.classes.shaman  # noqa: F401  # registers Restoration Shaman and its load handler
 from lorgs.data.roles import HEAL
 from lorgs.loaders.actor_loader import ActorLoader
 from lorgs.models.warcraftlogs_actor import BaseActor

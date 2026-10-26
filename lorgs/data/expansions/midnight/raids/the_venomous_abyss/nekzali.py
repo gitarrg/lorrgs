@@ -2,7 +2,7 @@
 
 from typing import override
 
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.warcraftlogs_cast import Cast
 from lorgs.models.warcraftlogs_fight import Phase

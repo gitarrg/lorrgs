@@ -5,7 +5,7 @@
 # pylint: disable=unused-wildcard-import
 
 
-from lorgs.data.classes import *
+from lorgs.data.retail.classes import *
 from lorgs.models.wow_potion import WowPotion
 
 
