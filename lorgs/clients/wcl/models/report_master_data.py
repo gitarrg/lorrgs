@@ -12,7 +12,7 @@ class ReportMasterData(BaseModel):
     """  # ruff: ignore[missing-blank-line-after-summary]
 
     gameVersion: int = 1
-    """The WCL game version of the log (`1` = Retail). Compare `GameVersion.wcl_game_versions`."""
+    """The WCL game version of the log (`1` = Retail). Compare `GameVersion.wcl_game_version`."""
 
     actors: list[ReportActor]
     """A list of every actor (player, NPC, pet) that occurs in the report."""

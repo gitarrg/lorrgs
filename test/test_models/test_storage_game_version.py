@@ -97,7 +97,7 @@ def test_old_user_report_items_load_as_retail() -> None:
     """Items stored before the attribute existed have no `game_version`."""
     item = {"pk": "abc", "sk": "overview", "report_id": "abc", "title": "old"}
     report = UserReport(**item)
-    assert report.game_version in game_version.RETAIL.wcl_game_versions
+    assert report.game_version == game_version.RETAIL.wcl_game_version
 
 
 def test_overview_loader_sets_game_version_from_master_data() -> None:
@@ -111,7 +111,7 @@ def test_overview_loader_without_game_version_keeps_retail() -> None:
     report = UserReport(report_id="abc")
     loader = ReportOverviewLoader(report)
     loader.process_query_result({"report": {"masterData": {"actors": []}}})
-    assert report.game_version in game_version.RETAIL.wcl_game_versions
+    assert report.game_version == game_version.RETAIL.wcl_game_version
 
 
 def test_overview_query_asks_for_game_version() -> None:

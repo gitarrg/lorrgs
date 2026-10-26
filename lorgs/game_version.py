@@ -29,8 +29,8 @@ class GameVersion:
     difficulties: tuple[RaidDifficulty, ...]
     """Difficulties we rank. The last entry is the default."""
 
-    wcl_game_versions: frozenset[int]
-    """WCL `masterData.gameVersion` ids of logs that belong to this Game Version."""
+    wcl_game_version: int
+    """WCL `masterData.gameVersion` id of the logs that belong to this Game Version."""
 
     data_package: str
     """Dotted path of the package holding this Game Version's game data (not imported here)."""
@@ -53,7 +53,7 @@ RETAIL = GameVersion(
     name="retail",
     s3_prefix="",
     difficulties=(RaidDifficulty.HEROIC, RaidDifficulty.MYTHIC),
-    wcl_game_versions=frozenset({1}),
+    wcl_game_version=1,
     data_package="lorgs.data.retail",
 )
 
@@ -61,7 +61,7 @@ FOREVER = GameVersion(
     name="forever",
     s3_prefix="forever/",
     difficulties=(RaidDifficulty.NORMAL,),
-    wcl_game_versions=frozenset(),  # placeholder until #86
+    wcl_game_version=99,  # placeholder until #86
     data_package="lorgs.data.forever",
 )
 
@@ -69,7 +69,7 @@ CLASSIC_MOP = GameVersion(
     name="classic_mop",
     s3_prefix="classic_mop/",
     difficulties=(RaidDifficulty.NORMAL, RaidDifficulty.HEROIC),
-    wcl_game_versions=frozenset({6}),
+    wcl_game_version=6,
     data_package="lorgs.data.classic_mop",
 )
 

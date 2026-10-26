@@ -58,7 +58,7 @@ def test_game_version_config() -> None:
     assert RETAIL.s3_prefix == ""
     assert RETAIL.difficulties == (RaidDifficulty.HEROIC, RaidDifficulty.MYTHIC)
     assert RETAIL.default_difficulty is RaidDifficulty.MYTHIC
-    assert RETAIL.wcl_game_versions == frozenset({1})
+    assert RETAIL.wcl_game_version == 1
     assert RETAIL.data_package == "lorgs.data.retail"
 
     assert FOREVER.s3_prefix == "forever/"
@@ -69,7 +69,7 @@ def test_game_version_config() -> None:
     assert CLASSIC_MOP.s3_prefix == "classic_mop/"
     assert CLASSIC_MOP.difficulties == (RaidDifficulty.NORMAL, RaidDifficulty.HEROIC)
     assert CLASSIC_MOP.default_difficulty is RaidDifficulty.HEROIC
-    assert CLASSIC_MOP.wcl_game_versions == frozenset({6})
+    assert CLASSIC_MOP.wcl_game_version == 6
     assert CLASSIC_MOP.data_package == "lorgs.data.classic_mop"
 
 
