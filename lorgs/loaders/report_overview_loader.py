@@ -40,6 +40,7 @@ class ReportOverviewLoader(BaseLoader):
 
                 masterData
                 {{
+                    gameVersion
                     actors(type: "Player")
                     {{
                         name
@@ -96,6 +97,8 @@ class ReportOverviewLoader(BaseLoader):
 
     def _process_master_data(self, master_data: wcl.ReportMasterData) -> None:
         """Create the Players from the passed Report-MasterData."""
+        self.report.game_version = master_data.gameVersion
+
         # clear out any old instances
         # print("master_data", master_data)
         self.report.players = []
