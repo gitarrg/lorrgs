@@ -4,6 +4,14 @@ Compares how top players and raid groups use their cooldowns, using fights recor
 
 ## Language
 
+**Game Version**:
+A separately released edition of World of Warcraft with its own classes, spells, raids and Warcraft Logs rankings, e.g. Retail or WoW Forever. Each Game Version is compared only against itself.
+_Avoid_: game, flavor, version (alone)
+
+**Patch**:
+A numbered content update within a Game Version (e.g. 12.0, 12.0.5).
+_Avoid_: version
+
 **Fight**:
 One pull of a boss inside a Warcraft Logs report, from pull to kill or wipe.
 _Avoid_: encounter (that is the boss), pull

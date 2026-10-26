@@ -38,3 +38,6 @@ dist
 tsconfig.tsbuildinfo
 
 .worktrees/
+
+# Cloudflare zone export (DNS, origins, cert material)
+cloudflare-snapshot/
