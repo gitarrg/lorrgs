@@ -1,5 +1,8 @@
-#!/usr/bin/env -S PYTHONPATH=. uv run uv run --env-file=.env
-"""Fetches spell icons from wowhead and uploads them to our S3 bucket.
+#!/usr/bin/env -S PYTHONPATH=. uv run --env-file=.env
+"""Uploads spell icons and spec images to our S3 bucket.
+
+Spell icons are fetched from wowhead. Spec images are read from `lorrgs_assets/images/specs/`.
+Only images missing in the bucket are uploaded.
 
 PYTHONPATH=. uv run scripts/load_images.py
 
@@ -7,6 +10,7 @@ PYTHONPATH=. uv run scripts/load_images.py
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
+import importlib
 import io
 import os
 import pathlib
@@ -17,6 +21,7 @@ import requests
 from PIL import Image
 
 # IMPORT LOCAL LIBRARIES
+from lorgs import game_version
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.raid_zone import RaidZone
 from lorgs.models.wow_potion import WowPotion
@@ -33,6 +38,8 @@ BUCKET = S3.Bucket(BUCKET_NAME)
 
 
 FOLDER = "images/spells/"
+SPECS_FOLDER = "images/specs/"
+LOCAL_SPECS_FOLDER = pathlib.Path(__file__).parent.parent / "lorrgs_assets" / "images" / "specs"
 
 
 def get_images(folder: str) -> list[str]:
@@ -58,33 +65,27 @@ def convert_to_webp(data: bytes) -> bytes:
     return buffer.getvalue()
 
 
-def upload(filename: str) -> None:
-    """Download an image from wowhead and upload it to S3.
+def upload_image(data: bytes, folder: str, filename: str) -> None:
+    """Upload a jpeg to S3, plus a webp version of it.
 
     Args:
-        filename (str): The filename of the image to upload.
+        data (bytes): The jpeg image data.
+        folder (str): The folder path in the S3 bucket.
+        filename (str): The jpeg filename.
 
     """
-    # Download the file from the HTTP URL
-    url = f"https://wow.zamimg.com/images/wow/icons/large/{filename}"
-    response = requests.get(url)
-    if not response:
-        response.raise_for_status()
-
-    path = f"{FOLDER}{filename}"
-
     # upload jpeg to S3
     BUCKET.put_object(
-        Body=response.content,
-        Key=path,
+        Body=data,
+        Key=f"{folder}{filename}",
         ContentType="image/jpeg",
         CacheControl="public, max-age=31536000, immutable",
     )
 
     # convert jpeg to webp
-    webp_data = convert_to_webp(response.content)
+    webp_data = convert_to_webp(data)
 
-    webp_path = pathlib.Path(FOLDER) / filename
+    webp_path = pathlib.Path(folder) / filename
     webp_path = webp_path.with_suffix(".webp")
 
     # upload webp to S3
@@ -96,8 +97,41 @@ def upload(filename: str) -> None:
     )
 
 
+def upload(filename: str) -> None:
+    """Download a spell icon from wowhead and upload it to S3.
+
+    Args:
+        filename (str): The filename of the image to upload.
+
+    """
+    # Download the file from the HTTP URL
+    url = f"https://wow.zamimg.com/images/wow/icons/large/{filename}"
+    response = requests.get(url)
+    if not response:
+        response.raise_for_status()
+
+    upload_image(response.content, FOLDER, filename)
+
+
+def upload_spec_images() -> None:
+    """Upload the local spec images missing in the S3 bucket."""
+    existing = set(get_images(SPECS_FOLDER))
+
+    for path in sorted(LOCAL_SPECS_FOLDER.glob("*.jpg")):
+        if path.name in existing:
+            continue
+
+        print(f"uploading: {path.name}")
+        upload_image(path.read_bytes(), SPECS_FOLDER, path.name)
+
+
 ################################################################################
 
+
+# Register the game data of every Game Version (not just the active one).
+# Icons live in one shared folder, so we want the icons of all of them.
+for _game_version in game_version.GAME_VERSIONS.values():
+    importlib.import_module(_game_version.data_package)
 
 # Get existing images in the S3 bucket
 images = get_images(FOLDER)
@@ -133,3 +167,7 @@ for spell in spells:
 
     print(f"uploading: {icon} for {spell.name}")
     upload(icon)
+
+
+# Upload the Spec images
+upload_spec_images()
