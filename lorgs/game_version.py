@@ -39,6 +39,15 @@ class GameVersion:
     def default_difficulty(self) -> RaidDifficulty:
         return self.difficulties[-1]
 
+    @property
+    def difficulty_names(self) -> tuple[str, ...]:
+        """The difficulties as the lowercase names used in API routes, task payloads and S3 keys."""
+        return tuple(difficulty.name.lower() for difficulty in self.difficulties)
+
+    @property
+    def default_difficulty_name(self) -> str:
+        return self.default_difficulty.name.lower()
+
 
 RETAIL = GameVersion(
     name="retail",

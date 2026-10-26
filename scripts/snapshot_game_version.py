@@ -34,6 +34,7 @@ from fastapi.encoders import jsonable_encoder
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import data  # ruff: ignore[unused-import]  # registers the game data
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.raid_zone import RaidZone
 from lorgs.models.season import Season
@@ -47,8 +48,9 @@ from lorgs.models.wow_trinket import WowTrinket
 from lorrgs_api.routes import api_season, api_world_data
 
 
-# sample inputs for keys that are not derived from the game data
-DIFFICULTIES = ["heroic", "mythic", "normal"]
+# sample inputs for keys that are not derived from the game data:
+# every difficulty a Game Version may rank, so each Game Version's keys show up in the diff
+DIFFICULTIES = sorted(d.name.lower() for d in RaidDifficulty if d not in {RaidDifficulty.UNKNOWN, RaidDifficulty.LFR})
 REPORT_IDS = ["aBcD1234eFgH5678"]
 DISCORD_IDS = ["123456789012345678"]
 

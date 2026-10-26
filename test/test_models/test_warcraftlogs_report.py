@@ -1,7 +1,6 @@
 import datetime
 import unittest
 
-import lorgs.data  # noqa: F401
 from lorgs.clients import wcl
 from lorgs.loaders.fight_loader import FightLoader
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader
@@ -41,28 +40,6 @@ class TestReport(unittest.TestCase):
         self.report.players = [Player(source_id=1, name="old")]
         self.loader._process_master_data(wcl.ReportMasterData(actors=[]))
         assert self.report.players == []
-
-    def test_player_from_actor_data(self):
-        actor = wcl.ReportActor(
-            id=32,
-            name="PlayerName",
-            icon="Shaman-Restoration",
-            type="Player",
-            subType="Shaman",
-        )
-        player = self.loader._player_from_actor_data(actor)
-        assert player is not None
-        assert player.source_id == 32
-        assert player.name == "PlayerName"
-        assert player.spec_slug == "shaman-restoration"
-        assert player.class_slug == "shaman"
-
-    def test_player_from_actor_data_unknown_spec(self):
-        actor = wcl.ReportActor(id=5, name="HunterPlayer", icon="Hunter", subType="Hunter")
-        player = self.loader._player_from_actor_data(actor)
-        assert player is not None
-        assert player.spec_slug == ""
-        assert player.class_slug == "hunter"
 
     def test_fight_from_wcl_fight_skips_trash(self):
         fight = FightLoader.fight_from_wcl_fight(wcl.ReportFight(id=1, encounterID=0), self.report)

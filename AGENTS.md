@@ -37,7 +37,11 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
 
 - Install: `uv sync`. Use `.venv`; a stale `VIRTUAL_ENV` from another project breaks `MemoryModel`.
 - Dev server: `scripts/start_flask` (uvicorn on `:5012`, reads `.env`; see `template.env`).
-- Tests: `PYTHONPATH=. uv run pytest test`.
+- Tests, one run per Game Version:
+  - Retail: `PYTHONPATH=. uv run pytest test --ignore=test/data_forever`
+  - Forever: `LORRGS_GAME_VERSION=forever PYTHONPATH=. uv run pytest test/data_forever`
+  - Tests that use real game data live in `test/data_retail/` or `test/data_forever/`; a `conftest.py` aborts the run if `LORRGS_GAME_VERSION` doesn't match the directory. Every other test builds what it needs from fixtures (`test/conftest.py`).
+  - `test_task.py` needs a Redis on `localhost:6379`.
 - Scripts use the shebang `#!/usr/bin/env -S PYTHONPATH=. uv run`; e.g. `scripts/load_report.py <wcl report url>`.
 - Deploy: push to `main`. The GitHub Action syncs `lorrgs_assets/` to S3 and runs `scripts/deploy.py` (Lambda layers + code). There is no PR CI.
 - Logs: `aws logs tail /aws/lambda/lorrgs-api --follow --since 10m`.

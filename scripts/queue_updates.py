@@ -1,27 +1,20 @@
 #!/usr/bin/env -S PYTHONPATH=. uv run uv run --env-file=.env
 """Manually load spec rankings for a given spec and boss.
 
->>> PYTHONPATH=. uv run --env-file=.env scripts/queue_updates.py
+>>> PYTHONPATH=. uv run --env-file=.env scripts/queue_updates.py [boss_slug ...]
 
 """
 # IMPORT STANDARD LIBRARIES
 import asyncio
+import sys
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
-from lorgs.data.retail.classes import *
-from lorgs.data.expansions.midnight.raids import (
-    THE_TIDEBOUND_GROTTO,  # ruff: ignore[unused-import]
-    THE_UNBINDING_OF_KITHIX,  # ruff: ignore[unused-import]
-    THE_VENOMOUS_ABYSS,  # ruff: ignore[unused-import]
-)
-from lorgs.data.expansions.midnight.raids.the_tidebound_grotto import *
-from lorgs.data.expansions.midnight.raids.the_unbinding_of_kithix import *
-from lorgs.data.expansions.midnight.raids.the_venomous_abyss import *
-from lorgs.data import CURRENT_SEASON  # ruff: ignore[unused-import]
+from lorgs.game_version import ACTIVE
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.task_payloads import SpecRankingPayload
 from lorgs.models.wow_spec import WowSpec
+from lorrgs_sqs.helpers import ALL_BOSSES, ALL_SPECS
 
 
 async def load_remote(  # ruff: ignore[too-many-arguments, unused-async]
@@ -47,7 +40,7 @@ async def load_remote(  # ruff: ignore[too-many-arguments, unused-async]
 async def load_local(  # ruff: ignore[too-many-arguments]
     spec: WowSpec,
     boss: RaidBoss,
-    difficulty: str = "mythic",
+    difficulty: str = ACTIVE.default_difficulty_name,
     metric: str = "",
     *,
     limit: int = 50,
@@ -75,85 +68,10 @@ async def load_local(  # ruff: ignore[too-many-arguments]
     spec_ranking.save()
 
 
-async def load_spec_rankings() -> None:
-    bosses = [
-        # *THE_VENOMOUS_ABYSS.bosses,
-        # *THE_TIDEBOUND_GROTTO.bosses,
-        # ENTOMBED_SENTINELS,
-        # LOST_EXPLORERS,
-        KITHIX,
-    ]
-
-    specs: set[WowSpec] = {
-        *ALL_SPECS,
-
-        # DK
-        # DEATHKNIGHT_BLOOD,
-        # DEATHKNIGHT_FROST,
-        # DEATHKNIGHT_UNHOLY,
-
-        # DH
-        # DEMONHUNTER_HAVOC,
-        # DEMONHUNTER_VENGEANCE,
-        # DEMONHUNTER_DEVOURER,
-
-        # Druid
-        # DRUID_BALANCE,
-        # DRUID_FERAL,
-        # DRUID_GUARDIAN,
-        # DRUID_RESTORATION,
-
-        # Evoker
-        # EVOKER_AUGMENTATION,
-        # EVOKER_DEVASTATION,
-        # EVOKER_PRESERVATION,
-
-        # Hunter
-        # HUNTER_BEASTMASTERY,
-        # HUNTER_MARKSMANSHIP,
-        # HUNTER_SURVIVAL,
-
-        # Mage
-        # MAGE_ARCANE,
-        # MAGE_FIRE,
-        # MAGE_FROST,
-
-        # Monk
-        # MONK_BREWMASTER,
-        # MONK_MISTWEAVER,
-        # MONK_WINDWALKER,
-
-        # Priest
-        # PRIEST_DISCIPLINE,
-        # PRIEST_HOLY,
-        # PRIEST_SHADOW,
-
-        # Paladin
-        # PALADIN_HOLY,
-        # PALADIN_PROTECTION,
-        # PALADIN_RETRIBUTION,
-
-        # Rogue
-        # ROGUE_ASSASSINATION,
-        # ROGUE_OUTLAW,
-        # ROGUE_SUBTLETY,
-
-        # Shaman
-        # SHAMAN_ELEMENTAL,
-        # SHAMAN_ENHANCEMENT,
-        # SHAMAN_RESTORATION,
-
-        # Warlock
-        # WARLOCK_AFFLICTION,
-        # WARLOCK_DESTRUCTION,
-        # WARLOCK_DEMONOLOGY,
-
-        # Warrior
-        # WARRIOR_ARMS,
-        # WARRIOR_FURY,
-        # WARRIOR_PROTECTION,
-    }
-    # specs = HEAL.specs
+async def load_spec_rankings(boss_slugs: list[str]) -> None:
+    # all bosses of the current Season, or only the given boss slugs
+    bosses = [boss for boss in ALL_BOSSES if not boss_slugs or boss.full_name_slug in boss_slugs]
+    specs: set[WowSpec] = {*ALL_SPECS}
 
     load = load_remote
     # load = load_local
@@ -167,7 +85,7 @@ async def load_spec_rankings() -> None:
                 spec,
                 boss,
                 clear=True,
-                difficulty="mythic",
+                difficulty=ACTIVE.default_difficulty_name,
                 # metric="dps",
                 limit=35,
             )
@@ -187,7 +105,7 @@ def load_all():
         "task": "load_spec_rankings",
         "spec_slug": "all",
         "boss_slug": "all",
-        "difficulty": "mythic",
+        "difficulty": ACTIVE.default_difficulty_name,
         "metric": "all",
         "limit": 50,
         "clear": False,
@@ -198,4 +116,4 @@ def load_all():
 
 if __name__ == "__main__":
     # load_all()
-    asyncio.run(load_spec_rankings())
+    asyncio.run(load_spec_rankings(sys.argv[1:]))

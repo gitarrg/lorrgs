@@ -5,6 +5,7 @@ from typing import Any
 
 from lorgs.data import CURRENT_SEASON
 from lorgs.data.roles import ALL_ROLES
+from lorgs.game_version import ACTIVE
 from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spec import WowSpec
 
@@ -26,7 +27,7 @@ for raid in CURRENT_SEASON.raids:
 PAYLOAD_EXPANDERS: dict[str, list[str] | Callable[[Any], list[str]]] = {
     "spec_slug": [spec.full_name_slug for spec in ALL_SPECS],
     "boss_slug": [boss.full_name_slug for boss in ALL_BOSSES],
-    "difficulty": ["heroic", "mythic"],
+    "difficulty": list(ACTIVE.difficulty_names),
     "metric": expand_metric,
 }
 

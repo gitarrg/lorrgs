@@ -17,7 +17,6 @@ from lorgs import (
     data,  # ruff: ignore[unused-import]
     utils,
 )
-from lorgs.data import CURRENT_SEASON  # ruff: ignore[unused-import]
 from lorgs.loaders.report_loader import ReportLoader
 from lorgs.models.warcraftlogs_user_report import UserReport
 

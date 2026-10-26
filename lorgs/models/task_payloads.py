@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
+from lorgs.game_version import ACTIVE
+
 
 class BaseTaskPayload(BaseModel):
     """Base for all SQS task payloads."""
@@ -22,7 +24,7 @@ class SpecRankingPayload(BaseTaskPayload):
     task: str = "load_spec_rankings"
     boss_slug: str
     spec_slug: str
-    difficulty: str = "mythic"
+    difficulty: str = ACTIVE.default_difficulty_name
     metric: str = "dps"
     limit: int = 50
     clear: bool = False

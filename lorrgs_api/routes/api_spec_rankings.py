@@ -6,6 +6,7 @@ import fastapi
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
+from lorgs.game_version import ACTIVE
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_ranking
 from lorgs.models.task_payloads import SpecRankingPayload
@@ -20,7 +21,7 @@ async def get_spec_ranking(
     response: fastapi.Response,
     spec_slug: str,
     boss_slug: str,
-    difficulty: str = "mythic",
+    difficulty: str = ACTIVE.default_difficulty_name,
     metric: str = "",
 ):
     """Get the Rankings for a given Spec and Boss."""
@@ -51,7 +52,7 @@ async def get_spec_ranking_info(
     response: fastapi.Response,
     spec_slug: str,
     boss_slug: str,
-    difficulty: str = "mythic",
+    difficulty: str = ACTIVE.default_difficulty_name,
     metric: str = "",
 ):
     """Get the Rankings for a given Spec and Boss."""
@@ -118,7 +119,7 @@ async def flag_dirty(
     response: fastapi.Response,
     spec_slug: str,
     boss_slug: str,
-    difficulty: str = "mythic",
+    difficulty: str = ACTIVE.default_difficulty_name,
     metric: str = "",
     dirty: bool = True,
 ):

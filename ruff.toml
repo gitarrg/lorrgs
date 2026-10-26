@@ -106,7 +106,6 @@ extend-ignore = [
 
 [lint.per-file-ignores]
 "test/**" = ["ALL"]
-"scripts/migrations/**" = ["ALL"]
 "lorgs/data/**" = [
     "whitespace-after-open-bracket",
     "multiple-spaces-before-operator",

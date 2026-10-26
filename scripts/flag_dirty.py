@@ -5,60 +5,16 @@ import datetime
 import itertools
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data.retail.classes import *
-from lorgs.data.expansions.midnight import *
-from lorgs.data.expansions.midnight.raids import THE_TIDEBOUND_GROTTO, THE_VENOMOUS_ABYSS
-from lorgs.data.expansions.midnight.raids.the_tidebound_grotto import *
-from lorgs.data.expansions.midnight.raids.the_venomous_abyss import *
+from lorgs.game_version import ACTIVE
 from lorgs.models.warcraftlogs_ranking import SpecRanking
+from lorrgs_sqs.helpers import ALL_BOSSES, ALL_SPECS
 
 
 def main() -> None:
-    bosses = [
-        *THE_TIDEBOUND_GROTTO.bosses,
-        *THE_VENOMOUS_ABYSS.bosses,
-        # ENTOMBED_SENTINELS,
-        # SSZORAK,
-        # ULATEK,
-    ]
-
-    specs = [
-        # DRUID_BALANCE,
-        # SHAMAN_ELEMENTAL,
-        # SHAMAN_RESTORATION,
-        # MONK_MISTWEAVER,
-        # MONK_WINDWALKER,
-        # MONK_BREWMASTER,
-        # ROGUE_ASSASSINATION,
-        # ROGUE_OUTLAW,
-        # ROGUE_SUBTLETY,
-        # WARLOCK_DESTRUCTION,
-        # WARLOCK_AFFLICTION,
-        # WARLOCK_DEMONOLOGY,
-        # HUNTER_BEASTMASTERY,
-        # HUNTER_MARKSMANSHIP,
-        # HUNTER_SURVIVAL,
-        # MAGE_ARCANE,
-        # MAGE_FIRE,
-        # MAGE_FROST,
-        # EVOKER_AUGMENTATION,
-        # EVOKER_PRESERVATION,
-        # DEMONHUNTER_HAVOC,
-        # PRIEST_SHADOW,
-        # SHAMAN_RESTORATION,
-        # SHAMAN_ELEMENTAL,
-        # SHAMAN_ENHANCEMENT
-        # PRIEST_HOLY
-        # MAGE_ARCANE,
-        # PALADIN_HOLY,
-        # MONK_WINDWALKER,
-        # *MDPS.specs,
-        # *RDPS.specs,
-    ]
+    bosses = ALL_BOSSES  # the current Season's bosses
     specs = ALL_SPECS
-    # specs = DPS.specs
     metrics = ["dps", "hps"]
-    difficulties = ["heroic", "mythic"]
+    difficulties = ACTIVE.difficulty_names
 
     for [spec, boss, difficulty, metric] in itertools.product(specs, bosses, difficulties, metrics):
         print(spec.full_name_slug, boss.full_name_slug, difficulty, metric)

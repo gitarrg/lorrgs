@@ -105,8 +105,8 @@ def _cast_query(timestamp: int) -> dict:
     )
 
 
-def test_casts_are_fight_relative() -> None:
-    player = Player(source_id=10, name="Caster")
+def test_casts_are_fight_relative(spec: wow_spec.WowSpec) -> None:
+    player = Player(source_id=10, name="Caster", spec_slug=spec.full_name_slug)
     player.fight = _fight_in_report()
     ActorLoader(player).process_query_result(_cast_query(25_000))
 

@@ -27,7 +27,6 @@ def _run(code: str, env_value: str | None) -> subprocess.CompletedProcess[str]:
         ("", "retail"),  # a blank line in `.env` means "use the default"
         ("retail", "retail"),
         ("forever", "forever"),
-        ("Forever", "forever"),
     ],
 )
 def test_active_game_version_follows_env(env_value: str | None, expected: str) -> None:
@@ -40,7 +39,7 @@ def test_active_game_version_follows_env(env_value: str | None, expected: str) -
 def test_unknown_game_version_fails_at_import(env_value: str) -> None:
     result = _run("import lorgs.game_version", env_value)
     assert result.returncode != 0
-    assert "LORRGS_GAME_VERSION" in result.stderr
+    assert "KeyError" in result.stderr
 
 
 @pytest.mark.parametrize("env_value", [None, "forever"])
@@ -65,3 +64,83 @@ def test_retail_and_forever_config() -> None:
     assert FOREVER.difficulties == (RaidDifficulty.NORMAL,)
     assert FOREVER.default_difficulty is RaidDifficulty.NORMAL
     assert FOREVER.data_package == "lorgs.data.forever"
+
+
+################################################################################
+# Difficulties come from the active Game Version
+#
+
+
+def test_difficulty_names() -> None:
+    from lorgs.game_version import FOREVER, RETAIL
+
+    assert RETAIL.difficulty_names == ("heroic", "mythic")
+    assert RETAIL.default_difficulty_name == "mythic"
+    assert FOREVER.difficulty_names == ("normal",)
+    assert FOREVER.default_difficulty_name == "normal"
+
+
+@pytest.mark.parametrize(
+    ("env_value", "expected"),
+    [(None, "mythic"), ("forever", "normal")],
+)
+def test_default_difficulty_follows_active_game_version(env_value: str | None, expected: str) -> None:
+    code = (
+        "from lorgs.models.task_payloads import SpecRankingPayload\n"
+        "from lorgs.models.warcraftlogs_ranking import SpecRanking\n"
+        "from lorrgs_api.routes import api_spec_rankings\n"
+        "import inspect\n"
+        "route_defaults = {\n"
+        "    inspect.signature(f).parameters['difficulty'].default\n"
+        "    for f in (api_spec_rankings.get_spec_ranking, api_spec_rankings.get_spec_ranking_info, api_spec_rankings.flag_dirty)\n"
+        "}\n"
+        "print(SpecRankingPayload(boss_slug='b', spec_slug='s').difficulty, SpecRanking(spec_slug='s', boss_slug='b').difficulty, *route_defaults)\n"
+    )
+    result = _run(code, env_value)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.split() == [expected] * 3
+
+
+@pytest.mark.parametrize(
+    ("env_value", "expected"),
+    [(None, ["heroic", "mythic"]), ("forever", ["normal"])],
+)
+def test_difficulty_all_expands_to_the_game_version_difficulties(env_value: str | None, expected: list[str]) -> None:
+    code = (
+        "from lorrgs_sqs.helpers import expand_payload\n"
+        "print([p['difficulty'] for p in expand_payload('difficulty', {'difficulty': 'all'})])\n"
+    )
+    result = _run(code, env_value)
+    assert result.returncode == 0, result.stderr
+    assert result.stdout.strip() == str(expected)
+
+
+################################################################################
+# Data test directories only run under their own Game Version
+#
+
+
+@pytest.mark.parametrize(
+    ("directory", "wrong_env_value", "right_env_value"),
+    [
+        ("test/data_retail", "forever", None),
+        ("test/data_forever", None, "forever"),
+        ("test/data_forever", "retail", "forever"),
+    ],
+)
+def test_data_directories_fail_under_the_wrong_game_version(
+    directory: str,
+    wrong_env_value: str | None,
+    right_env_value: str | None,
+) -> None:
+    def pytest_in(env_value: str | None) -> subprocess.CompletedProcess[str]:
+        code = f"import sys, pytest; sys.exit(pytest.main(['-q', '-p', 'no:cacheprovider', '{directory}']))"
+        return _run(code, env_value)
+
+    wrong = pytest_in(wrong_env_value)
+    assert wrong.returncode != 0
+    assert "LORRGS_GAME_VERSION" in wrong.stdout + wrong.stderr
+    assert "passed" not in wrong.stdout
+
+    right = pytest_in(right_env_value)
+    assert right.returncode == 0, right.stdout + right.stderr

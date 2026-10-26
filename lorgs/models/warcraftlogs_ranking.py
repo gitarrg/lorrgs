@@ -8,6 +8,7 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
+from lorgs.game_version import ACTIVE
 from lorgs.models.base.s3 import S3Model
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_boss import RaidBoss
@@ -24,7 +25,7 @@ class SpecRanking(S3Model):
     # Fields
     spec_slug: str
     boss_slug: str
-    difficulty: str = "mythic"
+    difficulty: str = ACTIVE.default_difficulty_name
     metric: str = ""
 
     reports: list[Report] = []

@@ -5,6 +5,7 @@ import pytest
 from lorgs.models import warcraftlogs_player
 from lorgs.loaders.player_loader import PlayerLoader
 from lorgs.models.warcraftlogs_player import Player
+from lorgs.models.wow_spec import WowSpec
 
 from lorgs.clients import wcl
 
@@ -79,8 +80,8 @@ def _resurrect_query() -> dict:
     )
 
 
-def test_resurrections_are_fight_relative() -> None:
-    player = Player(source_id=10, name="Caster")
+def test_resurrections_are_fight_relative(spec: WowSpec) -> None:
+    player = Player(source_id=10, name="Caster", spec_slug=spec.full_name_slug)
     player.fight = _fight_in_report()
 
     PlayerLoader(player).process_query_result(_resurrect_query())

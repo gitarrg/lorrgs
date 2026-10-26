@@ -28,6 +28,11 @@ SPEC_RANKING_KWARGS = {"spec_slug": "mage-fire", "boss_slug": "some-boss", "diff
 
 
 @pytest.fixture
+def active_retail(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(game_version, "ACTIVE", game_version.RETAIL)
+
+
+@pytest.fixture
 def active_forever(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(game_version, "ACTIVE", game_version.FOREVER)
 
@@ -37,8 +42,8 @@ def active_forever(monkeypatch: pytest.MonkeyPatch) -> None:
 #
 
 
+@pytest.mark.usefixtures("active_retail")
 def test_retail_s3_keys_are_unprefixed() -> None:
-    assert game_version.ACTIVE is game_version.RETAIL
     assert SpecRanking.get_key(**SPEC_RANKING_KWARGS) == "spec_ranking/mage-fire/some-boss__mythic__dps"
     assert CompRanking.get_key(boss_slug="some-boss") == "comp_ranking/some-boss"
 
@@ -65,8 +70,8 @@ def test_save_and_get_use_the_prefixed_key() -> None:
 
 def test_env_var_picks_the_s3_prefix() -> None:
     code = "from lorgs.models.warcraftlogs_comp_ranking import CompRanking; print(CompRanking.get_key(boss_slug='b'))"
-    env = {k: v for k, v in os.environ.items() if k != game_version.ENV_VAR}
-    env.update(PYTHONPATH=".", **{game_version.ENV_VAR: "forever"})
+    env = {k: v for k, v in os.environ.items() if k != "LORRGS_GAME_VERSION"}
+    env.update(PYTHONPATH=".", LORRGS_GAME_VERSION="forever")
     result = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True, check=False)
     assert result.returncode == 0, result.stderr
     assert result.stdout.strip() == "forever/comp_ranking/b"
