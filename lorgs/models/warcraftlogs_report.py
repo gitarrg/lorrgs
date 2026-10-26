@@ -27,6 +27,10 @@ class Report(warcraftlogs_base.BaseModel):
 
     zone_id: int = 0
 
+    game_version: int = 1
+    """WCL `masterData.gameVersion` of the log (`1` = Retail).
+    Items stored before this attribute existed don't have it, which means Retail."""
+
     guild: str = ""
     """The guild that the report belongs to. None if it was a logged as a personal report."""
 
