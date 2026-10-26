@@ -23,4 +23,6 @@ CLASSIC_MOP_SEASON = Season(
         SIEGE_OF_ORGRIMMAR,
     ],
     dungeons=[],
+    collapse_raids=True,
+    has_comp_modes=False,
 )

@@ -18,6 +18,8 @@ def test_api_starts_and_world_data_is_empty() -> None:
     assert routes["/api/spells"][1] == {}
     assert routes["/api/trinkets"][1] == {}
     assert routes["/api/seasons/current"][1]["raids"] == []
+    assert routes["/api/seasons/current"][1]["collapse_raids"] is True
+    assert routes["/api/seasons/current"][1]["has_comp_modes"] is False
     assert routes["/api/roles"][1]["roles"], "roles are shared between Game Versions"
 
 

@@ -25,6 +25,8 @@ def test_api_starts_and_serves_classes_and_raids() -> None:
     assert len(routes["/api/bosses"][1]["bosses"]) == sum(RAID_BOSS_COUNTS.values())
     assert routes["/api/spells"][1], "classes register their major cooldowns"
     assert routes["/api/trinkets"][1] == {}
+    assert routes["/api/seasons/current"][1]["collapse_raids"] is True
+    assert routes["/api/seasons/current"][1]["has_comp_modes"] is False
     assert routes["/api/roles"][1]["roles"], "roles are shared between Game Versions"
 
 

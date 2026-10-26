@@ -28,6 +28,12 @@ class Season(base.MemoryModel):
     dungeons: list[Dungeon] = []
     """Dungeon which part of the Seasons M+ Pool."""
 
+    collapse_raids: bool = False
+    """Frontend: collapse all raids but the selected one in the navbar (for Game Versions with many raids)."""
+
+    has_comp_modes: bool = True
+    """Frontend: whether the Game Version has Comp Rankings (the home page hides them otherwise)."""
+
     @property
     def trinkets(self) -> typing.Generator[WowTrinket]:
         """All Trinkets from Raid & Dungeon."""
