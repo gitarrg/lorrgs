@@ -1,4 +1,4 @@
-"""Seams: with Classic MoP active, the API serves Classic MoP's world data (classes with their major cooldowns, raids and bosses; no boss spells yet)."""
+"""Seams: with Mists active, the API serves Mists's world data (classes with their major cooldowns, raids and bosses; no boss spells yet)."""
 
 from lorrgs_sqs.helpers import PAYLOAD_EXPANDERS
 from test.helpers import get_api_routes
@@ -31,7 +31,7 @@ def test_api_starts_and_serves_classes_and_raids() -> None:
 def test_current_season_has_all_raids() -> None:
     from lorgs.data import CURRENT_SEASON
 
-    assert CURRENT_SEASON.slug == "classic_mop"
+    assert CURRENT_SEASON.slug == "mists"
     assert [raid.name_slug for raid in CURRENT_SEASON.raids] == list(RAID_BOSS_COUNTS)
 
 

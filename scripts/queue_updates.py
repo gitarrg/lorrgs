@@ -11,7 +11,7 @@ Examples (add --dry-run to only print what would be queued):
     scripts/queue_updates.py
 
     # one MoP Classic boss, all specs, top 5 players, run locally
-    scripts/queue_updates.py --game-version classic_mop --boss the-stone-guard --limit 5 --mode local
+    scripts/queue_updates.py --game-version mists --boss the-stone-guard --limit 5 --mode local
 
     # all bosses on Retail for a single spec
     scripts/queue_updates.py --spec mage-fire
@@ -26,10 +26,10 @@ Examples (add --dry-run to only print what would be queued):
     scripts/queue_updates.py --boss ulatek --role heal --role tank --yes
 
     # a whole MoP raid for one class, all metrics
-    scripts/queue_updates.py --game-version classic_mop --raid throne-of-thunder --class monk --metric all
+    scripts/queue_updates.py --game-version mists --raid throne-of-thunder --class monk --metric all
 
     # an entire Game Version (every raid of its current season)
-    scripts/queue_updates.py --game-version classic_mop --yes
+    scripts/queue_updates.py --game-version mists --yes
 
 """
 

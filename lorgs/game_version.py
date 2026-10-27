@@ -90,21 +90,21 @@ FOREVER = GameVersion(
     has_comp_modes=False,
 )
 
-CLASSIC_MOP = GameVersion(
-    name="classic_mop",
+MISTS = GameVersion(
+    name="mists",
     title="Classic: Mists of Pandaria",
-    s3_prefix="classic_mop/",
+    s3_prefix="mists/",
     difficulties=(RaidDifficulty.NORMAL, RaidDifficulty.HEROIC),
     wcl_game_version=6,
-    data_package="lorgs.data.classic_mop",
-    deploy_prefix="classic-mop-",
+    data_package="lorgs.data.mists",
+    deploy_prefix="mists-",
     collapse_raids=True,
     has_comp_modes=False,
 )
 
 GAME_VERSIONS: dict[str, GameVersion] = {}
 GAME_VERSIONS[RETAIL.name] = RETAIL
-GAME_VERSIONS[CLASSIC_MOP.name] = CLASSIC_MOP
+GAME_VERSIONS[MISTS.name] = MISTS
 GAME_VERSIONS[FOREVER.name] = FOREVER
 
 

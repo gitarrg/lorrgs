@@ -1,9 +1,9 @@
 """Defines which Raid/Dungeon the current Season includes."""
 
-from lorgs.data.classic_mop.seasons import CLASSIC_MOP_SEASON
+from lorgs.data.mists.seasons import MISTS_SEASON
 
 
-CURRENT_SEASON = CLASSIC_MOP_SEASON
+CURRENT_SEASON = MISTS_SEASON
 CURRENT_SEASON.activate()
 
 

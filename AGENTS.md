@@ -21,7 +21,7 @@ Shared library `lorgs/`:
 - `clients/discord/`: OAuth login + bot messages.
 - `loaders/`: WCL query building and response parsing (loader extraction is an ongoing refactor; some models still query WCL themselves via `wclclient_mixin`).
 - `models/`: persistence per type: S3 (`SpecRanking`, `CompRanking`), DynamoDB (`UserReport`, `User`), Redis (`Task`), in-memory `MemoryModel` for static game data.
-- `data/`: hand-written game data. `roles.py` and `constants.py` are shared; `expansions/<xpac>/{raids,dungeons}/` is the shared boss/dungeon library (one file per boss); each Game Version has its own package that `LORRGS_GAME_VERSION` picks: `retail/` (`classes/` for spec cooldowns, `racials.py`, `externals.py`, `items/`, `seasons/`, `season.py` with `CURRENT_SEASON`, and it imports the expansions Retail uses), `forever/` (empty skeleton) and `classic_mop/` (classes with their major cooldowns, and the Mists of Pandaria raids; no boss spells yet). Code outside `data/` reads game data via `from lorgs.data import ...` or the registries, never from a version package.
+- `data/`: hand-written game data. `roles.py` and `constants.py` are shared; `expansions/<xpac>/{raids,dungeons}/` is the shared boss/dungeon library (one file per boss); each Game Version has its own package that `LORRGS_GAME_VERSION` picks: `retail/` (`classes/` for spec cooldowns, `racials.py`, `externals.py`, `items/`, `seasons/`, `season.py` with `CURRENT_SEASON`, and it imports the expansions Retail uses), `forever/` (empty skeleton) and `mists/` (classes with their major cooldowns, and the Mists of Pandaria raids; no boss spells yet). Code outside `data/` reads game data via `from lorgs.data import ...` or the registries, never from a version package.
 
 ## Game data
 
@@ -38,12 +38,12 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
 
 - Install: `uv sync`. Use `.venv`; a stale `VIRTUAL_ENV` from another project breaks `MemoryModel`.
 - Dev server: `scripts/start_flask` (uvicorn on `:5012`, reads `.env`; see `template.env`).
-- One dev server per Game Version, for the frontend's Game Version menu: `scripts/start_all_versions` (retail `:5012`, classic_mop `:5013`, forever `:5014`; `BASE_PORT=` shifts them). `GET /api/game_versions` lists all Game Versions with their frontend settings (`collapse_raids`, `has_comp_modes`) and `api_url`, taken from `LORRGS_API_URL_<NAME>`; a Game Version without one is not offered in the menu.
+- One dev server per Game Version, for the frontend's Game Version menu: `scripts/start_all_versions` (retail `:5012`, mists `:5013`, forever `:5014`; `BASE_PORT=` shifts them). `GET /api/game_versions` lists all Game Versions with their frontend settings (`collapse_raids`, `has_comp_modes`) and `api_url`, taken from `LORRGS_API_URL_<NAME>`; a Game Version without one is not offered in the menu.
 - Tests, one run per Game Version:
-  - Retail: `PYTHONPATH=. uv run pytest test --ignore=test/data_forever --ignore=test/data_classic_mop`
+  - Retail: `PYTHONPATH=. uv run pytest test --ignore=test/data_forever --ignore=test/data_mists`
   - Forever: `LORRGS_GAME_VERSION=forever PYTHONPATH=. uv run pytest test/data_forever`
-  - Classic MoP: `LORRGS_GAME_VERSION=classic_mop PYTHONPATH=. uv run pytest test/data_classic_mop`
-  - Tests that use real game data live in `test/data_retail/`, `test/data_forever/` or `test/data_classic_mop/`; a `conftest.py` aborts the run if `LORRGS_GAME_VERSION` doesn't match the directory. Every other test builds what it needs from fixtures (`test/conftest.py`).
+  - Mists: `LORRGS_GAME_VERSION=mists PYTHONPATH=. uv run pytest test/data_mists`
+  - Tests that use real game data live in `test/data_retail/`, `test/data_forever/` or `test/data_mists/`; a `conftest.py` aborts the run if `LORRGS_GAME_VERSION` doesn't match the directory. Every other test builds what it needs from fixtures (`test/conftest.py`).
   - `test_task.py` needs a Redis on `localhost:6379`.
 - Scripts use the shebang `#!/usr/bin/env -S PYTHONPATH=. uv run`; e.g. `scripts/load_report.py <wcl report url>`.
 - Deploy: push to `main`. The GitHub Action syncs `lorrgs_assets/` to S3 and runs `scripts/deploy.py` (Lambda layers + code). There is no PR CI.

@@ -11,9 +11,9 @@ from lorgs.data.expansions.mists_of_pandaria import (
 from lorgs.models.season import Season
 
 
-CLASSIC_MOP_SEASON = Season(
+MISTS_SEASON = Season(
     name="WoW Classic: Mists of Pandaria",
-    slug="classic_mop",
+    slug="mists",
     ilvl=0,
     raids=[
         MOGUSHAN_VAULTS,

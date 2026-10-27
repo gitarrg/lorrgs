@@ -26,14 +26,14 @@ def _run(code: str, env_value: str | None) -> subprocess.CompletedProcess[str]:
     [
         (None, "lorgs.data.retail", "lorgs.data.forever"),
         ("forever", "lorgs.data.forever", "lorgs.data.retail"),
-        ("classic_mop", "lorgs.data.classic_mop", "lorgs.data.retail"),
+        ("mists", "lorgs.data.mists", "lorgs.data.retail"),
     ],
 )
 def test_only_the_active_game_versions_package_is_loaded(env_value: str | None, loaded: str, not_loaded: str) -> None:
     code = (
         "import sys, lorgs.data\n"
         "print(sorted(m for m in sys.modules if m.startswith('lorgs.data.')\n"
-        "             and m.split('.')[2] in {'retail', 'forever', 'classic_mop', 'expansions'}))"
+        "             and m.split('.')[2] in {'retail', 'forever', 'mists', 'expansions'}))"
     )
     result = _run(code, env_value)
     assert result.returncode == 0, result.stderr
