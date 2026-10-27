@@ -156,3 +156,28 @@ def test_data_directories_fail_under_the_wrong_game_version(
 
     right = pytest_in(right_env_value)
     assert right.returncode == 0, right.stdout + right.stderr
+
+
+################################################################################
+# API: list of Game Versions
+#
+
+
+def test_game_versions_route_lists_all_game_versions(monkeypatch: pytest.MonkeyPatch) -> None:
+    from lorgs import game_version
+    from test.helpers import get_api_routes
+
+    monkeypatch.setenv("LORRGS_API_URL_CLASSIC_MOP", "http://127.0.0.1:5014/")
+    status, body = get_api_routes("/api/game_versions")["/api/game_versions"]
+
+    assert status == 200
+    assert [version["name"] for version in body] == ["retail", "classic_mop", "forever"]
+    assert [version["name"] for version in body if version["active"]] == [game_version.ACTIVE.name]
+
+    by_name = {version["name"]: version for version in body}
+    assert by_name["retail"]["collapse_raids"] is False
+    assert by_name["retail"]["has_comp_modes"] is True
+    assert by_name["classic_mop"]["collapse_raids"] is True
+    assert by_name["classic_mop"]["has_comp_modes"] is False
+    assert by_name["classic_mop"]["api_url"] == "http://127.0.0.1:5014"  # trailing slash stripped
+    assert by_name["forever"]["api_url"] == ""  # not configured

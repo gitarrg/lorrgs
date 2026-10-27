@@ -8,6 +8,7 @@ import fastapi
 # IMPORT LOCAL LIBRARIES
 from lorrgs_api.routes import (
     api_comp_rankings,
+    api_game_versions,
     api_season,
     api_spec_rankings,
     api_tasks,
@@ -24,6 +25,7 @@ router = fastapi.APIRouter()
 ################################################################################
 # Child Blueprints
 router.include_router(api_comp_rankings.router)
+router.include_router(api_game_versions.router)
 router.include_router(api_season.router)
 router.include_router(api_spec_rankings.router)
 router.include_router(api_tasks.router)

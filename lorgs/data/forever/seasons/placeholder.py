@@ -10,6 +10,4 @@ FOREVER_PLACEHOLDER_SEASON = Season(
     ilvl=0,
     raids=[],
     dungeons=[],
-    collapse_raids=True,
-    has_comp_modes=False,
 )

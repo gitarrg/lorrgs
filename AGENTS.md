@@ -38,6 +38,7 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
 
 - Install: `uv sync`. Use `.venv`; a stale `VIRTUAL_ENV` from another project breaks `MemoryModel`.
 - Dev server: `scripts/start_flask` (uvicorn on `:5012`, reads `.env`; see `template.env`).
+- One dev server per Game Version, for the frontend's Game Version menu: `scripts/start_all_versions` (retail `:5012`, classic_mop `:5013`, forever `:5014`; `BASE_PORT=` shifts them). `GET /api/game_versions` lists all Game Versions with their frontend settings (`collapse_raids`, `has_comp_modes`) and `api_url`, taken from `LORRGS_API_URL_<NAME>`; a Game Version without one is not offered in the menu.
 - Tests, one run per Game Version:
   - Retail: `PYTHONPATH=. uv run pytest test --ignore=test/data_forever --ignore=test/data_classic_mop`
   - Forever: `LORRGS_GAME_VERSION=forever PYTHONPATH=. uv run pytest test/data_forever`

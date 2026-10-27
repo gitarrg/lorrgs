@@ -36,6 +36,4 @@ async def get_season(season_slug: str) -> dict:
         "name": season.name,
         "slug": season.slug,
         "raids": [raid.id for raid in season.raids],
-        "collapse_raids": season.collapse_raids,
-        "has_comp_modes": season.has_comp_modes,
     }

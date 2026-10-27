@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+# Runs one dev backend per Game Version (like the real deployments), so the frontend's
+# Game Version menu can switch between them:
+#   retail :BASE_PORT, classic_mop :BASE_PORT+1, forever :BASE_PORT+2  (BASE_PORT defaults to 5012)
+# Stop them all with ctrl+c.
+
+export APP="lorrgs_api.app:create_app"
+export DEBUG=1
+export DEFAULT_CACHE_TIMEOUT=60
+export PYTHONPATH=.
+
+BASE_PORT=${BASE_PORT:-5012}
+
+# where the frontend finds each Game Version's API (listed by /api/game_versions)
+export LORRGS_API_URL_RETAIL="http://127.0.0.1:$BASE_PORT"
+export LORRGS_API_URL_CLASSIC_MOP="http://127.0.0.1:$((BASE_PORT + 1))"
+export LORRGS_API_URL_FOREVER="http://127.0.0.1:$((BASE_PORT + 2))"
+
+trap 'kill 0' EXIT
+
+LORRGS_GAME_VERSION=retail uv run uvicorn --factory $APP --port=$BASE_PORT --reload &
+LORRGS_GAME_VERSION=classic_mop uv run uvicorn --factory $APP --port=$((BASE_PORT + 1)) --reload &
+LORRGS_GAME_VERSION=forever uv run uvicorn --factory $APP --port=$((BASE_PORT + 2)) --reload &
+wait

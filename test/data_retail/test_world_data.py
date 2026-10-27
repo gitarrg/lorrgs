@@ -15,8 +15,6 @@ def test_api_serves_world_data() -> None:
     assert routes["/api/zones"][1]
     assert routes["/api/bosses"][1]["bosses"]
     assert routes["/api/seasons/current"][1]["raids"]
-    assert routes["/api/seasons/current"][1]["collapse_raids"] is False
-    assert routes["/api/seasons/current"][1]["has_comp_modes"] is True
 
 
 def test_current_season_is_midnight_season_2() -> None:
