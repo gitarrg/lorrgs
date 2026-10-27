@@ -33,3 +33,5 @@ jobs:
 
       # deploy code
       - run: uv run python scripts/deploy.py
+        env:
+          PYTHONPATH: "."

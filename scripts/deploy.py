@@ -16,6 +16,8 @@ import typing
 
 import boto3
 
+from lorgs.game_version import GAME_VERSIONS, GameVersion
+
 
 if typing.TYPE_CHECKING:
     from mypy_boto3_lambda.type_defs import LayerVersionsListItemTypeDef, PublishLayerVersionResponseTypeDef
@@ -189,17 +191,29 @@ class RequirementsLayer(LambdaLayer):
 
 
 class Lambda:
-    def __init__(self, name: str) -> None:
+    def __init__(
+        self,
+        name: str,
+        game_version: GameVersion | None = None,
+    ) -> None:
         self.client = LAMBDA_CLIENT
         self.name = name
+        self.game_version_prefix = game_version.deploy_prefix if game_version else ""
 
     @property
     def full_name(self):
-        return f"{PREFIX}{self.name}"
+        return f"{PREFIX}{self.game_version_prefix}{self.name}"
+
+    def exists(self) -> bool:
+        try:
+            LAMBDA_CLIENT.get_function_configuration(FunctionName=self.full_name)
+        except LAMBDA_CLIENT.exceptions.ResourceNotFoundException:
+            return False
+        return True
 
     def deploy(self, src: str = "") -> None:
         """Update the Lambda with `name` to use the Code found in `src`."""
-        src = src or self.name.replace("-", "_")
+        src = src or self.name.replace("-", "_")  # the code is the same for every Game Version
         if checksum_compare(name=self.full_name, files=f"{src}/**/*.py"):
             return
 
@@ -244,16 +258,24 @@ def main() -> None:
     reqs_layer = RequirementsLayer(name="lorrgs-requirements")
     reqs_layer.deploy()
 
-    # Lambdas
-    api_lambda = Lambda(name="lorrgs-api")
-    api_lambda.deploy()
+    # Lambdas: one set per Game Version, all running the same code and layers.
+    # A Game Version whose Lambdas don't exist yet (see `scripts/setup_game_version.py`) is skipped.
+    for game_version in GAME_VERSIONS.values():
+        lambdas = [
+            Lambda(name="lorrgs-api", game_version=game_version),
+            Lambda(name="lorrgs-sqs", game_version=game_version),
+        ]
+        missing = [fn.full_name for fn in lambdas if not fn.exists()]
+        if missing:
+            print(f"[deploy] skipping {game_version.name}: no Lambda {', '.join(missing)}")
+            continue
 
-    sqs_lambda = Lambda(name="lorrgs-sqs")
-    sqs_lambda.deploy()
+        for fn in lambdas:
+            fn.deploy()
 
-    # Update if one of them got deployed
-    api_lambda.update_used_layers(reqs_layer, core_layer)
-    sqs_lambda.update_used_layers(reqs_layer, core_layer)
+        # Update if one of the layers got deployed
+        for fn in lambdas:
+            fn.update_used_layers(reqs_layer, core_layer)
 
 
 if __name__ == "__main__":

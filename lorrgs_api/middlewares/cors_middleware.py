@@ -9,6 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 ORIGINS = [
     "https://lorrgs.io",
+    "https://tbc.lorrgs.io",
+    "https://mists.lorrgs.io",
+    "https://forever.lorrgs.io",
+    "https://classic.lorrgs.io",
 ]
 
 # Pages production host and preview hosts such as https://<branch>.lorrgs-frontend.pages.dev.

@@ -106,6 +106,14 @@ def test_pages_project_host_is_allowed(monkeypatch: pytest.MonkeyPatch):
     assert headers["access-control-allow-origin"] == origin
 
 
+def test_forever_site_origin_is_allowed(monkeypatch: pytest.MonkeyPatch):
+    monkeypatch.delenv("DEBUG", raising=False)
+    origin = "https://forever.lorrgs.io"
+    _, headers = asyncio.run(_request("/ok", origin))
+
+    assert headers["access-control-allow-origin"] == origin
+
+
 def test_unknown_origin_is_rejected(monkeypatch: pytest.MonkeyPatch):
     monkeypatch.delenv("DEBUG", raising=False)
     _, headers = asyncio.run(_request("/ok", "https://evil.example"))

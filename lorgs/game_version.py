@@ -38,6 +38,9 @@ class GameVersion:
     data_package: str
     """Dotted path of the package holding this Game Version's game data (not imported here)."""
 
+    deploy_prefix: str = ""
+    """Prefix of this Game Version's AWS resource names (Lambdas, queues, schedules). Empty for Retail."""
+
     collapse_raids: bool = False
     """Frontend: collapse all raids but the selected one in the navbar (for Game Versions with many raids)."""
 
@@ -82,6 +85,7 @@ FOREVER = GameVersion(
     difficulties=(RaidDifficulty.NORMAL,),
     wcl_game_version=99,  # placeholder until #86
     data_package="lorgs.data.forever",
+    deploy_prefix="forever-",
     collapse_raids=True,
     has_comp_modes=False,
 )
@@ -93,6 +97,7 @@ CLASSIC_MOP = GameVersion(
     difficulties=(RaidDifficulty.NORMAL, RaidDifficulty.HEROIC),
     wcl_game_version=6,
     data_package="lorgs.data.classic_mop",
+    deploy_prefix="classic-mop-",
     collapse_raids=True,
     has_comp_modes=False,
 )
