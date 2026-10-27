@@ -33,7 +33,7 @@ from .twins import TWINS
 #
 ################################################################################
 THRONE_OF_THUNDER = RaidZone(  # ruff: ignore[non-empty-init-module]
-    id=1046,
+    id=1051.3,  # WCL zone is 1046; shifted so the frontend (sorts by id) lists it after Terrace of Endless Spring
     name="Throne of Thunder",
     icon="achievement_raid_thunder_king.jpg",
     difficulty=RaidDifficulty.HEROIC,  # WCL has no higher one
