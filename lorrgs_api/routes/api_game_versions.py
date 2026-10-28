@@ -17,8 +17,6 @@ async def get_game_versions() -> list[dict]:
     """List all Game Versions.
 
     Each deployment serves a single Game Version (`active`).
-    The others are only reachable from the frontend if their `api_url` is configured
-    (env `LORRGS_API_URL_<NAME>`).
 
     Returns:
         list[dict]: the Game Versions (the frontend's settings per Game Version included).

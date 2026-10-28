@@ -1,21 +1,27 @@
 #!/usr/bin/env -S PYTHONPATH=. uv run
-"""Create the AWS resources for a Game Version by cloning the Retail ones.
+"""Create the AWS resources for a Game Version from the fixed config below.
 
-Dry run by default: it only reads from AWS and prints what it would create.
+Dry run by default: it only checks whether the new resources already exist and prints what it would create.
 Pass `--apply` to actually create anything. Existing resources are left alone, so it can be re-run.
 
     scripts/setup_game_version.py forever
     scripts/setup_game_version.py forever --apply
 
-Creates (all names carry `GameVersion.deploy_prefix`):
-    - the FIFO queues `<prefix>lorrgs-main.fifo` and `<prefix>lorrgs-user-reports.fifo`
-    - the Lambdas `<prefix>lorrgs-api` and `<prefix>lorrgs-sqs` (config and layers copied from Retail,
-      with `LORRGS_GAME_VERSION` and the queue urls overridden), and the SQS triggers
+Creates (names are `lorrgs-<game version>-<name>`):
+    - the FIFO queues `lorrgs-<version>-main.fifo` and `lorrgs-<version>-user-reports.fifo`
+    - the Lambdas `lorrgs-<version>-api` and `lorrgs-<version>-sqs` (placeholder code; `scripts/deploy.py`
+      replaces it), and the SQS triggers
     - a public Function URL for the API Lambda
     - the ranking refresh schedule, DISABLED (there is nothing to refresh before the Game Version has a raid)
 
-Not covered (manual): the DNS record for `<game version>-api.lorrgs.io` (Cloudflare), IAM permissions for the
-copied roles to reach the new queues, and enabling the schedule. `scripts/deploy.py` deploys the code afterwards.
+The Lambda environment gets `LORRGS_GAME_VERSION` and the queue urls. Credentials
+(`WCL_*`, `DISCORD_*`, `REDIS_URL`, `SECRET_KEY`, `MONGO_URI`) are not copied from anywhere; set them
+on the new Lambdas before they can load reports.
+
+Not covered (manual): the DNS record for `<game version>-api.lorrgs.io` (Cloudflare) and enabling the
+schedule. `REFRESH_SCHEDULE["RoleArn"]` is the Retail scheduler role. Its trust policy lets any
+EventBridge schedule in this account assume it, and its policy allows `sqs:SendMessage` to any queue
+in the account.
 
 Infrastructure as code (#89) is meant to replace this script.
 """
@@ -23,50 +29,150 @@ from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
 import argparse
+import io
 import json
-import os
 import typing
+import zipfile
 
 # IMPORT THIRD-PARTY LIBRARIES
 import boto3
-from botocore.discovery import BotoCoreError
+from botocore.exceptions import ClientError
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.game_version import GAME_VERSIONS, RETAIL
 
 
-if typing.TYPE_CHECKING:
-    from lorgs.models.game_version import GameVersion
-
-
 PROJECT_NAME = "lorrgs"
 
-DEPLOY_BUCKET = os.getenv("DEPLOY_BUCKET") or "lorrgs-code"
+
+class QueueAttributes(typing.TypedDict):
+    FifoQueue: str
+    ContentBasedDeduplication: str
+    DeduplicationScope: str
+    FifoThroughputLimit: str
+    VisibilityTimeout: str
+    MessageRetentionPeriod: str
+    SqsManagedSseEnabled: str
+
+
+class LambdaConfig(typing.TypedDict):
+    Role: str
+    Handler: str
+    Timeout: int
+
+
+class FlexibleWindow(typing.TypedDict):
+    Mode: typing.Literal["FLEXIBLE"]
+    MaximumWindowInMinutes: int
+
+
+class RetryPolicy(typing.TypedDict):
+    MaximumEventAgeInSeconds: int
+    MaximumRetryAttempts: int
+
+
+class RefreshSchedule(typing.TypedDict):
+    ScheduleExpression: str
+    ScheduleExpressionTimezone: str
+    FlexibleTimeWindow: FlexibleWindow
+    RoleArn: str
+    RetryPolicy: RetryPolicy
+    MessageGroupId: str
+
+
+# Both queues. Values are strings because that is what `create_queue` takes.
+QUEUE_ATTRIBUTES: QueueAttributes = {
+    "FifoQueue": "true",
+    "ContentBasedDeduplication": "true",
+    "DeduplicationScope": "messageGroup",
+    "FifoThroughputLimit": "perMessageGroupId",
+    "VisibilityTimeout": "180",
+    "MessageRetentionPeriod": "86400",  # 1 day
+    "SqsManagedSseEnabled": "true",
+}
+
+# Shared by both Lambdas. `scripts/deploy.py` updates the layers when they change.
+LAMBDA_RUNTIME = "python3.13"
+LAMBDA_MEMORY = 512
+LAMBDA_ARCHITECTURES: list[typing.Literal["arm64"]] = ["arm64"]
+LAMBDA_LAYERS = [
+    "arn:aws:lambda:eu-west-1:746912274922:layer:lorrgs-requirements:17",
+    "arn:aws:lambda:eu-west-1:746912274922:layer:lorrgs-core:297",
+]
+LAMBDA_CONFIG: dict[str, LambdaConfig] = {
+    "api": {
+        "Role": "arn:aws:iam::746912274922:role/service-role/lorrgs-api-lambda-role",
+        "Handler": "lorrgs_api.handler.handler",
+        "Timeout": 30,
+    },
+    "sqs": {
+        "Role": "arn:aws:iam::746912274922:role/service-role/lorrgs-sqs-role-npr2706c",
+        "Handler": "lorrgs_sqs.handler.handler",
+        "Timeout": 180,
+    },
+}
+
+
+# SQS trigger on `lorrgs-<version>-sqs`, keyed by the queue's short name.
+TRIGGER_CONFIG = {
+    "main.fifo": {
+        "BatchSize": 5,
+        "ScalingConfig": {"MaximumConcurrency": 2},
+        "FunctionResponseTypes": ["ReportBatchItemFailures"],
+    },
+    "user-reports.fifo": {
+        "BatchSize": 1,
+        "FunctionResponseTypes": ["ReportBatchItemFailures"],
+    },
+}
+
+# Rankings refresh every 6h. Created DISABLED.
+REFRESH_SCHEDULE: RefreshSchedule = {
+    "ScheduleExpression": "cron(0 */6 * * ? *)",
+    "ScheduleExpressionTimezone": "Europe/London",
+    "FlexibleTimeWindow": {
+        "Mode": "FLEXIBLE",
+        "MaximumWindowInMinutes": 15,
+    },
+    "RoleArn": "arn:aws:iam::746912274922:role/service-role/Amazon_EventBridge_Scheduler_SQS_8ac2cf814f",
+    "RetryPolicy": {
+        "MaximumEventAgeInSeconds": 86400,
+        "MaximumRetryAttempts": 0,
+    },
+    "MessageGroupId": "load_spec_rankings",
+}
 
 LAMBDA = boto3.client("lambda")
 SQS = boto3.client("sqs")
-S3 = boto3.client("s3")
 SCHEDULER = boto3.client("scheduler")
 
-# queue attributes we copy from the Retail queues (the rest is account/queue specific)
-QUEUE_ATTRIBUTES = [
-    "FifoQueue",
-    "ContentBasedDeduplication",
-    "DeduplicationScope",
-    "FifoThroughputLimit",
-    "VisibilityTimeout",
-    "MessageRetentionPeriod",
-    "SqsManagedSseEnabled",
-]
+
+def _missing(exc: ClientError) -> bool:
+    code = exc.response.get("Error", {}).get("Code", "")
+    return code in {"AWS.SimpleQueueService.NonExistentQueue", "QueueDoesNotExist", "ResourceNotFoundException"}
+
+
+def placeholder_zip() -> bytes:
+    """Stand-in code so the function can be created. `scripts/deploy.py` replaces it."""
+    buffer = io.BytesIO()
+    with zipfile.ZipFile(buffer, "w") as archive:
+        for package in ("lorrgs_api", "lorrgs_sqs"):
+            archive.writestr(f"{package}/__init__.py", "")
+            archive.writestr(
+                f"{package}/handler.py",
+                "def handler(event, context):\n"
+                "    raise RuntimeError('run scripts/deploy.py to deploy the code')\n",
+            )
+    return buffer.getvalue()
 
 
 class Setup:
-    def __init__(self, game_version: GameVersion, apply: bool) -> None:  # ruff: ignore[boolean-type-hint-positional-argument]
-        self.gv = game_version
+    def __init__(self, game_version_name: str, apply: bool) -> None:  # ruff: ignore[boolean-type-hint-positional-argument]
+        self.gv = GAME_VERSIONS[game_version_name]
         self.apply = apply
 
     def name(self, name: str) -> str:
-        """The resource's full name, eg.: lorrgs-retail-api."""
+        """The resource's full name, eg.: lorrgs-mists-api."""
         return f"{PROJECT_NAME}-{self.gv.name}-{name}"
 
     def log(self, message: str) -> None:
@@ -76,94 +182,78 @@ class Setup:
     # SQS
 
     def queue(self, name: str) -> str:
-        """Create the queue (cloned from Retail's) and return its url (a placeholder on a dry run)."""
+        """Create the queue and return its url (a placeholder on a dry run)."""
         new_name = self.name(name)
         try:
             return SQS.get_queue_url(QueueName=new_name)["QueueUrl"]
-        except BotoCoreError:
-            pass
+        except ClientError as exc:
+            if not _missing(exc):
+                raise
 
-        source_url = SQS.get_queue_url(QueueName=name)["QueueUrl"]
-        attributes = SQS.get_queue_attributes(
-            QueueUrl=source_url,
-            AttributeNames=QUEUE_ATTRIBUTES,  # ty: ignore[invalid-argument-type]
-        )["Attributes"]
         self.log(f"create queue {new_name}")
         if not self.apply:
             return f"<url of {new_name}>"
-        return SQS.create_queue(QueueName=new_name, Attributes=attributes)["QueueUrl"]
+        return SQS.create_queue(
+            QueueName=new_name,
+            Attributes=QUEUE_ATTRIBUTES,  # ty: ignore[invalid-argument-type]
+        )["QueueUrl"]
 
     ############################################################################
     # Lambda
 
-    def function(self, name: str, env: dict[str, str]) -> str:
-        """Create the Lambda (cloned from Retail's) and return its arn."""
+    def function(self, name: str, queue_env: dict[str, str]) -> str:
+        """Create the Lambda and return its arn."""
         new_name = self.name(name)
         try:
             return LAMBDA.get_function_configuration(FunctionName=new_name)["FunctionArn"]
         except LAMBDA.exceptions.ResourceNotFoundException:
             pass
 
-        source = LAMBDA.get_function_configuration(FunctionName=name)
+        config = LAMBDA_CONFIG[name]
         variables = {
-            **source["Environment"]["Variables"],
-            **env,
+            **queue_env,
             "LORRGS_GAME_VERSION": self.gv.name,
         }
-        self.log(f"create lambda {new_name} (env: {', '.join(sorted(env))}, LORRGS_GAME_VERSION={self.gv.name})")
+        self.log(f"create lambda {new_name} (LORRGS_GAME_VERSION={self.gv.name})")
         if not self.apply:
             return f"<arn of {new_name}>"
 
-        # start from Retail's current code; deploy.py replaces it with the real one
-        S3.copy_object(
-            Bucket=DEPLOY_BUCKET,
-            Key=f"{new_name}.zip",
-            CopySource={"Bucket": DEPLOY_BUCKET, "Key": f"{name}.zip"},
-        )
         response = LAMBDA.create_function(
             FunctionName=new_name,
-            Runtime=source["Runtime"],
-            Role=source["Role"],
-            Handler=source["Handler"],
-            Code={"S3Bucket": DEPLOY_BUCKET, "S3Key": f"{new_name}.zip"},
-            Timeout=source["Timeout"],
-            MemorySize=source["MemorySize"],
-            Architectures=source["Architectures"],
-            Layers=[layer["Arn"] for layer in source.get("Layers", [])],
+            Runtime=LAMBDA_RUNTIME,
+            Role=config["Role"],
+            Handler=config["Handler"],
+            Code={"ZipFile": placeholder_zip()},
+            Timeout=config["Timeout"],
+            MemorySize=LAMBDA_MEMORY,
+            Architectures=LAMBDA_ARCHITECTURES,
+            Layers=LAMBDA_LAYERS,
             Environment={"Variables": variables},
         )
         LAMBDA.get_waiter("function_active_v2").wait(FunctionName=new_name)
         return response["FunctionArn"]
 
-    def trigger(self, function_name: str, source_name: str, queue_name: str) -> None:
-        """Wire the queue to the Lambda, with the batch settings of the Retail trigger."""
+    def trigger(self, queue_name: str) -> None:
+        """Wire the queue to the SQS Lambda."""
         new_queue_name = self.name(queue_name)
-        new_function = self.name(function_name)
-
-        source_arn = SQS.get_queue_attributes(
-            QueueUrl=SQS.get_queue_url(QueueName=queue_name)["QueueUrl"], AttributeNames=["QueueArn"]
-        )["Attributes"]["QueueArn"]
-        (source,) = LAMBDA.list_event_source_mappings(FunctionName=source_name, EventSourceArn=source_arn)[
-            "EventSourceMappings"
-        ]
+        new_function = self.name("sqs")
+        config = TRIGGER_CONFIG[queue_name]
 
         if not self.apply:
-            self.log(f"trigger {new_function} from {new_queue_name} (batch size {source['BatchSize']})")
+            self.log(f"trigger {new_function} from {new_queue_name} (batch size {config['BatchSize']})")
             return
 
         queue_arn = SQS.get_queue_attributes(
-            QueueUrl=SQS.get_queue_url(QueueName=new_queue_name)["QueueUrl"], AttributeNames=["QueueArn"]
+            QueueUrl=SQS.get_queue_url(QueueName=new_queue_name)["QueueUrl"],
+            AttributeNames=["QueueArn"],
         )["Attributes"]["QueueArn"]
-        if LAMBDA.list_event_source_mappings(FunctionName=new_function, EventSourceArn=queue_arn)["EventSourceMappings"]:
+        mappings = LAMBDA.list_event_source_mappings(FunctionName=new_function, EventSourceArn=queue_arn)
+        if mappings["EventSourceMappings"]:
             return
-        kwargs = {}
-        if "ScalingConfig" in source:
-            kwargs["ScalingConfig"] = source["ScalingConfig"]
         LAMBDA.create_event_source_mapping(
             FunctionName=new_function,
             EventSourceArn=queue_arn,
-            BatchSize=source["BatchSize"],
-            **kwargs,  # ty: ignore[invalid-argument-type]
+            **config,  # ty: ignore[invalid-argument-type]
         )
         print(f"trigger {new_function} from {new_queue_name}")
 
@@ -190,9 +280,8 @@ class Setup:
     # Scheduler
 
     def refresh_schedule(self, queue_url: str) -> None:
-        """Rankings refresh every 6h, like Retail's, but DISABLED until there is a raid to refresh."""
+        """Rankings refresh every 6h, DISABLED until there is a raid to refresh."""
         name = self.name("load_spec_rankings")
-        source = SCHEDULER.get_schedule(Name=f"load_spec_rankings.{RETAIL.default_difficulty_name}")
         try:
             SCHEDULER.get_schedule(Name=name)
         except SCHEDULER.exceptions.ResourceNotFoundException:
@@ -209,24 +298,24 @@ class Setup:
             "limit": 50,
             "clear": False,
         }
-        self.log(f"create schedule {name} ({source['ScheduleExpression']}, DISABLED)")
+        self.log(f"create schedule {name} ({REFRESH_SCHEDULE['ScheduleExpression']}, DISABLED)")
         if not self.apply:
             return
 
         queue_arn = SQS.get_queue_attributes(QueueUrl=queue_url, AttributeNames=["QueueArn"])["Attributes"]["QueueArn"]
-        target = {
-            **{key: source["Target"][key] for key in ("RoleArn", "RetryPolicy")},
-            "Arn": queue_arn,
-            "Input": json.dumps(payload),
-            "SqsParameters": {"MessageGroupId": "load_spec_rankings"},
-        }
         SCHEDULER.create_schedule(
             Name=name,
             State="DISABLED",
-            ScheduleExpression=source["ScheduleExpression"],
-            ScheduleExpressionTimezone=source["ScheduleExpressionTimezone"],
-            FlexibleTimeWindow=source["FlexibleTimeWindow"],
-            Target=target,  # ty: ignore[invalid-argument-type]
+            ScheduleExpression=REFRESH_SCHEDULE["ScheduleExpression"],
+            ScheduleExpressionTimezone=REFRESH_SCHEDULE["ScheduleExpressionTimezone"],
+            FlexibleTimeWindow=REFRESH_SCHEDULE["FlexibleTimeWindow"],  # ty: ignore[invalid-argument-type]
+            Target={  # ty: ignore[invalid-argument-type]
+                "Arn": queue_arn,
+                "RoleArn": REFRESH_SCHEDULE["RoleArn"],
+                "RetryPolicy": REFRESH_SCHEDULE["RetryPolicy"],
+                "Input": json.dumps(payload),
+                "SqsParameters": {"MessageGroupId": REFRESH_SCHEDULE["MessageGroupId"]},
+            },
         )
 
 
@@ -241,7 +330,7 @@ def main() -> None:
 
     ###########################
     # init
-    setup = Setup(GAME_VERSIONS[args.game_version], apply=args.apply)
+    setup = Setup(args.game_version, apply=args.apply)
 
     ###########################
     # sqs
@@ -250,11 +339,11 @@ def main() -> None:
 
     ###########################
     # lambda
-    env = {"SQS_QUEUE_URL": main_queue, "SQS_USER_QUEUE_URL": user_queue}
-    setup.function("api", env)
-    setup.function("sqs", env)
-    setup.trigger("sqs", source_name="sqs", queue_name="main.fifo")
-    setup.trigger("sqs", source_name="sqs", queue_name="user-reports.fifo")
+    queue_env = {"SQS_QUEUE_URL": main_queue, "SQS_USER_QUEUE_URL": user_queue}
+    setup.function("api", queue_env)
+    setup.function("sqs", queue_env)
+    setup.trigger("main.fifo")
+    setup.trigger("user-reports.fifo")
     setup.function_url("api")
     setup.refresh_schedule(main_queue)
 

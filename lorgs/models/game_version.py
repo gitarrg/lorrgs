@@ -71,8 +71,5 @@ class GameVersion:
 
     @property
     def api_url(self) -> str:
-        """Base URL of the deployment serving this Game Version, from `LORRGS_API_URL_<NAME>` (empty if unset).
-
-        Lets the frontend, which talks to one deployment at a time, switch to another Game Version's API.
-        """
-        return os.getenv(f"LORRGS_API_URL_{self.name.upper()}", "").rstrip("/")
+        """Base URL of the deployment serving this Game Version."""
+        return f"{self.name}-api.lorrgs.io"
