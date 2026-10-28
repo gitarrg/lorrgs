@@ -41,3 +41,6 @@ tsconfig.tsbuildinfo
 
 # Cloudflare zone export (DNS, origins, cert material)
 cloudflare-snapshot/
+
+# CDK
+infra/cdk.out

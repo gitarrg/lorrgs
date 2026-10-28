@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+# Deploy the CDK stacks in infra/ (Mists, Forever). Retail still deploys with scripts/deploy.py.
+#
+# Usage: scripts/deploy [<cdk command> [args...]]
+#
+#   scripts/deploy                             deploy all stacks (default: "deploy --all")
+#   scripts/deploy deploy lorrgs-forever       deploy one stack
+#
+#   scripts/deploy diff                        show what would change (dry run)
+#   scripts/deploy diff lorrgs-forever         for one stack (plus lorrgs-shared, which it depends on)
+#   scripts/deploy diff lorrgs-forever -e      for that stack only (--exclusively)
+#
+#   scripts/deploy deploy --all --no-execute   create change sets without applying them
+#   scripts/deploy synth                       build templates + assets into infra/cdk.out (offline)
+#   scripts/deploy list                        list the stacks
+#
+# Stacks: lorrgs-shared (layers), lorrgs-<version> (queues, Lambdas, schedule, API Gateway, CloudFront).
+# Arguments are passed to the CDK CLI (npx aws-cdk@2); see docs/deploy_game_versions.md.
+
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    sed -n '2,/^$/p' "$0" | sed 's/^# \{0,1\}//'
+    exit 0
+fi
+
+cd "$(dirname "$0")/.." || exit
+export JSII_SILENCE_WARNING_UNTESTED_NODE_VERSION=1
+
+if [[ $# -eq 0 ]]; then
+    set -- deploy --all
+fi
+exec npx --yes aws-cdk@2 "$@"

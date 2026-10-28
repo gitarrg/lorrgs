@@ -24,6 +24,11 @@ dev = [
     "types-boto3[dynamodb,lambda,s3,scheduler,sqs]>=1.43.120",
     "uvicorn[standard]>=0.41.0",
 ]
+infra = [
+    "aws-cdk-lib>=2.275.0",
+    "constructs>=10.8.1",
+    "python-dotenv>=1.2.2",
+]
 
 
 [tool.isort]
