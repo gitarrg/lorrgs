@@ -183,9 +183,3 @@ def test_game_versions_route_lists_all_game_versions(monkeypatch: pytest.MonkeyP
     assert by_name["mists"]["has_comp_modes"] is False
     assert by_name["mists"]["api_url"] == "http://127.0.0.1:5014"  # trailing slash stripped
     assert by_name["forever"]["api_url"] == ""  # not configured
-
-
-def test_deploy_prefixes_are_unique_and_retail_has_none():
-    prefixes = [gv.deploy_prefix for gv in game_version.GAME_VERSIONS.values()]
-    assert game_version.RETAIL.deploy_prefix == ""
-    assert len(set(prefixes)) == len(prefixes)

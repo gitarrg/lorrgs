@@ -19,15 +19,27 @@ copied roles to reach the new queues, and enabling the schedule. `scripts/deploy
 
 Infrastructure as code (#89) is meant to replace this script.
 """
+from __future__ import annotations
 
+# IMPORT STANDARD LIBRARIES
 import argparse
 import json
 import os
+import typing
 
+# IMPORT THIRD-PARTY LIBRARIES
 import boto3
+from botocore.discovery import BotoCoreError
 
-from lorgs.game_version import GAME_VERSIONS, RETAIL, GameVersion
+# IMPORT LOCAL LIBRARIES
+from lorgs.game_version import GAME_VERSIONS, RETAIL
 
+
+if typing.TYPE_CHECKING:
+    from lorgs.models.game_version import GameVersion
+
+
+PROJECT_NAME = "lorrgs"
 
 DEPLOY_BUCKET = os.getenv("DEPLOY_BUCKET") or "lorrgs-code"
 
@@ -49,12 +61,13 @@ QUEUE_ATTRIBUTES = [
 
 
 class Setup:
-    def __init__(self, game_version: GameVersion, apply: bool) -> None:
+    def __init__(self, game_version: GameVersion, apply: bool) -> None:  # ruff: ignore[boolean-type-hint-positional-argument]
         self.gv = game_version
         self.apply = apply
 
     def name(self, name: str) -> str:
-        return f"{self.gv.deploy_prefix}{name}"
+        """The resource's full name, eg.: lorrgs-retail-api."""
+        return f"{PROJECT_NAME}-{self.gv.name}-{name}"
 
     def log(self, message: str) -> None:
         print(f"{'' if self.apply else '[dry run] '}{message}")
@@ -67,11 +80,14 @@ class Setup:
         new_name = self.name(name)
         try:
             return SQS.get_queue_url(QueueName=new_name)["QueueUrl"]
-        except SQS.exceptions.QueueDoesNotExist:
+        except BotoCoreError:
             pass
 
         source_url = SQS.get_queue_url(QueueName=name)["QueueUrl"]
-        attributes = SQS.get_queue_attributes(QueueUrl=source_url, AttributeNames=QUEUE_ATTRIBUTES)["Attributes"]
+        attributes = SQS.get_queue_attributes(
+            QueueUrl=source_url,
+            AttributeNames=QUEUE_ATTRIBUTES,  # ty: ignore[invalid-argument-type]
+        )["Attributes"]
         self.log(f"create queue {new_name}")
         if not self.apply:
             return f"<url of {new_name}>"
@@ -89,7 +105,11 @@ class Setup:
             pass
 
         source = LAMBDA.get_function_configuration(FunctionName=name)
-        variables = {**source["Environment"]["Variables"], **env, "LORRGS_GAME_VERSION": self.gv.name}
+        variables = {
+            **source["Environment"]["Variables"],
+            **env,
+            "LORRGS_GAME_VERSION": self.gv.name,
+        }
         self.log(f"create lambda {new_name} (env: {', '.join(sorted(env))}, LORRGS_GAME_VERSION={self.gv.name})")
         if not self.apply:
             return f"<arn of {new_name}>"
@@ -140,7 +160,10 @@ class Setup:
         if "ScalingConfig" in source:
             kwargs["ScalingConfig"] = source["ScalingConfig"]
         LAMBDA.create_event_source_mapping(
-            FunctionName=new_function, EventSourceArn=queue_arn, BatchSize=source["BatchSize"], **kwargs
+            FunctionName=new_function,
+            EventSourceArn=queue_arn,
+            BatchSize=source["BatchSize"],
+            **kwargs,  # ty: ignore[invalid-argument-type]
         )
         print(f"trigger {new_function} from {new_queue_name}")
 
@@ -168,13 +191,14 @@ class Setup:
 
     def refresh_schedule(self, queue_url: str) -> None:
         """Rankings refresh every 6h, like Retail's, but DISABLED until there is a raid to refresh."""
-        name = self.name("lorrgs.load_spec_rankings")
-        source = SCHEDULER.get_schedule(Name=f"lorrgs.load_spec_rankings.{RETAIL.default_difficulty_name}")
+        name = self.name("load_spec_rankings")
+        source = SCHEDULER.get_schedule(Name=f"load_spec_rankings.{RETAIL.default_difficulty_name}")
         try:
             SCHEDULER.get_schedule(Name=name)
-            return
         except SCHEDULER.exceptions.ResourceNotFoundException:
             pass
+        else:
+            return
 
         payload = {
             "task": "load_spec_rankings",
@@ -202,27 +226,36 @@ class Setup:
             ScheduleExpression=source["ScheduleExpression"],
             ScheduleExpressionTimezone=source["ScheduleExpressionTimezone"],
             FlexibleTimeWindow=source["FlexibleTimeWindow"],
-            Target=target,
+            Target=target,  # ty: ignore[invalid-argument-type]
         )
 
 
 def main() -> None:
+
+    ###########################
+    # ARGPARSE
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("game_version", choices=[gv.name for gv in GAME_VERSIONS.values() if gv is not RETAIL])
     parser.add_argument("--apply", action="store_true", help="create the resources (default: dry run)")
     args = parser.parse_args()
 
+    ###########################
+    # init
     setup = Setup(GAME_VERSIONS[args.game_version], apply=args.apply)
 
-    main_queue = setup.queue("lorrgs-main.fifo")
-    user_queue = setup.queue("lorrgs-user-reports.fifo")
+    ###########################
+    # sqs
+    main_queue = setup.queue("main.fifo")
+    user_queue = setup.queue("user-reports.fifo")
 
+    ###########################
+    # lambda
     env = {"SQS_QUEUE_URL": main_queue, "SQS_USER_QUEUE_URL": user_queue}
-    setup.function("lorrgs-api", env)
-    setup.function("lorrgs-sqs", env)
-    setup.trigger("lorrgs-sqs", source_name="lorrgs-sqs", queue_name="lorrgs-main.fifo")
-    setup.trigger("lorrgs-sqs", source_name="lorrgs-sqs", queue_name="lorrgs-user-reports.fifo")
-    setup.function_url("lorrgs-api")
+    setup.function("api", env)
+    setup.function("sqs", env)
+    setup.trigger("sqs", source_name="sqs", queue_name="main.fifo")
+    setup.trigger("sqs", source_name="sqs", queue_name="user-reports.fifo")
+    setup.function_url("api")
     setup.refresh_schedule(main_queue)
 
     if not args.apply:
