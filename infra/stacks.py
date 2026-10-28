@@ -29,7 +29,6 @@ from aws_cdk import (
 
 # IMPORT LOCAL LIBRARIES
 from infra import assets
-from lorgs.game_version import GAME_VERSIONS, RETAIL
 
 
 if typing.TYPE_CHECKING:

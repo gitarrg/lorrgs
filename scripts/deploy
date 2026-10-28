@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Deploy the CDK stacks in infra/ (Mists, Forever). Retail still deploys with scripts/deploy.py.
+# Deploy the CDK stacks in infra/ (Mists, Forever).
 #
 # Usage: scripts/deploy [<cdk command> [args...]]
 #

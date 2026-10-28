@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - main
+      - feat/forever  # TODO: remove once merged
+
+concurrency: deploy
 
 
 jobs:
@@ -20,6 +23,9 @@ jobs:
 
       - uses: astral-sh/setup-uv@v7
 
+
+      - uses: actions/setup-node@v7  # for the CDK CLI
+
       - run: uv sync
 
         # Update Images 
@@ -31,7 +37,19 @@ jobs:
       # deploy assets
       - run: ./lorrgs_assets/deploy.sh
 
-      # deploy code
-      - run: uv run python scripts/deploy.py
+      # AWS
+      - run: scripts/deploy deploy --all --require-approval never
         env:
-          PYTHONPATH: "."
+          # WCL
+          WCL_CLIENT_ID: ${{ secrets.WCL_CLIENT_ID }}
+          WCL_CLIENT_SECRET: ${{ secrets.WCL_CLIENT_SECRET }}
+          WCL_AUTH_TOKEN: ${{ secrets.WCL_AUTH_TOKEN }}
+          # Discord
+          DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
+          DISCORD_CLIENT_SECRET: ${{ secrets.DISCORD_CLIENT_SECRET }}
+          DISCORD_BOT_TOKEN: ${{ secrets.DISCORD_BOT_TOKEN }}
+          DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_WEBHOOK_URL }}
+          # Redis
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          # Super Secret Key
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
