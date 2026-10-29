@@ -5,7 +5,7 @@ from __future__ import annotations
 # IMPORT LOCAL LIBRARIES
 from lorgs.loaders.spec_ranking import SpecRankingLoader
 from lorgs.logger import logger
-from lorgs.models import warcraftlogs_ranking
+from lorgs.models import selectors, warcraftlogs_ranking
 from lorgs.models.task_payloads import SpecRankingPayload
 from lorrgs_sqs.exceptions import TaskValidationError
 
@@ -18,7 +18,8 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
     game_data = game_version.data
     if not game_data.get_boss(full_name_slug=payload.boss_slug):
         raise TaskValidationError("invalid boss")
-    if not game_data.get_spec(payload.spec_slug):
+    spec = game_data.get_spec(payload.spec_slug)
+    if not spec:
         raise TaskValidationError("invalid spec")
 
     ################################
@@ -28,7 +29,7 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
         boss_slug=payload.boss_slug,
         spec_slug=payload.spec_slug,
         difficulty=game_data.resolve_difficulty(payload.boss_slug, payload.difficulty),
-        metric=payload.metric,
+        metric=payload.metric or selectors.default_metric(spec),
     )
 
     needs_refresh = payload.clear or ranking.needs_refresh(limit=payload.limit)

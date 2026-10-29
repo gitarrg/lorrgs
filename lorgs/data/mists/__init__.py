@@ -7,7 +7,7 @@ Registers the Classes and Specs plus the Raids of the expansion (no spells yet).
 # ruff: file-ignore[unused-import, unsorted-imports]
 
 # Roles
-from lorgs.data.mists.roles import ALL_ROLES, MIXED
+from lorgs.data.mists.roles import ALL_ROLES
 
 # Classes
 from lorgs.data.mists.classes import (

@@ -30,12 +30,18 @@ class WowRole(base.StaticModel):
 
     metrics: list[str] = ["dps", "hps", "bossdps"]
 
-    _specs: set[WowSpec] | None = pydantic.PrivateAttr(default=None)
-    """Filled in by the Game Version's `GameData`."""
+    playable: bool = True
+    """False for pseudo-roles whose specs are spell groups (eg.: Items), not something a player can be."""
+
+    _specs: set[WowSpec] = pydantic.PrivateAttr(default_factory=set)
 
     @property
     def specs(self) -> set[WowSpec]:
-        return self._specs or set()
+        """The Specs of this Role. Each Spec registers itself when it is created."""
+        return self._specs
+
+    def register_spec(self, spec: WowSpec) -> None:
+        self._specs.add(spec)
 
     def __lt__(self, other: WowRole) -> bool:
         return self.id < other.id
@@ -49,4 +55,5 @@ class WowRole(base.StaticModel):
             "specs": [spec.full_name_slug for spec in specs_sorted],
             "spec_ids": [spec.id for spec in specs_sorted],
             "metrics": self.metrics,
+            "playable": self.playable,
         }

@@ -58,8 +58,6 @@ class GameData:  # ruff: ignore[too-many-public-methods]
         self._attach_consumables()
 
     def _link_back_references(self) -> None:
-        for role in self.roles:
-            role._specs = {spec for spec in self.specs if spec.role is role}  # ruff: ignore[private-member-access]
         for zone in self.zones:
             for boss in zone.bosses:
                 boss._zone = zone  # ruff: ignore[private-member-access]

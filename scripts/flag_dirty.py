@@ -3,33 +3,33 @@
 # IMPORT STANDARD LIBRARIES
 import argparse
 import datetime
-import itertools
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.data import GAME_VERSIONS
+from lorgs.models import selectors
 from lorgs.models.warcraftlogs_ranking import SpecRanking
-from lorrgs_sqs.helpers import all_bosses, all_specs
 
 
 def main(game_version_name: str) -> None:
     game_version = GAME_VERSIONS[game_version_name]
     game_data = game_version.data
-    bosses = all_bosses(game_data)  # the current Season's bosses
-    specs = all_specs(game_data)
-    metrics = ["dps", "hps"]
-    combos = [(spec, boss, difficulty, metric)
-              for spec, boss, metric in itertools.product(specs, bosses, metrics)
-              for difficulty in game_data.difficulties_for_boss(boss.full_name_slug)]
+    keys = selectors.expand_selectors(
+        game_data,
+        selectors.select_specs(game_data, selectors.ALL),
+        selectors.select_bosses(game_data, selectors.ALL),  # the current Season's bosses
+        difficulty=selectors.ALL,
+        metric=selectors.ALL,
+    )
 
-    for [spec, boss, difficulty, metric] in combos:
-        print(spec.full_name_slug, boss.full_name_slug, difficulty, metric)
+    for key in keys:
+        print(key.spec.full_name_slug, key.boss.full_name_slug, key.difficulty, key.metric)
 
         spec_ranking = SpecRanking.get_or_create(
             game_version=game_version.name,
-            spec_slug=spec.full_name_slug,
-            boss_slug=boss.full_name_slug,
-            difficulty=difficulty,
-            metric=metric,
+            spec_slug=key.spec.full_name_slug,
+            boss_slug=key.boss.full_name_slug,
+            difficulty=key.difficulty,
+            metric=key.metric,
         )
         if spec_ranking:
             spec_ranking.dirty = True

@@ -40,7 +40,8 @@ class SpecRankingPayload(BaseTaskPayload):
     boss_slug: str
     spec_slug: str
     difficulty: str = AUTO_DIFFICULTY
-    metric: str = "dps"
+    metric: str = ""
+    """Empty for the spec's role default (eg.: hps for healers)."""
     limit: int = 50
     clear: bool = False
 

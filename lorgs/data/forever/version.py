@@ -12,7 +12,7 @@ from lorgs.data.forever.classes import (
     WARLOCK,
     WARRIOR,
 )
-from lorgs.data.forever.roles import ALL_ROLES, MIXED
+from lorgs.data.forever.roles import ALL_ROLES
 from lorgs.data.forever.seasons import FOREVER_SEASON
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.game_data import GameData
@@ -20,7 +20,7 @@ from lorgs.models.game_version import GameVersion
 
 
 GAME_DATA = GameData(
-    roles=[*ALL_ROLES, MIXED],
+    roles=ALL_ROLES,
     classes=[
         DRUID,
         HUNTER,

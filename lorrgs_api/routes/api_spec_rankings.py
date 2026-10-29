@@ -1,5 +1,9 @@
 """Endpoints dealing with Rankings per Spec."""
+
 from __future__ import annotations
+
+# IMPORT STANDARD LIBRARIES
+import typing
 
 # IMPORT THIRD PARTY LIBRARIES
 import fastapi
@@ -7,11 +11,13 @@ import fastapi
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
 from lorgs.logger import logger
-from lorgs.models import warcraftlogs_ranking
+from lorgs.models import selectors, warcraftlogs_ranking
 from lorgs.models.raid_zone import AUTO_DIFFICULTY
 from lorgs.models.task_payloads import SpecRankingPayload
-from lorrgs_api.dependencies import GameVersionDep
 
+
+if typing.TYPE_CHECKING:
+    from lorrgs_api.dependencies import GameVersionDep
 
 router = fastapi.APIRouter(tags=["spec_ranking"], prefix="/spec_ranking")
 
@@ -26,9 +32,7 @@ async def get_spec_ranking(
     metric: str = "",
 ):
     """Get the Rankings for a given Spec and Boss."""
-    if not metric:
-        spec = game_version.data.get_spec(spec_slug)
-        metric = spec.role.metric if spec else "dps"
+    metric = metric or selectors.default_metric(game_version.data.get_spec(spec_slug))
 
     logger.info(f"{spec_slug}/{boss_slug} | start ({difficulty}/{metric})")
 
@@ -59,9 +63,7 @@ async def get_spec_ranking_info(
     metric: str = "",
 ):
     """Get the Rankings for a given Spec and Boss."""
-    if not metric:
-        spec = game_version.data.get_spec(spec_slug)
-        metric = spec.role.metric if spec else "dps"
+    metric = metric or selectors.default_metric(game_version.data.get_spec(spec_slug))
 
     # shorter cache timeout for the start of the tier (where frequent changes happen)
     response.headers["Cache-Control"] = "max-age=300"
@@ -133,9 +135,7 @@ async def flag_dirty(
     """Flag a Spec Ranking as dirty."""
     response.headers["Cache-Control"] = "no-cache"
 
-    if not metric:
-        spec = game_version.data.get_spec(spec_slug)
-        metric = spec.role.metric if spec else "dps"
+    metric = metric or selectors.default_metric(game_version.data.get_spec(spec_slug))
 
     spec_ranking = warcraftlogs_ranking.SpecRanking.get_or_create(
         game_version=game_version.name,

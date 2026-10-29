@@ -9,8 +9,7 @@ from lorgs.models.wow_spec import WowSpec
 ################################################################################
 # Role
 #
-ITEM_ROLE = WowRole(id=1001, code="item", name="Items")
-UTIL_ROLE = WowRole(id=1002, code="util", name="Utility")
+ITEM_ROLE = WowRole(id=1001, code="item", name="Items", playable=False)
 
 ################################################################################
 # Class
@@ -24,3 +23,4 @@ OTHER_POTION = WowSpec(role=ITEM_ROLE, wow_class=OTHER, name="Potions")
 OTHER_EXTERNALS = WowSpec(role=ITEM_ROLE, wow_class=OTHER, name="Externals")
 OTHER_TRINKET = WowSpec(role=ITEM_ROLE, wow_class=OTHER, name="Trinkets")
 OTHER_REZZES = WowSpec(role=ITEM_ROLE, wow_class=OTHER, name="Rezzes")
+OTHER_RACIALS = WowSpec(role=ITEM_ROLE, wow_class=OTHER, name="Racials")

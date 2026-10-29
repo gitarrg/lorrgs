@@ -40,18 +40,21 @@ import argparse
 import asyncio
 import dataclasses
 import sys
-
+import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
 from lorgs.data import GAME_VERSIONS
-from lorgs.models.game_data import GameData
-from lorgs.models.game_version import GameVersion
-from lorgs.models.raid_boss import RaidBoss
+from lorgs.models import selectors
 from lorgs.models.raid_zone import AUTO_DIFFICULTY, RaidZone
 from lorgs.models.task_payloads import SpecRankingPayload
-from lorgs.models.wow_spec import WowSpec
-from lorrgs_sqs.helpers import all_specs
+
+
+if typing.TYPE_CHECKING:
+    from lorgs.models.game_data import GameData
+    from lorgs.models.game_version import GameVersion
+    from lorgs.models.raid_boss import RaidBoss
+    from lorgs.models.wow_spec import WowSpec
 
 
 @dataclasses.dataclass(frozen=True)
@@ -157,25 +160,23 @@ def select_bosses(parser: argparse.ArgumentParser, args: argparse.Namespace, gam
 
 
 def select_specs(parser: argparse.ArgumentParser, args: argparse.Namespace, game_data: GameData) -> list[WowSpec]:
-    specs_available = all_specs(game_data)
+    specs_available = selectors.playable_specs(game_data)
     if not (args.spec or args.wow_class or args.role):
         return sorted(specs_available)
 
     specs: set[WowSpec] = set()
     specs.update(_pick(parser, "spec", args.spec, {spec.full_name_slug: spec for spec in specs_available}))
-    for class_slug in _pick(parser, "class", args.wow_class, {spec.wow_class.name_slug: spec.wow_class.name_slug for spec in specs_available}):
+    for class_slug in _pick(
+        parser,
+        "class",
+        args.wow_class,
+        {spec.wow_class.name_slug: spec.wow_class.name_slug for spec in specs_available},
+    ):
         specs.update(spec for spec in specs_available if spec.wow_class.name_slug == class_slug)
     for role_code in _pick(parser, "role", args.role, {code: code for code in ROLE_CHOICES}):
         codes = {"mdps", "rdps"} if role_code == "dps" else {role_code}
         specs.update(spec for spec in specs_available if spec.role.code in codes)
     return sorted(specs)
-
-
-def difficulties_for(game_data: GameData, boss: RaidBoss, difficulty: str) -> list[str]:
-    """The difficulties to update for a boss. `all` is every difficulty we rank for it, `auto` its zone's one."""
-    if difficulty == "all":
-        return game_data.difficulties_for_boss(boss.full_name_slug)
-    return [game_data.resolve_difficulty(boss.full_name_slug, difficulty)]
 
 
 def build_tasks(
@@ -185,64 +186,77 @@ def build_tasks(
     difficulty: str,
     metric: str,
 ) -> list[RankingTask]:
-    tasks = []
-    for spec in specs:
-        if metric == "all":
-            metrics = spec.role.metrics
-        else:
-            metrics = [metric or spec.role.metric]
-        tasks.extend(
-            RankingTask(game_version, spec, boss, boss_difficulty, spec_metric)
-            for boss in bosses
-            for boss_difficulty in difficulties_for(game_version.data, boss, difficulty)
-            for spec_metric in metrics
-        )
-    return tasks
+    keys = selectors.expand_selectors(game_version.data, specs, bosses, difficulty, metric)
+    return [RankingTask(game_version, key.spec, key.boss, key.difficulty, key.metric) for key in keys]
 
 
 ################################################################################
 # CLI
 #
 
-ROLE_CHOICES = sorted({role.code for version in GAME_VERSIONS.values() for role in version.data.roles}) + ["dps"]
+ROLE_CHOICES = sorted({
+    role.code for version in GAME_VERSIONS.values() for role in version.data.roles if role.playable
+}) + ["dps"]
 
 
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
 
     parser.add_argument("--game-version", default="retail", choices=list(GAME_VERSIONS), help="default: %(default)s")
-    parser.add_argument("--mode", default="remote", choices=["local", "remote"], help="remote = queue SQS messages (default)")
+    parser.add_argument(
+        "--mode", default="remote", choices=["local", "remote"], help="remote = queue SQS messages (default)"
+    )
 
     bosses = parser.add_argument_group("bosses (default: all raids of the current season)")
     bosses = bosses.add_mutually_exclusive_group()
-    bosses.add_argument("--raid", action="append", default=[], metavar="SLUG", help="all bosses of a raid zone, e.g. manaforge-omega")
+    bosses.add_argument(
+        "--raid", action="append", default=[], metavar="SLUG", help="all bosses of a raid zone, e.g. manaforge-omega"
+    )
     bosses.add_argument("--boss", action="append", default=[], metavar="SLUG", help="a single boss, e.g. dimensius")
 
     specs = parser.add_argument_group("specs (default: all; combined as a union)")
     specs.add_argument("--spec", action="append", default=[], metavar="SLUG", help="e.g. mage-fire")
-    specs.add_argument("--class", dest="wow_class", action="append", default=[], metavar="SLUG", help="all specs of a class, e.g. mage")
-    specs.add_argument("--role", action="append", default=[], choices=ROLE_CHOICES, help="all specs of a role (dps = mdps + rdps)")
+    specs.add_argument(
+        "--class", dest="wow_class", action="append", default=[], metavar="SLUG", help="all specs of a class, e.g. mage"
+    )
+    specs.add_argument(
+        "--role", action="append", default=[], choices=ROLE_CHOICES, help="all specs of a role (dps = mdps + rdps)"
+    )
 
     parser.add_argument(
         "--difficulty",
         default=AUTO_DIFFICULTY,
-        choices=[AUTO_DIFFICULTY, *sorted({name for v in GAME_VERSIONS.values() for name in v.difficulty_names}), "all"],
+        choices=[
+            AUTO_DIFFICULTY,
+            *sorted({name for v in GAME_VERSIONS.values() for name in v.difficulty_names}),
+            "all",
+        ],
         help="`auto` = the one difficulty ranked per raid, `all` = every difficulty ranked per raid. default: %(default)s",
     )
     parser.add_argument("--metric", default="", help="dps, hps, ... or `all`. default: the spec's role metric")
     parser.add_argument("--limit", type=int, default=50, help="players per ranking. default: %(default)s")
-    parser.add_argument("--clear", action=argparse.BooleanOptionalAction, default=False, help="wipe existing data first. default: off")
+    parser.add_argument(
+        "--clear", action=argparse.BooleanOptionalAction, default=False, help="wipe existing data first. default: off"
+    )
 
     parser.add_argument("--dry-run", action="store_true", help="print the summary and exit")
     parser.add_argument("-y", "--yes", action="store_true", help="skip the confirmation prompt")
     return parser
 
 
-def print_summary(args: argparse.Namespace, game_version: GameVersion, specs: list[WowSpec], bosses: list[RaidBoss], tasks: list[RankingTask]) -> None:
+def print_summary(
+    args: argparse.Namespace,
+    game_version: GameVersion,
+    specs: list[WowSpec],
+    bosses: list[RaidBoss],
+    tasks: list[RankingTask],
+) -> None:
     print(f"game version: {game_version.name}   mode: {args.mode}   limit: {args.limit}   clear: {args.clear}")
     print(f"bosses ({len(bosses)}): {', '.join(boss.full_name_slug for boss in bosses)}")
     print(f"specs ({len(specs)}): {', '.join(spec.full_name_slug for spec in specs)}")
-    print(f"difficulties: {', '.join(sorted({task.difficulty for task in tasks}))}   metric: {args.metric or '(role default)'}")
+    print(
+        f"difficulties: {', '.join(sorted({task.difficulty for task in tasks}))}   metric: {args.metric or '(role default)'}"
+    )
     print(f"=> {len(tasks)} tasks")
 
 
@@ -256,7 +270,9 @@ def confirm() -> bool:
 async def run(tasks: list[RankingTask], args: argparse.Namespace) -> None:
     load = load_local if args.mode == "local" else load_remote
     for i, task in enumerate(tasks, start=1):
-        print(f"[{i}/{len(tasks)}] {task.spec.full_name_slug} {task.boss.full_name_slug} {task.difficulty} {task.metric}")
+        print(
+            f"[{i}/{len(tasks)}] {task.spec.full_name_slug} {task.boss.full_name_slug} {task.difficulty} {task.metric}"
+        )
         await load(task, limit=args.limit, clear=args.clear)
 
 

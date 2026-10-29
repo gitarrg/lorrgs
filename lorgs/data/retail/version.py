@@ -17,9 +17,8 @@ from lorgs.data.retail.classes import (
     WARLOCK,
     WARRIOR,
 )
-from lorgs.data.retail.classes.other import ITEM_ROLE, UTIL_ROLE
-from lorgs.data.retail.racials import RACIALS
-from lorgs.data.retail.roles import ALL_ROLES, MIXED
+from lorgs.data.retail.classes.other import ITEM_ROLE
+from lorgs.data.retail.roles import ALL_ROLES
 from lorgs.data.retail.seasons import MIDNIGHT_SEASON2
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.game_data import GameData
@@ -29,9 +28,7 @@ from lorgs.models.game_version import GameVersion
 GAME_DATA = GameData(
     roles=[
         *ALL_ROLES,
-        MIXED,
         ITEM_ROLE,
-        UTIL_ROLE,
     ],
     classes=[
         DEATHKNIGHT,
@@ -48,7 +45,6 @@ GAME_DATA = GameData(
         SHAMAN,
         WARLOCK,
         WARRIOR,
-        RACIALS,
     ],
     season=MIDNIGHT_SEASON2,
     difficulties=(

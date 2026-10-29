@@ -1,13 +1,18 @@
 from __future__ import annotations
 
-from collections.abc import Callable
-from typing import Any
+# IMPORT STANDARD LIBRARIES
+import typing
 
+# IMPORT LOCAL LIBRARIES
 from lorgs.data import GAME_VERSIONS
-from lorgs.models.game_data import GameData
-from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.wow_spec import WowSpec
+from lorgs.models import selectors
 from lorrgs_sqs.exceptions import TaskValidationError
+
+
+if typing.TYPE_CHECKING:
+    from collections.abc import Callable
+
+    from lorgs.models.game_data import GameData
 
 
 def get_game_data(payload: dict) -> GameData:
@@ -18,36 +23,24 @@ def get_game_data(payload: dict) -> GameData:
     return GAME_VERSIONS[name].data
 
 
-def all_specs(game_data: GameData) -> set[WowSpec]:
-    """The class specs of the Game Version (no item pseudo-specs)."""
-    return {spec for role in game_data.roles for spec in role.specs}
-
-
-def all_bosses(game_data: GameData) -> list[RaidBoss]:
-    """The bosses of the current season's raids."""
-    return [boss for zone in game_data.zones for boss in zone.bosses]
-
-
 def expand_spec_slug(payload: dict) -> list[str]:
-    return [spec.full_name_slug for spec in all_specs(get_game_data(payload))]
+    return [spec.full_name_slug for spec in selectors.select_specs(get_game_data(payload), selectors.ALL)]
 
 
 def expand_boss_slug(payload: dict) -> list[str]:
-    return [boss.full_name_slug for boss in all_bosses(get_game_data(payload))]
+    return [boss.full_name_slug for boss in selectors.select_bosses(get_game_data(payload), selectors.ALL)]
 
 
 def expand_metric(payload: dict) -> list[str]:
-    game_data = get_game_data(payload)
-    spec = game_data.get_spec(payload.get("spec_slug", ""))
-    role = (spec and spec.role) or game_data.get_role("tank")
-    return (role and role.metrics) or []
+    spec = get_game_data(payload).get_spec(payload.get("spec_slug", ""))
+    return selectors.select_metrics(spec, selectors.ALL)
 
 
 def expand_difficulty(payload: dict) -> list[str]:
-    return get_game_data(payload).difficulties_for_boss(payload.get("boss_slug", ""))
+    return selectors.select_difficulties(get_game_data(payload), payload.get("boss_slug", ""), selectors.ALL)
 
 
-PAYLOAD_EXPANDERS: dict[str, Callable[[Any], list[str]]] = {
+PAYLOAD_EXPANDERS: dict[str, Callable[[typing.Any], list[str]]] = {
     "spec_slug": expand_spec_slug,
     "boss_slug": expand_boss_slug,
     "difficulty": expand_difficulty,
@@ -56,7 +49,7 @@ PAYLOAD_EXPANDERS: dict[str, Callable[[Any], list[str]]] = {
 
 
 def expand_payload(keyword: str, payload: dict) -> list[dict]:
-    if payload.get(keyword) != "all":
+    if payload.get(keyword) != selectors.ALL:
         return [payload]
 
     values = PAYLOAD_EXPANDERS[keyword](payload)
