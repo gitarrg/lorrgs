@@ -5,6 +5,7 @@ import typing
 from lorgs.models import base
 from lorgs.models.dungeon import Dungeon
 from lorgs.models.raid_zone import RaidZone
+from lorgs.models.wow_potion import WowPotion
 from lorgs.models.wow_spell import WowSpell
 from lorgs.models.wow_trinket import WowTrinket
 
@@ -27,6 +28,9 @@ class Season(base.StaticModel):
 
     dungeons: list[Dungeon] = []
     """Dungeon which part of the Seasons M+ Pool."""
+
+    consumables: list[WowPotion] = []
+    """Potions in use during the Season."""
 
     @property
     def trinkets(self) -> typing.Generator[WowTrinket]:

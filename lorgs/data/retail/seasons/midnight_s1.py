@@ -15,6 +15,13 @@ from lorgs.data.expansions.midnight.dungeons import (
 # Raids
 from lorgs.data.expansions.midnight.raids import DREAMRIFT, MARCH_ON_QUALDANAS, SPOREFALL, VOIDSPIRE
 from lorgs.data.expansions.wrath_of_the_lich_king.dungeons import PIT_OF_SARON
+from lorgs.data.expansions.midnight.consumables import (
+    LIGHTFUSED_MANA_POTION,
+    LIGHTS_POTENTIAL,
+    LIQUID_LUSTER,
+    POTION_OF_RECKLESSNESS,
+    SILVERMOON_HEALTH_POTION,
+)
 from lorgs.models.season import Season
 
 
@@ -22,6 +29,7 @@ MIDNIGHT_SEASON1 = Season(
     name="Midnight Season 1",
     slug="midnight_s1",
     ilvl=289,
+    consumables=[SILVERMOON_HEALTH_POTION, LIGHTFUSED_MANA_POTION, LIGHTS_POTENTIAL, POTION_OF_RECKLESSNESS, LIQUID_LUSTER],
     raids=[
         VOIDSPIRE,
         DREAMRIFT,

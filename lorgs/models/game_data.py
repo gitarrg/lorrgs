@@ -61,6 +61,15 @@ class GameData:  # ruff: ignore[too-many-public-methods]
         for zone in self.zones:
             for boss in zone.bosses:
                 boss._zone = zone  # ruff: ignore[private-member-access]
+        self._attach_consumables()
+
+    def _attach_consumables(self) -> None:
+        """Give every spec the consumables of its role. Roles are per Game Version, so Seasons only name their codes."""
+        for season in self.seasons:
+            for potion in season.consumables:
+                for spec in self.specs:
+                    if spec.role.code in potion.roles and potion not in spec.spells:
+                        spec.add_spells(potion)
 
     @property
     def default_difficulty(self) -> RaidDifficulty:

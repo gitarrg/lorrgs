@@ -14,6 +14,11 @@ from lorgs.data.expansions.the_war_within import (
     PRIORY_OF_THE_SACRED_FLAME,
     THE_ROOKERY,
 )
+from lorgs.data.expansions.the_war_within.consumables import (
+    Algari_Healing_Potion,
+    Algari_Mana_Potion,
+    Tempered_Potion,
+)
 from lorgs.models.season import Season
 
 
@@ -21,6 +26,7 @@ TWW_SEASON2 = Season(
     name="TWW Season 2",
     slug="tww_2",
     ilvl=678,
+    consumables=[Algari_Healing_Potion, Tempered_Potion, Algari_Mana_Potion],
     raids=[
         LIBERATION_OF_UNDERMINE,
     ],

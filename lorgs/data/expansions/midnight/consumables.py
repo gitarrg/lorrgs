@@ -1,4 +1,5 @@
-from lorgs.data.retail.classes import ALL_SPECS, HEAL
+"""Consumables of Midnight."""
+
 from lorgs.data.constants import COL_MANA
 from lorgs.models.wow_potion import WowPotion
 
@@ -14,7 +15,6 @@ SILVERMOON_HEALTH_POTION = WowPotion(
     ],
 )
 """Health Pot"""
-SILVERMOON_HEALTH_POTION.add_specs(*ALL_SPECS)
 
 
 LIGHTFUSED_MANA_POTION = WowPotion(
@@ -23,9 +23,9 @@ LIGHTFUSED_MANA_POTION = WowPotion(
     name="Lightfused Mana Potion",
     icon="inv_12_profession_alchemy_lightpotion_blue.jpg",
     item=241300,
+    roles=["heal"],
 )
 """Mana Pot"""
-LIGHTFUSED_MANA_POTION.add_specs(*HEAL.specs)
 
 
 LIGHTS_POTENTIAL = WowPotion(
@@ -41,7 +41,6 @@ LIGHTS_POTENTIAL = WowPotion(
 
 > Use: Drink to increase your primary stat by 695 for 30 sec.
 """
-LIGHTS_POTENTIAL.add_specs(*ALL_SPECS)
 
 
 POTION_OF_RECKLESSNESS = WowPotion(
@@ -57,7 +56,6 @@ POTION_OF_RECKLESSNESS = WowPotion(
 
 > Use: Gain 1725 of your highest secondary stat while losing 232 of your lowest secondary stat for 30 sec.
 """
-POTION_OF_RECKLESSNESS.add_specs(*ALL_SPECS)
 
 
 LIQUID_LUSTER = WowPotion(
@@ -74,13 +72,3 @@ LIQUID_LUSTER = WowPotion(
 > Versatility while this potion is active. Applications of Lustrous Gleam stack
 > up to 5 times.
 """
-LIQUID_LUSTER.add_specs(*ALL_SPECS)
-
-
-MIDNIGHT_CONSUMABLES = [
-    SILVERMOON_HEALTH_POTION,
-    LIGHTS_POTENTIAL,
-    POTION_OF_RECKLESSNESS,
-    LIQUID_LUSTER,
-    LIGHTFUSED_MANA_POTION,
-]

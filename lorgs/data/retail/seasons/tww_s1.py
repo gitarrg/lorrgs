@@ -8,6 +8,11 @@ from lorgs.data.expansions.shadowlands import MISTS_OF_TIRNA_SCITHE, NECROTIC_WA
 
 # Raids
 from lorgs.data.expansions.the_war_within import ARA_KARA, CITY_OF_THREADS, DAWNBREAKER, NERUBAR_PALACE, STONEVAULT
+from lorgs.data.expansions.the_war_within.consumables import (
+    Algari_Healing_Potion,
+    Algari_Mana_Potion,
+    Tempered_Potion,
+)
 from lorgs.models.season import Season
 
 
@@ -15,6 +20,7 @@ TWW_SEASON1 = Season(
     name="TWW Season 1",
     slug="tww_s1",
     ilvl=639,
+    consumables=[Algari_Healing_Potion, Tempered_Potion, Algari_Mana_Potion],
     raids=[
         NERUBAR_PALACE,
     ],

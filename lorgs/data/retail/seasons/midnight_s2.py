@@ -2,6 +2,13 @@
 # ruff: ignore[unsorted-imports] We like them sorted by expansion
 
 # IMPORT LOCAL LIBRARIES
+from lorgs.data.expansions.midnight.consumables import (
+    LIGHTFUSED_MANA_POTION,
+    LIGHTS_POTENTIAL,
+    LIQUID_LUSTER,
+    POTION_OF_RECKLESSNESS,
+    SILVERMOON_HEALTH_POTION,
+)
 from lorgs.models.season import Season
 
 # Dungeons
@@ -24,6 +31,7 @@ MIDNIGHT_SEASON2 = Season(
     name="Midnight Season 2",
     slug="midnight_s2",
     ilvl=344,
+    consumables=[SILVERMOON_HEALTH_POTION, LIGHTFUSED_MANA_POTION, LIGHTS_POTENTIAL, POTION_OF_RECKLESSNESS, LIQUID_LUSTER],
     raids=[
         THE_VENOMOUS_ABYSS,
         THE_TIDEBOUND_GROTTO,

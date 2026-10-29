@@ -1,4 +1,6 @@
-from lorgs.data.retail.classes import *
+"""Consumables of The War Within."""
+
+from lorgs.data.constants import COL_MANA
 from lorgs.models.wow_potion import WowPotion
 
 
@@ -13,7 +15,6 @@ Algari_Healing_Potion = WowPotion(
 )
 """Health Pot"""
 # no longer used. people should use invigorating instead
-# Algari_Healing_Potion.add_specs(*ALL_SPECS)
 
 
 Invigorating_Healing_Potion = WowPotion(
@@ -26,7 +27,6 @@ Invigorating_Healing_Potion = WowPotion(
     variations=[],  # logs only show 1 spell ID
 )
 """Health Pot"""
-Invigorating_Healing_Potion.add_specs(*ALL_SPECS)
 
 
 Tempered_Potion = WowPotion(
@@ -42,7 +42,6 @@ Tempered_Potion = WowPotion(
 
 > Use: Gain the effects of all inactive Tempered Flasks, increasing their associated secondary stats by 2617 for 30 sec.
 """
-Tempered_Potion.add_specs(*ALL_SPECS)
 
 
 Algari_Mana_Potion = WowPotion(
@@ -51,13 +50,6 @@ Algari_Mana_Potion = WowPotion(
     name="Algari Mana Potion",
     icon="inv_flask_blue.jpg",
     item=212241,
+    roles=["heal"],
 )
 """Mana Pot"""
-Algari_Mana_Potion.add_specs(*HEAL.specs)
-
-
-TWW_CONSUMABLES = [
-    Algari_Healing_Potion,
-    Tempered_Potion,
-    Algari_Mana_Potion,
-]

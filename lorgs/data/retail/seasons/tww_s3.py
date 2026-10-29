@@ -13,6 +13,11 @@ from lorgs.data.expansions.the_war_within import (
     OPERATION_FLOODGATE,
     PRIORY_OF_THE_SACRED_FLAME,
 )
+from lorgs.data.expansions.the_war_within.consumables import (
+    Algari_Mana_Potion,
+    Invigorating_Healing_Potion,
+    Tempered_Potion,
+)
 from lorgs.models.season import Season
 
 
@@ -20,6 +25,7 @@ TWW_SEASON3 = Season(
     name="TWW Season 3",
     slug="tww_3",
     ilvl=723,
+    consumables=[Invigorating_Healing_Potion, Tempered_Potion, Algari_Mana_Potion],
     raids=[
         MANAFORGE_OMEGA,
     ],

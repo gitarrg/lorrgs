@@ -18,8 +18,6 @@ from lorgs.data.retail.classes import (
     WARRIOR,
 )
 from lorgs.data.retail.classes.other import ITEM_ROLE, UTIL_ROLE
-from lorgs.data.retail.items.midnight import MIDNIGHT_CONSUMABLES
-from lorgs.data.retail.items.the_war_within import TWW_CONSUMABLES
 from lorgs.data.retail.racials import RACIALS
 from lorgs.data.retail.roles import ALL_ROLES, MIXED
 from lorgs.data.retail.seasons import (
@@ -70,7 +68,6 @@ GAME_DATA = GameData(
         RaidDifficulty.HEROIC,
         RaidDifficulty.MYTHIC,
     ),
-    spells=[*MIDNIGHT_CONSUMABLES, *TWW_CONSUMABLES],
 )
 
 GAME_VERSION = GameVersion(
