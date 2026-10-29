@@ -12,7 +12,7 @@ from unittest import mock
 
 import pytest
 
-from lorgs.data import MISTS, RETAIL
+from lorgs.data import GAME_VERSIONS, MISTS, RETAIL
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader, UnsupportedGameVersionError
 from lorgs.models.base.dynamodb import DynamoDBModel
 from lorgs.models.user import User
@@ -32,9 +32,10 @@ SPEC_RANKING_KWARGS = {"spec_slug": "mage-fire", "boss_slug": "some-boss", "diff
 
 @pytest.mark.parametrize("game_version", ["retail", "mists", "forever"])
 def test_s3_keys_start_with_the_game_version(game_version: str) -> None:
+    season_slug = GAME_VERSIONS[game_version].data.season.slug
     assert (
         SpecRanking.get_key(game_version=game_version, **SPEC_RANKING_KWARGS)
-        == f"{game_version}/spec_ranking/mage-fire/some-boss__mythic__dps"
+        == f"{game_version}/spec_ranking/{season_slug}/mage-fire.//some-boss__mythic__dps"
     )
     assert CompRanking.get_key(game_version=game_version, boss_slug="some-boss") == f"{game_version}/comp_ranking/some-boss"
 
@@ -48,7 +49,7 @@ def test_game_version_is_required() -> None:
 
 def test_save_and_get_use_the_prefixed_key() -> None:
     ranking = SpecRanking(game_version="retail", **SPEC_RANKING_KWARGS)
-    expected_key = "retail/spec_ranking/mage-fire/some-boss__mythic__dps"
+    expected_key = f"retail/spec_ranking/{RETAIL.data.season.slug}/mage-fire.//some-boss__mythic__dps"
 
     with mock.patch("lorgs.models.base.s3.s3client") as s3client:
         ranking.save()

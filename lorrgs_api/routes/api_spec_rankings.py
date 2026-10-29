@@ -2,9 +2,6 @@
 
 from __future__ import annotations
 
-# IMPORT STANDARD LIBRARIES
-import typing
-
 # IMPORT THIRD PARTY LIBRARIES
 import fastapi
 
@@ -14,10 +11,8 @@ from lorgs.logger import logger
 from lorgs.models import selectors, warcraftlogs_ranking
 from lorgs.models.raid_zone import AUTO_DIFFICULTY
 from lorgs.models.task_payloads import SpecRankingPayload
+from lorrgs_api.dependencies import GameVersionDep  # ruff: ignore[typing-only-first-party-import]
 
-
-if typing.TYPE_CHECKING:
-    from lorrgs_api.dependencies import GameVersionDep
 
 router = fastapi.APIRouter(tags=["spec_ranking"], prefix="/spec_ranking")
 

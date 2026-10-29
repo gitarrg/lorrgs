@@ -51,6 +51,9 @@ class RaidBoss(WowActor):
     phase_type: PhaseType = PhaseType.STATIC
     """Type of phases for this boss."""
 
+    phase_spells: list[int] = []
+    """Spell ids of the boss Casts `process_phases` needs. Loaded together with the phases."""
+
     _zone: RaidZone | None = pydantic.PrivateAttr(default=None)
     """Filled in by the Game Version's `GameData`."""
 

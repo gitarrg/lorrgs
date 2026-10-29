@@ -18,12 +18,8 @@ from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_report import Report
 
 from .base_loader import BaseLoader
-from .fight_phases import (
-    FightPhasesLoader,
-    correct_loaded_phases,
-    fights_ready_for_phase_correction,
-    queue_boss_loader,
-)
+from .boss_loader import BossLoader
+from .fight_phases import FightPhasesLoader
 from .player_loader import PlayerLoader
 
 
@@ -216,15 +212,10 @@ class SpecRankingLoader(BaseLoader):
     ) -> str | None:
         """Load one report. Return its id when Warcraft Logs refuses it."""
         loaders: list[BaseLoader] = []
-        fights_loading_boss: list[Fight] = []
-        fights_loading_phases: list[Fight] = []
         for fight in report.fights:
-            phase_loader = FightPhasesLoader(fight, game_data)
-            if phase_loader.needs_load():
-                fights_loading_phases.append(fight)
-            loaders.append(phase_loader)
-            if top_fight is not None and fight is top_fight:
-                queue_boss_loader(fight, loaders, fights_loading_boss, game_data)
+            loaders.append(FightPhasesLoader(fight, game_data))
+            if fight is top_fight and fight.boss:
+                loaders.append(BossLoader(fight.boss, game_data))
             for player in fight.players:
                 loaders.append(PlayerLoader(player, game_data=game_data))
 
@@ -237,7 +228,4 @@ class SpecRankingLoader(BaseLoader):
         except (PrivateReportError, UnknownReportError):
             logger.warning("Skipping report %s during spec ranking refresh", report.report_id)
             return report.report_id
-
-        for fight in fights_ready_for_phase_correction(fights_loading_phases, fights_loading_boss):
-            correct_loaded_phases(fight, game_data)
         return None

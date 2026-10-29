@@ -15,12 +15,15 @@ UNCOILING_TRANSITION = 3
 
 
 class Nekzali(RaidBoss):
-
     id: int = 3470
     name: str = "Nek'zali the Soulcoiler"
     nick: str = "Nek'zali"
     icon: str = "inv_121_raid_achievement_priestess.jpg"
     phase_type: RaidBoss.PhaseType = RaidBoss.PhaseType.DYNAMIC
+    phase_spells: list[int] = [
+        RITUAL_OF_AWAKENING,
+        SOUL_TRANSFER,
+    ]
 
     @override
     def process_phases(self, phases: list[Phase], casts: list[Cast]) -> list[Phase]:

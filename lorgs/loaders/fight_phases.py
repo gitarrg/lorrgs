@@ -8,78 +8,24 @@ from typing import TYPE_CHECKING
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import wcl
 from lorgs.logger import logger
+from lorgs.models.warcraftlogs_cast import Cast
+from lorgs.models.wow_spell import build_spell_query
 
 from .base_loader import BaseLoader
-from .boss_loader import BossLoader
 
 
 if TYPE_CHECKING:
     from lorgs.clients.wcl import WarcraftlogsClient
     from lorgs.models.game_data import GameData
     from lorgs.models.raid_boss import RaidBoss
-    from lorgs.models.warcraftlogs_fight import Fight
-
-
-def queue_boss_loader(
-    fight: Fight,
-    loaders: list[BaseLoader],
-    fights_loading_boss: list[Fight],
-    game_data: GameData,
-) -> None:
-    """Queue the boss load, and remember the Fight when that load will run."""
-    if fight.boss is None:
-        return
-
-    boss_loader = BossLoader(fight.boss, game_data)
-    if boss_loader.needs_load():
-        fights_loading_boss.append(fight)
-    loaders.append(boss_loader)
-
-
-def fights_ready_for_phase_correction(
-    fights_loading_phases: list[Fight],
-    fights_loading_boss: list[Fight],
-) -> list[Fight]:
-    """Fights whose Phases and boss Casts are both available after this load."""
-    ready: list[Fight] = []
-    seen: set[int] = set()
-
-    def add(fight: Fight) -> None:
-        if id(fight) in seen:
-            return
-        seen.add(id(fight))
-        ready.append(fight)
-
-    for fight in fights_loading_boss:
-        add(fight)
-    for fight in fights_loading_phases:
-        if fight.boss is not None and fight.boss.casts:
-            add(fight)
-    return ready
-
-
-def correct_loaded_phases(fight: Fight, game_data: GameData) -> None:
-    """Apply the boss's phase correction once its Casts are loaded.
-
-    A failure is logged and the Fight's Phases stay as they were.
-    """
-    boss = fight.boss
-    if boss is None:
-        return
-
-    try:
-        raid_boss = game_data.get_boss(full_name_slug=boss.boss_slug)
-        if raid_boss is None:
-            raise ValueError(f"Invalid boss_slug: {boss.boss_slug}")
-        fight.phases = raid_boss.process_phases(fight.phases, boss.casts)
-    except Exception:  # ruff: ignore[blind-except]  # one boss must not fail the load
-        logger.exception("Failed to correct phases for fight %s", fight.fight_id)
+    from lorgs.models.warcraftlogs_fight import Fight, Phase
 
 
 class FightPhasesLoader(BaseLoader):
     """Loader for fight phases.
 
-    This loads only the phases for the fight.
+    This loads only the phases for the fight, together with the boss Casts
+    the boss's phase correction needs (`RaidBoss.phase_spells`).
     Mostly used for spec rankings.
 
     """
@@ -94,54 +40,86 @@ class FightPhasesLoader(BaseLoader):
             return None
         return self.game_data.get_boss(full_name_slug=self.fight.boss.boss_slug)
 
-    def get_query(self) -> str:
-        if not self.fight.report:
-            raise ValueError("Missing Parent Report")
+    def needs_casts(self) -> bool:
+        """True when the boss corrects its Phases from Casts, so transitions alone are not enough."""
+        raid_boss = self._raid_boss()
+        return bool(raid_boss and raid_boss.phase_spells)
 
-        return textwrap.dedent(
+    def get_report_fields(self) -> str:
+        """The fields inside `report { ... }` this loader needs. Shared with `FightLoader`."""
+        fields = textwrap.dedent(
             f"""\
-            reportData
+            fights(fightIDs: {self.fight.fight_id})
             {{
-                report(code: "{self.fight.report.report_id}")
+                phaseTransitions
                 {{
-                    fights(fightIDs: {self.fight.fight_id})
-                    {{
-                        phaseTransitions
-                        {{
-                            id
-                            startTime
-                        }}
-                    }}
+                    id
+                    startTime
                 }}
             }}
             """,
         )
 
-    def process_phase_transitions(self, phase_transitions: list[wcl.PhaseTransition]) -> None:
+        raid_boss = self._raid_boss()
+        if raid_boss and raid_boss.phase_spells:
+            spells = [spell for spell in raid_boss.all_spells if spell.spell_id in raid_boss.phase_spells]
+            fields += textwrap.dedent(
+                f"""\
+                events({self.fight.table_query_args}, filterExpression: "{build_spell_query(*spells)}")
+                {{
+                    data
+                }}
+                """,
+            )
+        return fields
 
-        if not phase_transitions:
-            return
+    def get_query(self) -> str:
+        if not self.fight.report:
+            raise ValueError("Missing Parent Report")
 
+        return f'reportData {{ report(code: "{self.fight.report.report_id}") {{ {self.get_report_fields()} }} }}'
+
+    def process_phase_transitions(
+        self,
+        phase_transitions: list[wcl.PhaseTransition],
+        casts: list[Cast] | None = None,
+    ) -> None:
+        """Set the Fight's Phases from the transitions, corrected by the boss from its phase Casts."""
         raid_boss = self._raid_boss()
         if not raid_boss:
             return
 
+        phases: list[Phase] = []
         for phase_transition in phase_transitions:
 
             start_time = self.fight.to_fight_time(phase_transition.startTime)
             converted = phase_transition.model_copy(update={"startTime": start_time})
 
             if phase := raid_boss.phase_from_transition(converted):
-                self.fight.add_phase(phase)
+                phases.append(phase)
+
+        try:
+            phases = raid_boss.process_phases(phases, casts or [])
+        except Exception:  # ruff: ignore[blind-except]  # one boss must not fail the load
+            logger.exception("Failed to correct phases for fight %s", self.fight.fight_id)
+
+        for phase in phases:
+            self.fight.add_phase(phase)
 
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
-        report_data = wcl.ReportData(**query_result)
+        report = wcl.ReportData(**query_result).report
 
-        for fight in report_data.report.fights:
-            if fight.id not in {self.fight.fight_id, -1}:
-                continue
-
-            self.process_phase_transitions(fight.phaseTransitions)
+        phase_transitions = [
+            phase_transition
+            for fight in report.fights
+            if fight.id in {self.fight.fight_id, -1}
+            for phase_transition in fight.phaseTransitions
+        ]
+        casts = [
+            Cast(spell_id=event.abilityGameID, timestamp=self.fight.to_fight_time(event.timestamp))
+            for event in report.events
+        ]
+        self.process_phase_transitions(phase_transitions, casts)
 
     def needs_load(self) -> bool:
         if self.fight.phases:

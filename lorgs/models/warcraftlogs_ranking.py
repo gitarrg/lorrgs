@@ -8,6 +8,7 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
+from lorgs.data import get_game_version
 from lorgs.models.base.s3 import S3Model
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.warcraftlogs_report import Report  # ruff: ignore[typing-only-first-party-import] # pydantic requires this import

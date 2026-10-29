@@ -1,4 +1,5 @@
 """API Routes to get and update Comp Rankings."""
+
 from __future__ import annotations
 
 # IMPORT THIRD PARTY LIBRARIES
@@ -8,7 +9,7 @@ import fastapi
 from lorgs.clients import sqs
 from lorgs.models.task_payloads import CompRankingPayload
 from lorgs.models.warcraftlogs_comp_ranking import CompRanking, CompRankingFight, FilterExpression
-from lorrgs_api.dependencies import GameVersionDep
+from lorrgs_api.dependencies import GameVersionDep  # ruff: ignore[typing-only-first-party-import]
 
 
 router = fastapi.APIRouter(tags=["comp_ranking"])
@@ -88,13 +89,15 @@ async def task_load_comp_rankings(
     if clear:
         payloads.append(CompRankingPayload(game_version=game_version.name, boss_slug=boss_slug, clear=True))
 
-    pages = (limit // 50)
+    pages = limit // 50
     for page in range(pages):
-        payloads.append(CompRankingPayload(
-            game_version=game_version.name,
-            boss_slug=boss_slug,
-            page=page + 1,  # +1 because pages start at one.
-        ))
+        payloads.append(
+            CompRankingPayload(
+                game_version=game_version.name,
+                boss_slug=boss_slug,
+                page=page + 1,  # +1 because pages start at one.
+            )
+        )
 
     if payloads:
         sqs.send_message_batch(payloads=payloads)

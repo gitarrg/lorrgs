@@ -9,10 +9,10 @@ from __future__ import annotations
 import fastapi
 
 # IMPORT LOCAL LIBRARIES
-from lorrgs_api.dependencies import GameVersionDep
-from lorgs.models.wow_spec import WowSpec
-from lorgs.models.wow_spell import WowSpell
-from lorgs.models.wow_trinket import WowTrinket
+from lorgs.models.wow_spec import WowSpec  # ruff: ignore[typing-only-first-party-import]
+from lorgs.models.wow_spell import WowSpell  # ruff: ignore[typing-only-first-party-import]
+from lorgs.models.wow_trinket import WowTrinket  # ruff: ignore[typing-only-first-party-import]
+from lorrgs_api.dependencies import GameVersionDep  # ruff: ignore[typing-only-first-party-import]
 
 
 router = fastapi.APIRouter()

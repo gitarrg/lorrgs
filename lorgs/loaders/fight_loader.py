@@ -2,7 +2,6 @@ from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
 import datetime
-import textwrap
 import typing
 
 # IMPORT LOCAL LIBRARIES
@@ -88,8 +87,10 @@ class FightLoader(BaseLoader):
             fight.boss.fight = fight
 
         # Fight: Phases
+        # Bosses that correct their Phases from Casts get them from `FightPhasesLoader` instead.
         phase_loader = FightPhasesLoader(fight=fight, game_data=game_data)
-        phase_loader.process_phase_transitions(fight_data.phaseTransitions)
+        if not phase_loader.needs_casts():
+            phase_loader.process_phase_transitions(fight_data.phaseTransitions)
 
         return fight
 
@@ -97,26 +98,9 @@ class FightLoader(BaseLoader):
         if not self.fight.report:
             raise ValueError("Missing Parent Report")
 
-        return textwrap.dedent(
-            f"""\
-            reportData
-            {{
-                report(code: "{self.fight.report.report_id}")
-                {{
-                    summary: table(fightIDs: {self.fight.fight_id}, dataType: Summary)
-
-                    fights(fightIDs: {self.fight.fight_id})
-                    {{
-                        phaseTransitions
-                        {{
-                            id
-                            startTime
-                        }}
-                    }}
-                }}
-            }}
-            """,
-        )
+        summary = f"summary: table(fightIDs: {self.fight.fight_id}, dataType: Summary)"
+        phase_fields = FightPhasesLoader(fight=self.fight, game_data=self.game_data).get_report_fields()
+        return f'reportData {{ report(code: "{self.fight.report.report_id}") {{ {summary} {phase_fields} }} }}'
 
     def _process_summary(self, summary: wcl.ReportSummary) -> None:
         self.fight.duration = self.fight.duration or summary.totalTime
