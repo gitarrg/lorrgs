@@ -4,11 +4,14 @@ from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
 import dataclasses
+import functools
+import importlib
 import os
 import typing
 
 
 if typing.TYPE_CHECKING:
+    from lorgs.models.game_data import GameData
     from lorgs.models.difficulty import RaidDifficulty
 
 
@@ -41,6 +44,11 @@ class GameVersion:
     def data_package(self) -> str:
         """Dotted path of the package holding this Game Version's game data."""
         return f"lorgs.data.{self.name}"
+
+    @functools.cached_property
+    def data(self) -> GameData:
+        """This Game Version's Game Data. Imported on first access, so this module stays free of game data."""
+        return importlib.import_module(self.data_package).GAME_DATA
 
     @property
     def default_difficulty(self) -> RaidDifficulty:

@@ -7,15 +7,14 @@ It lives next to the `MemoryModel` registry for now: both hold the same objects.
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-import importlib
+import functools
 import types
 import typing
 from collections import defaultdict
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import game_version as game_version_module
+from lorgs import utils
 from lorgs.models.dungeon import Dungeon
-from lorgs.models.game_version import GameVersion
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.raid_zone import RaidZone
 from lorgs.models.season import Season
@@ -34,7 +33,7 @@ _SHARED_PREFIX = "lorgs.data.expansions."
 
 def _unique(objects: typing.Iterable[T]) -> list[T]:
     """Drop repeated objects (by identity), keeping the order."""
-    return list({id(obj): obj for obj in objects}.values())
+    return utils.uniqify(objects, key=id)
 
 
 def _modules_of(package: types.ModuleType) -> list[types.ModuleType]:
@@ -61,11 +60,13 @@ def _members(modules: list[types.ModuleType], cls: type[T]) -> list[T]:
 
 
 class GameData:
-    """Roles, classes, specs, spells, raids, bosses, dungeons and seasons of one Game Version."""
+    """Roles, classes, specs, spells, raids, bosses, dungeons and seasons of one Game Version.
+
+    Only the roots are stored. Everything derived from them is computed on first access.
+    """
 
     def __init__(
         self,
-        game_version: GameVersion,
         *,
         roles: list[WowRole],
         classes: list[WowClass],
@@ -76,41 +77,23 @@ class GameData:
         current_season: Season,
         spells: list[WowSpell] | None = None,
     ) -> None:
-        self.game_version = game_version
-        self.roles = _unique(roles)
-        self.classes = _unique(classes)
-        self.specs = _unique(specs)
-        self.zones = _unique(zones)
-        self.dungeons = _unique(dungeons)
-        self.seasons = _unique(seasons)
+        self.roles = roles
+        self.classes = classes
+        self.specs = specs
+        self.zones = zones
+        self.dungeons = dungeons
+        self.seasons = seasons
         self.current_season = current_season
-
-        self.bosses: list[RaidBoss] = _unique(boss for zone in self.zones for boss in zone.bosses)
-        self.spells: list[WowSpell] = self._collect_spells(spells or [])
-
-        self.specs_by_slug = {spec.full_name_slug: spec for spec in self.specs}
-        self.bosses_by_slug = {boss.full_name_slug: boss for boss in self.bosses}
-        self.bosses_by_id = {boss.id: boss for boss in self.bosses}
-
-        self.spells_by_id: dict[int, list[WowSpell]] = defaultdict(list)
-        """Spells by their id, and by the ids of their variations."""
-        for spell in self.spells:
-            for spell_id in (spell.spell_id, *spell.variations):
-                if all(spell is not other for other in self.spells_by_id[spell_id]):
-                    self.spells_by_id[spell_id].append(spell)
+        self.extra_spells = spells or []
+        """Spells that no Actor Type holds (yet)."""
 
         self._link_back_references()
 
-    ####################################################################################################################
-    # Building
-    ####################################################################################################################
-
     @classmethod
-    def from_package(cls, game_version: GameVersion, package: types.ModuleType, current_season: Season) -> GameData:
+    def from_package(cls, package: types.ModuleType, current_season: Season) -> GameData:
         """Collect everything the Game Version's package (and the `expansions/` modules it imports) defines."""
         modules = _modules_of(package)
         return cls(
-            game_version,
             roles=_members(modules, WowRole),
             classes=_members(modules, WowClass),
             specs=_members(modules, WowSpec),
@@ -121,18 +104,6 @@ class GameData:
             spells=_members(modules, WowSpell),
         )
 
-    def _collect_spells(self, extra: list[WowSpell]) -> list[WowSpell]:
-        """Every spell reachable from an actor, a zone or a dungeon, plus the stand-alone `extra` ones."""
-        actors: list[WowActor] = [*self.classes, *self.specs, *self.bosses]
-        spells: list[WowSpell] = []
-        for actor in actors:
-            spells += [*actor.spells, *actor.buffs, *actor.debuffs, *actor.events]
-        for owner in (*self.zones, *self.dungeons, *self.bosses):
-            spells += owner.trinkets
-        spells += extra
-        spells += [spell.until for spell in spells if spell.until]
-        return _unique(spells)
-
     def _link_back_references(self) -> None:
         for role in self.roles:
             role._specs = {spec for spec in self.specs if spec.role is role}  # noqa: SLF001
@@ -141,6 +112,47 @@ class GameData:
         for zone in self.zones:
             for boss in zone.bosses:
                 boss._zone = zone  # noqa: SLF001
+
+    ####################################################################################################################
+    # Derived
+    ####################################################################################################################
+
+    @functools.cached_property
+    def bosses(self) -> list[RaidBoss]:
+        return _unique(boss for zone in self.zones for boss in zone.bosses)
+
+    @functools.cached_property
+    def spells(self) -> list[WowSpell]:
+        """Every spell an Actor Type, a zone or a dungeon holds, plus the stand-alone ones."""
+        spells: list[WowSpell] = []
+        for actor in (*self.classes, *self.specs, *self.bosses):
+            spells += [*actor.spells, *actor.buffs, *actor.debuffs, *actor.events]
+        for owner in (*self.zones, *self.dungeons, *self.bosses):
+            spells += owner.trinkets
+        spells += self.extra_spells
+        spells += [spell.until for spell in spells if spell.until]
+        return _unique(spells)
+
+    @functools.cached_property
+    def specs_by_slug(self) -> dict[str, WowSpec]:
+        return {spec.full_name_slug: spec for spec in self.specs}
+
+    @functools.cached_property
+    def bosses_by_slug(self) -> dict[str, RaidBoss]:
+        return {boss.full_name_slug: boss for boss in self.bosses}
+
+    @functools.cached_property
+    def bosses_by_id(self) -> dict[int, RaidBoss]:
+        return {boss.id: boss for boss in self.bosses}
+
+    @functools.cached_property
+    def spells_by_id(self) -> dict[int, list[WowSpell]]:
+        """Spells by their id, and by the ids of their variations."""
+        index: dict[int, list[WowSpell]] = defaultdict(list)
+        for spell in self.spells:
+            for spell_id in {spell.spell_id, *spell.variations}:
+                index[spell_id].append(spell)
+        return dict(index)
 
     ####################################################################################################################
     # Lookups
@@ -157,10 +169,3 @@ class GameData:
     def get_spells(self, spell_id: int) -> list[WowSpell]:
         """The spells with this id or with a variation of this id."""
         return self.spells_by_id.get(spell_id, [])
-
-
-def get_game_data(game_version: GameVersion | None = None) -> GameData:
-    """The Game Data of the given (default: the active) Game Version."""
-    game_version = game_version or game_version_module.ACTIVE
-    package = importlib.import_module(game_version.data_package)
-    return package.GAME_DATA

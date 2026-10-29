@@ -9,12 +9,9 @@ def test_game_data_matches_registry() -> None:
 
 def test_game_data_is_the_package_game_data() -> None:
     from lorgs.data import GAME_DATA
-    from lorgs.data.forever import FOREVER_GAME_DATA
     from lorgs.game_version import FOREVER
-    from lorgs.models.game_data import get_game_data
 
-    assert GAME_DATA is FOREVER_GAME_DATA is get_game_data()
-    assert GAME_DATA.game_version is FOREVER
+    assert GAME_DATA is FOREVER.data
 
 
 def test_specs_are_found_by_slug() -> None:

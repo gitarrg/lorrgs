@@ -39,8 +39,6 @@ from lorgs.data.retail.season import CURRENT_SEASON
 # Game Data
 import sys
 
-from lorgs.game_version import RETAIL
 from lorgs.models.game_data import GameData
 
-GAME_DATA = GameData.from_package(RETAIL, sys.modules[__name__], CURRENT_SEASON)
-RETAIL_GAME_DATA = GAME_DATA
+GAME_DATA = GameData.from_package(sys.modules[__name__], CURRENT_SEASON)
