@@ -27,10 +27,9 @@ class S3Model(base.BaseModel):
 
     @classmethod
     def get_key(cls, **kwargs) -> str:
-        """S3 key, namespaced by the `game_version` (name) of the item."""
-        key = super().get_key(**kwargs)
-        table_name = cls.get_table_name()
-        return f"{kwargs['game_version']}/{table_name}/{key}"
+        """S3 key, formatted by the `table_name` of the item."""
+        kwargs.setdefault("table_name", cls.get_table_name())
+        return super().get_key(**kwargs)
 
     ############################################################################
     # S3: in/out

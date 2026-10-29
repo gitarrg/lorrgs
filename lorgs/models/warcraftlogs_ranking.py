@@ -19,9 +19,9 @@ if typing.TYPE_CHECKING:
 
 
 class SpecRanking(S3Model):
-    # Fields
     game_version: str
     """Name of the Game Version the ranking belongs to."""
+
     spec_slug: str
     boss_slug: str
     difficulty: str
@@ -34,8 +34,21 @@ class SpecRanking(S3Model):
     dirty: bool = False
 
     # Config
-    key: typing.ClassVar[str] = "{spec_slug}/{boss_slug}__{difficulty}__{metric}"
+    key: typing.ClassVar[str] = (
+        "{game_version}/{table_name}/{season}/{spec_slug}/"  # path
+        "{boss_slug}__{difficulty}__{metric}"  # filename
+    )
+
     refresh_after: typing.ClassVar[datetime.timedelta] = datetime.timedelta(hours=2)
+
+    @classmethod
+    def get_key(cls, **kwargs: typing.Any) -> str:
+        """The current season of the ranking's Game Version, unless a season is passed in."""
+        if "game_version" in kwargs:
+            game_version = get_game_version(kwargs["game_version"])
+            kwargs["season"] = game_version.data.season.slug
+
+        return super().get_key(**kwargs)
 
     def needs_refresh(self, limit: int, now: datetime.datetime | None = None) -> bool:
         """Whether this ranking should be re-fetched from Warcraft Logs.
