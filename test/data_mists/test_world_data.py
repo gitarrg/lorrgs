@@ -29,16 +29,16 @@ def test_api_starts_and_serves_classes_and_raids() -> None:
 
 
 def test_current_season_has_all_raids() -> None:
-    from lorgs.data.mists import CURRENT_SEASON
+    from lorgs.data.mists import GAME_DATA
 
-    assert CURRENT_SEASON.slug == "mists_phase5"
-    assert [raid.name_slug for raid in CURRENT_SEASON.raids] == list(RAID_BOSS_COUNTS)
+    assert GAME_DATA.season.slug == "mists_phase5"
+    assert [raid.name_slug for raid in GAME_DATA.season.raids] == list(RAID_BOSS_COUNTS)
 
 
 def test_bosses_have_unique_ids_and_slugs() -> None:
-    from lorgs.data.mists import CURRENT_SEASON
+    from lorgs.data.mists import GAME_DATA
 
-    bosses = [boss for raid in CURRENT_SEASON.raids for boss in raid.bosses]
+    bosses = [boss for raid in GAME_DATA.season.raids for boss in raid.bosses]
     assert len({boss.id for boss in bosses}) == len(bosses)
     assert len({boss.name_slug for boss in bosses}) == len(bosses)
 
@@ -51,13 +51,13 @@ def test_task_keywords_expand_to_the_classes_and_raids() -> None:
 
 def test_every_raid_ranks_only_its_highest_difficulty() -> None:
     """WCL has Normal and Heroic (10 and 25 player) for every MoP raid, so `auto` is always Heroic."""
-    from lorgs.data.mists import CURRENT_SEASON, GAME_DATA
+    from lorgs.data.mists import GAME_DATA
     from lorgs.models.raid_zone import AUTO_DIFFICULTY
 
     routes = get_api_routes("/api/mists/zones")
     assert {zone["difficulty"] for zone in routes["/api/mists/zones"][1]} == {"heroic"}
 
-    for boss in (boss for raid in CURRENT_SEASON.raids for boss in raid.bosses):
+    for boss in (boss for raid in GAME_DATA.season.raids for boss in raid.bosses):
         assert GAME_DATA.resolve_difficulty(boss.full_name_slug, AUTO_DIFFICULTY) == "heroic"
         assert GAME_DATA.difficulties_for_boss(boss.full_name_slug) == ["heroic"]
 

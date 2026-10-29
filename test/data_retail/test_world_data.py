@@ -18,9 +18,9 @@ def test_api_serves_world_data() -> None:
 
 
 def test_current_season_is_midnight_season_2() -> None:
-    from lorgs.data.retail import CURRENT_SEASON
+    from lorgs.data.retail import GAME_DATA
 
-    assert CURRENT_SEASON.slug == "midnight_s2"
+    assert GAME_DATA.season.slug == "midnight_s2"
 
 
 def test_task_keywords_expand_to_specs_and_bosses() -> None:

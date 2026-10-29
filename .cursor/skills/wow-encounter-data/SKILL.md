@@ -37,7 +37,7 @@ Copy an existing file in the same expansion. Match style of nearby bosses, not o
 
 - Copy `lorgs/data/retail/seasons/<exp>_sN.py`: `Season(name, slug, ilvl, raids, dungeons)`
 - Export from `lorgs/data/retail/seasons/__init__.py`
-- Only change `lorgs/data/retail/season.py` `CURRENT_SEASON` when asked
+- Only change the current season (`season=` in `lorgs/data/retail/version.py`) when asked
 
 ## Find spell information (icons, names, cast times, infos)
 
@@ -86,5 +86,5 @@ Many mechanics are not cast events. Check the event type in a log, then call the
 - Lua `events` (colored, `show=true`) is the spell list; ignore `PHASE_*` / empty placeholder `109998`
 - `duration` in Lua entries `{time, duration}` is a good default; keep a longer value if it is already a known window (e.g. bubble lifetime 45s vs 5s cast)
 - `variations=[...]` for related IDs
-- Do not switch `CURRENT_SEASON` just because a new season file exists
+- Do not switch the current season just because a new season file exists
 - Verify: import the zone and print `[(b.id, b.name, len(b.spells)) for b in zone.bosses]`

@@ -22,9 +22,9 @@ def test_api_starts_and_serves_classes_and_specs() -> None:
 
 
 def test_current_season_is_forever() -> None:
-    from lorgs.data.forever import CURRENT_SEASON
+    from lorgs.data.forever import GAME_DATA
 
-    assert CURRENT_SEASON.slug == "forever"
+    assert GAME_DATA.season.slug == "forever"
 
 
 def test_task_keywords_expand_to_the_specs() -> None:

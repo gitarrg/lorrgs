@@ -20,7 +20,7 @@ from lorgs.data.retail.classes import (
 from lorgs.data.retail.classes.other import ITEM_ROLE, UTIL_ROLE
 from lorgs.data.retail.racials import RACIALS
 from lorgs.data.retail.roles import ALL_ROLES, MIXED
-from lorgs.data.retail.season import CURRENT_SEASON
+from lorgs.data.retail.seasons import MIDNIGHT_SEASON2
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.game_data import GameData
 from lorgs.models.game_version import GameVersion
@@ -50,7 +50,7 @@ GAME_DATA = GameData(
         WARRIOR,
         RACIALS,
     ],
-    season=CURRENT_SEASON,
+    season=MIDNIGHT_SEASON2,
     difficulties=(
         RaidDifficulty.HEROIC,
         RaidDifficulty.MYTHIC,

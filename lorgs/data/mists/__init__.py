@@ -35,7 +35,6 @@ from lorgs.data.mists.seasons import (
     MISTS_PHASE3,
     MISTS_PHASE4,
     MISTS_PHASE5,
-    MISTS_PHASE5 as CURRENT_SEASON,
 )
 
 # Game Data

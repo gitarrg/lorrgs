@@ -31,9 +31,6 @@ from lorgs.data.expansions import dragonflight
 from lorgs.data.expansions import the_war_within
 from lorgs.data.expansions import midnight
 
-# Seasons
-from lorgs.data.retail.season import CURRENT_SEASON
-
 # Game Data
 from lorgs.data.retail.version import GAME_DATA as GAME_DATA
 from lorgs.data.retail.version import GAME_VERSION as GAME_VERSION

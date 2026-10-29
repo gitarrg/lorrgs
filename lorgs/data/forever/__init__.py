@@ -16,9 +16,6 @@ from lorgs.data.forever.classes import *
 # Raids
 from lorgs.data.expansions import classic
 
-# Seasons
-from lorgs.data.forever.season import CURRENT_SEASON
-
 # Game Data
 from lorgs.data.forever.version import GAME_DATA as GAME_DATA
 from lorgs.data.forever.version import GAME_VERSION as GAME_VERSION
