@@ -8,7 +8,7 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
-from lorgs.models import warcraftlogs_base
+from lorgs.models import base
 from lorgs.models.warcraftlogs_fight import Fight  # ruff: ignore[typing-only-first-party-import]  # required by pydantic
 from lorgs.models.warcraftlogs_player import Player  # ruff: ignore[typing-only-first-party-import]  # required by pydantic
 
@@ -17,7 +17,7 @@ if typing.TYPE_CHECKING:
     from lorgs.models.game_data import GameData
 
 
-class Report(warcraftlogs_base.BaseModel):
+class Report(base.BaseModel):
     """Defines a Report read from WarcraftLogs.com and stores in our DB."""
 
     report_id: str

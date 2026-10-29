@@ -10,7 +10,7 @@ import pydantic
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
-from lorgs.models import warcraftlogs_base
+from lorgs.models import base
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.warcraftlogs_boss import Boss  # ruff: ignore[typing-only-first-party-import] # required by pydantic
 from lorgs.models.warcraftlogs_player import Player  # ruff: ignore[typing-only-first-party-import] # required by pydantic
@@ -30,7 +30,7 @@ class Phase(pydantic.BaseModel):
     phase_id: int | float = 0
 
 
-class Fight(warcraftlogs_base.BaseModel):
+class Fight(base.BaseModel):
     fight_id: int
 
     start_time: datetime.datetime

@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-import asyncio
 import datetime
 import operator
 import re
@@ -19,12 +18,10 @@ import typing_extensions
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import wcl
-from lorgs.logger import logger
-from lorgs.models import base, warcraftlogs_base, warcraftlogs_report
+from lorgs.models import base, warcraftlogs_report
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_fight import Fight
-from lorgs.models.warcraftlogs_player import Player
-from lorgs.models.wow_spell import build_spell_query
+from lorgs.models.warcraftlogs_player import Player  # ruff: ignore[typing-only-first-party-import]
 
 
 if typing.TYPE_CHECKING:
@@ -102,34 +99,12 @@ class CompRankingFight(Fight):
     damage_taken: int = 0
     deaths: int = 0
 
-    _game_data: GameData | None = None
-
-    def get_query_parts(self, game_data: GameData) -> list[str]:
-        filter_expr = build_spell_query(*game_data.raid_cooldowns)
-        query = f'events({self.table_query_args}, filterExpression: "{filter_expr}") {{data}}'
-
-        parts = super().get_query_parts()  # type: ignore[misc]
-        parts.append(query)
-        return parts
-
-    async def load(self, game_data: GameData, *args, **kwargs):  # type: ignore[override]
-        self._game_data = game_data
-        await super().load(*args, **kwargs)
-        if self.boss:
-            await self.boss.load(*args, **kwargs)
-
-    def process_query_result(self, **query_result: typing.Any):
-        super().process_query_result(**query_result)
-        if self._game_data is None:
-            raise ValueError("missing game_data: call load(game_data)")
-        self.composition = get_composition(self.players, self._game_data)
-
 
 class CompRankingReport(warcraftlogs_report.Report):
-    fights: list[CompRankingFight] = []  # type: ignore # mypy doesn't like reassignment
+    fights: list[CompRankingFight] = []  # ty: ignore[invalid-attribute-override]
 
 
-class CompRanking(base.S3Model, warcraftlogs_base.wclclient_mixin):
+class CompRanking(base.S3Model):
     """A Group/List of reports for a given Boss."""
 
     game_version: str
@@ -203,7 +178,7 @@ class CompRanking(base.S3Model, warcraftlogs_base.wclclient_mixin):
 
         # execute the query
         query = self.get_query(game_data, metric=metric, page=page)
-        query_result = await self.client.query(query)
+        query_result = await wcl.WarcraftlogsClient.get_instance().query(query)
         query_result = query_result["worldData"]
 
         # parse data
@@ -216,7 +191,7 @@ class CompRanking(base.S3Model, warcraftlogs_base.wclclient_mixin):
             if key not in old_reports:
                 self.add_report(fight_data)
 
-    async def load(self, game_version: GameVersion, limit: int = 0, clear_old: bool = False, page=1):  # type: ignore[override]
+    async def load(self, game_version: GameVersion, limit: int = 0, clear_old: bool = False, page=1):
         """Fetch reports for this BossRanking.
 
         params:
@@ -239,16 +214,6 @@ class CompRanking(base.S3Model, warcraftlogs_base.wclclient_mixin):
         await self.load_page(game_data, page=page)
         if limit:
             self.reports = self.reports[:limit]
-
-        # 1) Load Fights
-        fights_to_load = []
-        for report in self.reports:
-            for fight in report.fights:
-                if not fight.players:
-                    fights_to_load.append(fight)
-
-        logger.info(f"Load {len(fights_to_load)} Fights")
-        await asyncio.gather(*[fight.load(game_data) for fight in fights_to_load])
 
         self.sort_reports()
         self.updated = datetime.datetime.now(datetime.UTC)

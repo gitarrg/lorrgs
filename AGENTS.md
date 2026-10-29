@@ -19,7 +19,7 @@ Shared library `lorgs/`:
 
 - `clients/wcl/`: Warcraft Logs v2 GraphQL client ([API docs](https://www.warcraftlogs.com/v2-api-docs/warcraft/)).
 - `clients/discord/`: OAuth login + bot messages.
-- `loaders/`: WCL query building and response parsing (loader extraction is an ongoing refactor; some models still query WCL themselves via `wclclient_mixin`).
+- `loaders/`: WCL query building and response parsing. Comp rankings still query Warcraft Logs from the model (`CompRanking.load`).
 - `models/`: persistence per type: S3 (`SpecRanking`, `CompRanking`), DynamoDB (`UserReport`, `User`), Redis (`Task`), `StaticModel` for hand-written game data (owned by one Game Version's `GameData`).
 - `data/`: hand-written game data. `constants.py` is shared; `expansions/<xpac>/{raids,dungeons}/` is the shared boss/dungeon library (one file per boss); each Game Version has its own package (with its own `roles.py`): `retail/` (`classes/` for spec cooldowns, `racials.py`, `externals.py`, `items/`, `seasons/`, and it imports the expansions Retail uses), `forever/` (beta classes and specs, and the Classic raids from `expansions/classic/`; no spells or boss spells yet) and `mists/` (classes with their major cooldowns, and the Mists of Pandaria raids; no boss spells yet). Each version package has a `version.py` that builds its `GameData` (`lorgs/models/game_data.py`, from explicit lists of roles, classes and stand-alone spells, and its current season) and a `GameVersion` that owns it (`lorgs/models/game_version.py`: name, title, WCL id, frontend settings): the `GameData` indexes specs, spells (with variations) and bosses, holds the ranked difficulties and fills in `role.specs`, `class.specs` and `boss.zone`. `import lorgs.data` loads every Game Version: `GAME_VERSIONS` (by name), `RETAIL`, `MISTS`, `FOREVER`, `get_game_version_by_wcl_id()`. There is no active Game Version and no env var picking one: routes, SQS handlers and loaders get a `GameVersion` (or its `.data`) explicitly. Code outside `data/` never imports a version package.
 
@@ -41,7 +41,7 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
 - `/api/user_reports/{id}/load` needs the overview loaded first (`load_overview`): the report's Game Version comes from its log (`masterData.gameVersion`), not from the path. Responses carry the raw Warcraft Logs id; map it with `wcl_game_version` from `/api/game_versions`.
 - Several files use CRLF line endings (e.g. `raid_zone.py`, `wow_role.py`, `wow_spell.py`, `api_spec_rankings.py`, `api_world_data.py`). Editing them with Python text-mode I/O silently converts them to LF and makes the diff whole-file: preserve CRLF (`git diff --stat` should stay small).
 - Tests build `GameData` with the required `difficulties=` argument; use `test/helpers.py` (`game_data_with`, `game_version_with`) for fixtures. `test/loader/` and `test/integration/` are manual scripts, not collected by pytest.
-- Comp Rankings are an abandoned feature for now. Breakage there (e.g. `CompRankingFight.get_query_parts` calling a nonexistent `super().get_query_parts()`) is deferred to a later pass.
+- Comp Rankings are an abandoned feature. The model, routes, and SQS handler remain; `CompRanking.load` fetches the ranking page and does not load fight events.
 
 ## Commands
 
