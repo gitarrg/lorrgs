@@ -27,14 +27,19 @@ from lorgs.data.mists.classes import (
 # Raids
 from lorgs.data.expansions import mists_of_pandaria
 
-# Game Data
-from lorgs.data.mists.version import (
-    GAME_DATA as GAME_DATA,
-    GAME_VERSION as GAME_VERSION,
+
+# Seasons
+from lorgs.data.mists.seasons import (
     MISTS_PHASE1,
     MISTS_PHASE2,
     MISTS_PHASE3,
     MISTS_PHASE4,
     MISTS_PHASE5,
     MISTS_PHASE5 as CURRENT_SEASON,
+)
+
+# Game Data
+from lorgs.data.mists.version import (
+    GAME_DATA,
+    GAME_VERSION,
 )
