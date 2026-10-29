@@ -6,6 +6,9 @@ The `lorgs.data` package loads this package when Mists is the active Game Versio
 
 # ruff: file-ignore[unused-import, unsorted-imports]
 
+# Roles
+from lorgs.data.mists.roles import *
+
 # Classes
 from lorgs.data.mists.classes import *
 

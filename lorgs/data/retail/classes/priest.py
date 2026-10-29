@@ -3,7 +3,7 @@
 # fmt: off
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data.roles import HEAL, RDPS
+from lorgs.data.retail.roles import HEAL, RDPS
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_spec import WowSpec
 from lorgs.models.wow_spell import SpellTag

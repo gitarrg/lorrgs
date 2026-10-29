@@ -63,7 +63,7 @@ except KeyError:
 
 from lorgs.clients import sqs
 from lorgs.data import CURRENT_SEASON
-from lorgs.data.roles import ALL_ROLES
+from lorgs.data import ALL_ROLES
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.raid_zone import AUTO_DIFFICULTY, RaidZone
 from lorgs.models.task_payloads import SpecRankingPayload

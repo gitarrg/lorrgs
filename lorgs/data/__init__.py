@@ -5,9 +5,6 @@ In here we create all our instances for the playable Roles, Classes, Specs and l
 This could be stored in a Database instead..
 but at the end of the day, this was the most straight forward way and the easiest to manage.
 
-Roles are shared between Game Versions. Everything else lives in one package per Game Version
-(`lorgs.data.retail`, `lorgs.data.forever`): the active Game Version's package is imported here and
-its public names are re-exported, so `lorgs.data` looks the same whichever one is active.
 """
 
 # ruff: file-ignore[non-empty-init-module]
@@ -18,9 +15,6 @@ import types
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import game_version
-
-# Roles (shared)
-from lorgs.data.roles import *
 
 
 def _load_active_game_version() -> None:

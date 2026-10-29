@@ -7,6 +7,9 @@ Retail uses. The `lorgs.data` package loads this package when Retail is the acti
 # ruff: file-ignore[unused-import, unsorted-imports]
 
 
+# Roles
+from lorgs.data.retail.roles import *
+
 # Classes
 from lorgs.data.retail.classes import *
 

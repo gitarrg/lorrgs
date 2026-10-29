@@ -11,7 +11,7 @@ import lorgs.data.retail.classes.druid  # noqa: F401  # registers Restoration Dr
 import lorgs.data.retail.classes.evoker  # noqa: F401  # registers Preservation and its load handlers
 import lorgs.data.retail.classes.hunter  # noqa: F401  # registers Marksmanship and its load handler
 import lorgs.data.retail.classes.shaman  # noqa: F401  # registers Restoration Shaman and its load handler
-from lorgs.data.roles import HEAL
+from lorgs.data import HEAL
 from lorgs.loaders.actor_loader import ActorLoader
 from lorgs.models.warcraftlogs_actor import BaseActor
 from lorgs.models.warcraftlogs_cast import Cast

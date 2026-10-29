@@ -10,7 +10,7 @@
 from typing import override
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data.roles import MDPS, RDPS, TANK
+from lorgs.data.retail.roles import MDPS, RDPS, TANK
 from lorgs.models.warcraftlogs_cast import Cast
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_role import WowRole

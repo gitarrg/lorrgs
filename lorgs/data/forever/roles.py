@@ -1,3 +1,5 @@
+"""The Roles of the forever Game Version."""
+
 from lorgs.models.wow_role import WowRole
 
 

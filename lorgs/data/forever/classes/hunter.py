@@ -3,7 +3,7 @@
 # fmt: off
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data.roles import RDPS
+from lorgs.data.forever.roles import RDPS
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_spec import WowSpec
 

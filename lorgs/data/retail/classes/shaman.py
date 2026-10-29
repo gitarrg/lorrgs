@@ -11,7 +11,7 @@ from typing import override
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.data.constants import *
-from lorgs.data.roles import HEAL, MDPS, RDPS
+from lorgs.data.retail.roles import HEAL, MDPS, RDPS
 from lorgs.models.warcraftlogs_cast import Cast
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_role import WowRole

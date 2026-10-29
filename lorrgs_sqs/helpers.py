@@ -4,7 +4,7 @@ from collections.abc import Callable
 from typing import Any
 
 from lorgs.data import CURRENT_SEASON
-from lorgs.data.roles import ALL_ROLES
+from lorgs.data import ALL_ROLES
 from lorgs.models.raid_zone import RaidZone
 from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spec import WowSpec
