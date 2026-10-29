@@ -31,7 +31,7 @@ def test_api_starts_and_serves_classes_and_raids() -> None:
 def test_current_season_has_all_raids() -> None:
     from lorgs.data.mists import CURRENT_SEASON
 
-    assert CURRENT_SEASON.slug == "mists"
+    assert CURRENT_SEASON.slug == "mists_phase5"
     assert [raid.name_slug for raid in CURRENT_SEASON.raids] == list(RAID_BOSS_COUNTS)
 
 

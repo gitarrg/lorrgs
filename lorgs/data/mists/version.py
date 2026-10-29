@@ -15,14 +15,23 @@ from lorgs.data.mists.classes import (
     WARRIOR,
 )
 from lorgs.data.mists.roles import ALL_ROLES, MIXED
-from lorgs.data.mists.season import CURRENT_SEASON
+from lorgs.data.mists.seasons import (
+    MISTS_PHASE1,
+    MISTS_PHASE2,
+    MISTS_PHASE3,
+    MISTS_PHASE4,
+    MISTS_PHASE5,
+)
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.game_data import GameData
 from lorgs.models.game_version import GameVersion
 
 
 GAME_DATA = GameData(
-    roles=[*ALL_ROLES, MIXED],
+    roles=[
+        *ALL_ROLES,
+        MIXED,
+    ],
     classes=[
         DEATHKNIGHT,
         DRUID,
@@ -36,8 +45,14 @@ GAME_DATA = GameData(
         WARLOCK,
         WARRIOR,
     ],
-    seasons=[CURRENT_SEASON],
-    current_season=CURRENT_SEASON,
+    seasons=[
+        MISTS_PHASE1,
+        MISTS_PHASE2,
+        MISTS_PHASE3,
+        MISTS_PHASE4,
+        MISTS_PHASE5,
+    ],
+    current_season=MISTS_PHASE5,
     difficulties=(RaidDifficulty.HEROIC,),
 )
 

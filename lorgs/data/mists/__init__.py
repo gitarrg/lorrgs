@@ -7,17 +7,34 @@ Registers the Classes and Specs plus the Raids of the expansion (no spells yet).
 # ruff: file-ignore[unused-import, unsorted-imports]
 
 # Roles
-from lorgs.data.mists.roles import *
+from lorgs.data.mists.roles import ALL_ROLES, MIXED
 
 # Classes
-from lorgs.data.mists.classes import *
+from lorgs.data.mists.classes import (
+    DEATHKNIGHT,
+    DRUID,
+    HUNTER,
+    MAGE,
+    MONK,
+    PALADIN,
+    PRIEST,
+    ROGUE,
+    SHAMAN,
+    WARLOCK,
+    WARRIOR,
+)
 
 # Raids
 from lorgs.data.expansions import mists_of_pandaria
 
-# Seasons
-from lorgs.data.mists.season import CURRENT_SEASON
-
 # Game Data
-from lorgs.data.mists.version import GAME_DATA as GAME_DATA
-from lorgs.data.mists.version import GAME_VERSION as GAME_VERSION
+from lorgs.data.mists.version import (
+    GAME_DATA as GAME_DATA,
+    GAME_VERSION as GAME_VERSION,
+    MISTS_PHASE1,
+    MISTS_PHASE2,
+    MISTS_PHASE3,
+    MISTS_PHASE4,
+    MISTS_PHASE5,
+    MISTS_PHASE5 as CURRENT_SEASON,
+)
