@@ -62,7 +62,7 @@ except KeyError:
     sys.exit(f"error: unknown game version {GAME_VERSION_NAME!r}")
 
 from lorgs.clients import sqs
-from lorgs.data import CURRENT_SEASON
+from lorgs.data import CURRENT_SEASON, GAME_DATA
 from lorgs.data import ALL_ROLES
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.raid_zone import AUTO_DIFFICULTY, RaidZone
@@ -188,8 +188,8 @@ def select_specs(parser: argparse.ArgumentParser, args: argparse.Namespace) -> l
 def difficulties_for(boss: RaidBoss, difficulty: str) -> list[str]:
     """The difficulties to update for a boss. `all` is every difficulty we rank for it, `auto` its zone's one."""
     if difficulty == "all":
-        return RaidZone.difficulties_for_boss(boss.full_name_slug)
-    return [RaidZone.resolve_difficulty(boss.full_name_slug, difficulty)]
+        return GAME_DATA.difficulties_for_boss(boss.full_name_slug)
+    return [GAME_DATA.resolve_difficulty(boss.full_name_slug, difficulty)]
 
 
 def build_tasks(specs: list[WowSpec], bosses: list[RaidBoss], difficulty: str, metric: str) -> list[RankingTask]:

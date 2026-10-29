@@ -3,28 +3,25 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from lorgs.data import CURRENT_SEASON
+from lorgs.data import GAME_DATA
 from lorgs.data import ALL_ROLES
-from lorgs.models.raid_zone import RaidZone
-from lorgs.models.wow_role import WowRole
-from lorgs.models.wow_spec import WowSpec
 
 
 def expand_metric(payload: dict) -> list[str]:
     spec_slug = payload.get("spec_slug", "")
 
-    spec = WowSpec.get(full_name_slug=spec_slug)
-    role = (spec and spec.role) or WowRole.get(code="tank")
+    spec = GAME_DATA.get_spec(spec_slug)
+    role = (spec and spec.role) or GAME_DATA.get_role("tank")
     return (role and role.metrics) or []
 
 
 def expand_difficulty(payload: dict) -> list[str]:
-    return RaidZone.difficulties_for_boss(payload.get("boss_slug", ""))
+    return GAME_DATA.difficulties_for_boss(payload.get("boss_slug", ""))
 
 
 ALL_SPECS = {spec for role in ALL_ROLES for spec in role.specs}  # class specs only, no item pseudo-specs
 ALL_BOSSES = []
-for raid in CURRENT_SEASON.raids:
+for raid in GAME_DATA.zones:
     ALL_BOSSES.extend(raid.bosses)
 
 

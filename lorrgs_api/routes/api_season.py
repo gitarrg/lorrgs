@@ -6,8 +6,7 @@ from __future__ import annotations
 import fastapi
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data import CURRENT_SEASON
-from lorgs.models.season import Season
+from lorgs.data import GAME_DATA
 
 
 router = fastapi.APIRouter(tags=["seasons"], prefix="/seasons")
@@ -26,9 +25,9 @@ async def get_season(season_slug: str) -> dict:
 
     """
     if season_slug.lower() == "current":
-        season = CURRENT_SEASON
+        season = GAME_DATA.current_season
     else:
-        season = Season.get(slug=season_slug)
+        season = GAME_DATA.get_season(season_slug)
         if not season:
             raise fastapi.HTTPException(status_code=404, detail="Invalid Season.")
 

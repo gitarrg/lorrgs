@@ -6,12 +6,11 @@ import fastapi
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
+from lorgs.data import GAME_DATA
 from lorgs.game_version import ACTIVE
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_ranking
-from lorgs.models.raid_zone import RaidZone
 from lorgs.models.task_payloads import SpecRankingPayload
-from lorgs.models.wow_spec import WowSpec
 
 
 router = fastapi.APIRouter(tags=["spec_ranking"], prefix="/spec_ranking")
@@ -27,7 +26,7 @@ async def get_spec_ranking(
 ):
     """Get the Rankings for a given Spec and Boss."""
     if not metric:
-        spec = WowSpec.get(full_name_slug=spec_slug)
+        spec = GAME_DATA.get_spec(spec_slug)
         metric = spec.role.metric if spec else "dps"
 
     logger.info(f"{spec_slug}/{boss_slug} | start ({difficulty}/{metric})")
@@ -41,7 +40,7 @@ async def get_spec_ranking(
         return warcraftlogs_ranking.SpecRanking.get_json(
             boss_slug=boss_slug,
             spec_slug=spec_slug,
-            difficulty=RaidZone.resolve_difficulty(boss_slug, difficulty),
+            difficulty=GAME_DATA.resolve_difficulty(boss_slug, difficulty),
             metric=metric,
         )
     except KeyError:
@@ -58,7 +57,7 @@ async def get_spec_ranking_info(
 ):
     """Get the Rankings for a given Spec and Boss."""
     if not metric:
-        spec = WowSpec.get(full_name_slug=spec_slug)
+        spec = GAME_DATA.get_spec(spec_slug)
         metric = spec.role.metric if spec else "dps"
 
     # shorter cache timeout for the start of the tier (where frequent changes happen)
@@ -70,7 +69,7 @@ async def get_spec_ranking_info(
         data = warcraftlogs_ranking.SpecRanking.get_json(
             boss_slug=boss_slug,
             spec_slug=spec_slug,
-            difficulty=RaidZone.resolve_difficulty(boss_slug, difficulty),
+            difficulty=GAME_DATA.resolve_difficulty(boss_slug, difficulty),
             metric=metric,
         )
     except KeyError:
@@ -128,13 +127,13 @@ async def flag_dirty(
     response.headers["Cache-Control"] = "no-cache"
 
     if not metric:
-        spec = WowSpec.get(full_name_slug=spec_slug)
+        spec = GAME_DATA.get_spec(spec_slug)
         metric = spec.role.metric if spec else "dps"
 
     spec_ranking = warcraftlogs_ranking.SpecRanking.get_or_create(
         spec_slug=spec_slug,
         boss_slug=boss_slug,
-        difficulty=RaidZone.resolve_difficulty(boss_slug, difficulty),
+        difficulty=GAME_DATA.resolve_difficulty(boss_slug, difficulty),
         metric=metric,
     )
     if spec_ranking:

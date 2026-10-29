@@ -14,15 +14,17 @@ from collections import defaultdict
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
+from lorgs.game_version import ACTIVE
 from lorgs.models.dungeon import Dungeon
 from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.raid_zone import RaidZone
+from lorgs.models.raid_zone import AUTO_DIFFICULTY, RaidZone
 from lorgs.models.season import Season
 from lorgs.models.wow_actor import WowActor
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spec import WowSpec
 from lorgs.models.wow_spell import WowSpell
+from lorgs.models.wow_trinket import WowTrinket
 
 
 T = typing.TypeVar("T")
@@ -135,6 +137,10 @@ class GameData:
         return utils.uniqify(spells)
 
     @functools.cached_property
+    def trinkets(self) -> list[WowTrinket]:
+        return [spell for spell in self.spells if isinstance(spell, WowTrinket)]
+
+    @functools.cached_property
     def specs_by_slug(self) -> dict[str, WowSpec]:
         return {spec.full_name_slug: spec for spec in self.specs}
 
@@ -145,6 +151,18 @@ class GameData:
     @functools.cached_property
     def bosses_by_id(self) -> dict[int, RaidBoss]:
         return {boss.id: boss for boss in self.bosses}
+
+    @functools.cached_property
+    def zones_by_id(self) -> dict[int | float, RaidZone]:
+        return {zone.id: zone for zone in self.zones}
+
+    @functools.cached_property
+    def seasons_by_slug(self) -> dict[str, Season]:
+        return {season.slug: season for season in self.seasons}
+
+    @functools.cached_property
+    def roles_by_code(self) -> dict[str, WowRole]:
+        return {role.code: role for role in self.roles}
 
     @functools.cached_property
     def spells_by_id(self) -> dict[int, list[WowSpell]]:
@@ -170,3 +188,40 @@ class GameData:
     def get_spells(self, spell_id: int) -> list[WowSpell]:
         """The spells with this id or with a variation of this id."""
         return self.spells_by_id.get(spell_id, [])
+
+    def get_spell(self, spell_id: int) -> WowSpell | None:
+        """The first spell with exactly this id (variations are not matched)."""
+        return next((spell for spell in self.get_spells(spell_id) if spell.spell_id == spell_id), None)
+
+    def get_role(self, code: str) -> WowRole | None:
+        return self.roles_by_code.get(code)
+
+    def get_zone(self, zone_id: int | float) -> RaidZone | None:
+        return self.zones_by_id.get(zone_id)
+
+    def get_season(self, slug: str) -> Season | None:
+        return self.seasons_by_slug.get(slug)
+
+    def zone_for_boss(self, boss_slug: str) -> RaidZone | None:
+        """The Zone the given Boss belongs to."""
+        boss = self.get_boss(full_name_slug=boss_slug)
+        return boss.zone if boss else None
+
+    def resolve_difficulty(self, boss_slug: str, difficulty: str) -> str:
+        """Replace the `auto` token with the difficulty we rank for this Boss's Zone.
+
+        Any other value is returned unchanged.
+        """
+        if difficulty != AUTO_DIFFICULTY:
+            return difficulty
+        zone = self.zone_for_boss(boss_slug)
+        if zone and zone.difficulty:
+            return zone.difficulty.name.lower()
+        return ACTIVE.default_difficulty_name
+
+    def difficulties_for_boss(self, boss_slug: str) -> list[str]:
+        """All difficulties we rank for this Boss."""
+        zone = self.zone_for_boss(boss_slug)
+        if zone and zone.difficulty:
+            return [zone.difficulty.name.lower()]
+        return list(ACTIVE.difficulty_names)

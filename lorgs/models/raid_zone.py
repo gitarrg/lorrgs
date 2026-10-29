@@ -7,7 +7,6 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
-from lorgs.game_version import ACTIVE
 from lorgs.models import base
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_boss import RaidBoss
@@ -45,35 +44,6 @@ class RaidZone(base.MemoryModel):
 
     `None` lets the user pick from the Game Version's difficulties.
     """
-
-    @classmethod
-    def for_boss(cls, boss_slug: str) -> RaidZone | None:
-        """The Zone the given Boss belongs to."""
-        for zone in cls.list():
-            if any(boss.full_name_slug == boss_slug for boss in zone.bosses):
-                return zone
-        return None
-
-    @classmethod
-    def resolve_difficulty(cls, boss_slug: str, difficulty: str) -> str:
-        """Replace the `auto` token with the difficulty we rank for this Boss's Zone.
-
-        Any other value is returned unchanged.
-        """
-        if difficulty != AUTO_DIFFICULTY:
-            return difficulty
-        zone = cls.for_boss(boss_slug)
-        if zone and zone.difficulty:
-            return zone.difficulty.name.lower()
-        return ACTIVE.default_difficulty_name
-
-    @classmethod
-    def difficulties_for_boss(cls, boss_slug: str) -> list[str]:
-        """All difficulties we rank for this Boss."""
-        zone = cls.for_boss(boss_slug)
-        if zone and zone.difficulty:
-            return [zone.difficulty.name.lower()]
-        return list(ACTIVE.difficulty_names)
 
     @property
     def name_slug(self) -> str:

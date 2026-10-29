@@ -3,11 +3,10 @@
 from __future__ import annotations
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import data  # pylint: disable=unused-import  # ruff: ignore[unused-import]
+from lorgs.data import GAME_DATA
 from lorgs.loaders.spec_ranking import SpecRankingLoader
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_ranking
-from lorgs.models.raid_zone import RaidZone
 from lorgs.models.task_payloads import SpecRankingPayload
 from lorrgs_sqs.exceptions import TaskValidationError
 
@@ -21,7 +20,7 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
     ranking = warcraftlogs_ranking.SpecRanking.get_or_create(
         boss_slug=payload.boss_slug,
         spec_slug=payload.spec_slug,
-        difficulty=RaidZone.resolve_difficulty(payload.boss_slug, payload.difficulty),
+        difficulty=GAME_DATA.resolve_difficulty(payload.boss_slug, payload.difficulty),
         metric=payload.metric,
     )
     if not ranking.boss:

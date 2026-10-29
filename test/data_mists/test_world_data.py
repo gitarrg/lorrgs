@@ -51,15 +51,15 @@ def test_task_keywords_expand_to_the_classes_and_raids() -> None:
 
 def test_every_raid_ranks_only_its_highest_difficulty() -> None:
     """WCL has Normal and Heroic (10 and 25 player) for every MoP raid, so `auto` is always Heroic."""
-    from lorgs.data import CURRENT_SEASON
-    from lorgs.models.raid_zone import AUTO_DIFFICULTY, RaidZone
+    from lorgs.data import CURRENT_SEASON, GAME_DATA
+    from lorgs.models.raid_zone import AUTO_DIFFICULTY
 
     routes = get_api_routes("/api/zones")
     assert {zone["difficulty"] for zone in routes["/api/zones"][1]} == {"heroic"}
 
     for boss in (boss for raid in CURRENT_SEASON.raids for boss in raid.bosses):
-        assert RaidZone.resolve_difficulty(boss.full_name_slug, AUTO_DIFFICULTY) == "heroic"
-        assert RaidZone.difficulties_for_boss(boss.full_name_slug) == ["heroic"]
+        assert GAME_DATA.resolve_difficulty(boss.full_name_slug, AUTO_DIFFICULTY) == "heroic"
+        assert GAME_DATA.difficulties_for_boss(boss.full_name_slug) == ["heroic"]
 
 
 def test_every_spec_has_major_cooldowns() -> None:
