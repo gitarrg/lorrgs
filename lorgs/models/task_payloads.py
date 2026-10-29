@@ -7,15 +7,30 @@ from one of these models.
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 
-from lorgs.game_version import ACTIVE
+from lorgs.data import GAME_VERSIONS
+from lorgs.models.game_version import GameVersion
+from lorgs.models.raid_zone import AUTO_DIFFICULTY
 
 
 class BaseTaskPayload(BaseModel):
     """Base for all SQS task payloads."""
 
     task: str
+
+    game_version: str
+    """Name of the Game Version the task runs for."""
+
+    @field_validator("game_version")
+    @classmethod
+    def _known_game_version(cls, value: str) -> str:
+        if value not in GAME_VERSIONS:
+            raise ValueError(f"Unknown Game Version: {value!r}")
+        return value
+
+    def get_game_version(self) -> GameVersion:
+        return GAME_VERSIONS[self.game_version]
 
 
 class SpecRankingPayload(BaseTaskPayload):
@@ -24,7 +39,7 @@ class SpecRankingPayload(BaseTaskPayload):
     task: str = "load_spec_rankings"
     boss_slug: str
     spec_slug: str
-    difficulty: str = ACTIVE.default_difficulty_name
+    difficulty: str = AUTO_DIFFICULTY
     metric: str = "dps"
     limit: int = 50
     clear: bool = False

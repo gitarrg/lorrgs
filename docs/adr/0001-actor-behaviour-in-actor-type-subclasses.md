@@ -11,5 +11,5 @@ Fixes that only apply to a particular spec or boss, such as dropping Tree of Lif
 ## Consequences
 
 - The `actor.load` signal remains for task progress reporting only. Handlers must not mutate Actors or Fights.
-- `MemoryModel` registers instances under every class they inherit from, so `WowSpec.get()` / `RaidBoss.get()` find subclass instances.
+- A Game Version's `GameData` indexes its Actor Types by what they are (slug, id), not by class, so `game_data.get_spec()` / `get_boss()` find subclass instances. (This used to be the `MemoryModel` registry, which ADR 0003 removed.)
 - Only Actor Types that need behaviour are subclasses; plain instances remain valid for everything else.

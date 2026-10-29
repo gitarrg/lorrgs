@@ -2,7 +2,6 @@
 
 import pytest
 
-from lorgs.game_version import ACTIVE
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.game_data import GameData
@@ -25,7 +24,7 @@ def fixture_zones() -> tuple[RaidZone, RaidZone]:
 @pytest.fixture(name="game_data")
 def fixture_game_data(zones: tuple[RaidZone, RaidZone]) -> GameData:
     season = Season(name="Fixture Season", ilvl=1, raids=list(zones))
-    return GameData(roles=[], classes=[], seasons=[season], current_season=season)
+    return GameData(roles=[], classes=[], seasons=[season], current_season=season, difficulties=(RaidDifficulty.NORMAL, RaidDifficulty.HEROIC))
 
 
 def test_auto_resolves_to_the_zones_difficulty(zones: tuple[RaidZone, RaidZone], game_data: GameData) -> None:
@@ -35,8 +34,8 @@ def test_auto_resolves_to_the_zones_difficulty(zones: tuple[RaidZone, RaidZone],
 
 def test_auto_falls_back_to_the_game_version_default(zones: tuple[RaidZone, RaidZone], game_data: GameData) -> None:
     _, flexible = zones
-    assert game_data.resolve_difficulty(flexible.bosses[0].full_name_slug, AUTO_DIFFICULTY) == ACTIVE.default_difficulty_name
-    assert game_data.resolve_difficulty("unknown-boss", AUTO_DIFFICULTY) == ACTIVE.default_difficulty_name
+    assert game_data.resolve_difficulty(flexible.bosses[0].full_name_slug, AUTO_DIFFICULTY) == "heroic"
+    assert game_data.resolve_difficulty("unknown-boss", AUTO_DIFFICULTY) == "heroic"
 
 
 def test_explicit_difficulty_is_unchanged(zones: tuple[RaidZone, RaidZone], game_data: GameData) -> None:
@@ -47,7 +46,7 @@ def test_explicit_difficulty_is_unchanged(zones: tuple[RaidZone, RaidZone], game
 def test_difficulties_for_boss(zones: tuple[RaidZone, RaidZone], game_data: GameData) -> None:
     fixed, flexible = zones
     assert game_data.difficulties_for_boss(fixed.bosses[0].full_name_slug) == ["heroic"]
-    assert game_data.difficulties_for_boss(flexible.bosses[0].full_name_slug) == list(ACTIVE.difficulty_names)
+    assert game_data.difficulties_for_boss(flexible.bosses[0].full_name_slug) == ["normal", "heroic"]
 
 
 def test_as_dict_exposes_the_difficulty(zones: tuple[RaidZone, RaidZone]) -> None:

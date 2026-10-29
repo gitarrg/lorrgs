@@ -12,7 +12,6 @@ import boto3
 from botocore.exceptions import ClientError
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import game_version
 from lorgs.logger import Timer
 from lorgs.models.base import base
 
@@ -28,11 +27,10 @@ class S3Model(base.BaseModel):
 
     @classmethod
     def get_key(cls, **kwargs) -> str:
-        """S3 key, namespaced by the active Game Version (no prefix for Retail)."""
+        """S3 key, namespaced by the `game_version` (name) of the item."""
         key = super().get_key(**kwargs)
-        prefix = game_version.ACTIVE.s3_prefix
         table_name = cls.get_table_name()
-        return f"{prefix}{table_name}/{key}"
+        return f"{kwargs['game_version']}/{table_name}/{key}"
 
     ############################################################################
     # S3: in/out

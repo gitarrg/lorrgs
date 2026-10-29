@@ -6,6 +6,7 @@ from lorgs.loaders.fight_loader import FightLoader
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_report import Report
+from test.helpers import game_data_with
 
 
 class TestReport(unittest.TestCase):
@@ -14,7 +15,7 @@ class TestReport(unittest.TestCase):
             report_id="REPORT_ID",
             start_time=datetime.datetime(2020, 1, 1, tzinfo=datetime.UTC),
         )
-        self.loader = ReportOverviewLoader(self.report)
+        self.loader = ReportOverviewLoader(self.report, game_data_with())
 
     def test_get_query(self):
         assert "REPORT_ID" in self.loader.get_query()
@@ -42,7 +43,7 @@ class TestReport(unittest.TestCase):
         assert self.report.players == []
 
     def test_fight_from_wcl_fight_skips_trash(self):
-        fight = FightLoader.fight_from_wcl_fight(wcl.ReportFight(id=1, encounterID=0), self.report)
+        fight = FightLoader.fight_from_wcl_fight(wcl.ReportFight(id=1, encounterID=0), self.report, game_data_with())
         assert fight is None
 
     def test_fight_from_wcl_fight_basic(self):
@@ -56,6 +57,7 @@ class TestReport(unittest.TestCase):
                 endTime=500000,
             ),
             self.report,
+            game_data_with(),
         )
         assert fight is not None
         assert fight.percent == 70.99

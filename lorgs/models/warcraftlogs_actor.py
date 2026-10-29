@@ -10,7 +10,6 @@ import blinker
 # IMPORT LOCAL LIBRARIES
 from lorgs.models import base
 from lorgs.models.warcraftlogs_cast import Cast  # ruff: ignore[typing-only-first-party-import] # pydantic requires this import
-from lorgs.models.wow_spell import SpellType, WowSpell
 
 
 if typing.TYPE_CHECKING:
@@ -72,12 +71,3 @@ class BaseActor(base.BaseModel):
     @property
     def _has_source_id(self) -> bool:
         return self.source_id >= 0
-
-    @property
-    def has_own_casts(self) -> bool:
-        """Return true if a player has own casts (eg.: exclude raid wide buffs like bloodlust)."""
-        for cast in self.casts:
-            spell = WowSpell.get(spell_id=cast.spell_id)
-            if spell and spell.spell_type != SpellType.BUFF:
-                return True
-        return False

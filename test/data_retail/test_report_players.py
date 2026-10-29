@@ -5,6 +5,7 @@ import unittest
 
 import lorgs.data  # noqa: F401  # registers specs
 from lorgs.clients import wcl
+from lorgs.data.retail import GAME_DATA
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader
 from lorgs.models.warcraftlogs_report import Report
 
@@ -15,7 +16,7 @@ class TestReportPlayers(unittest.TestCase):
             report_id="REPORT_ID",
             start_time=datetime.datetime(2020, 1, 1, tzinfo=datetime.UTC),
         )
-        self.loader = ReportOverviewLoader(self.report)
+        self.loader = ReportOverviewLoader(self.report, GAME_DATA)
 
     def test_player_from_actor_data(self):
         actor = wcl.ReportActor(

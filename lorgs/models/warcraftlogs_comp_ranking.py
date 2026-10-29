@@ -29,6 +29,7 @@ from lorgs.models.wow_spell import build_spell_query
 
 if typing.TYPE_CHECKING:
     from lorgs.models.game_data import GameData
+    from lorgs.models.game_version import GameVersion
 
 
 class FilterExpression(pydantic.BaseModel):
@@ -131,6 +132,9 @@ class CompRankingReport(warcraftlogs_report.Report):
 class CompRanking(base.S3Model, warcraftlogs_base.wclclient_mixin):
     """A Group/List of reports for a given Boss."""
 
+    game_version: str
+    """Name of the Game Version the ranking belongs to."""
+
     boss_slug: str
     # the nameslug of the boss
 
@@ -212,15 +216,20 @@ class CompRanking(base.S3Model, warcraftlogs_base.wclclient_mixin):
             if key not in old_reports:
                 self.add_report(fight_data)
 
-    async def load(self, game_data: GameData, limit: int = 0, clear_old: bool = False, page=1):  # type: ignore[override]
+    async def load(self, game_version: GameVersion, limit: int = 0, clear_old: bool = False, page=1):  # type: ignore[override]
         """Fetch reports for this BossRanking.
 
         params:
+            game_version (GameVersion): the Game Version the ranking belongs to.
             limit (int): maximum number of reports to load.
             page (int): page number to load (starts from 1).
             clear_old (bool): if true old reports will be deleted.
 
         """
+        if self.game_version != game_version.name:
+            raise ValueError(f"Ranking belongs to Game Version {self.game_version!r}, not {game_version.name!r}")
+        game_data = game_version.data
+
         # copy the list, to make pydantic belive it has changed
         self.reports = self.reports[:]
 

@@ -9,7 +9,7 @@ from lorgs.models.wow_spell import WowSpell
 from lorgs.models.wow_trinket import WowTrinket
 
 
-class Season(base.MemoryModel):
+class Season(base.StaticModel):
     """A Season in the Game."""
 
     slug: str = ""

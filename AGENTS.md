@@ -20,8 +20,8 @@ Shared library `lorgs/`:
 - `clients/wcl/`: Warcraft Logs v2 GraphQL client ([API docs](https://www.warcraftlogs.com/v2-api-docs/warcraft/)).
 - `clients/discord/`: OAuth login + bot messages.
 - `loaders/`: WCL query building and response parsing (loader extraction is an ongoing refactor; some models still query WCL themselves via `wclclient_mixin`).
-- `models/`: persistence per type: S3 (`SpecRanking`, `CompRanking`), DynamoDB (`UserReport`, `User`), Redis (`Task`), in-memory `MemoryModel` for static game data.
-- `data/`: hand-written game data. `constants.py` is shared; `expansions/<xpac>/{raids,dungeons}/` is the shared boss/dungeon library (one file per boss); each Game Version has its own package (with its own `roles.py`) that `LORRGS_GAME_VERSION` picks: `retail/` (`classes/` for spec cooldowns, `racials.py`, `externals.py`, `items/`, `seasons/`, `season.py` with `CURRENT_SEASON`, and it imports the expansions Retail uses), `forever/` (beta classes and specs, no spells or raids yet) and `mists/` (classes with their major cooldowns, and the Mists of Pandaria raids; no boss spells yet). Each version package ends by building a module-level `GameData` (`lorgs/models/game_data.py`; `from lorgs.data import GAME_DATA` for the active one): it indexes specs, spells (with variations) and bosses and fills in `role.specs`, `class.specs` and `boss.zone`. Code outside `data/` reads game data via `from lorgs.data import ...` or the registries, never from a version package.
+- `models/`: persistence per type: S3 (`SpecRanking`, `CompRanking`), DynamoDB (`UserReport`, `User`), Redis (`Task`), `StaticModel` for hand-written game data (owned by one Game Version's `GameData`).
+- `data/`: hand-written game data. `constants.py` is shared; `expansions/<xpac>/{raids,dungeons}/` is the shared boss/dungeon library (one file per boss); each Game Version has its own package (with its own `roles.py`): `retail/` (`classes/` for spec cooldowns, `racials.py`, `externals.py`, `items/`, `seasons/`, `season.py` with `CURRENT_SEASON`, and it imports the expansions Retail uses), `forever/` (beta classes and specs, no spells or raids yet) and `mists/` (classes with their major cooldowns, and the Mists of Pandaria raids; no boss spells yet). Each version package ends by building a module-level `GameData` (`lorgs/models/game_data.py`) and a `GameVersion` that owns it (`lorgs/models/game_version.py`: name, title, WCL id, frontend settings): the `GameData` indexes specs, spells (with variations) and bosses, holds the ranked difficulties and fills in `role.specs`, `class.specs` and `boss.zone`. `import lorgs.data` loads every Game Version: `GAME_VERSIONS` (by name), `RETAIL`, `MISTS`, `FOREVER`, `get_game_version_by_wcl_id()`. There is no active Game Version and no env var picking one: routes, SQS handlers and loaders get a `GameVersion` (or its `.data`) explicitly. Code outside `data/` never imports a version package.
 
 ## Game data
 
@@ -34,16 +34,19 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
 - Minor rotational spells and tank hits get `show=False`. Replacement spell IDs go in `variations=[...]`.
 - A `process_casts` test feeds Casts that Actor Type would load: spell ids registered with `add_spell`, `add_buff`, or `add_debuff` and `query=True`, durations from the spell tooltip. Spell ids come from those registrations, not from an old `actor.load` handler.
 
+## Known state
+
+- `GAME_DATA` only holds the current season, so older-season bosses, zones and spells are not served by the API (404 or missing from lists). Intended since 34cde07.
+- Comp Rankings are an abandoned feature for now. Breakage there (e.g. `CompRankingFight.get_query_parts` calling a nonexistent `super().get_query_parts()`) is deferred to a later pass.
+
 ## Commands
 
-- Install: `uv sync`. Use `.venv`; a stale `VIRTUAL_ENV` from another project breaks `MemoryModel`.
+- Install: `uv sync`. Use `.venv`; a stale `VIRTUAL_ENV` from another project picks the wrong packages.
 - Dev server: `scripts/start_flask` (uvicorn on `:5012`, reads `.env`; see `template.env`).
-- One dev server per Game Version, for the frontend's Game Version menu: `scripts/start_all_versions` (retail `:5012`, mists `:5013`, forever `:5014`; `BASE_PORT=` shifts them). `GET /api/game_versions` lists all Game Versions with their frontend settings (`collapse_raids`, `has_comp_modes`) and `api_url`, taken from `LORRGS_API_URL_<NAME>`; a Game Version without one is not offered in the menu.
-- Tests, one run per Game Version:
-  - Retail: `PYTHONPATH=. uv run pytest test --ignore=test/data_forever --ignore=test/data_mists`
-  - Forever: `LORRGS_GAME_VERSION=forever PYTHONPATH=. uv run pytest test/data_forever`
-  - Mists: `LORRGS_GAME_VERSION=mists PYTHONPATH=. uv run pytest test/data_mists`
-  - Tests that use real game data live in `test/data_retail/`, `test/data_forever/` or `test/data_mists/`; a `conftest.py` aborts the run if `LORRGS_GAME_VERSION` doesn't match the directory. Every other test builds what it needs from fixtures (`test/conftest.py`).
+- One dev server serves every Game Version. Versioned routes live under `/api/{game_version}/` (spec_ranking, comp_ranking, roles, classes, specs, spells, trinkets, zones, bosses, seasons); global ones have no prefix (`game_versions`, `user_reports`, `tasks`, `auth`, `ping`). `GET /api/game_versions` lists all Game Versions with their frontend settings (`collapse_raids`, `has_comp_modes`) and their `wcl_game_version`, which a User Report's `game_version` refers to (its Game Version comes from its log).
+- Stored rankings have a required `game_version` and S3 keys `{game_version}/{table}/...` (Retail too). SQS payloads carry a required `game_version`, which is also the start of the FIFO message group; `queue_updates.py --game-version <name>` picks it.
+- Tests, one run for every Game Version: `PYTHONPATH=. uv run pytest test`
+  - Tests that use real game data live in `test/data_retail/`, `test/data_forever/` or `test/data_mists/`; they all run together. Every other test builds what it needs from fixtures (`test/conftest.py`).
   - `test_task.py` needs a Redis on `localhost:6379`.
 - Scripts use the shebang `#!/usr/bin/env -S PYTHONPATH=. uv run`; e.g. `scripts/load_report.py <wcl report url>`.
 - Deploy: `scripts/deploy` (CDK app in `infra/`: Lambda layers, code, queues, schedules, API Gateway, CloudFront per Game Version; Retail not yet). See `docs/deploy_game_versions.md`. Pushing to `main` only syncs `lorrgs_assets/` to S3 (GitHub Action). There is no PR CI.

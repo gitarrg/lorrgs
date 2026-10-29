@@ -4,13 +4,14 @@ from __future__ import annotations
 import asyncio
 import json
 import typing
-import uuid
 
 # IMPORT THIRD PARTY LIBRARIES
 import boto3
+import pydantic
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
+from lorgs.clients import sqs
 from lorgs.logger import logger
 from lorrgs_sqs import helpers
 from lorrgs_sqs.exceptions import TaskValidationError
@@ -65,7 +66,10 @@ async def process_message(message: dict) -> None:
     if len(payloads) > 1:
         queue_url = helpers.queue_arn_to_url(message.get("eventSourceARN", ""))
 
-        messages = [{"MessageBody": json.dumps(payload), "MessageGroupId": str(uuid.uuid4())} for payload in payloads]
+        messages = [
+            {"MessageBody": json.dumps(payload), "MessageGroupId": sqs.new_message_group(payload)}
+            for payload in payloads
+        ]
 
         return submit_messages(queue_url, messages)
 
@@ -82,7 +86,7 @@ async def process_messages(messages: list) -> dict[str, typing.Any]:
     for message in messages:
         try:
             await process_message(message)
-        except TaskValidationError:
+        except (TaskValidationError, pydantic.ValidationError):
             logger.warning("Validation error processing message", exc_info=True)
         except Exception:
             logger.exception("Error processing message")

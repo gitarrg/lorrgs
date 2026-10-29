@@ -14,7 +14,8 @@ from lorgs import utils
 from lorgs.clients import sqs
 from lorgs.clients.wcl import InvalidReport, PrivateReportError
 from lorgs.clients.wcl.client import WarcraftlogsClient
-from lorgs.loaders.report_overview_loader import ReportOverviewLoader
+from lorgs.data import get_game_version_by_wcl_id
+from lorgs.loaders.report_overview_loader import ReportOverviewLoader, UnsupportedGameVersionError
 from lorgs.models.task import Task
 from lorgs.models.task_payloads import UserReportPayload
 from lorgs.models.warcraftlogs_user_report import UserReport
@@ -82,6 +83,8 @@ async def load_user_report_overview(response: fastapi.Response, report_id: str, 
             raise fastapi.HTTPException(status_code=404, detail="Report not found.") from e
         except PrivateReportError as e:
             raise fastapi.HTTPException(status_code=401, detail="No permission to view this report.") from e
+        except UnsupportedGameVersionError as e:
+            raise fastapi.HTTPException(status_code=422, detail=str(e)) from e
         else:
             user_report.save()
 
@@ -111,7 +114,19 @@ async def load_user_report(
     fight_ids = utils.str_int_list(fight)
     player_ids = utils.str_int_list(player)
 
+    # the Game Version comes from the log, so the report's overview has to be loaded first.
+    user_report = UserReport.get(report_id=report_id, create=False)
+    if not user_report:
+        raise fastapi.HTTPException(status_code=404, detail="Report not found.")
+    game_version = get_game_version_by_wcl_id(user_report.game_version)
+    if game_version is None:
+        raise fastapi.HTTPException(
+            status_code=422,
+            detail=f"Unsupported Warcraft Logs game version: {user_report.game_version}",
+        )
+
     payload = UserReportPayload(
+        game_version=game_version.name,
         report_id=report_id,
         user_id=user_id,
         fight_ids=fight_ids,

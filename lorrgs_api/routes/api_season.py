@@ -6,14 +6,14 @@ from __future__ import annotations
 import fastapi
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data import GAME_DATA
+from lorrgs_api.dependencies import GameVersionDep
 
 
 router = fastapi.APIRouter(tags=["seasons"], prefix="/seasons")
 
 
 @router.get("/{season_slug}")
-async def get_season(season_slug: str) -> dict:
+async def get_season(game_version: GameVersionDep, season_slug: str) -> dict:
     """Get a Season.
 
     Args:
@@ -25,9 +25,9 @@ async def get_season(season_slug: str) -> dict:
 
     """
     if season_slug.lower() == "current":
-        season = GAME_DATA.current_season
+        season = game_version.data.current_season
     else:
-        season = GAME_DATA.get_season(season_slug)
+        season = game_version.data.get_season(season_slug)
         if not season:
             raise fastapi.HTTPException(status_code=404, detail="Invalid Season.")
 

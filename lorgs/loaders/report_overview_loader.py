@@ -6,12 +6,12 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import wcl
+from lorgs.data import get_game_version_by_wcl_id
 from lorgs.loaders.fight_loader import FightLoader
 from lorgs.logger import logger
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_report import Report
 
-from .actor_loader import _active_game_data
 from .base_loader import BaseLoader
 
 
@@ -19,10 +19,23 @@ if typing.TYPE_CHECKING:
     from lorgs.models.game_data import GameData
 
 
+class UnsupportedGameVersionError(ValueError):
+    """The log belongs to a Warcraft Logs game version that none of our Game Versions serves."""
+
+    def __init__(self, wcl_game_version: int) -> None:
+        super().__init__(f"Unsupported Warcraft Logs game version: {wcl_game_version}")
+        self.wcl_game_version = wcl_game_version
+
+
 class ReportOverviewLoader(BaseLoader):
+    """Loads the Overview of a Report.
+
+    Without `game_data` the Game Version is picked from the log's Warcraft Logs `masterData.gameVersion`.
+    """
+
     def __init__(self, report: Report, game_data: GameData | None = None) -> None:
         self.report = report
-        self.game_data = game_data or _active_game_data()
+        self.game_data = game_data
 
     def get_query(self):
         """Get the Query to load this Reports Overview."""
@@ -127,6 +140,13 @@ class ReportOverviewLoader(BaseLoader):
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
         report_data = wcl.ReportData(**query_result)
         report = report_data.report
+
+        if self.game_data is None:
+            wcl_game_version = report.masterData.gameVersion if report.masterData else 1
+            game_version = get_game_version_by_wcl_id(wcl_game_version)
+            if game_version is None:
+                raise UnsupportedGameVersionError(wcl_game_version)
+            self.game_data = game_version.data
 
         # Update the Report itself
         self.report.title = report.title

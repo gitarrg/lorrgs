@@ -1,5 +1,7 @@
 # Deploy Mists + Forever (CDK)
 
+> The code serves every Game Version from any deployment (ADR 0003: `/api/{game_version}/...`, `game_version` in every SQS payload). The per-version stacks below still exist until the cutover to one shared deployment, so each stack's Lambdas can read and write every Game Version's S3 prefix and its schedule queues refreshes for its own Game Version only.
+
 `infra/` is a CDK app (Python) for every Game Version except Retail. Retail is not deployed by anything yet.
 
 | Stack | Contains |

@@ -30,6 +30,8 @@ from aws_cdk import (
 
 # IMPORT LOCAL LIBRARIES
 from infra import assets
+from lorgs.data import GAME_VERSIONS
+from lorgs.models.raid_zone import AUTO_DIFFICULTY
 
 
 if typing.TYPE_CHECKING:
@@ -101,7 +103,6 @@ class GameVersionStack(cdk.Stack):
 
         # Lambdas
         self.lambda_env = {
-            "LORRGS_GAME_VERSION": self.gv.name,
             "SQS_QUEUE_URL": main_queue.queue_url,
             "SQS_USER_QUEUE_URL": user_queue.queue_url,
             **{name: os.getenv(name, "") for name in SECRETS},
@@ -114,7 +115,9 @@ class GameVersionStack(cdk.Stack):
         for fn in (api_fn, sqs_fn):
             main_queue.grant_send_messages(fn)
             user_queue.grant_send_messages(fn)
-            bucket.grant_read_write(fn, f"{self.gv.s3_prefix}*")
+            # the code serves every Game Version, whichever stack it is deployed in
+            for version in GAME_VERSIONS.values():
+                bucket.grant_read_write(fn, f"{version.s3_prefix}*")
             for table in tables:
                 table.grant_read_write_data(fn)
 
@@ -182,9 +185,10 @@ class GameVersionStack(cdk.Stack):
 
         payload = {
             "task": "load_spec_rankings",
+            "game_version": self.gv.name,
             "spec_slug": "all",
             "boss_slug": "all",
-            "difficulty": self.gv.default_difficulty_name,
+            "difficulty": AUTO_DIFFICULTY,
             "metric": "all",
             "limit": 50,
             "clear": False,
@@ -201,7 +205,7 @@ class GameVersionStack(cdk.Stack):
                 "arn": queue.queue_arn,
                 "roleArn": role.role_arn,
                 "input": json.dumps(payload),
-                "sqsParameters": {"messageGroupId": "load_spec_rankings"},
+                "sqsParameters": {"messageGroupId": f"{self.gv.name}-load_spec_rankings"},
                 "retryPolicy": {"maximumEventAgeInSeconds": 86400, "maximumRetryAttempts": 0},
             },
         )
@@ -222,7 +226,7 @@ class GameVersionStack(cdk.Stack):
             self,
             "distribution",
             comment=self.name("api"),
-            domain_names=[self.gv.api_url],
+            domain_names=[f"{self.gv.name}-api.lorrgs.io"],
             certificate=self.certificate,
             minimum_protocol_version=cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
             price_class=cloudfront.PriceClass.PRICE_CLASS_100,

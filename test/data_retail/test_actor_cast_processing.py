@@ -11,8 +11,9 @@ import lorgs.data.retail.classes.druid  # noqa: F401  # registers Restoration Dr
 import lorgs.data.retail.classes.evoker  # noqa: F401  # registers Preservation and its load handlers
 import lorgs.data.retail.classes.hunter  # noqa: F401  # registers Marksmanship and its load handler
 import lorgs.data.retail.classes.shaman  # noqa: F401  # registers Restoration Shaman and its load handler
-from lorgs.data import HEAL
+from lorgs.data.retail import GAME_DATA, HEAL
 from lorgs.loaders.actor_loader import ActorLoader
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.game_data import GameData
 from lorgs.models.season import Season
 from lorgs.models.warcraftlogs_actor import BaseActor
@@ -55,7 +56,7 @@ def _aura(timestamp: int, spell_id: int, event_type: str, source_id: int = 10) -
 
 def _load(spec_slug: str, events: dict, game_data: GameData | None = None) -> Player:
     player = Player(source_id=10, spec_slug=spec_slug, name="Healer")
-    ActorLoader(player, game_data).process_query_result(events)
+    ActorLoader(player, game_data or GAME_DATA).process_query_result(events)
     return player
 
 
@@ -128,7 +129,7 @@ def test_class_process_casts_runs_before_spec_process_casts() -> None:
 
     spec = ChainSpec()
     season = Season(name="Chain Season", ilvl=1)
-    game_data = GameData(roles=[spec.role], classes=[chain_class], seasons=[season], current_season=season)
+    game_data = GameData(roles=[spec.role], classes=[chain_class], seasons=[season], current_season=season, difficulties=(RaidDifficulty.HEROIC,))
     events = _events(_cast(1_000, 50))
 
     assert _process(spec.full_name_slug, events, game_data) == [

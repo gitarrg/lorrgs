@@ -6,7 +6,7 @@ from __future__ import annotations
 import fastapi
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import game_version
+from lorgs.data import GAME_VERSIONS
 
 
 router = fastapi.APIRouter(tags=["game_versions"], prefix="/game_versions")
@@ -16,20 +16,18 @@ router = fastapi.APIRouter(tags=["game_versions"], prefix="/game_versions")
 async def get_game_versions() -> list[dict]:
     """List all Game Versions.
 
-    Each deployment serves a single Game Version (`active`).
-
     Returns:
         list[dict]: the Game Versions (the frontend's settings per Game Version included).
+        `wcl_game_version` is the Warcraft Logs id a User Report's `game_version` refers to.
 
     """
     return [
         {
             "name": version.name,
             "title": version.title,
-            "api_url": version.api_url,
-            "active": version is game_version.ACTIVE,
+            "wcl_game_version": version.wcl_game_version,
             "collapse_raids": version.collapse_raids,
             "has_comp_modes": version.has_comp_modes,
         }
-        for version in game_version.GAME_VERSIONS.values()
+        for version in GAME_VERSIONS.values()
     ]

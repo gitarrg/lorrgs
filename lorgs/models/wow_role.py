@@ -14,7 +14,7 @@ if typing.TYPE_CHECKING:
     from lorgs.models.wow_spec import WowSpec
 
 
-class WowRole(base.MemoryModel):
+class WowRole(base.StaticModel):
     """A role like Tank, Healer, DPS."""
 
     id: int  # used for sorting
@@ -35,11 +35,7 @@ class WowRole(base.MemoryModel):
 
     @property
     def specs(self) -> set[WowSpec]:
-        if self._specs is not None:
-            return self._specs
-        from lorgs.models.wow_spec import WowSpec  # ruff: ignore[import-outside-top-level]
-
-        return {spec for spec in WowSpec.list() if spec.role == self}
+        return self._specs or set()
 
     def __lt__(self, other: WowRole) -> bool:
         return self.id < other.id

@@ -17,6 +17,8 @@ def _ranking(
     dirty: bool = False,
 ) -> SpecRanking:
     return SpecRanking(
+        game_version="retail",
+        difficulty="mythic",
         spec_slug="paladin-holy",
         boss_slug="nekzali",
         reports=[Report(report_id=f"report-{index}") for index in range(report_count)],

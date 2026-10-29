@@ -4,26 +4,27 @@ import dotenv
 dotenv.load_dotenv()  # pylint: disable=wrong-import-position
 import asyncio
 
-from lorgs.data import GAME_DATA
+from lorgs.data import RETAIL
+from lorgs.data.retail import GAME_DATA
 from lorgs.models import warcraftlogs_comp_ranking
 
 
 async def test__load_rankings(boss_slug: str, page=1, clear=False) -> None:
     ################################
     # get comp ranking object
-    ranking = warcraftlogs_comp_ranking.CompRanking.get_or_create(boss_slug=boss_slug)
+    ranking = warcraftlogs_comp_ranking.CompRanking.get_or_create(game_version=RETAIL.name, boss_slug=boss_slug)
     if not GAME_DATA.get_boss(full_name_slug=boss_slug):
         return False, "invalid boss"
 
     ################################
     # load and save
-    await ranking.load(GAME_DATA, page=page, clear_old=clear)
+    await ranking.load(RETAIL, page=page, clear_old=clear)
     ranking.save()
     return True, "done"
 
 
 async def test__print_rankings(boss_slug: str) -> None:
-    comp_ranking = warcraftlogs_comp_ranking.CompRanking.get_or_create(boss_slug=boss_slug)
+    comp_ranking = warcraftlogs_comp_ranking.CompRanking.get_or_create(game_version=RETAIL.name, boss_slug=boss_slug)
     comp_ranking.sort_reports()
 
     for report in comp_ranking.reports:

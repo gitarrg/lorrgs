@@ -1,21 +1,14 @@
-"""Seams: the mists GameData is a view of the `MemoryModel` registry, and indexes it."""
-
-from test.helpers import assert_game_data_matches_registry
-
-
-def test_game_data_matches_registry() -> None:
-    assert_game_data_matches_registry()
-
+"""Seams: the mists GameData indexes the objects its package defines."""
 
 def test_game_data_is_the_package_game_data() -> None:
-    from lorgs.data import GAME_DATA
-    from lorgs.game_version import MISTS
+    from lorgs.data.mists import GAME_DATA
+    from lorgs.data import MISTS
 
     assert GAME_DATA is MISTS.data
 
 
 def test_specs_are_found_by_slug() -> None:
-    from lorgs.data import GAME_DATA
+    from lorgs.data.mists import GAME_DATA
 
     assert len(GAME_DATA.specs_by_slug) == len(GAME_DATA.specs)
     for spec in GAME_DATA.specs:
@@ -23,7 +16,7 @@ def test_specs_are_found_by_slug() -> None:
 
 
 def test_back_references() -> None:
-    from lorgs.data import GAME_DATA
+    from lorgs.data.mists import GAME_DATA
 
     for spec in GAME_DATA.specs:
         assert spec in spec.role.specs
@@ -33,7 +26,7 @@ def test_back_references() -> None:
 
 
 def test_bosses_are_found_by_slug_and_encounter_id() -> None:
-    from lorgs.data import GAME_DATA
+    from lorgs.data.mists import GAME_DATA
 
     assert GAME_DATA.bosses
     for boss in GAME_DATA.bosses:
@@ -42,7 +35,7 @@ def test_bosses_are_found_by_slug_and_encounter_id() -> None:
 
 
 def test_spells_are_found_by_id_and_variation_id() -> None:
-    from lorgs.data import GAME_DATA
+    from lorgs.data.mists import GAME_DATA
 
     assert GAME_DATA.spells
     for spell in GAME_DATA.spells:

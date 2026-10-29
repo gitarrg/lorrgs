@@ -1,7 +1,7 @@
 """All the Game Data of one Game Version, indexed for lookup (ADR 0003).
 
 A `GameData` is built once per Game Version, at import, from the objects its package defines.
-It lives next to the `MemoryModel` registry for now: both hold the same objects.
+Every Game Version owns its `GameData`; lookups never mix between Game Versions.
 """
 
 from __future__ import annotations
@@ -14,8 +14,8 @@ from collections import defaultdict
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
-from lorgs.game_version import ACTIVE
 from lorgs.models.dungeon import Dungeon
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.raid_zone import AUTO_DIFFICULTY, RaidZone
 from lorgs.models.season import Season
@@ -69,8 +69,11 @@ class GameData:
         classes: list[WowClass],
         seasons: list[Season],
         current_season: Season,
+        difficulties: tuple[RaidDifficulty, ...],
         spells: list[WowSpell] | None = None,
     ) -> None:
+        self.difficulties = difficulties
+        """Difficulties we rank. The last entry is the default."""
         self.roles = roles
         self.classes = classes
         self.seasons = seasons
@@ -81,7 +84,12 @@ class GameData:
         self._link_back_references()
 
     @classmethod
-    def from_package(cls, package: types.ModuleType, current_season: Season) -> GameData:
+    def from_package(
+        cls,
+        package: types.ModuleType,
+        current_season: Season,
+        difficulties: tuple[RaidDifficulty, ...],
+    ) -> GameData:
         """Collect everything the Game Version's package (and the `expansions/` modules it imports) defines."""
         modules = _modules_of(package)
         return cls(
@@ -89,6 +97,7 @@ class GameData:
             classes=_members(modules, WowClass),
             seasons=_members(modules, Season),
             current_season=current_season,
+            difficulties=difficulties,
             spells=_members(modules, WowSpell),
         )
 
@@ -98,6 +107,19 @@ class GameData:
         for zone in self.zones:
             for boss in zone.bosses:
                 boss._zone = zone  # ruff: ignore[private-member-access]
+
+    @property
+    def default_difficulty(self) -> RaidDifficulty:
+        return self.difficulties[-1]
+
+    @property
+    def difficulty_names(self) -> tuple[str, ...]:
+        """The difficulties as the lowercase names used in API routes, task payloads and S3 keys."""
+        return tuple(difficulty.name.lower() for difficulty in self.difficulties)
+
+    @property
+    def default_difficulty_name(self) -> str:
+        return self.default_difficulty.name.lower()
 
     ####################################################################################################################
     # Derived
@@ -248,11 +270,11 @@ class GameData:
         zone = self.zone_for_boss(boss_slug)
         if zone and zone.difficulty:
             return zone.difficulty.name.lower()
-        return ACTIVE.default_difficulty_name
+        return self.default_difficulty_name
 
     def difficulties_for_boss(self, boss_slug: str) -> list[str]:
         """All difficulties we rank for this Boss."""
         zone = self.zone_for_boss(boss_slug)
         if zone and zone.difficulty:
             return [zone.difficulty.name.lower()]
-        return list(ACTIVE.difficulty_names)
+        return list(self.difficulty_names)

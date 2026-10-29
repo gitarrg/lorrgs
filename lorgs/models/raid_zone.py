@@ -19,7 +19,7 @@ AUTO_DIFFICULTY = "auto"
 """Difficulty token (in URLs, routes and task payloads) that stands for the zone's `RaidZone.difficulty`."""
 
 
-class RaidZone(base.MemoryModel):
+class RaidZone(base.StaticModel):
     """A raid zone in the Game."""
 
     id: int | float

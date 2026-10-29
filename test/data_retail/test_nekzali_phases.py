@@ -8,7 +8,8 @@ from typing import override
 import pytest
 
 import lorgs.data  # noqa: F401  # registers specs and bosses
-from lorgs.data import GAME_DATA
+from lorgs.data import RETAIL
+from lorgs.data.retail import GAME_DATA
 from lorgs.data.expansions.midnight.raids.the_venomous_abyss.nekzali import (
     NEKZALI,
     RITUAL_OF_AWAKENING,
@@ -25,7 +26,7 @@ from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 from lorgs.models.warcraftlogs_report import Report
 
-from ..helpers import game_data_with
+from ..helpers import game_data_with, game_version_with
 
 
 def test_other_bosses_phases_are_unchanged() -> None:
@@ -201,13 +202,15 @@ class OrderedWarcraftlogsClient:
 def test_spec_ranking_phases_do_not_depend_on_load_order(boss_first: bool) -> None:
     """A spec-ranking Fight gets the same Phases whichever of the boss or the phases finishes first."""
     ranking = SpecRanking(
+        game_version="retail",
+        difficulty="mythic",
         spec_slug="paladin-holy",
         boss_slug=NEKZALI.full_name_slug,
         metric="hps",
     )
 
     asyncio.run(
-        SpecRankingLoader(ranking).load(
+        SpecRankingLoader(ranking, RETAIL).load(
             client=OrderedWarcraftlogsClient(boss_first=boss_first),
             limit=10,
         ),
@@ -251,6 +254,8 @@ def test_spec_ranking_keeps_phases_when_process_phases_raises(caplog: pytest.Log
         boss=Boss(boss_slug=boss_type.full_name_slug),
     )
     ranking = SpecRanking(
+        game_version="retail",
+        difficulty="mythic",
         spec_slug="paladin-holy",
         boss_slug=boss_type.full_name_slug,
         metric="hps",
@@ -265,7 +270,7 @@ def test_spec_ranking_keeps_phases_when_process_phases_raises(caplog: pytest.Log
 
     with caplog.at_level(logging.ERROR, logger="Lorgs"):
         asyncio.run(
-            SpecRankingLoader(ranking, game_data_with(bosses=[boss_type], specs=[GAME_DATA.get_spec("paladin-holy")])).load(
+            SpecRankingLoader(ranking, game_version_with(game_data_with(bosses=[boss_type], specs=[GAME_DATA.get_spec("paladin-holy")]))).load(
                 client=_QuietWarcraftlogsClient(), limit=10,
             ),
         )
@@ -296,6 +301,8 @@ def test_spec_ranking_corrects_phases_loaded_after_the_boss_casts() -> None:
         ),
     )
     ranking = SpecRanking(
+        game_version="retail",
+        difficulty="mythic",
         spec_slug="paladin-holy",
         boss_slug=NEKZALI.full_name_slug,
         metric="hps",
@@ -308,7 +315,7 @@ def test_spec_ranking_corrects_phases_loaded_after_the_boss_casts() -> None:
         ],
     )
 
-    asyncio.run(SpecRankingLoader(ranking).load(client=_PhasesAlreadyHaveCastsClient(), limit=10))
+    asyncio.run(SpecRankingLoader(ranking, RETAIL).load(client=_PhasesAlreadyHaveCastsClient(), limit=10))
 
     assert [(phase.phase_id, phase.timestamp) for phase in fight.phases] == KILL_PHASES
 
@@ -341,7 +348,7 @@ def test_user_report_corrects_phases_after_the_boss_loads() -> None:
     )
 
     asyncio.run(
-        ReportLoader(report).load(
+        ReportLoader(report, GAME_DATA).load(
             client=_BossEventsClient(),
             fight_ids=[FIGHT_ID],
             load_boss=True,

@@ -1,40 +1,28 @@
-"""Seams: storage goes through the active Game Version.
+"""Seams: storage names its Game Version.
 
-- S3 keys are prefixed with `GameVersion.s3_prefix` (empty for Retail).
-- DynamoDB keys are shared between Game Versions (ADR 0002).
+- Rankings have a `game_version` and their S3 keys start with it, for every Game Version.
+- DynamoDB keys are shared between Game Versions (ADR 0003).
 - A User Report records the WCL game version of its log; items without it are Retail.
 """
 
 from __future__ import annotations
 
 import io
-import os
-import subprocess
-import sys
 from unittest import mock
 
 import pytest
 
-from lorgs import game_version
-from lorgs.loaders.report_overview_loader import ReportOverviewLoader
+from lorgs.data import MISTS, RETAIL
+from lorgs.loaders.report_overview_loader import ReportOverviewLoader, UnsupportedGameVersionError
 from lorgs.models.base.dynamodb import DynamoDBModel
 from lorgs.models.user import User
 from lorgs.models.warcraftlogs_comp_ranking import CompRanking
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 from lorgs.models.warcraftlogs_user_report import UserReport
+from test.helpers import game_data_with
 
 
 SPEC_RANKING_KWARGS = {"spec_slug": "mage-fire", "boss_slug": "some-boss", "difficulty": "mythic", "metric": "dps"}
-
-
-@pytest.fixture
-def active_retail(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(game_version, "ACTIVE", game_version.RETAIL)
-
-
-@pytest.fixture
-def active_forever(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(game_version, "ACTIVE", game_version.FOREVER)
 
 
 ################################################################################
@@ -42,39 +30,33 @@ def active_forever(monkeypatch: pytest.MonkeyPatch) -> None:
 #
 
 
-@pytest.mark.usefixtures("active_retail")
-def test_retail_s3_keys_are_unprefixed() -> None:
-    assert SpecRanking.get_key(**SPEC_RANKING_KWARGS) == "spec_ranking/mage-fire/some-boss__mythic__dps"
-    assert CompRanking.get_key(boss_slug="some-boss") == "comp_ranking/some-boss"
+@pytest.mark.parametrize("game_version", ["retail", "mists", "forever"])
+def test_s3_keys_start_with_the_game_version(game_version: str) -> None:
+    assert (
+        SpecRanking.get_key(game_version=game_version, **SPEC_RANKING_KWARGS)
+        == f"{game_version}/spec_ranking/mage-fire/some-boss__mythic__dps"
+    )
+    assert CompRanking.get_key(game_version=game_version, boss_slug="some-boss") == f"{game_version}/comp_ranking/some-boss"
 
 
-@pytest.mark.usefixtures("active_forever")
-def test_forever_s3_keys_are_prefixed() -> None:
-    assert SpecRanking.get_key(**SPEC_RANKING_KWARGS) == "forever/spec_ranking/mage-fire/some-boss__mythic__dps"
-    assert CompRanking.get_key(boss_slug="some-boss") == "forever/comp_ranking/some-boss"
+def test_game_version_is_required() -> None:
+    with pytest.raises(ValueError, match="game_version"):
+        SpecRanking(**SPEC_RANKING_KWARGS)
+    with pytest.raises(ValueError, match="game_version"):
+        CompRanking(boss_slug="some-boss")
 
 
-@pytest.mark.usefixtures("active_forever")
 def test_save_and_get_use_the_prefixed_key() -> None:
-    ranking = SpecRanking(**SPEC_RANKING_KWARGS)
-    expected_key = "forever/spec_ranking/mage-fire/some-boss__mythic__dps"
+    ranking = SpecRanking(game_version="retail", **SPEC_RANKING_KWARGS)
+    expected_key = "retail/spec_ranking/mage-fire/some-boss__mythic__dps"
 
     with mock.patch("lorgs.models.base.s3.s3client") as s3client:
         ranking.save()
         assert s3client.put_object.call_args.kwargs["Key"] == expected_key
 
         s3client.get_object.return_value = {"Body": io.BytesIO(ranking.model_dump_json().encode())}
-        SpecRanking.get(**SPEC_RANKING_KWARGS)
+        SpecRanking.get(game_version="retail", **SPEC_RANKING_KWARGS)
         assert s3client.get_object.call_args.kwargs["Key"] == expected_key
-
-
-def test_env_var_picks_the_s3_prefix() -> None:
-    code = "from lorgs.models.warcraftlogs_comp_ranking import CompRanking; print(CompRanking.get_key(boss_slug='b'))"
-    env = {k: v for k, v in os.environ.items() if k != "LORRGS_GAME_VERSION"}
-    env.update(PYTHONPATH=".", LORRGS_GAME_VERSION="forever")
-    result = subprocess.run([sys.executable, "-c", code], env=env, capture_output=True, text=True, check=False)
-    assert result.returncode == 0, result.stderr
-    assert result.stdout.strip() == "forever/comp_ranking/b"
 
 
 ################################################################################
@@ -82,7 +64,6 @@ def test_env_var_picks_the_s3_prefix() -> None:
 #
 
 
-@pytest.mark.usefixtures("active_forever")
 def test_dynamodb_keys_are_not_prefixed() -> None:
     assert UserReport.get_keys(report_id="abc") == {"pk": "abc", "sk": "overview"}
     assert User.get_keys(discord_id="123")["pk"] == "123"
@@ -97,12 +78,12 @@ def test_old_user_report_items_load_as_retail() -> None:
     """Items stored before the attribute existed have no `game_version`."""
     item = {"pk": "abc", "sk": "overview", "report_id": "abc", "title": "old"}
     report = UserReport(**item)
-    assert report.game_version == game_version.RETAIL.wcl_game_version
+    assert report.game_version == RETAIL.wcl_game_version
 
 
 def test_overview_loader_sets_game_version_from_master_data() -> None:
     report = UserReport(report_id="abc")
-    loader = ReportOverviewLoader(report)
+    loader = ReportOverviewLoader(report, game_data_with())
     loader.process_query_result({"report": {"masterData": {"actors": [], "gameVersion": 5}}})
     assert report.game_version == 5
 
@@ -111,7 +92,7 @@ def test_overview_loader_without_game_version_keeps_retail() -> None:
     report = UserReport(report_id="abc")
     loader = ReportOverviewLoader(report)
     loader.process_query_result({"report": {"masterData": {"actors": []}}})
-    assert report.game_version == game_version.RETAIL.wcl_game_version
+    assert report.game_version == RETAIL.wcl_game_version
 
 
 def test_overview_query_asks_for_game_version() -> None:
@@ -120,10 +101,49 @@ def test_overview_query_asks_for_game_version() -> None:
 
 def test_loaded_user_report_stores_game_version() -> None:
     report = UserReport(report_id="abc")
-    ReportOverviewLoader(report).process_query_result({"report": {"masterData": {"actors": [], "gameVersion": 5}}})
+    ReportOverviewLoader(report, game_data_with()).process_query_result(
+        {"report": {"masterData": {"actors": [], "gameVersion": 5}}},
+    )
 
     with mock.patch.object(DynamoDBModel, "get_table") as get_table:
         report.save()
 
     item = get_table.return_value.put_item.call_args.kwargs["Item"]
     assert item["game_version"] == 5
+
+
+################################################################################
+# UserReport: the Game Version comes from the log
+#
+
+
+def test_overview_loader_picks_the_game_data_from_the_log() -> None:
+    report = UserReport(report_id="abc")
+    loader = ReportOverviewLoader(report)
+    loader.process_query_result({"report": {"masterData": {"actors": [], "gameVersion": MISTS.wcl_game_version}}})
+    assert loader.game_data is MISTS.data
+
+
+def test_overview_loader_without_game_version_in_the_log_uses_retail() -> None:
+    loader = ReportOverviewLoader(UserReport(report_id="abc"))
+    loader.process_query_result({"report": {"masterData": {"actors": []}}})
+    assert loader.game_data is RETAIL.data
+
+
+def test_overview_loader_rejects_an_unsupported_game_version_naming_it() -> None:
+    loader = ReportOverviewLoader(UserReport(report_id="abc"))
+    with pytest.raises(UnsupportedGameVersionError, match="5"):
+        loader.process_query_result({"report": {"masterData": {"actors": [], "gameVersion": 5}}})
+
+
+################################################################################
+# Comp rankings
+#
+
+
+def test_comp_ranking_load_rejects_another_game_version() -> None:
+    import asyncio
+
+    ranking = CompRanking(game_version="mists", boss_slug="b")
+    with pytest.raises(ValueError, match="belongs to Game Version 'mists', not 'retail'"):
+        asyncio.run(ranking.load(RETAIL))

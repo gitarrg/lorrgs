@@ -17,7 +17,7 @@ from test.test_models.test_warcraftlogs_fight import FIGHT_START, _fight, _fight
 class TestPlayer(unittest.TestCase):
     def setUp(self):
         self.player = warcraftlogs_player.Player()
-        self.loader = PlayerLoader(self.player)
+        self.loader = PlayerLoader(self.player, helpers.game_data_with())
 
     def test__set_source_id_from_events(self) -> None:
         events = [
@@ -90,12 +90,12 @@ def test_resurrections_are_fight_relative(spec: WowSpec, game_data: GameData) ->
     assert player.resurrects[0]["ts"] == 4_000
 
 
-def test_resurrections_raise_when_the_fight_has_no_report() -> None:
+def test_resurrections_raise_when_the_fight_has_no_report(game_data: GameData) -> None:
     player = Player(source_id=10, name="Caster")
     player.fight = _fight(start_time=FIGHT_START)
 
     with pytest.raises(ValueError, match="Missing Parent Report"):
-        PlayerLoader(player).process_query_result(_resurrect_query())
+        PlayerLoader(player, game_data).process_query_result(_resurrect_query())
 
     assert player.resurrects == []
 

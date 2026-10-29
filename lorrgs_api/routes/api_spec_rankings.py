@@ -6,11 +6,11 @@ import fastapi
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
-from lorgs.data import GAME_DATA
-from lorgs.game_version import ACTIVE
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_ranking
+from lorgs.models.raid_zone import AUTO_DIFFICULTY
 from lorgs.models.task_payloads import SpecRankingPayload
+from lorrgs_api.dependencies import GameVersionDep
 
 
 router = fastapi.APIRouter(tags=["spec_ranking"], prefix="/spec_ranking")
@@ -18,15 +18,16 @@ router = fastapi.APIRouter(tags=["spec_ranking"], prefix="/spec_ranking")
 
 @router.get("/{spec_slug}/{boss_slug}")
 async def get_spec_ranking(
+    game_version: GameVersionDep,
     response: fastapi.Response,
     spec_slug: str,
     boss_slug: str,
-    difficulty: str = ACTIVE.default_difficulty_name,
+    difficulty: str = AUTO_DIFFICULTY,
     metric: str = "",
 ):
     """Get the Rankings for a given Spec and Boss."""
     if not metric:
-        spec = GAME_DATA.get_spec(spec_slug)
+        spec = game_version.data.get_spec(spec_slug)
         metric = spec.role.metric if spec else "dps"
 
     logger.info(f"{spec_slug}/{boss_slug} | start ({difficulty}/{metric})")
@@ -38,9 +39,10 @@ async def get_spec_ranking(
         # Fetch the json directly for performance reasons.
         # this avoids parsing the json into a model just to dump it back to json right away
         return warcraftlogs_ranking.SpecRanking.get_json(
+            game_version=game_version.name,
             boss_slug=boss_slug,
             spec_slug=spec_slug,
-            difficulty=GAME_DATA.resolve_difficulty(boss_slug, difficulty),
+            difficulty=game_version.data.resolve_difficulty(boss_slug, difficulty),
             metric=metric,
         )
     except KeyError:
@@ -49,15 +51,16 @@ async def get_spec_ranking(
 
 @router.get("/{spec_slug}/{boss_slug}/info")
 async def get_spec_ranking_info(
+    game_version: GameVersionDep,
     response: fastapi.Response,
     spec_slug: str,
     boss_slug: str,
-    difficulty: str = ACTIVE.default_difficulty_name,
+    difficulty: str = AUTO_DIFFICULTY,
     metric: str = "",
 ):
     """Get the Rankings for a given Spec and Boss."""
     if not metric:
-        spec = GAME_DATA.get_spec(spec_slug)
+        spec = game_version.data.get_spec(spec_slug)
         metric = spec.role.metric if spec else "dps"
 
     # shorter cache timeout for the start of the tier (where frequent changes happen)
@@ -67,9 +70,10 @@ async def get_spec_ranking_info(
         # Fetch the json directly for performance reasons.
         # this avoids parsing the json into a model just to dump it back to json right away
         data = warcraftlogs_ranking.SpecRanking.get_json(
+            game_version=game_version.name,
             boss_slug=boss_slug,
             spec_slug=spec_slug,
-            difficulty=GAME_DATA.resolve_difficulty(boss_slug, difficulty),
+            difficulty=game_version.data.resolve_difficulty(boss_slug, difficulty),
             metric=metric,
         )
     except KeyError:
@@ -86,6 +90,7 @@ async def get_spec_ranking_info(
 
 @router.get("/load")
 async def spec_ranking_load(
+    game_version: GameVersionDep,
     response: fastapi.Response,
     spec_slug="all",
     boss_slug="all",
@@ -98,6 +103,7 @@ async def spec_ranking_load(
     response.headers["Cache-Control"] = "no-cache"
 
     payload = SpecRankingPayload(
+        game_version=game_version.name,
         spec_slug=spec_slug,
         boss_slug=boss_slug,
         difficulty=difficulty,
@@ -116,10 +122,11 @@ async def spec_ranking_load(
 
 @router.patch("/dirty")
 async def flag_dirty(
+    game_version: GameVersionDep,
     response: fastapi.Response,
     spec_slug: str,
     boss_slug: str,
-    difficulty: str = ACTIVE.default_difficulty_name,
+    difficulty: str = AUTO_DIFFICULTY,
     metric: str = "",
     dirty: bool = True,
 ):
@@ -127,13 +134,14 @@ async def flag_dirty(
     response.headers["Cache-Control"] = "no-cache"
 
     if not metric:
-        spec = GAME_DATA.get_spec(spec_slug)
+        spec = game_version.data.get_spec(spec_slug)
         metric = spec.role.metric if spec else "dps"
 
     spec_ranking = warcraftlogs_ranking.SpecRanking.get_or_create(
+        game_version=game_version.name,
         spec_slug=spec_slug,
         boss_slug=boss_slug,
-        difficulty=GAME_DATA.resolve_difficulty(boss_slug, difficulty),
+        difficulty=game_version.data.resolve_difficulty(boss_slug, difficulty),
         metric=metric,
     )
     if spec_ranking:

@@ -6,6 +6,7 @@ they build what they need from these fixtures.
 
 import pytest
 
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.game_data import GameData
 from lorgs.models.season import Season
 from lorgs.models.wow_class import WowClass
@@ -25,4 +26,4 @@ def spec() -> WowSpec:
 def game_data(spec: WowSpec) -> GameData:
     """Game Data holding only the `spec` fixture."""
     season = Season(name="Fixture Season", ilvl=1)
-    return GameData(roles=[spec.role], classes=[spec.wow_class], seasons=[season], current_season=season)
+    return GameData(roles=[spec.role], classes=[spec.wow_class], seasons=[season], current_season=season, difficulties=(RaidDifficulty.HEROIC,))

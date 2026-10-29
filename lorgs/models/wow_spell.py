@@ -61,7 +61,7 @@ class SpellTag:
     """Tag for Movement Cooldowns. Roar, Windrush, Time Spiral, etc"""
 
 
-class WowSpell(base.MemoryModel):
+class WowSpell(base.StaticModel):
     """Container to define a spell."""
 
     spell_id: int

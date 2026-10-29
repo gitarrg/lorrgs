@@ -2,7 +2,7 @@
 
 import unittest
 
-from lorgs.data import GAME_DATA
+from lorgs.data.retail import GAME_DATA
 from lorgs.clients import wcl
 from lorgs.loaders.fight_loader import FightLoader
 from lorgs.models.warcraftlogs_comp_ranking import get_composition
@@ -16,7 +16,7 @@ class TestFightProcessPlayers(unittest.TestCase):
         self.fight = _fight()
         # Deaths convert through the Fight, which needs its Report.
         self.fight.report = Report(report_id="REPORT_ID", start_time=self.fight.start_time)
-        self.loader = FightLoader(self.fight)
+        self.loader = FightLoader(self.fight, GAME_DATA)
 
     def test_valid_player(self):
         summary = wcl.ReportSummary(

@@ -4,6 +4,7 @@ import unittest
 import pytest
 
 from lorgs.models.warcraftlogs_cast import Cast, process_auras, process_until_events
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.game_data import GameData
 from lorgs.models.season import Season
 from lorgs.models.wow_spell import WowSpell
@@ -11,7 +12,7 @@ from lorgs.models.wow_spell import WowSpell
 
 def _game_data(*spells: WowSpell) -> GameData:
     season = Season(name="Test", ilvl=1)
-    return GameData(roles=[], classes=[], seasons=[season], current_season=season, spells=list(spells))
+    return GameData(roles=[], classes=[], seasons=[season], current_season=season, difficulties=(RaidDifficulty.HEROIC,), spells=list(spells))
 
 
 class Test_Cast(unittest.TestCase):

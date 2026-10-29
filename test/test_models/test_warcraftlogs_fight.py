@@ -59,7 +59,7 @@ class TestFightProcessPlayers(unittest.TestCase):
         self.fight = _fight()
         # Deaths convert through the Fight, which needs its Report.
         self.fight.report = Report(report_id="REPORT_ID", start_time=self.fight.start_time)
-        self.loader = FightLoader(self.fight)
+        self.loader = FightLoader(self.fight, game_data_with())
 
     def test_empty(self):
         self.loader._process_summary(wcl.ReportSummary())

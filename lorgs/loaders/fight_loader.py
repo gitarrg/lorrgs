@@ -14,7 +14,6 @@ from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_player import Player
 
-from .actor_loader import _active_game_data
 from .base_loader import BaseLoader
 
 
@@ -49,9 +48,9 @@ def player_from_composition_data(composition_data: wcl.CompositionEntry, game_da
 
 class FightLoader(BaseLoader):
 
-    def __init__(self, fight: Fight, game_data: GameData | None = None) -> None:
+    def __init__(self, fight: Fight, game_data: GameData) -> None:
         self.fight = fight
-        self.game_data = game_data or _active_game_data()
+        self.game_data = game_data
 
     def needs_load(self) -> bool:
         return not self.fight.players
@@ -60,7 +59,7 @@ class FightLoader(BaseLoader):
     def fight_from_wcl_fight(
         fight_data: wcl.ReportFight,
         report: Report,
-        game_data: GameData | None = None,
+        game_data: GameData,
     ) -> Fight | None:
         """Create a Fight from a WCL Fight."""
         # skip trash fights
@@ -84,7 +83,6 @@ class FightLoader(BaseLoader):
         fight.report = report
 
         # Fight: Boss
-        game_data = game_data or _active_game_data()
         if raid_boss := game_data.get_boss(boss_id=fight_data.encounterID):
             fight.boss = Boss.from_raid_boss(raid_boss)
             fight.boss.fight = fight

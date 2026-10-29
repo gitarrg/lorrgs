@@ -17,7 +17,6 @@ from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_report import Report
 
-from .actor_loader import _active_game_data
 from .base_loader import BaseLoader
 from .fight_phases import (
     FightPhasesLoader,
@@ -30,6 +29,7 @@ from .player_loader import PlayerLoader
 
 if typing.TYPE_CHECKING:
     from lorgs.models.game_data import GameData
+    from lorgs.models.game_version import GameVersion
     from lorgs.models.raid_boss import RaidBoss
     from lorgs.models.wow_spec import WowSpec
     from lorgs.models.warcraftlogs_ranking import SpecRanking
@@ -38,9 +38,13 @@ if typing.TYPE_CHECKING:
 class SpecRankingLoader(BaseLoader):
     """Loads spec ranking data and actor events from WarcraftLogs."""
 
-    def __init__(self, ranking: SpecRanking, game_data: GameData | None = None) -> None:
+    def __init__(self, ranking: SpecRanking, game_version: GameVersion) -> None:
+        if ranking.game_version != game_version.name:
+            raise ValueError(
+                f"Ranking belongs to Game Version {ranking.game_version!r}, not {game_version.name!r}",
+            )
         self.ranking = ranking
-        self.game_data = game_data or _active_game_data()
+        self.game_data = game_version.data
 
     @property
     def boss(self) -> RaidBoss:

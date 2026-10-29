@@ -8,6 +8,7 @@ import pytest
 
 import lorgs.data  # noqa: F401  # registers specs and bosses
 from lorgs.clients.wcl.client import PrivateReportError, UnknownReportError
+from lorgs.data import RETAIL
 from lorgs.loaders.spec_ranking import SpecRankingLoader
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_cast import Cast
@@ -67,12 +68,14 @@ class FakeWarcraftlogsClient:
 
 def _refresh(caplog: pytest.LogCaptureFixture, refused: type[Exception]) -> SpecRanking:
     ranking = SpecRanking(
+        game_version="retail",
+        difficulty="mythic",
         spec_slug="paladin-holy",
         boss_slug="nekzali-the-soulcoiler",
         metric="hps",
     )
     with caplog.at_level(logging.WARNING, logger="Lorgs"):
-        asyncio.run(SpecRankingLoader(ranking).load(client=FakeWarcraftlogsClient(refused), limit=10))
+        asyncio.run(SpecRankingLoader(ranking, RETAIL).load(client=FakeWarcraftlogsClient(refused), limit=10))
     return ranking
 
 
@@ -92,6 +95,8 @@ def test_refresh_drops_a_deleted_report_and_keeps_the_others(caplog: pytest.LogC
 
 def test_refresh_drops_a_private_report_that_was_already_loaded(caplog: pytest.LogCaptureFixture) -> None:
     ranking = SpecRanking(
+        game_version="retail",
+        difficulty="mythic",
         spec_slug="paladin-holy",
         boss_slug="nekzali-the-soulcoiler",
         metric="hps",
@@ -102,7 +107,7 @@ def test_refresh_drops_a_private_report_that_was_already_loaded(caplog: pytest.L
     )
     caplog.set_level(logging.WARNING, logger="Lorgs")
 
-    asyncio.run(SpecRankingLoader(ranking).load(client=FakeWarcraftlogsClient(PrivateReportError), limit=10))
+    asyncio.run(SpecRankingLoader(ranking, RETAIL).load(client=FakeWarcraftlogsClient(PrivateReportError), limit=10))
 
     assert [report.report_id for report in ranking.reports] == [GOOD_REPORT]
     assert PRIVATE_REPORT in caplog.text

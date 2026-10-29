@@ -3,7 +3,7 @@ from lorgs.models import base
 from lorgs.models.wow_trinket import WowTrinket
 
 
-class Dungeon(base.MemoryModel):
+class Dungeon(base.StaticModel):
     """A Dungeon in the Game."""
 
     name: str

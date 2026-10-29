@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from lorgs.models.warcraftlogs_cast import Cast
 
 
-class WowActor(base.MemoryModel):
+class WowActor(base.StaticModel):
     """Base Class for any actor type in the game.
 
     Subclases can be playable specs or npc/bosses.

@@ -5,7 +5,8 @@
 """
 import asyncio
 
-from lorgs.data import *  # noqa: F403
+from lorgs.data.retail import *  # noqa: F403
+from lorgs.data import RETAIL
 from lorgs.loaders.spec_ranking import SpecRankingLoader
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 
@@ -20,6 +21,7 @@ async def main():
     # )
 
     ranking = SpecRanking.get_or_create(
+        game_version="retail",
         spec_slug="druid-restoration",
         boss_slug="imperator-averzian",
         difficulty="mythic",
@@ -43,7 +45,7 @@ async def main():
                     print("FPC", cast)
         """
 
-    loader = SpecRankingLoader(ranking=ranking)
+    loader = SpecRankingLoader(ranking=ranking, game_version=RETAIL)
     await loader.load(
         limit=50,
         clear_old=False,

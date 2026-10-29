@@ -10,7 +10,6 @@ PYTHONPATH=. uv run scripts/load_images.py
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-import importlib
 import io
 import os
 import pathlib
@@ -21,12 +20,11 @@ import requests
 from PIL import Image
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import game_version
+from lorgs import utils
+from lorgs.data import GAME_VERSIONS
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.raid_zone import RaidZone
-from lorgs.models.wow_potion import WowPotion
 from lorgs.models.wow_spell import WowSpell
-from lorgs.models.wow_trinket import WowTrinket
 
 
 # S3_CLIENT = boto3.client("s3")
@@ -128,30 +126,19 @@ def upload_spec_images() -> None:
 ################################################################################
 
 
-# Register the game data of every Game Version (not just the active one).
-# Icons live in one shared folder, so we want the icons of all of them.
-for _game_version in game_version.GAME_VERSIONS.values():
-    importlib.import_module(_game_version.data_package)
-
 # Get existing images in the S3 bucket
 images = get_images(FOLDER)
 
-# list of all the "types" of Spells
-# TODO: find a way to create this dynamically?
-spell_types: set[type[WowSpell | RaidBoss | RaidZone]] = {
-    WowSpell,
-    WowTrinket,
-    WowPotion,
-    # not actual "Spell" subclasses... but lets go with this for now
-    RaidBoss,
-    RaidZone,
-}
-
-
-# Retrieve all spells
+# Icons live in one shared folder, so we want the icons of every Game Version.
 spells: list[WowSpell | RaidBoss | RaidZone] = []
-for spell_type in spell_types:
-    spells += spell_type.list()
+for _game_version in GAME_VERSIONS.values():
+    game_data = _game_version.data
+    spells += game_data.spells
+    spells += game_data.trinkets
+    # not actual "Spell" subclasses... but lets go with this for now
+    spells += game_data.bosses
+    spells += game_data.zones
+spells = utils.uniqify(spells)
 
 
 for spell in spells:

@@ -6,7 +6,7 @@
 """
 import asyncio
 
-from lorgs.data import *  # noqa: F403
+from lorgs.data.retail import *  # noqa: F403
 from lorgs.loaders.report_loader import ReportLoader
 from lorgs.models.warcraftlogs_user_report import UserReport
 
@@ -28,7 +28,7 @@ async def main():
     report = UserReport.get_or_create(report_id="pzRXNvHVG8qtk9ch")
     # print_info(report)
 
-    loader = ReportLoader(report=report)
+    loader = ReportLoader(report=report, game_data=GAME_DATA)
     await loader.load(
         fight_ids=fight_ids,
         player_ids=player_ids,

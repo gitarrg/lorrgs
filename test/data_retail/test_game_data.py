@@ -1,21 +1,14 @@
-"""Seams: the retail GameData is a view of the `MemoryModel` registry, and indexes it."""
-
-from test.helpers import assert_game_data_matches_registry
-
-
-def test_game_data_matches_registry() -> None:
-    assert_game_data_matches_registry()
-
+"""Seams: the retail GameData indexes the objects its package defines."""
 
 def test_game_data_is_the_package_game_data() -> None:
-    from lorgs.data import GAME_DATA
-    from lorgs.game_version import RETAIL
+    from lorgs.data.retail import GAME_DATA
+    from lorgs.data import RETAIL
 
     assert GAME_DATA is RETAIL.data
 
 
 def test_specs_are_found_by_slug() -> None:
-    from lorgs.data import GAME_DATA
+    from lorgs.data.retail import GAME_DATA
 
     assert len(GAME_DATA.specs_by_slug) == len(GAME_DATA.specs)
     for spec in GAME_DATA.specs:
@@ -23,7 +16,7 @@ def test_specs_are_found_by_slug() -> None:
 
 
 def test_back_references() -> None:
-    from lorgs.data import GAME_DATA
+    from lorgs.data.retail import GAME_DATA
 
     for spec in GAME_DATA.specs:
         assert spec in spec.role.specs
@@ -33,7 +26,7 @@ def test_back_references() -> None:
 
 
 def test_bosses_are_found_by_slug_and_encounter_id() -> None:
-    from lorgs.data import GAME_DATA
+    from lorgs.data.retail import GAME_DATA
 
     for boss in GAME_DATA.bosses:
         assert GAME_DATA.get_boss(full_name_slug=boss.full_name_slug) is boss
@@ -41,7 +34,7 @@ def test_bosses_are_found_by_slug_and_encounter_id() -> None:
 
 
 def test_spells_are_found_by_id_and_variation_id() -> None:
-    from lorgs.data import GAME_DATA
+    from lorgs.data.retail import GAME_DATA
 
     for spell in GAME_DATA.spells:
         for spell_id in (spell.spell_id, *spell.variations):
@@ -49,7 +42,7 @@ def test_spells_are_found_by_id_and_variation_id() -> None:
 
 
 def test_no_object_is_in_two_collections() -> None:
-    from lorgs.data import GAME_DATA
+    from lorgs.data.retail import GAME_DATA
 
     collections = [GAME_DATA.roles, GAME_DATA.classes, GAME_DATA.specs, GAME_DATA.zones, GAME_DATA.bosses,
                    GAME_DATA.dungeons, GAME_DATA.seasons, GAME_DATA.spells]

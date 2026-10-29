@@ -3,31 +3,53 @@ from __future__ import annotations
 from collections.abc import Callable
 from typing import Any
 
-from lorgs.data import GAME_DATA
-from lorgs.data import ALL_ROLES
+from lorgs.data import GAME_VERSIONS
+from lorgs.models.game_data import GameData
+from lorgs.models.raid_boss import RaidBoss
+from lorgs.models.wow_spec import WowSpec
+from lorrgs_sqs.exceptions import TaskValidationError
+
+
+def get_game_data(payload: dict) -> GameData:
+    """The Game Data of the Game Version the payload belongs to."""
+    name = payload.get("game_version")
+    if name not in GAME_VERSIONS:
+        raise TaskValidationError(f"Invalid game_version: {name!r}")
+    return GAME_VERSIONS[name].data
+
+
+def all_specs(game_data: GameData) -> set[WowSpec]:
+    """The class specs of the Game Version (no item pseudo-specs)."""
+    return {spec for role in game_data.roles for spec in role.specs}
+
+
+def all_bosses(game_data: GameData) -> list[RaidBoss]:
+    """The bosses of the current season's raids."""
+    return [boss for zone in game_data.zones for boss in zone.bosses]
+
+
+def expand_spec_slug(payload: dict) -> list[str]:
+    return [spec.full_name_slug for spec in all_specs(get_game_data(payload))]
+
+
+def expand_boss_slug(payload: dict) -> list[str]:
+    return [boss.full_name_slug for boss in all_bosses(get_game_data(payload))]
 
 
 def expand_metric(payload: dict) -> list[str]:
-    spec_slug = payload.get("spec_slug", "")
-
-    spec = GAME_DATA.get_spec(spec_slug)
-    role = (spec and spec.role) or GAME_DATA.get_role("tank")
+    game_data = get_game_data(payload)
+    spec = game_data.get_spec(payload.get("spec_slug", ""))
+    role = (spec and spec.role) or game_data.get_role("tank")
     return (role and role.metrics) or []
 
 
 def expand_difficulty(payload: dict) -> list[str]:
-    return GAME_DATA.difficulties_for_boss(payload.get("boss_slug", ""))
+    return get_game_data(payload).difficulties_for_boss(payload.get("boss_slug", ""))
 
 
-ALL_SPECS = {spec for role in ALL_ROLES for spec in role.specs}  # class specs only, no item pseudo-specs
-ALL_BOSSES = []
-for raid in GAME_DATA.zones:
-    ALL_BOSSES.extend(raid.bosses)
-
-
-PAYLOAD_EXPANDERS: dict[str, list[str] | Callable[[Any], list[str]]] = {
-    "spec_slug": [spec.full_name_slug for spec in ALL_SPECS],
-    "boss_slug": [boss.full_name_slug for boss in ALL_BOSSES],
+PAYLOAD_EXPANDERS: dict[str, Callable[[Any], list[str]]] = {
+    "spec_slug": expand_spec_slug,
+    "boss_slug": expand_boss_slug,
     "difficulty": expand_difficulty,
     "metric": expand_metric,
 }
@@ -37,9 +59,7 @@ def expand_payload(keyword: str, payload: dict) -> list[dict]:
     if payload.get(keyword) != "all":
         return [payload]
 
-    values = PAYLOAD_EXPANDERS[keyword]
-    if callable(values):
-        values = values(payload)
+    values = PAYLOAD_EXPANDERS[keyword](payload)
 
     return [{**payload, keyword: value} for value in values]
 

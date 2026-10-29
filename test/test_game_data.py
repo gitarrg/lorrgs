@@ -3,7 +3,7 @@
 import ast
 import pathlib
 
-from lorgs.game_version import GAME_VERSIONS
+from lorgs.data import GAME_VERSIONS
 
 
 DATA = pathlib.Path("lorgs/data")

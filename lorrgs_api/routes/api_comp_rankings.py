@@ -8,6 +8,7 @@ import fastapi
 from lorgs.clients import sqs
 from lorgs.models.task_payloads import CompRankingPayload
 from lorgs.models.warcraftlogs_comp_ranking import CompRanking, CompRankingFight, FilterExpression
+from lorrgs_api.dependencies import GameVersionDep
 
 
 router = fastapi.APIRouter(tags=["comp_ranking"])
@@ -15,6 +16,7 @@ router = fastapi.APIRouter(tags=["comp_ranking"])
 
 @router.get("/comp_ranking/{boss_slug}", response_model_exclude_unset=True)
 async def get_comp_ranking(
+    game_version: GameVersionDep,
     response: fastapi.Response,
     boss_slug: str,
     # Query Params
@@ -34,7 +36,7 @@ async def get_comp_ranking(
     response.headers["Cache-Control"] = "max-age=300"
 
     # fetch the data
-    comp_ranking = CompRanking.get(boss_slug=boss_slug)
+    comp_ranking = CompRanking.get(game_version=game_version.name, boss_slug=boss_slug)
     if not comp_ranking:
         raise fastapi.HTTPException(status_code=404, detail="Not Found.")
 
@@ -72,7 +74,11 @@ async def get_comp_ranking(
 #
 @router.get("/comp_ranking/load/{boss_slug}")
 async def task_load_comp_rankings(
-    response: fastapi.Response, boss_slug: str = "all", limit: int = 50, clear: bool = False,
+    game_version: GameVersionDep,
+    response: fastapi.Response,
+    boss_slug: str = "all",
+    limit: int = 50,
+    clear: bool = False,
 ):
     """Submit a scheduled task to update a single or all Comp Rankings."""
     response.headers["Cache-Control"] = "no-cache"
@@ -80,11 +86,12 @@ async def task_load_comp_rankings(
     payloads: list[CompRankingPayload] = []
 
     if clear:
-        payloads.append(CompRankingPayload(boss_slug=boss_slug, clear=True))
+        payloads.append(CompRankingPayload(game_version=game_version.name, boss_slug=boss_slug, clear=True))
 
     pages = (limit // 50)
     for page in range(pages):
         payloads.append(CompRankingPayload(
+            game_version=game_version.name,
             boss_slug=boss_slug,
             page=page + 1,  # +1 because pages start at one.
         ))

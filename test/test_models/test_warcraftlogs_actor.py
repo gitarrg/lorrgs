@@ -8,6 +8,7 @@ from lorgs.loaders.actor_loader import ActorLoader
 from lorgs.models.warcraftlogs_actor import BaseActor
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models import wow_class
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.game_data import GameData
 from lorgs.models.season import Season
 from lorgs.models.wow_spell import WowSpell
@@ -51,7 +52,7 @@ class TestActorLoaderProcess(unittest.TestCase):
 
     def setUp(self):
         self.actor = _TestActor()
-        self.loader = ActorLoader(self.actor, actor_type=MOCK_SPEC)
+        self.loader = ActorLoader(self.actor, helpers.game_data_with(), actor_type=MOCK_SPEC)
 
     def test__process_casts__simple(self):
         casts_events = [
@@ -100,7 +101,7 @@ class TestActorLoaderProcess(unittest.TestCase):
 def test_spell_variation_is_resolved_to_the_main_spell() -> None:
     season = Season(name="Test", ilvl=1)
     main = WowSpell(spell_id=500, variations=[501])
-    game_data = GameData(roles=[], classes=[], seasons=[season], current_season=season, spells=[main])
+    game_data = GameData(roles=[], classes=[], seasons=[season], current_season=season, difficulties=(RaidDifficulty.HEROIC,), spells=[main])
     actor = _TestActor()
     actor.source_id = 10
     events = [
@@ -130,12 +131,12 @@ def test_casts_are_fight_relative(spec: wow_spec.WowSpec, game_data: GameData) -
     assert player.casts[0].timestamp == 4_000
 
 
-def test_casts_raise_when_the_fight_has_no_report() -> None:
+def test_casts_raise_when_the_fight_has_no_report(game_data: GameData) -> None:
     player = Player(source_id=10, name="Caster")
     player.fight = _fight(start_time=FIGHT_START)
 
     with pytest.raises(ValueError, match="Missing Parent Report"):
-        ActorLoader(player).process_query_result(_cast_query(25_000))
+        ActorLoader(player, game_data).process_query_result(_cast_query(25_000))
 
 
 if __name__ == "__main__":

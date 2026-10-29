@@ -13,34 +13,33 @@ from urllib.parse import parse_qs, urlparse
 import pydantic
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import (
-    data,  # ruff: ignore[unused-import]
-    utils,
-)
-from lorgs.data import GAME_DATA
+from lorgs import utils
+from lorgs.data import get_game_version_by_wcl_id
 from lorgs.loaders.report_loader import ReportLoader
+from lorgs.loaders.report_overview_loader import ReportOverviewLoader
 from lorgs.models.warcraftlogs_user_report import UserReport
 
 
 if typing.TYPE_CHECKING:
+    from lorgs.models.game_data import GameData
     from lorgs.models.warcraftlogs_actor import BaseActor
     from lorgs.models.warcraftlogs_fight import Fight
 
 
-def print_actor(actor: BaseActor) -> None:
+def print_actor(actor: BaseActor, game_data: GameData) -> None:
     casts = actor.casts if actor else []
     if not casts:
         print("  (none)")
         return
 
     for cast in casts:
-        spell = GAME_DATA.get_spell(cast.spell_id)
+        spell = game_data.get_spell(cast.spell_id)
         name = spell.name if spell else ""
         timestamp = utils.format_time(cast.timestamp)
         print(f"  {timestamp:>7}  {cast.event_type:<12}  {cast.spell_id:<7}  {name}")
 
 
-def print_fight(fight: Fight) -> None:
+def print_fight(fight: Fight, game_data: GameData) -> None:
     """Print loaded events and phases for one fight."""
     print(f"\nFight {fight.fight_id}")
 
@@ -55,14 +54,14 @@ def print_fight(fight: Fight) -> None:
     print("boss events:")
     if boss := fight.boss:
         print(f"  boss: {boss.boss_slug}")
-        print_actor(fight.boss)
+        print_actor(fight.boss, game_data)
     else:
         print("  (none)")
 
     print("player events:")
     for player in fight.players:
         print(f"  {player.source_id} name={player.name=} | spec={player.spec_slug}")
-        print_actor(player)
+        print_actor(player, game_data)
 
 
 class WarcraftReport(pydantic.BaseModel):
@@ -107,7 +106,14 @@ class WarcraftReport(pydantic.BaseModel):
         user_report = UserReport.get_or_create(report_id=self.report_id, create=True)
         user_report.fights = []  # force reload
 
-        loader = ReportLoader(report=user_report)
+        # the Game Version comes from the log
+        await ReportOverviewLoader(report=user_report).load()
+        game_version = get_game_version_by_wcl_id(user_report.game_version)
+        if game_version is None:
+            raise SystemExit(f"Unsupported Warcraft Logs game version: {user_report.game_version}")
+        game_data = game_version.data
+
+        loader = ReportLoader(report=user_report, game_data=game_data)
         await loader.load(
             fight_ids=self.fight_ids,
             player_ids=self.player_ids,
@@ -120,7 +126,7 @@ class WarcraftReport(pydantic.BaseModel):
                 print("No fights loaded.")
                 return
             for fight in fights:
-                print_fight(fight)
+                print_fight(fight, game_data)
             return
 
         if not save_report:

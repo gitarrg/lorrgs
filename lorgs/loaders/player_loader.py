@@ -43,7 +43,7 @@ class PlayerLoader(ActorLoader):
 
     actor: Player
 
-    def __init__(self, actor: Player, game_data: GameData | None = None, actor_type: WowActor | None = None) -> None:
+    def __init__(self, actor: Player, game_data: GameData, actor_type: WowActor | None = None) -> None:
         super().__init__(actor, game_data, actor_type)
 
     ############################################################################

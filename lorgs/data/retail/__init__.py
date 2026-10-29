@@ -39,6 +39,19 @@ from lorgs.data.retail.season import CURRENT_SEASON
 # Game Data
 import sys
 
+from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.game_data import GameData
+from lorgs.models.game_version import GameVersion
 
-GAME_DATA = GameData.from_package(sys.modules[__name__], CURRENT_SEASON)
+GAME_DATA = GameData.from_package(
+    sys.modules[__name__],
+    CURRENT_SEASON,
+    difficulties=(RaidDifficulty.HEROIC, RaidDifficulty.MYTHIC),
+)
+
+GAME_VERSION = GameVersion(
+    name="retail",
+    title="Retail",
+    wcl_game_version=1,
+    data=GAME_DATA,
+)

@@ -8,7 +8,6 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
-from lorgs.game_version import ACTIVE
 from lorgs.models.base.s3 import S3Model
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.warcraftlogs_report import Report  # ruff: ignore[typing-only-first-party-import] # pydantic requires this import
@@ -21,9 +20,11 @@ if typing.TYPE_CHECKING:
 
 class SpecRanking(S3Model):
     # Fields
+    game_version: str
+    """Name of the Game Version the ranking belongs to."""
     spec_slug: str
     boss_slug: str
-    difficulty: str = ACTIVE.default_difficulty_name
+    difficulty: str
     metric: str = ""
 
     reports: list[Report] = []

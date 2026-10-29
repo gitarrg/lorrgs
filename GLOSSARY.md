@@ -9,7 +9,7 @@ A separately released edition of World of Warcraft with its own classes, spells,
 _Avoid_: game, flavor, version (alone)
 
 **Game Data**:
-The hand-written description of one Game Version's roles, classes, specs, spells, raids, bosses, dungeons and seasons that Lorrgs compares Fights against. Each Game Version has its own Game Data, even where two of them describe the same thing.
+The hand-written description of one Game Version's roles, classes, specs, spells, raids, bosses, dungeons and seasons that Lorrgs compares Fights against. Each Game Version has its own Game Data, even where two of them describe the same thing. Every process holds the Game Data of every Game Version, and a lookup only ever sees the one it was made on (`GameVersion.data`).
 _Avoid_: static data, world data, registry
 
 **Patch**:

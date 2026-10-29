@@ -11,7 +11,7 @@ import aws_cdk as cdk
 import dotenv
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.game_version import FOREVER, MISTS
+from lorgs.data import FOREVER, MISTS
 
 from .stacks import GameVersionStack, SharedStack
 

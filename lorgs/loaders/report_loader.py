@@ -5,7 +5,6 @@ import asyncio
 import typing
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.loaders.actor_loader import _active_game_data
 from lorgs.loaders.fight_loader import FightLoader
 from lorgs.loaders.fight_phases import (
     FightPhasesLoader,
@@ -34,9 +33,9 @@ class ReportLoader:
     In the future we might inherit from BaseLoader, but for now it's not really necessary.
     """
 
-    def __init__(self, report: Report, game_data: GameData | None = None) -> None:
+    def __init__(self, report: Report, game_data: GameData) -> None:
         self.report = report
-        self.game_data = game_data or _active_game_data()
+        self.game_data = game_data
 
     ############################################################################
     # Load

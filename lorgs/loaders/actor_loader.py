@@ -23,23 +23,17 @@ if typing.TYPE_CHECKING:
     from lorgs.models.wow_actor import WowActor
 
 
-def _active_game_data() -> GameData:
-    from lorgs.data import GAME_DATA  # ruff: ignore[import-outside-top-level]
-
-    return GAME_DATA
-
-
 class ActorLoader(BaseLoader):
     """Loads event data for a single actor from WarcraftLogs."""
 
     def __init__(
         self,
         actor: BaseActor,
-        game_data: GameData | None = None,
+        game_data: GameData,
         actor_type: WowActor | None = None,
     ) -> None:
         self.actor = actor
-        self.game_data = game_data or _active_game_data()
+        self.game_data = game_data
         self._actor_type = actor_type
 
     @property
