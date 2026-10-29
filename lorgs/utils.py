@@ -156,12 +156,13 @@ def as_list(func: typing.Callable[[U], typing.Generator[T]]) -> typing.Callable[
     return wrapped
 
 
-def uniqify(iterable: typing.Iterable[T], key: typing.Callable[[T], typing.Hashable]) -> list[T]:
-    """Return unique Items from a list.
+def uniqify[T](iterable: typing.Iterable[T], key: typing.Callable[[T], typing.Hashable] = id) -> list[T]:
+    """Return unique Items from a list. The last of the items sharing a key wins.
 
     Args:
         iterable (iterable[T]): The Source Items
-        key (callable[T], str]): Key Generator Function, taking a single Item
+        key (callable[T], str]): Key Generator Function, taking a single Item.
+            Defaults to `id`, which keeps every distinct object (and never compares by value).
 
     Returns:
         list[T]: filtered list
@@ -171,10 +172,10 @@ def uniqify(iterable: typing.Iterable[T], key: typing.Callable[[T], typing.Hasha
     return list(d.values())
 
 
-def find(predicate: typing.Callable[[T], typing.Any], seq: typing.Iterable[T]) -> T | None:
-    """A helper to return the first element found in the sequence
-    that meets the predicate. For example: ::
+def find[T](predicate: typing.Callable[[T], typing.Any], seq: typing.Iterable[T]) -> T | None:
+    """A helper to return the first element found in the sequence that meets the predicate.
 
+    For example: ::
         member = discord.utils.find(lambda m: m.name == 'Mighty', channel.guild.members)
 
     would find the first :class:`~discord.Member` whose name is 'Mighty' and return it.
