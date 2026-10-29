@@ -31,11 +31,6 @@ T = typing.TypeVar("T")
 _SHARED_PREFIX = "lorgs.data.expansions."
 
 
-def _unique(objects: typing.Iterable[T]) -> list[T]:
-    """Drop repeated objects (by identity), keeping the order."""
-    return utils.uniqify(objects, key=id)
-
-
 def _modules_of(package: types.ModuleType) -> list[types.ModuleType]:
     """The package, its imported submodules and the `expansions/` modules it imported."""
     prefix = package.__name__
@@ -56,7 +51,7 @@ def _modules_of(package: types.ModuleType) -> list[types.ModuleType]:
 
 def _members(modules: list[types.ModuleType], cls: type[T]) -> list[T]:
     """The module-level instances of `cls`."""
-    return _unique(v for module in modules for v in vars(module).values() if isinstance(v, cls))
+    return utils.uniqify((v for module in modules for v in vars(module).values() if isinstance(v, cls)), key=id)
 
 
 class GameData:
@@ -109,20 +104,20 @@ class GameData:
     @functools.cached_property
     def zones(self) -> list[RaidZone]:
         """The raids of the current season. Older ones are not part of the Game Data."""
-        return _unique(self.current_season.raids)
+        return utils.uniqify(self.current_season.raids, key=id)
 
     @functools.cached_property
     def dungeons(self) -> list[Dungeon]:
         """The dungeons of the current season."""
-        return _unique(self.current_season.dungeons)
+        return utils.uniqify(self.current_season.dungeons, key=id)
 
     @functools.cached_property
     def specs(self) -> list[WowSpec]:
-        return _unique(spec for wow_class in self.classes for spec in sorted(wow_class.specs))
+        return utils.uniqify((spec for wow_class in self.classes for spec in sorted(wow_class.specs)), key=id)
 
     @functools.cached_property
     def bosses(self) -> list[RaidBoss]:
-        return _unique(boss for zone in self.zones for boss in zone.bosses)
+        return utils.uniqify((boss for zone in self.zones for boss in zone.bosses), key=id)
 
     @functools.cached_property
     def spells(self) -> list[WowSpell]:
@@ -134,7 +129,7 @@ class GameData:
             spells += owner.trinkets
         spells += self.extra_spells
         spells += [spell.until for spell in spells if spell.until]
-        return _unique(spells)
+        return utils.uniqify(spells, key=id)
 
     @functools.cached_property
     def specs_by_slug(self) -> dict[str, WowSpec]:
