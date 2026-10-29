@@ -44,7 +44,9 @@ def test_selection_is_limited_to_the_given_game_version(queue_updates) -> None:
     parser = queue_updates.build_parser()
     args = parser.parse_args(["--game-version", "forever"])
 
-    assert queue_updates.select_bosses(parser, args, FOREVER.data) == []
+    assert {boss.full_name_slug for boss in queue_updates.select_bosses(parser, args, FOREVER.data)} == {
+        boss.full_name_slug for boss in FOREVER.data.bosses
+    }
     assert {spec.full_name_slug for spec in queue_updates.select_specs(parser, args, FOREVER.data)} == {
         spec.full_name_slug for spec in FOREVER.data.specs
     }

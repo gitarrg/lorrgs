@@ -1,6 +1,6 @@
-from .placeholder import FOREVER_PLACEHOLDER_SEASON
+from .forever import FOREVER_SEASON
 
 
 __all__ = [
-    "FOREVER_PLACEHOLDER_SEASON",
+    "FOREVER_SEASON",
 ]
