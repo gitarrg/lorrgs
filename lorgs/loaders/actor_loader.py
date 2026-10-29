@@ -10,7 +10,9 @@ from lorgs import utils
 from lorgs.clients import wcl
 from lorgs.loaders.base_loader import BaseLoader
 from lorgs.logger import logger
+from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_cast import Cast, add_cast_counters, process_auras, process_until_events
+from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.wow_spell import WowSpell, build_spell_query
 
 
@@ -18,6 +20,7 @@ if typing.TYPE_CHECKING:
     from lorgs.clients.wcl import WarcraftlogsClient
     from lorgs.models.game_data import GameData
     from lorgs.models.warcraftlogs_actor import BaseActor
+    from lorgs.models.wow_actor import WowActor
 
 
 def _active_game_data() -> GameData:
@@ -29,10 +32,33 @@ def _active_game_data() -> GameData:
 class ActorLoader(BaseLoader):
     """Loads event data for a single actor from WarcraftLogs."""
 
-    def __init__(self, actor: BaseActor, game_data: GameData | None = None) -> None:
+    def __init__(
+        self,
+        actor: BaseActor,
+        game_data: GameData | None = None,
+        actor_type: WowActor | None = None,
+    ) -> None:
         self.actor = actor
         self.game_data = game_data or _active_game_data()
-        self.actor_type = actor.actor_type
+        self._actor_type = actor_type
+
+    @property
+    def actor_type(self) -> WowActor:
+        """The Actor Type (spec or boss) of the actor, looked up in the Game Data."""
+        if self._actor_type is None:
+            self._actor_type = self._resolve_actor_type()
+        return self._actor_type
+
+    def _resolve_actor_type(self) -> WowActor:
+        if isinstance(self.actor, Player):
+            actor_type = self.game_data.get_spec(self.actor.spec_slug)
+        elif isinstance(self.actor, Boss):
+            actor_type = self.actor.raid_boss
+        else:
+            actor_type = None
+        if actor_type is None:
+            raise ValueError(f"No Actor Type found for {self.actor}")
+        return actor_type
 
     def needs_load(self) -> bool:
         """Check if the data needs to be loaded."""
@@ -115,8 +141,7 @@ class ActorLoader(BaseLoader):
 
     def _process_casts(self, casts: list[Cast]) -> list[Cast]:
         """Run process_casts along the Actor Type chain, parent types first."""
-        actor_type = self.actor.actor_type
-        for step in (*actor_type.parents, actor_type):
+        for step in (*self.actor_type.parents, self.actor_type):
             casts = step.process_casts(casts)
         return casts
 

@@ -13,6 +13,10 @@ from lorgs.models.warcraftlogs_fight import Fight  # ruff: ignore[typing-only-fi
 from lorgs.models.warcraftlogs_player import Player  # ruff: ignore[typing-only-first-party-import]  # required by pydantic
 
 
+if typing.TYPE_CHECKING:
+    from lorgs.models.game_data import GameData
+
+
 class Report(warcraftlogs_base.BaseModel):
     """Defines a Report read from WarcraftLogs.com and stores in our DB."""
 
@@ -58,7 +62,7 @@ class Report(warcraftlogs_base.BaseModel):
     ##########################
     # Attributes
     #
-    def as_dict(self) -> dict[str, typing.Any]:
+    def as_dict(self, game_data: GameData) -> dict[str, typing.Any]:
         """Return a Summary/Overview about this report."""
         info = {
             "title": self.title,
@@ -71,7 +75,7 @@ class Report(warcraftlogs_base.BaseModel):
 
         # for players and fights we only include essential data
         info["fights"] = {fight.fight_id: fight.summary() for fight in self.fights}
-        info["players"] = {player.source_id: player.summary() for player in self.players}
+        info["players"] = {player.source_id: player.summary(game_data) for player in self.players}
         return info
 
     ##########################

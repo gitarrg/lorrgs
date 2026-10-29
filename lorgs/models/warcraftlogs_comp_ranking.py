@@ -27,6 +27,10 @@ from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.wow_spell import SpellTag, WowSpell, build_spell_query
 
 
+if typing.TYPE_CHECKING:
+    from lorgs.models.game_data import GameData
+
+
 class FilterExpression(pydantic.BaseModel):
     attr: str
     op: str
@@ -65,7 +69,7 @@ class FightComposition(typing_extensions.TypedDict):
     classes: dict[str, int]
 
 
-def get_composition(players: typing.Iterable[Player]) -> FightComposition:
+def get_composition(players: typing.Iterable[Player], game_data: GameData) -> FightComposition:
     """Generate a Composition Dict from a list of Players."""
     players = players or []
 
@@ -76,9 +80,12 @@ def get_composition(players: typing.Iterable[Player]) -> FightComposition:
     }
 
     for player in players:
-        comp["roles"][player.spec.role.code] += 1
-        comp["classes"][player.spec.wow_class.name_slug] += 1
-        comp["specs"][player.spec.full_name_slug] += 1
+        spec = game_data.get_spec(player.spec_slug)
+        if not spec:
+            continue
+        comp["roles"][spec.role.code] += 1
+        comp["classes"][spec.wow_class.name_slug] += 1
+        comp["specs"][spec.full_name_slug] += 1
 
     comp["roles"] = dict(comp["roles"])
     comp["classes"] = dict(comp["classes"])
@@ -110,7 +117,9 @@ class CompRankingFight(Fight):
 
     def process_query_result(self, **query_result: typing.Any):
         super().process_query_result(**query_result)
-        self.composition = get_composition(self.players)
+        from lorgs.data import GAME_DATA  # ruff: ignore[import-outside-top-level]
+
+        self.composition = get_composition(self.players, GAME_DATA)
 
 
 class CompRankingReport(warcraftlogs_report.Report):

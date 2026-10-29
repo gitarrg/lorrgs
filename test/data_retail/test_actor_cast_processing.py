@@ -13,6 +13,8 @@ import lorgs.data.retail.classes.hunter  # noqa: F401  # registers Marksmanship 
 import lorgs.data.retail.classes.shaman  # noqa: F401  # registers Restoration Shaman and its load handler
 from lorgs.data import HEAL
 from lorgs.loaders.actor_loader import ActorLoader
+from lorgs.models.game_data import GameData
+from lorgs.models.season import Season
 from lorgs.models.warcraftlogs_actor import BaseActor
 from lorgs.models.warcraftlogs_cast import Cast
 from lorgs.models.warcraftlogs_fight import Fight
@@ -51,14 +53,14 @@ def _aura(timestamp: int, spell_id: int, event_type: str, source_id: int = 10) -
     }
 
 
-def _load(spec_slug: str, events: dict) -> Player:
+def _load(spec_slug: str, events: dict, game_data: GameData | None = None) -> Player:
     player = Player(source_id=10, spec_slug=spec_slug, name="Healer")
-    ActorLoader(player).process_query_result(events)
+    ActorLoader(player, game_data).process_query_result(events)
     return player
 
 
-def _process(spec_slug: str, events: dict) -> list[tuple[int, int, int]]:
-    return [(cast.spell_id, cast.timestamp, cast.counter) for cast in _load(spec_slug, events).casts]
+def _process(spec_slug: str, events: dict, game_data: GameData | None = None) -> list[tuple[int, int, int]]:
+    return [(cast.spell_id, cast.timestamp, cast.counter) for cast in _load(spec_slug, events, game_data).casts]
 
 
 def _with_duration(spec_slug: str, events: dict) -> list[tuple[int, int, int | None, int]]:
@@ -110,12 +112,13 @@ def test_class_process_casts_runs_before_spec_process_casts() -> None:
             return [*casts, Cast(spell_id=CLASS_MARK, timestamp=1)]
 
     chain_class = ChainClass()
+    chain_role = WowRole(id=59003, name="Chain Role", code="chain-role")
 
     class ChainSpec(WowSpec):
         id: int = 59002
         index: int = 1
         name: str = "Chain Spec"
-        role: WowRole = HEAL
+        role: WowRole = chain_role
         wow_class: WowClass = chain_class
 
         def process_casts(self, casts: list[Cast]) -> list[Cast]:
@@ -124,9 +127,11 @@ def test_class_process_casts_runs_before_spec_process_casts() -> None:
             return [*casts, Cast(spell_id=mark, timestamp=2)]
 
     spec = ChainSpec()
+    season = Season(name="Chain Season", ilvl=1)
+    game_data = GameData(roles=[spec.role], classes=[chain_class], seasons=[season], current_season=season)
     events = _events(_cast(1_000, 50))
 
-    assert _process(spec.full_name_slug, events) == [
+    assert _process(spec.full_name_slug, events, game_data) == [
         (CLASS_MARK, 1, 1),
         (SPEC_AFTER_CLASS, 2, 1),
         (50, 1_000, 1),

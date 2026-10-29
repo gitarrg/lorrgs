@@ -145,6 +145,10 @@ class GameData:
         return {spec.full_name_slug: spec for spec in self.specs}
 
     @functools.cached_property
+    def classes_by_slug(self) -> dict[str, WowClass]:
+        return {wow_class.name_slug: wow_class for wow_class in self.classes}
+
+    @functools.cached_property
     def bosses_by_slug(self) -> dict[str, RaidBoss]:
         return {boss.full_name_slug: boss for boss in self.bosses}
 
@@ -179,6 +183,16 @@ class GameData:
 
     def get_spec(self, full_name_slug: str) -> WowSpec | None:
         return self.specs_by_slug.get(full_name_slug)
+
+    def get_class(self, name_slug: str) -> WowClass | None:
+        return self.classes_by_slug.get(name_slug)
+
+    def find_spec(self, class_name_cap: str, spec_name_cap: str) -> WowSpec | None:
+        """The spec by the PascalCase names Warcraft Logs uses, e.g. `DeathKnight` and `Blood`."""
+        for spec in self.specs:
+            if spec.name_slug_cap == spec_name_cap and spec.wow_class.name_slug_cap == class_name_cap:
+                return spec
+        return None
 
     def get_boss(self, *, full_name_slug: str | None = None, boss_id: int | None = None) -> RaidBoss | None:
         if full_name_slug is not None:

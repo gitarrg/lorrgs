@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-import abc
 import typing
 from typing import ClassVar
 
@@ -16,7 +15,6 @@ from lorgs.models.wow_spell import SpellType, WowSpell
 
 if typing.TYPE_CHECKING:
     from lorgs.models.warcraftlogs_fight import Fight
-    from lorgs.models.wow_actor import WowActor
 
 
 class BaseActor(base.BaseModel):
@@ -83,11 +81,3 @@ class BaseActor(base.BaseModel):
             if spell and spell.spell_type != SpellType.BUFF:
                 return True
         return False
-
-    @abc.abstractmethod
-    def get_actor_type(self) -> WowActor:
-        """Get the Type of Actor."""
-
-    @property
-    def actor_type(self) -> WowActor:
-        return self.get_actor_type()

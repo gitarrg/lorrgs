@@ -5,12 +5,10 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models.warcraftlogs_actor import BaseActor
-from lorgs.models.wow_class import WowClass
-from lorgs.models.wow_spec import WowSpec
-
 
 if typing.TYPE_CHECKING:
     from lorgs.clients import wcl
+    from lorgs.models.game_data import GameData
 
 
 class Player(BaseActor):
@@ -26,39 +24,26 @@ class Player(BaseActor):
     resurrects: list = []
 
     def __str__(self) -> str:
-        return f"Player(id={self.source_id} name={self.name} spec={self.spec})"
+        return f"Player(id={self.source_id} name={self.name} spec={self.spec_slug})"
 
-    def summary(self) -> dict[str, typing.Any]:
+    def summary(self, game_data: GameData) -> dict[str, typing.Any]:
+        spec = game_data.get_spec(self.spec_slug)
         return {
             "name": self.name,
             "source_id": self.source_id,
             "class": self.class_slug,
             "spec": self.spec_slug,
-            "role": self.spec.role.code if self.spec else "",
+            "role": spec.role.code if spec else "",
         }
 
-    def as_dict(self) -> dict[str, typing.Any]:
+    def as_dict(self, game_data: GameData) -> dict[str, typing.Any]:
         return {
-            **self.summary(),
+            **self.summary(game_data),
             "total": int(self.total),
             "casts": [cast.model_dump() for cast in self.casts],
             "deaths": self.deaths,
             "resurrects": self.resurrects,
         }
-
-    ##########################
-    # Attributes
-    #
-    @property
-    def class_(self) -> WowClass:
-        return WowClass.get(name_slug=self.class_slug)  # type: ignore
-
-    @property
-    def spec(self) -> WowSpec:
-        return WowSpec.get(full_name_slug=self.spec_slug)  # type: ignore
-
-    def get_actor_type(self):
-        return self.spec
 
     ############################################################################
     # Process (kept for UserReport flow via Fight.process_players)

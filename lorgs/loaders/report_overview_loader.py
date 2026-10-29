@@ -10,14 +10,19 @@ from lorgs.loaders.fight_loader import FightLoader
 from lorgs.logger import logger
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_report import Report
-from lorgs.models.wow_class import WowClass
 
+from .actor_loader import _active_game_data
 from .base_loader import BaseLoader
 
 
+if typing.TYPE_CHECKING:
+    from lorgs.models.game_data import GameData
+
+
 class ReportOverviewLoader(BaseLoader):
-    def __init__(self, report: Report) -> None:
+    def __init__(self, report: Report, game_data: GameData | None = None) -> None:
         self.report = report
+        self.game_data = game_data or _active_game_data()
 
     def get_query(self):
         """Get the Query to load this Reports Overview."""
@@ -82,7 +87,7 @@ class ReportOverviewLoader(BaseLoader):
         icon_name = actor_data.icon
         spec_slug = icon_name.lower() if "-" in icon_name else ""
 
-        player_class = WowClass.get(name_slug=actor_data.subType.lower())
+        player_class = self.game_data.get_class(actor_data.subType.lower())
         if player_class is None:
             logger.debug("Skipping unknown Player: %s", actor_data.name)
             return None

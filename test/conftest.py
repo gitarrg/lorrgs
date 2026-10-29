@@ -6,6 +6,8 @@ they build what they need from these fixtures.
 
 import pytest
 
+from lorgs.models.game_data import GameData
+from lorgs.models.season import Season
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spec import WowSpec
@@ -17,3 +19,10 @@ def spec() -> WowSpec:
     role = WowRole(id=90101, name="Fixture Role", code="fixture-role")
     wow_class = WowClass(id=90101, name="Fixture Class")
     return WowSpec(name="Fixture Spec", role=role, wow_class=wow_class)
+
+
+@pytest.fixture
+def game_data(spec: WowSpec) -> GameData:
+    """Game Data holding only the `spec` fixture."""
+    season = Season(name="Fixture Season", ilvl=1)
+    return GameData(roles=[spec.role], classes=[spec.wow_class], seasons=[season], current_season=season)

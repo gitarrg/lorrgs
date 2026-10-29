@@ -26,12 +26,10 @@ MOCK_SPEC = wow_spec.WowSpec(name="TestSpec", wow_class=MOCK_CLASS, role=MOCK_RO
 
 
 class _TestActor(BaseActor):
-    def get_actor_type(self):
-        return MOCK_SPEC
+    pass
 
 
 class TestBaseActor(unittest.TestCase):
-    @mock.patch.multiple(BaseActor, __abstractmethods__=set())
     def setUp(self):
         self.actor = _TestActor()
 
@@ -53,7 +51,7 @@ class TestActorLoaderProcess(unittest.TestCase):
 
     def setUp(self):
         self.actor = _TestActor()
-        self.loader = ActorLoader(self.actor)
+        self.loader = ActorLoader(self.actor, actor_type=MOCK_SPEC)
 
     def test__process_casts__simple(self):
         casts_events = [
@@ -110,7 +108,7 @@ def test_spell_variation_is_resolved_to_the_main_spell() -> None:
         {"timestamp": 2000, "type": "cast", "sourceID": 10, "abilityGameID": 777},
     ]
 
-    ActorLoader(actor, game_data).process_query_result(helpers.wrap_data(events, "report", "events", "data"))
+    ActorLoader(actor, game_data, actor_type=MOCK_SPEC).process_query_result(helpers.wrap_data(events, "report", "events", "data"))
 
     assert [cast.spell_id for cast in actor.casts] == [500, 777]
 
@@ -124,10 +122,10 @@ def _cast_query(timestamp: int) -> dict:
     )
 
 
-def test_casts_are_fight_relative(spec: wow_spec.WowSpec) -> None:
+def test_casts_are_fight_relative(spec: wow_spec.WowSpec, game_data: GameData) -> None:
     player = Player(source_id=10, name="Caster", spec_slug=spec.full_name_slug)
     player.fight = _fight_in_report()
-    ActorLoader(player).process_query_result(_cast_query(25_000))
+    ActorLoader(player, game_data).process_query_result(_cast_query(25_000))
 
     assert player.casts[0].timestamp == 4_000
 

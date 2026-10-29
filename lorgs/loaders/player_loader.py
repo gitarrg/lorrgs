@@ -14,6 +14,7 @@ if typing.TYPE_CHECKING:
     from lorgs.clients import wcl
     from lorgs.models.game_data import GameData
     from lorgs.models.warcraftlogs_player import Player
+    from lorgs.models.wow_actor import WowActor
 
 
 def _combine_queries(*queries: str, op: str = "or") -> str:
@@ -42,8 +43,8 @@ class PlayerLoader(ActorLoader):
 
     actor: Player
 
-    def __init__(self, actor: Player, game_data: GameData | None = None) -> None:
-        super().__init__(actor, game_data)
+    def __init__(self, actor: Player, game_data: GameData | None = None, actor_type: WowActor | None = None) -> None:
+        super().__init__(actor, game_data, actor_type)
 
     ############################################################################
     #
@@ -52,7 +53,7 @@ class PlayerLoader(ActorLoader):
     ############################################################################
 
     def get_sub_query(self) -> str:
-        actor_type = self.actor.actor_type
+        actor_type = self.actor_type
 
         casts_query = build_spell_query(*actor_type.all_spells)
         if casts_query and self.actor.name:

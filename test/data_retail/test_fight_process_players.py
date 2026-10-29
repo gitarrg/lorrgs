@@ -2,7 +2,7 @@
 
 import unittest
 
-import lorgs.data  # noqa: F401  # registers specs
+from lorgs.data import GAME_DATA
 from lorgs.clients import wcl
 from lorgs.loaders.fight_loader import FightLoader
 from lorgs.models.warcraftlogs_comp_ranking import get_composition
@@ -57,7 +57,7 @@ class TestFightProcessPlayers(unittest.TestCase):
         assert len(self.fight.players) == 20
         assert self.fight.duration == 728598
 
-        comp = get_composition(self.fight.players)
+        comp = get_composition(self.fight.players, GAME_DATA)
         assert comp["roles"]["tank"] == 2
         assert comp["roles"]["heal"] == 4
         assert comp["specs"]["hunter-marksmanship"] == 2

@@ -8,10 +8,6 @@ from lorgs.models import warcraftlogs_actor
 from lorgs.models.raid_boss import RaidBoss
 
 
-if typing.TYPE_CHECKING:
-    from lorgs.models.wow_actor import WowActor
-
-
 class Boss(warcraftlogs_actor.BaseActor):
     """A NPC/Boss in a Fight."""
 
@@ -29,9 +25,6 @@ class Boss(warcraftlogs_actor.BaseActor):
         if not raid_boss:
             raise ValueError(f"Invalid boss_slug: {self.boss_slug}")
         return raid_boss
-
-    def get_actor_type(self) -> WowActor:
-        return self.raid_boss
 
     @classmethod
     def from_raid_boss(cls, raid_boss: RaidBoss) -> Boss:

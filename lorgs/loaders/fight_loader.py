@@ -14,17 +14,18 @@ from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_player import Player
-from lorgs.models.wow_spec import WowSpec
 
+from .actor_loader import _active_game_data
 from .base_loader import BaseLoader
 
 
 if typing.TYPE_CHECKING:
     from lorgs.clients.wcl.client import WarcraftlogsClient
+    from lorgs.models.game_data import GameData
     from lorgs.models.warcraftlogs_report import Report
 
 
-def player_from_composition_data(composition_data: wcl.CompositionEntry) -> Player | None:
+def player_from_composition_data(composition_data: wcl.CompositionEntry, game_data: GameData) -> Player | None:
     # Get Class and Spec
     if not composition_data.specs:
         logger.warning("Player has no spec: %s", composition_data.name)
@@ -33,7 +34,7 @@ def player_from_composition_data(composition_data: wcl.CompositionEntry) -> Play
     spec_data = composition_data.specs[0]
     spec_name = spec_data.spec
     class_name = composition_data.type
-    spec = WowSpec.get(name_slug_cap=spec_name, wow_class__name_slug_cap=class_name)
+    spec = game_data.find_spec(class_name, spec_name)
     if not spec:
         logger.warning("Unknown Spec: %s", spec_name)
         return None
@@ -49,8 +50,9 @@ def player_from_composition_data(composition_data: wcl.CompositionEntry) -> Play
 
 class FightLoader(BaseLoader):
 
-    def __init__(self, fight: Fight) -> None:
+    def __init__(self, fight: Fight, game_data: GameData | None = None) -> None:
         self.fight = fight
+        self.game_data = game_data or _active_game_data()
 
     def needs_load(self) -> bool:
         return not self.fight.players
@@ -123,12 +125,13 @@ class FightLoader(BaseLoader):
         self.fight.players = []
         for composition_data in summary.composition:
 
-            player = player_from_composition_data(composition_data)
+            player = player_from_composition_data(composition_data, self.game_data)
             if not player:
                 continue
 
             # Get Total Damage or Healing
-            total_data = total_healing if player.spec.role.code == "heal" else total_damage
+            spec = self.game_data.get_spec(player.spec_slug)
+            total_data = total_healing if spec and spec.role.code == "heal" else total_damage
             for data in total_data:
                 if data.id == composition_data.id:
                     player.total = data.total // (self.fight.duration / 1000)
@@ -138,7 +141,7 @@ class FightLoader(BaseLoader):
             player.process_death_events(summary.deathEvents)
             self.fight.players.append(player)
 
-        self.fight.players.sort(key=lambda player: (player.spec.role, player.spec, player.name))
+        self.fight.players.sort(key=lambda player: Fight._sort_key(player, self.game_data))
 
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
         report_data = wcl.ReportData(**query_result)

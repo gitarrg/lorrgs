@@ -61,7 +61,7 @@ def print_fight(fight: Fight) -> None:
 
     print("player events:")
     for player in fight.players:
-        print(f"  {player.source_id} name={player.name=} | spec={player.spec.full_name_slug}")
+        print(f"  {player.source_id} name={player.name=} | spec={player.spec_slug}")
         print_actor(player)
 
 

@@ -17,6 +17,7 @@ from lorgs.models.warcraftlogs_player import Player  # ruff: ignore[typing-only-
 
 
 if typing.TYPE_CHECKING:
+    from lorgs.models.game_data import GameData
     from lorgs.models.warcraftlogs_report import Report
 
 
@@ -89,17 +90,22 @@ class Fight(warcraftlogs_base.BaseModel):
             "difficulty": self.difficulty.value,
         }
 
-    def as_dict(self, player_ids: list[int] = []) -> dict:
+    @staticmethod
+    def _sort_key(player: Player, game_data: GameData) -> tuple:
+        spec = game_data.get_spec(player.spec_slug)
+        return (spec.role, spec, player.name)
+
+    def as_dict(self, game_data: GameData, player_ids: list[int] = []) -> dict:
         # Get players
         players = self.players
         if player_ids:
             players = [player for player in players if player.source_id in player_ids]
-        players = sorted(players, key=lambda player: (player.spec.role, player.spec, player.name))
+        players = sorted(players, key=lambda player: self._sort_key(player, game_data))
 
         # Return
         return {
             **self.summary(),
-            "players": [player.as_dict() for player in players],
+            "players": [player.as_dict(game_data) for player in players],
             "boss": self.boss.as_dict() if self.boss else {},
         }
 
