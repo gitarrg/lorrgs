@@ -27,6 +27,12 @@ router = fastapi.APIRouter()
 SQS_USER_QUEUE_URL = os.getenv("SQS_USER_QUEUE_URL") or ""
 
 
+def _with_game_version(user_report: UserReport) -> UserReport:
+    """Make sure responses (`exclude_unset`) name the Game Version, also for items stored before it existed."""
+    user_report.game_version = user_report.game_version
+    return user_report
+
+
 @router.get("/{report_id}", response_model_exclude_unset=True)
 async def get_user_report(report_id: str) -> UserReport:
     """Returns the overview about a user report."""
@@ -35,7 +41,7 @@ async def get_user_report(report_id: str) -> UserReport:
         raise fastapi.HTTPException(status_code=404, detail="Report not found.")
 
     # TODO: exclude nested casts/fights etc
-    return user_report
+    return _with_game_version(user_report)
 
 
 @router.get("/{report_id}/fights")
@@ -88,7 +94,7 @@ async def load_user_report_overview(response: fastapi.Response, report_id: str, 
         else:
             user_report.save()
 
-    return user_report
+    return _with_game_version(user_report)
 
 
 @router.get("/{report_id}/load")

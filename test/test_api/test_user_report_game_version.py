@@ -41,3 +41,10 @@ def test_an_unknown_report_is_a_404() -> None:
     with pytest.raises(fastapi.HTTPException) as error:
         _load(None)
     assert error.value.status_code == 404
+
+
+def test_responses_include_the_game_version_even_for_old_stored_reports() -> None:
+    old_item = UserReport.model_validate({"report_id": "abc", "title": "old"})  # stored before game_version existed
+    with mock.patch.object(UserReport, "get", classmethod(lambda cls, **kwargs: old_item)):
+        report = asyncio.run(api_user_reports.get_user_report("abc"))
+    assert report.model_dump(exclude_unset=True)["game_version"] == 1
