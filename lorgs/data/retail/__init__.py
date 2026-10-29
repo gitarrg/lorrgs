@@ -14,6 +14,7 @@ from lorgs.data.retail.classes import *
 
 from lorgs.data.retail.racials import *
 from lorgs.data.retail.externals import *
+from lorgs.data.retail.rezzes import *
 
 # Consumables, Gear and similar
 from lorgs.data.retail.items import *

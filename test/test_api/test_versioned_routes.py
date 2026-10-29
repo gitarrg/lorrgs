@@ -15,7 +15,7 @@ def test_each_game_version_serves_its_own_data() -> None:
 
     assert len(slugs) == 3
     sizes = {path: len(found) for path, found in slugs.items()}
-    assert sizes == {"/api/retail/specs": 43, "/api/mists/specs": 34, "/api/forever/specs": 27}
+    assert sizes == {"/api/retail/specs": 44, "/api/mists/specs": 34, "/api/forever/specs": 27}
 
 
 def test_the_same_boss_is_only_served_by_its_game_version() -> None:

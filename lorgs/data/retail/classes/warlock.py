@@ -46,10 +46,6 @@ WARLOCK_DESTRUCTION.add_spell( spell_id=1122,   cooldown=180, duration=30, color
 WARLOCK_DESTRUCTION.add_spell( spell_id=80240,  cooldown=30,  duration=12, color="#cc5252", name="Havoc",                  icon="ability_warlock_baneofhavoc.jpg", show=False)
 
 
-# Additional Spells (not tracked)
-SOULSTONE_RESURRECTION = WowSpell(spell_id=95750, name="Soulstone", icon="spell_shadow_soulgem.jpg")
-
-
 ################################################################################
 # Hero Talents
 

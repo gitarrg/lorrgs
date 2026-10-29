@@ -157,6 +157,3 @@ REFORESTATION = DRUID_RESTORATION.add_buff(
     event_type="removebuff",  # TOL procs when the buff is removed
 )
 
-
-# Additional Spells (not tracked)
-REBIRTH = WowSpell(spell_id=20484, name="Rebirth", icon="spell_nature_reincarnation.jpg")
