@@ -144,11 +144,9 @@ def load_all():
 #
 
 
-def _all_raids() -> list[RaidZone]:
-    """All raids of the active Game Version, current season first, then newest to oldest."""
-    season_raids = list(CURRENT_SEASON.raids)
-    others = sorted((raid for raid in RaidZone.list() if raid not in season_raids), key=lambda raid: -raid.id)
-    return [*season_raids, *others]
+def _season_raids() -> list[RaidZone]:
+    """The raids of the current season. We never queue older ones."""
+    return list(CURRENT_SEASON.raids)
 
 
 def _pick(parser: argparse.ArgumentParser, kind: str, wanted: list[str], available: dict) -> list:
@@ -161,12 +159,12 @@ def _pick(parser: argparse.ArgumentParser, kind: str, wanted: list[str], availab
 
 def select_bosses(parser: argparse.ArgumentParser, args: argparse.Namespace) -> list[RaidBoss]:
     if args.raid:
-        raids = _pick(parser, "raid", args.raid, {raid.name_slug: raid for raid in _all_raids()})
+        raids = _pick(parser, "raid", args.raid, {raid.name_slug: raid for raid in _season_raids()})
         return [boss for raid in raids for boss in raid.bosses]
 
     if args.boss:
         bosses = {}
-        for raid in reversed(_all_raids()):  # so the current season wins on duplicate slugs
+        for raid in _season_raids():
             bosses.update({boss.full_name_slug: boss for boss in raid.bosses})
         return _pick(parser, "boss", args.boss, bosses)
 

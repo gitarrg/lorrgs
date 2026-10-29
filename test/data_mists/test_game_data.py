@@ -1,4 +1,4 @@
-"""Seams: the mists GameData holds what the `MemoryModel` registry holds, and indexes it."""
+"""Seams: the mists GameData is a view of the `MemoryModel` registry, and indexes it."""
 
 from test.helpers import assert_game_data_matches_registry
 

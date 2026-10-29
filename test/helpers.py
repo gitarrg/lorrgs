@@ -95,7 +95,7 @@ def get_api_routes(*paths: str) -> dict[str, tuple[int, typing.Any]]:
 
 
 def assert_game_data_matches_registry() -> None:
-    """The active Game Version's `GameData` holds the same objects as the `MemoryModel` registry.
+    """The active Game Version's `GameData` holds objects of the `MemoryModel` registry.
 
     Runs in a fresh interpreter: other tests register their own objects in the (process wide) registry.
     """
@@ -110,7 +110,7 @@ def assert_game_data_matches_registry() -> None:
 
 
 def _assert_game_data_matches_registry() -> None:
-    """The active Game Version's `GameData` holds the same objects as the `MemoryModel` registry."""
+    """The active Game Version's `GameData` holds objects of the `MemoryModel` registry."""
     from lorgs.data import GAME_DATA
     from lorgs.models.dungeon import Dungeon
     from lorgs.models.raid_boss import RaidBoss
@@ -121,22 +121,29 @@ def _assert_game_data_matches_registry() -> None:
     from lorgs.models.wow_spec import WowSpec
     from lorgs.models.wow_spell import WowSpell
 
-    collections = [
+    exact = [
         (WowRole, GAME_DATA.roles),
         (WowClass, GAME_DATA.classes),
         (WowSpec, GAME_DATA.specs),
+        (Season, GAME_DATA.seasons),
+    ]
+    for model, objects in exact:
+        assert {id(obj) for obj in objects} == {id(obj) for obj in model.list()}, model.__name__
+
+    # only the current season's raids and dungeons are Game Data: the registry holds older ones too
+    subsets = [
         (RaidZone, GAME_DATA.zones),
         (RaidBoss, GAME_DATA.bosses),
         (Dungeon, GAME_DATA.dungeons),
-        (Season, GAME_DATA.seasons),
     ]
-    for model, objects in collections:
-        assert {id(obj) for obj in objects} == {id(obj) for obj in model.list()}, model.__name__
+    for model, objects in subsets:
+        assert {id(obj) for obj in objects} <= {id(obj) for obj in model.list()}, model.__name__
+    assert GAME_DATA.zones == GAME_DATA.current_season.raids
+    assert GAME_DATA.dungeons == GAME_DATA.current_season.dungeons
 
     # `add_buff(spell)` stores a copy, which an Actor Type holds but the registry never saw
     registered = {id(spell) for spell in WowSpell.list()}
     held = {id(spell) for spell in GAME_DATA.spells}
-    assert registered <= held
     buff_copies = {
         id(buff) for actor in [*GAME_DATA.classes, *GAME_DATA.specs, *GAME_DATA.bosses] for buff in actor.buffs
     }

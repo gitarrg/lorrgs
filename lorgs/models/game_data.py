@@ -70,16 +70,12 @@ class GameData:
         *,
         roles: list[WowRole],
         classes: list[WowClass],
-        zones: list[RaidZone],
-        dungeons: list[Dungeon],
         seasons: list[Season],
         current_season: Season,
         spells: list[WowSpell] | None = None,
     ) -> None:
         self.roles = roles
         self.classes = classes
-        self.zones = zones
-        self.dungeons = dungeons
         self.seasons = seasons
         self.current_season = current_season
         self.extra_spells = spells or []
@@ -94,8 +90,6 @@ class GameData:
         return cls(
             roles=_members(modules, WowRole),
             classes=_members(modules, WowClass),
-            zones=_members(modules, RaidZone),
-            dungeons=_members(modules, Dungeon),
             seasons=_members(modules, Season),
             current_season=current_season,
             spells=_members(modules, WowSpell),
@@ -111,6 +105,16 @@ class GameData:
     ####################################################################################################################
     # Derived
     ####################################################################################################################
+
+    @functools.cached_property
+    def zones(self) -> list[RaidZone]:
+        """The raids of the current season. Older ones are not part of the Game Data."""
+        return _unique(self.current_season.raids)
+
+    @functools.cached_property
+    def dungeons(self) -> list[Dungeon]:
+        """The dungeons of the current season."""
+        return _unique(self.current_season.dungeons)
 
     @functools.cached_property
     def specs(self) -> list[WowSpec]:

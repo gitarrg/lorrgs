@@ -1,4 +1,4 @@
-"""Seams: the retail GameData holds what the `MemoryModel` registry holds, and indexes it."""
+"""Seams: the retail GameData is a view of the `MemoryModel` registry, and indexes it."""
 
 from test.helpers import assert_game_data_matches_registry
 
