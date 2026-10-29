@@ -101,7 +101,7 @@ class TestActorLoaderProcess(unittest.TestCase):
 def test_spell_variation_is_resolved_to_the_main_spell() -> None:
     season = Season(name="Test", ilvl=1)
     main = WowSpell(spell_id=500, variations=[501])
-    game_data = GameData(roles=[], classes=[], seasons=[season], current_season=season, difficulties=(RaidDifficulty.HEROIC,), spells=[main])
+    game_data = GameData(roles=[], classes=[], season=season, difficulties=(RaidDifficulty.HEROIC,), spells=[main])
     actor = _TestActor()
     actor.source_id = 10
     events = [

@@ -26,4 +26,4 @@ def spec() -> WowSpec:
 def game_data(spec: WowSpec) -> GameData:
     """Game Data holding only the `spec` fixture."""
     season = Season(name="Fixture Season", ilvl=1)
-    return GameData(roles=[spec.role], classes=[spec.wow_class], seasons=[season], current_season=season, difficulties=(RaidDifficulty.HEROIC,))
+    return GameData(roles=[spec.role], classes=[spec.wow_class], season=season, difficulties=(RaidDifficulty.HEROIC,))

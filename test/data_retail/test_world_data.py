@@ -27,3 +27,10 @@ def test_task_keywords_expand_to_specs_and_bosses() -> None:
     assert PAYLOAD_EXPANDERS["spec_slug"]({"game_version": "retail"})
     assert PAYLOAD_EXPANDERS["boss_slug"]({"game_version": "retail"})
     assert PAYLOAD_EXPANDERS["difficulty"]({"game_version": "retail"}) == ["heroic", "mythic"]
+
+
+def test_only_the_current_season_is_served() -> None:
+    routes = get_api_routes("/api/retail/seasons/midnight_s2", "/api/retail/seasons/midnight_s1")
+
+    assert routes["/api/retail/seasons/midnight_s2"][0] == 200
+    assert routes["/api/retail/seasons/midnight_s1"][0] == 404

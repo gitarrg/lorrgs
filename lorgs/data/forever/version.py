@@ -32,8 +32,7 @@ GAME_DATA = GameData(
         WARLOCK,
         WARRIOR,
     ],
-    seasons=[CURRENT_SEASON],
-    current_season=CURRENT_SEASON,
+    season=CURRENT_SEASON,
     difficulties=(RaidDifficulty.NORMAL,),
 )
 

@@ -45,6 +45,6 @@ def test_no_object_is_in_two_collections() -> None:
     from lorgs.data.retail import GAME_DATA
 
     collections = [GAME_DATA.roles, GAME_DATA.classes, GAME_DATA.specs, GAME_DATA.zones, GAME_DATA.bosses,
-                   GAME_DATA.dungeons, GAME_DATA.seasons, GAME_DATA.spells]
+                   GAME_DATA.dungeons, [GAME_DATA.season], GAME_DATA.spells]
     ids = [id(obj) for objects in collections for obj in objects]
     assert len(ids) == len(set(ids))

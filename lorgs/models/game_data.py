@@ -29,18 +29,18 @@ if typing.TYPE_CHECKING:
 
 
 class GameData:  # ruff: ignore[too-many-public-methods]
-    """Roles, classes, specs, spells, raids, bosses, dungeons and seasons of one Game Version.
+    """Roles, classes, specs, spells, raids, bosses and dungeons of the current season of one Game Version.
 
     Only the roots are stored. Everything derived from them is computed on first access.
+    Older seasons are not part of the Game Data: their raids, bosses and spells are not served.
     """
 
-    def __init__(  # ruff: ignore[too-many-arguments]
+    def __init__(
         self,
         *,
         roles: list[WowRole],
         classes: list[WowClass],
-        seasons: list[Season],
-        current_season: Season,
+        season: Season,
         difficulties: tuple[RaidDifficulty, ...],
         spells: list[WowSpell] | None = None,
     ) -> None:
@@ -48,12 +48,14 @@ class GameData:  # ruff: ignore[too-many-public-methods]
         """Difficulties we rank. The last entry is the default."""
         self.roles = roles
         self.classes = classes
-        self.seasons = seasons
-        self.current_season = current_season
+        self.season = season
+        """The current season. The only one a Game Version holds."""
         self.extra_spells = spells or []
         """Spells that no Actor Type holds (yet)."""
 
+        self.season.activate()
         self._link_back_references()
+        self._attach_consumables()
 
     def _link_back_references(self) -> None:
         for role in self.roles:
@@ -61,15 +63,13 @@ class GameData:  # ruff: ignore[too-many-public-methods]
         for zone in self.zones:
             for boss in zone.bosses:
                 boss._zone = zone  # ruff: ignore[private-member-access]
-        self._attach_consumables()
 
     def _attach_consumables(self) -> None:
         """Give every spec the consumables of its role. Roles are per Game Version, so Seasons only name their codes."""
-        for season in self.seasons:
-            for potion in season.consumables:
-                for spec in self.specs:
-                    if spec.role.code in potion.roles and potion not in spec.spells:
-                        spec.add_spells(potion)
+        for potion in self.season.consumables:
+            for spec in self.specs:
+                if spec.role.code in potion.roles and potion not in spec.spells:
+                    spec.add_spells(potion)
 
     @property
     def default_difficulty(self) -> RaidDifficulty:
@@ -91,12 +91,12 @@ class GameData:  # ruff: ignore[too-many-public-methods]
     @functools.cached_property
     def zones(self) -> list[RaidZone]:
         """The raids of the current season. Older ones are not part of the Game Data."""
-        return utils.uniqify(self.current_season.raids)
+        return self.season.raids
 
     @functools.cached_property
     def dungeons(self) -> list[Dungeon]:
         """The dungeons of the current season."""
-        return utils.uniqify(self.current_season.dungeons)
+        return self.season.dungeons
 
     @functools.cached_property
     def specs(self) -> list[WowSpec]:
@@ -149,10 +149,6 @@ class GameData:  # ruff: ignore[too-many-public-methods]
     @functools.cached_property
     def zones_by_id(self) -> dict[int | float, RaidZone]:
         return {zone.id: zone for zone in self.zones}
-
-    @functools.cached_property
-    def seasons_by_slug(self) -> dict[str, Season]:
-        return {season.slug: season for season in self.seasons}
 
     @functools.cached_property
     def roles_by_code(self) -> dict[str, WowRole]:
@@ -216,7 +212,8 @@ class GameData:  # ruff: ignore[too-many-public-methods]
         return self.zones_by_id.get(zone_id)
 
     def get_season(self, slug: str) -> Season | None:
-        return self.seasons_by_slug.get(slug)
+        """The season by its slug, or `current`. Only the current season is known."""
+        return self.season if slug in {"current", self.season.slug} else None
 
     def zone_for_boss(self, boss_slug: str) -> RaidZone | None:
         """The Zone the given Boss belongs to."""

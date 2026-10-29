@@ -12,7 +12,7 @@ from lorgs.models.wow_spell import WowSpell
 
 def _game_data(*spells: WowSpell) -> GameData:
     season = Season(name="Test", ilvl=1)
-    return GameData(roles=[], classes=[], seasons=[season], current_season=season, difficulties=(RaidDifficulty.HEROIC,), spells=list(spells))
+    return GameData(roles=[], classes=[], season=season, difficulties=(RaidDifficulty.HEROIC,), spells=list(spells))
 
 
 class Test_Cast(unittest.TestCase):

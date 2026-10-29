@@ -129,7 +129,7 @@ def test_class_process_casts_runs_before_spec_process_casts() -> None:
 
     spec = ChainSpec()
     season = Season(name="Chain Season", ilvl=1)
-    game_data = GameData(roles=[spec.role], classes=[chain_class], seasons=[season], current_season=season, difficulties=(RaidDifficulty.HEROIC,))
+    game_data = GameData(roles=[spec.role], classes=[chain_class], season=season, difficulties=(RaidDifficulty.HEROIC,))
     events = _events(_cast(1_000, 50))
 
     assert _process(spec.full_name_slug, events, game_data) == [

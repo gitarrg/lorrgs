@@ -4,7 +4,6 @@ from lorgs.data.retail.seasons import MIDNIGHT_SEASON2
 
 
 CURRENT_SEASON = MIDNIGHT_SEASON2
-CURRENT_SEASON.activate()
 
 
 __all__ = [

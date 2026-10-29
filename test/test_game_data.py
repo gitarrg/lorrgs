@@ -43,7 +43,7 @@ def test_game_versions_share_no_game_data() -> None:
             "spells": {id(x) for x in game_data.spells},
             "zones": {id(x) for x in game_data.zones},
             "bosses": {id(x) for x in game_data.bosses},
-            "seasons": {id(x) for x in game_data.seasons},
+            "seasons": {id(game_data.season)},
         }
 
     for first, second in combinations(GAME_VERSIONS.values(), 2):

@@ -4,7 +4,6 @@ from lorgs.data.forever.seasons import FOREVER_SEASON
 
 
 CURRENT_SEASON = FOREVER_SEASON
-CURRENT_SEASON.activate()
 
 
 __all__ = [

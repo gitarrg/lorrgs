@@ -131,7 +131,7 @@ def load_all(game_version: GameVersion):
 
 def _season_raids(game_data: GameData) -> list[RaidZone]:
     """The raids of the current season. We never queue older ones."""
-    return list(game_data.current_season.raids)
+    return list(game_data.season.raids)
 
 
 def _pick(parser: argparse.ArgumentParser, kind: str, wanted: list[str], available: dict) -> list:

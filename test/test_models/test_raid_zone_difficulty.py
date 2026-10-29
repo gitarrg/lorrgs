@@ -24,7 +24,7 @@ def fixture_zones() -> tuple[RaidZone, RaidZone]:
 @pytest.fixture(name="game_data")
 def fixture_game_data(zones: tuple[RaidZone, RaidZone]) -> GameData:
     season = Season(name="Fixture Season", ilvl=1, raids=list(zones))
-    return GameData(roles=[], classes=[], seasons=[season], current_season=season, difficulties=(RaidDifficulty.NORMAL, RaidDifficulty.HEROIC))
+    return GameData(roles=[], classes=[], season=season, difficulties=(RaidDifficulty.NORMAL, RaidDifficulty.HEROIC))
 
 
 def test_auto_resolves_to_the_zones_difficulty(zones: tuple[RaidZone, RaidZone], game_data: GameData) -> None:

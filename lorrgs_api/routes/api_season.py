@@ -16,7 +16,10 @@ router = fastapi.APIRouter(tags=["seasons"], prefix="/seasons")
 async def get_season(game_version: GameVersionDep, season_slug: str) -> dict:
     """Get a Season.
 
+    Only the current Season of the Game Version is served; older ones are a 404.
+
     Args:
+        game_version (GameVersionDep): The Game Version.
         season_slug (str): Slug of the Season.
             "current" for the current Season
 
@@ -24,12 +27,9 @@ async def get_season(game_version: GameVersionDep, season_slug: str) -> dict:
         dict: Season data.
 
     """
-    if season_slug.lower() == "current":
-        season = game_version.data.current_season
-    else:
-        season = game_version.data.get_season(season_slug)
-        if not season:
-            raise fastapi.HTTPException(status_code=404, detail="Invalid Season.")
+    season = game_version.data.get_season(season_slug.lower())
+    if not season:
+        raise fastapi.HTTPException(status_code=404, detail="Invalid Season.")
 
     return {
         "name": season.name,
