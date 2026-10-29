@@ -74,12 +74,25 @@ class BaseClient:
             cls._instance = cls(*args, **kwargs)  # ty:ignore[invalid-assignment]
         return cls._instance
 
+    @classmethod
+    async def close_instance(cls) -> None:
+        """Close and drop the shared client, if one was created."""
+        instance = cls._instance
+        cls._instance = None
+        if instance is not None:
+            await instance.close()
+
     def __init__(self) -> None:
         self.headers: dict[str, typing.Any] = {}
         # self.session: typing.Optional[aiohttp.ClientSession] = None
         session_timeout = aiohttp.ClientTimeout(total=60)
         conn = aiohttp.TCPConnector(limit_per_host=CONCURRENT_CONNECTIONS)
         self.session = aiohttp.ClientSession(connector=conn, timeout=session_timeout)
+
+    async def close(self) -> None:
+        """Close the HTTP session and its connector."""
+        if not self.session.closed:
+            await self.session.close()
 
     async def ensure_auth(self) -> None:
         """Ensure the Client is authenticated prior making any Requests."""

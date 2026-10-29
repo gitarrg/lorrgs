@@ -41,6 +41,18 @@ def test_missing_report_message_raises_unknown_report() -> None:
         asyncio.run(_query(_graphql_errors(UNKNOWN_REPORT_MESSAGE)))
 
 
+def test_close_instance_closes_the_shared_session() -> None:
+    WarcraftlogsClient._instance = None
+
+    async def _close() -> None:
+        client = WarcraftlogsClient.get_instance()
+        await WarcraftlogsClient.close_instance()
+        assert client.session.closed
+        assert WarcraftlogsClient._instance is None
+
+    asyncio.run(_close())
+
+
 def test_other_graphql_messages_raise_query_error_carrying_them() -> None:
     with pytest.raises(WarcraftlogsQueryError) as raised:
         asyncio.run(_query(_graphql_errors("Rate limit exceeded.", "Unknown argument.")))

@@ -269,11 +269,19 @@ def confirm() -> bool:
 
 async def run(tasks: list[RankingTask], args: argparse.Namespace) -> None:
     load = load_local if args.mode == "local" else load_remote
-    for i, task in enumerate(tasks, start=1):
-        print(
-            f"[{i}/{len(tasks)}] {task.spec.full_name_slug} {task.boss.full_name_slug} {task.difficulty} {task.metric}"
-        )
-        await load(task, limit=args.limit, clear=args.clear)
+    try:
+        for i, task in enumerate(tasks, start=1):
+            print(
+                f"[{i}/{len(tasks)}] {task.spec.full_name_slug} {task.boss.full_name_slug} {task.difficulty} {task.metric}"
+            )
+            await load(task, limit=args.limit, clear=args.clear)
+    finally:
+        if args.mode == "local":
+            # ruff: disable[import-outside-top-level]
+            from lorgs.clients.wcl import WarcraftlogsClient
+            # ruff: enable[import-outside-top-level]
+
+            await WarcraftlogsClient.close_instance()
 
 
 def main() -> None:
