@@ -85,8 +85,8 @@ class FightPhasesLoader(BaseLoader):
     """
 
     def __init__(self, fight: Fight, game_data: GameData) -> None:
+        super().__init__(game_data)
         self.fight = fight
-        self.game_data = game_data
 
     def _raid_boss(self) -> RaidBoss | None:
         """The Actor Type of the Fight's boss, looked up in the Game Data."""

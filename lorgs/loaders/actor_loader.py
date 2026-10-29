@@ -1,4 +1,5 @@
 """Loaders for Actor (Player / Boss) data from WarcraftLogs."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -32,8 +33,8 @@ class ActorLoader(BaseLoader):
         game_data: GameData,
         actor_type: WowActor | None = None,
     ) -> None:
+        super().__init__(game_data)
         self.actor = actor
-        self.game_data = game_data
         self._actor_type = actor_type
 
     @property
@@ -101,7 +102,8 @@ class ActorLoader(BaseLoader):
                         {{data}}
                 }}
             }}
-        """)
+        """
+        )
 
     ############################################################################
     #

@@ -10,8 +10,15 @@ import typing
 from lorgs.clients.wcl import WarcraftlogsClient
 
 
+if typing.TYPE_CHECKING:
+    from lorgs.models.game_data import GameData
+
+
 class BaseLoader:
     """Base class for all loaders."""
+
+    def __init__(self, game_data: GameData) -> None:
+        self.game_data = game_data
 
     @abc.abstractmethod
     def get_query(self) -> str:
@@ -21,7 +28,7 @@ class BaseLoader:
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
         """Process the query result."""
 
-    def needs_load(self) -> bool:
+    def needs_load(self) -> bool:  # ruff: ignore[no-self-use]
         """Check if the data needs to be loaded."""
         return True
 

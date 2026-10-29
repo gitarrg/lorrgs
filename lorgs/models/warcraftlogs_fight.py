@@ -92,8 +92,9 @@ class Fight(warcraftlogs_base.BaseModel):
 
     @staticmethod
     def _sort_key(player: Player, game_data: GameData) -> tuple:
-        spec = game_data.get_spec(player.spec_slug)
-        return (spec.role, spec, player.name)
+        if spec := game_data.get_spec(player.spec_slug):
+            return (spec.role, spec, player.name)
+        return (None, None, player.name)
 
     def as_dict(self, game_data: GameData, player_ids: list[int] = []) -> dict:
         # Get players

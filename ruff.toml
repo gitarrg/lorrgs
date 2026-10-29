@@ -75,7 +75,7 @@ extend-select = [
     "RUF",  # Ruff-specific rules – additional Ruff checks
 ]
 
-extend-ignore = [
+ignore = [
     "zip-without-explicit-strict", # https://docs.astral.sh/ruff/rules/zip-without-explicit-strict/
     "D1",    # Pydocstyle - missing docstring in public module, class, or function
     "incorrect-blank-line-before-class",  # Pydocstyle - one blank line required before class docstring
@@ -100,6 +100,9 @@ extend-ignore = [
     "raise-vanilla-args", # Tryceratops - Checks for long exception messages that are not defined in the exception class itself.
     "unconventional-import-alias",
     "multiple-leading-hashes-for-block-comment",
+
+    # logging
+    "f-string-in-exception",
 ]
 
 

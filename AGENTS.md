@@ -37,6 +37,10 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
 ## Known state
 
 - `GAME_DATA` only holds the current season, so older-season bosses, zones and spells are not served by the API (404 or missing from lists). Intended since 34cde07.
+- Game Versions (#110-#113 done, ADR 0003): the code serves every Game Version, but `infra/` still deploys one stack per version. Collapsing it into one shared deployment (shared queues, per-version schedules offset by 1h, one host) and copying Retail's un-prefixed S3 rankings to `retail/` are the open cutover steps; until then Retail rankings in S3 are unreachable.
+- `/api/user_reports/{id}/load` needs the overview loaded first (`load_overview`): the report's Game Version comes from its log (`masterData.gameVersion`), not from the path. Responses carry the raw Warcraft Logs id; map it with `wcl_game_version` from `/api/game_versions`.
+- Several files use CRLF line endings (e.g. `raid_zone.py`, `wow_role.py`, `wow_spell.py`, `api_spec_rankings.py`, `api_world_data.py`). Editing them with Python text-mode I/O silently converts them to LF and makes the diff whole-file: preserve CRLF (`git diff --stat` should stay small).
+- Tests build `GameData` with the required `difficulties=` argument; use `test/helpers.py` (`game_data_with`, `game_version_with`) for fixtures. `test/loader/` and `test/integration/` are manual scripts, not collected by pytest.
 - Comp Rankings are an abandoned feature for now. Breakage there (e.g. `CompRankingFight.get_query_parts` calling a nonexistent `super().get_query_parts()`) is deferred to a later pass.
 
 ## Commands

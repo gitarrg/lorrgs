@@ -49,8 +49,8 @@ def player_from_composition_data(composition_data: wcl.CompositionEntry, game_da
 class FightLoader(BaseLoader):
 
     def __init__(self, fight: Fight, game_data: GameData) -> None:
+        super().__init__(game_data)
         self.fight = fight
-        self.game_data = game_data
 
     def needs_load(self) -> bool:
         return not self.fight.players

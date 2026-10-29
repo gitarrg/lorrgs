@@ -98,8 +98,8 @@ class wclclient_mixin:
 
         """
         # combine all filters
-        queries = [q for q in queries if q]  # type: ignore # filter out empty statements
-        queries = [f"({q})" for q in queries]  # type: ignore # wrap each into bracers
+        queries = [q for q in queries if q]  # ty: ignore[invalid-assignment]
+        queries = [f"({q})" for q in queries]  # ty: ignore[invalid-assignment]
 
         queries_combined = f" {op} ".join(queries)
         return f"({queries_combined})"

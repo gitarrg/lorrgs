@@ -31,8 +31,8 @@ if typing.TYPE_CHECKING:
     from lorgs.models.game_data import GameData
     from lorgs.models.game_version import GameVersion
     from lorgs.models.raid_boss import RaidBoss
-    from lorgs.models.wow_spec import WowSpec
     from lorgs.models.warcraftlogs_ranking import SpecRanking
+    from lorgs.models.wow_spec import WowSpec
 
 
 class SpecRankingLoader(BaseLoader):
@@ -40,11 +40,12 @@ class SpecRankingLoader(BaseLoader):
 
     def __init__(self, ranking: SpecRanking, game_version: GameVersion) -> None:
         if ranking.game_version != game_version.name:
+            msg = f"Ranking belongs to Game Version {ranking.game_version!r}, not {game_version.name!r}"
             raise ValueError(
-                f"Ranking belongs to Game Version {ranking.game_version!r}, not {game_version.name!r}",
+                msg,
             )
+        super().__init__(game_version.data)
         self.ranking = ranking
-        self.game_data = game_version.data
 
     @property
     def boss(self) -> RaidBoss:
@@ -146,6 +147,7 @@ class SpecRankingLoader(BaseLoader):
         # sort
         def get_total(report: Report) -> float:
             return sum(player.total for fight in report.fights for player in fight.players)
+
         self.ranking.reports.sort(key=get_total, reverse=True)
 
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:

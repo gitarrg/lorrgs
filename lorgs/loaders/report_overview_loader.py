@@ -34,8 +34,9 @@ class ReportOverviewLoader(BaseLoader):
     """
 
     def __init__(self, report: Report, game_data: GameData | None = None) -> None:
+        # Optional until the log's Warcraft Logs game version is known.
+        super().__init__(game_data)  # ty: ignore[invalid-argument-type]
         self.report = report
-        self.game_data = game_data
 
     def get_query(self):
         """Get the Query to load this Reports Overview."""

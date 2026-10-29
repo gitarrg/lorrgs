@@ -14,17 +14,19 @@ from collections import defaultdict
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
-from lorgs.models.dungeon import Dungeon
-from lorgs.models.difficulty import RaidDifficulty
-from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.raid_zone import AUTO_DIFFICULTY, RaidZone
 from lorgs.models.season import Season
-from lorgs.models.wow_actor import WowActor
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_role import WowRole
-from lorgs.models.wow_spec import WowSpec
 from lorgs.models.wow_spell import SpellTag, WowSpell
 from lorgs.models.wow_trinket import WowTrinket
+
+
+if typing.TYPE_CHECKING:
+    from lorgs.models.difficulty import RaidDifficulty
+    from lorgs.models.dungeon import Dungeon
+    from lorgs.models.raid_boss import RaidBoss
+    from lorgs.models.wow_spec import WowSpec
 
 
 T = typing.TypeVar("T")
@@ -56,13 +58,13 @@ def _members[T](modules: list[types.ModuleType], cls: type[T]) -> list[T]:
     return utils.uniqify(v for module in modules for v in vars(module).values() if isinstance(v, cls))
 
 
-class GameData:
+class GameData:  # ruff: ignore[too-many-public-methods]
     """Roles, classes, specs, spells, raids, bosses, dungeons and seasons of one Game Version.
 
     Only the roots are stored. Everything derived from them is computed on first access.
     """
 
-    def __init__(
+    def __init__(  # ruff: ignore[too-many-arguments]
         self,
         *,
         roles: list[WowRole],
@@ -249,7 +251,7 @@ class GameData:
     def get_role(self, code: str) -> WowRole | None:
         return self.roles_by_code.get(code)
 
-    def get_zone(self, zone_id: int | float) -> RaidZone | None:
+    def get_zone(self, zone_id: float) -> RaidZone | None:
         return self.zones_by_id.get(zone_id)
 
     def get_season(self, slug: str) -> Season | None:
