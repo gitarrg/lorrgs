@@ -33,6 +33,7 @@ class WowSpec(WowActor):
 
     def post_init(self) -> None:
         self.parents.append(self.wow_class)
+        self.wow_class.register_spec(self)
         return super().post_init()
 
     def __str__(self) -> str:

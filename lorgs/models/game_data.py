@@ -65,12 +65,11 @@ class GameData:
     Only the roots are stored. Everything derived from them is computed on first access.
     """
 
-    def __init__(
+    def __init__(  # ruff: ignore[too-many-arguments]
         self,
         *,
         roles: list[WowRole],
         classes: list[WowClass],
-        specs: list[WowSpec],
         zones: list[RaidZone],
         dungeons: list[Dungeon],
         seasons: list[Season],
@@ -79,7 +78,6 @@ class GameData:
     ) -> None:
         self.roles = roles
         self.classes = classes
-        self.specs = specs
         self.zones = zones
         self.dungeons = dungeons
         self.seasons = seasons
@@ -96,7 +94,6 @@ class GameData:
         return cls(
             roles=_members(modules, WowRole),
             classes=_members(modules, WowClass),
-            specs=_members(modules, WowSpec),
             zones=_members(modules, RaidZone),
             dungeons=_members(modules, Dungeon),
             seasons=_members(modules, Season),
@@ -107,8 +104,6 @@ class GameData:
     def _link_back_references(self) -> None:
         for role in self.roles:
             role._specs = {spec for spec in self.specs if spec.role is role}  # noqa: SLF001
-        for wow_class in self.classes:
-            wow_class._specs = {spec for spec in self.specs if spec.wow_class is wow_class}  # noqa: SLF001
         for zone in self.zones:
             for boss in zone.bosses:
                 boss._zone = zone  # noqa: SLF001
@@ -116,6 +111,10 @@ class GameData:
     ####################################################################################################################
     # Derived
     ####################################################################################################################
+
+    @functools.cached_property
+    def specs(self) -> list[WowSpec]:
+        return _unique(spec for wow_class in self.classes for spec in sorted(wow_class.specs))
 
     @functools.cached_property
     def bosses(self) -> list[RaidBoss]:

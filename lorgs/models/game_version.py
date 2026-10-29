@@ -6,13 +6,12 @@ from __future__ import annotations
 import dataclasses
 import functools
 import importlib
-import os
 import typing
 
 
 if typing.TYPE_CHECKING:
-    from lorgs.models.game_data import GameData
     from lorgs.models.difficulty import RaidDifficulty
+    from lorgs.models.game_data import GameData
 
 
 @dataclasses.dataclass(frozen=True)
@@ -47,7 +46,7 @@ class GameVersion:
 
     @functools.cached_property
     def data(self) -> GameData:
-        """This Game Version's Game Data. Imported on first access, so this module stays free of game data."""
+        """The Version's Game Data"""
         return importlib.import_module(self.data_package).GAME_DATA
 
     @property

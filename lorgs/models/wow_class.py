@@ -58,16 +58,15 @@ class WowClass(WowActor):
             "color": self.color,
         }
 
-    _specs: set[WowSpec] | None = pydantic.PrivateAttr(default=None)
-    """Filled in by the Game Version's `GameData`."""
+    _specs: set[WowSpec] = pydantic.PrivateAttr(default_factory=set)
 
     @property
     def specs(self) -> set[WowSpec]:
-        if self._specs is not None:
-            return self._specs
-        from lorgs.models.wow_spec import WowSpec  # ruff: ignore[import-outside-top-level]
+        """The Specs of this Class. Each Spec registers itself when it is created."""
+        return self._specs
 
-        return {spec for spec in WowSpec.list() if spec.wow_class == self}
+    def register_spec(self, spec: WowSpec) -> None:
+        self._specs.add(spec)
 
     ##########################
     # Methods
