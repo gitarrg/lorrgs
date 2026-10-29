@@ -37,7 +37,7 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
 ## Known state
 
 - `GAME_DATA` only holds the current season, so older-season bosses, zones and spells are not served by the API (404 or missing from lists). Intended since 34cde07.
-- Game Versions (#110-#113 done, ADR 0003): the code serves every Game Version, but `infra/` still deploys one stack per version. Collapsing it into one shared deployment (shared queues, per-version schedules offset by 1h, one host) and copying Retail's un-prefixed S3 rankings to `retail/` are the open cutover steps; until then Retail rankings in S3 are unreachable.
+- Game Versions (#110-#113 done, ADR 0003): the code serves every Game Version, and `infra/` has the `lorrgs-all` stack serving all of them (`api.lorrgs.io`, shared queues, per-version schedules offset by 1h, all disabled) next to the old per-version stacks. Not yet deployed or cut over (#116): the frontend switch, copying Retail's un-prefixed S3 rankings to `retail/` are the open cutover steps; until then Retail rankings in S3 are unreachable.
 - `/api/user_reports/{id}/load` needs the overview loaded first (`load_overview`): the report's Game Version comes from its log (`masterData.gameVersion`), not from the path. Responses carry the raw Warcraft Logs id; map it with `wcl_game_version` from `/api/game_versions`.
 - Several files use CRLF line endings (e.g. `raid_zone.py`, `wow_role.py`, `wow_spell.py`, `api_spec_rankings.py`, `api_world_data.py`). Editing them with Python text-mode I/O silently converts them to LF and makes the diff whole-file: preserve CRLF (`git diff --stat` should stay small).
 - Tests build `GameData` with the required `difficulties=` argument; use `test/helpers.py` (`game_data_with`, `game_version_with`) for fixtures. `test/loader/` and `test/integration/` are manual scripts, not collected by pytest.
@@ -53,7 +53,7 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
   - Tests that use real game data live in `test/data_retail/`, `test/data_forever/` or `test/data_mists/`; they all run together. Every other test builds what it needs from fixtures (`test/conftest.py`).
   - `test_task.py` needs a Redis on `localhost:6379`.
 - Scripts use the shebang `#!/usr/bin/env -S PYTHONPATH=. uv run`; e.g. `scripts/load_report.py <wcl report url>`.
-- Deploy: `scripts/deploy` (CDK app in `infra/`: Lambda layers, code, queues, schedules, API Gateway, CloudFront per Game Version; Retail not yet). See `docs/deploy_game_versions.md`. Pushing to `main` only syncs `lorrgs_assets/` to S3 (GitHub Action). There is no PR CI.
+- Deploy: `scripts/deploy` (CDK app in `infra/`: Lambda layers, code, queues, schedules, API Gateway, CloudFront: `lorrgs-all` plus the old per-version stacks). See `docs/deploy_game_versions.md`. Pushing to `main` only syncs `lorrgs_assets/` to S3 (GitHub Action). There is no PR CI.
 - Logs: `aws logs tail /aws/lambda/lorrgs-api --follow --since 10m`.
 - `WCL_AUTH_TOKEN` in `.env` and the Lambdas expires yearly.
 

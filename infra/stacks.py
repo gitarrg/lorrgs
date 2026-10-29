@@ -1,7 +1,10 @@
-"""Stacks: `lorrgs-shared` (layers) and one `lorrgs-<version>` per Game Version.
+"""Stacks: `lorrgs-shared` (layers), `lorrgs-all` (serves every Game Version) and the old `lorrgs-<version>` ones.
 
-Cloudflare -> CloudFront -> API Gateway -> lorrgs-<version>-api -> SQS -> lorrgs-<version>-sqs
-                                          EventBridge Scheduler -> SQS (every 6h)
+Cloudflare -> CloudFront -> API Gateway -> <prefix>-api -> SQS -> <prefix>-sqs
+                                          EventBridge Scheduler -> SQS (every 6h, per Game Version)
+
+`lorrgs-all` (prefix `lorrgs-all`, host `api.lorrgs.io`) is the end state (ADR 0003). The per-version stacks
+(prefix `lorrgs-<version>`, host `<version>-api.lorrgs.io`) stay up until the cutover.
 """
 
 from __future__ import annotations
@@ -77,19 +80,42 @@ class SharedStack(cdk.Stack):
         ]
 
 
-class GameVersionStack(cdk.Stack):
+REFRESH_INTERVAL_HOURS = 6
+
+
+def refresh_cron(hour_offset: int) -> str:
+    """Every 6h, `hour_offset` hours past 0/6/12/18 (Europe/London)."""
+    if not 0 <= hour_offset < REFRESH_INTERVAL_HOURS:
+        raise ValueError(f"hour_offset must be in [0, {REFRESH_INTERVAL_HOURS}): {hour_offset}")
+    hours = ",".join(str(h + hour_offset) for h in range(0, 24, REFRESH_INTERVAL_HOURS))
+    return f"cron(0 {hours} * * ? *)"
+
+
+class RefreshSchedule(typing.NamedTuple):
+    """The 6h ranking refresh of one Game Version."""
+
+    hour_offset: int
+    enabled: bool = False
+
+
+class ApiStack(cdk.Stack):
+    """Queues, Lambdas, API Gateway and CloudFront under one name `prefix` and one host."""
+
+    schedule_ids_per_version: bool
+
     def __init__(
         self,
         scope: Construct,
         construct_id: str,
         *,
-        game_version: GameVersion,
+        prefix: str,
+        domain: str,
         layers: list[lambda_.ILayerVersion],
-        schedule_enabled: bool,
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
-        self.gv = game_version
+        self.prefix = prefix
+        self.domain = domain
         self.layers = layers
         self.certificate = acm.Certificate.from_certificate_arn(
             self,
@@ -126,7 +152,7 @@ class GameVersionStack(cdk.Stack):
         )
         sqs_fn.add_event_source(event_sources.SqsEventSource(user_queue, batch_size=1, report_batch_item_failures=True))
 
-        self.schedule(main_queue, enabled=schedule_enabled)
+        self.add_schedules(main_queue)
 
         # API
         http_api = apigw.HttpApi(
@@ -142,9 +168,12 @@ class GameVersionStack(cdk.Stack):
 
         cdk.CfnOutput(self, "DistributionDomain", value=distribution.distribution_domain_name)
 
+    def add_schedules(self, queue: sqs.Queue) -> None:
+        raise NotImplementedError
+
     def name(self, name: str) -> str:
         """eg.: lorrgs-mists-api"""
-        return f"lorrgs-{self.gv.name}-{name}"
+        return f"{self.prefix}-{name}"
 
     def queue(self, name: str) -> sqs.Queue:
         return sqs.Queue(
@@ -174,18 +203,18 @@ class GameVersionStack(cdk.Stack):
             environment=self.lambda_env,
         )
 
-    def schedule(self, queue: sqs.Queue, enabled: bool) -> None:
-        """Rankings refresh every 6h."""
-        role = iam.Role(
-            self,
-            "schedule-role",
-            assumed_by=iam.ServicePrincipal("scheduler.amazonaws.com"),  # ty: ignore[invalid-argument-type]
-        )
-        queue.grant_send_messages(role)
-
+    def schedule(
+        self,
+        queue: sqs.Queue,
+        role: iam.Role,
+        game_version: GameVersion,
+        cron: str,
+        enabled: bool,
+    ) -> None:
+        """Rankings refresh of one Game Version."""
         payload = {
             "task": "load_spec_rankings",
-            "game_version": self.gv.name,
+            "game_version": game_version.name,
             "spec_slug": "all",
             "boss_slug": "all",
             "difficulty": AUTO_DIFFICULTY,
@@ -195,20 +224,31 @@ class GameVersionStack(cdk.Stack):
         }
         scheduler.CfnSchedule(
             self,
-            "schedule",
-            name=self.name("load_spec_rankings"),
+            f"schedule-{game_version.name}" if self.schedule_ids_per_version else "schedule",
+            name=self.name(f"load_spec_rankings_{game_version.name}")
+            if self.schedule_ids_per_version
+            else self.name("load_spec_rankings"),
             state="ENABLED" if enabled else "DISABLED",
-            schedule_expression="cron(0 */6 * * ? *)",
+            schedule_expression=cron,
             schedule_expression_timezone="Europe/London",
             flexible_time_window={"mode": "FLEXIBLE", "maximumWindowInMinutes": 15},
             target={
                 "arn": queue.queue_arn,
                 "roleArn": role.role_arn,
                 "input": json.dumps(payload),
-                "sqsParameters": {"messageGroupId": f"{self.gv.name}-load_spec_rankings"},
+                "sqsParameters": {"messageGroupId": f"{game_version.name}-load_spec_rankings"},
                 "retryPolicy": {"maximumEventAgeInSeconds": 86400, "maximumRetryAttempts": 0},
             },
         )
+
+    def schedule_role(self, queue: sqs.Queue) -> iam.Role:
+        role = iam.Role(
+            self,
+            "schedule-role",
+            assumed_by=iam.ServicePrincipal("scheduler.amazonaws.com"),  # ty: ignore[invalid-argument-type]
+        )
+        queue.grant_send_messages(role)
+        return role
 
     def distribution(self, http_api: apigw.HttpApi) -> cloudfront.Distribution:
         """CloudFront in front of the API, caching by the app's `Cache-Control` headers."""
@@ -226,7 +266,7 @@ class GameVersionStack(cdk.Stack):
             self,
             "distribution",
             comment=self.name("api"),
-            domain_names=[f"{self.gv.name}-api.lorrgs.io"],
+            domain_names=[self.domain],
             certificate=self.certificate,
             minimum_protocol_version=cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
             price_class=cloudfront.PriceClass.PRICE_CLASS_100,
@@ -238,3 +278,56 @@ class GameVersionStack(cdk.Stack):
                 viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.ALLOW_ALL,  # allow HTTP and HTTPS
             ),
         )
+
+
+class GameVersionStack(ApiStack):
+    """The old per-version stack (`lorrgs-<version>`): serves one host and refreshes its own Game Version."""
+
+    schedule_ids_per_version = False
+
+    def __init__(
+        self,
+        scope: Construct,
+        construct_id: str,
+        *,
+        game_version: GameVersion,
+        layers: list[lambda_.ILayerVersion],
+        schedule_enabled: bool,
+        **kwargs,
+    ) -> None:
+        self.gv = game_version
+        self.schedule_enabled = schedule_enabled
+        super().__init__(
+            scope,
+            construct_id,
+            prefix=f"lorrgs-{game_version.name}",
+            domain=f"{game_version.name}-api.lorrgs.io",
+            layers=layers,
+            **kwargs,
+        )
+
+    def add_schedules(self, queue: sqs.Queue) -> None:
+        self.schedule(queue, self.schedule_role(queue), self.gv, "cron(0 */6 * * ? *)", self.schedule_enabled)
+
+
+class AllGameVersionsStack(ApiStack):
+    """One stack serving every Game Version (ADR 0003): `api.lorrgs.io`, one pair of queues, one schedule each."""
+
+    schedule_ids_per_version = True
+
+    def __init__(
+        self,
+        scope: Construct,
+        construct_id: str,
+        *,
+        schedules: dict[str, RefreshSchedule],
+        layers: list[lambda_.ILayerVersion],
+        **kwargs,
+    ) -> None:
+        self.schedules = schedules
+        super().__init__(scope, construct_id, prefix="lorrgs-all", domain="api.lorrgs.io", layers=layers, **kwargs)
+
+    def add_schedules(self, queue: sqs.Queue) -> None:
+        role = self.schedule_role(queue)
+        for name, refresh in self.schedules.items():
+            self.schedule(queue, role, GAME_VERSIONS[name], refresh_cron(refresh.hour_offset), refresh.enabled)
