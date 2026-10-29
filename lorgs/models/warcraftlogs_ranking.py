@@ -11,9 +11,7 @@ from lorgs import utils
 from lorgs.game_version import ACTIVE
 from lorgs.models.base.s3 import S3Model
 from lorgs.models.difficulty import RaidDifficulty
-from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.warcraftlogs_report import Report  # ruff: ignore[typing-only-first-party-import] # pydantic requires this import
-from lorgs.models.wow_spec import WowSpec
 
 
 if typing.TYPE_CHECKING:
@@ -66,14 +64,6 @@ class SpecRanking(S3Model):
     ##########################
     # Attributes
     #
-    @property
-    def spec(self) -> WowSpec:
-        return WowSpec.get(full_name_slug=self.spec_slug)  # type: ignore
-
-    @property
-    def boss(self) -> RaidBoss:
-        return RaidBoss.get(full_name_slug=self.boss_slug)  # type: ignore
-
     @property
     def fights(self) -> list[Fight]:
         return utils.flatten(report.fights for report in self.reports)

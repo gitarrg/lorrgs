@@ -76,7 +76,7 @@ class Fight(warcraftlogs_base.BaseModel):
         return f"{self.__class__.__name__}(id={self.fight_id}, players={len(self.players)})"
 
     def summary(self) -> dict[str, typing.Any]:
-        raid_boss_name = self.boss and self.boss.raid_boss and self.boss.raid_boss.full_name_slug
+        raid_boss_name = self.boss and self.boss.boss_slug
 
         return {
             # required for spec rankings

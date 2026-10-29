@@ -54,7 +54,7 @@ def print_fight(fight: Fight) -> None:
 
     print("boss events:")
     if boss := fight.boss:
-        print(f"  boss: {boss.raid_boss.name}")
+        print(f"  boss: {boss.boss_slug}")
         print_actor(fight.boss)
     else:
         print("  (none)")

@@ -6,13 +6,14 @@ import pytest
 from lorgs.clients import wcl
 from lorgs.loaders.fight_loader import FightLoader
 from lorgs.loaders.fight_phases import FightPhasesLoader
+from lorgs.models.game_data import GameData
 from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_comp_ranking import get_composition
 from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_report import Report
 
-from ..helpers import load_fixture
+from ..helpers import game_data_with, load_fixture
 
 
 # 21s after the report starts. A report-time event at 25s is 4s into the fight.
@@ -84,18 +85,17 @@ def test_converting_without_a_report_raises() -> None:
         fight.to_fight_time(25_000)
 
 
-def _fight_with_phase_boss() -> tuple[Fight, RaidBoss]:
-    # The boss is only findable while this instance is still referenced.
+def _fight_with_phase_boss() -> tuple[Fight, GameData]:
     raid_boss = RaidBoss(id=990072, name="Conversion Test Boss")
     fight = _fight_in_report()
     fight.boss = Boss.from_raid_boss(raid_boss)
-    return fight, raid_boss
+    return fight, game_data_with(bosses=[raid_boss])
 
 
 def test_phases_are_fight_relative() -> None:
-    fight, _raid_boss = _fight_with_phase_boss()
+    fight, game_data = _fight_with_phase_boss()
 
-    FightPhasesLoader(fight).process_phase_transitions([
+    FightPhasesLoader(fight, game_data).process_phase_transitions([
         wcl.PhaseTransition(id=2, startTime=25_000),
     ])
 
@@ -103,21 +103,21 @@ def test_phases_are_fight_relative() -> None:
 
 
 def test_phase_loading_leaves_its_input_unchanged() -> None:
-    fight, _raid_boss = _fight_with_phase_boss()
+    fight, game_data = _fight_with_phase_boss()
     transition = wcl.PhaseTransition(id=2, startTime=25_000)
 
-    FightPhasesLoader(fight).process_phase_transitions([transition])
+    FightPhasesLoader(fight, game_data).process_phase_transitions([transition])
 
     assert transition.startTime == 25_000
 
 
 def test_phases_raise_when_the_fight_has_no_report() -> None:
-    fight, _raid_boss = _fight_with_phase_boss()
+    fight, game_data = _fight_with_phase_boss()
     fight.report = None
     transition = wcl.PhaseTransition(id=2, startTime=25_000)
 
     with pytest.raises(ValueError, match="Missing Parent Report"):
-        FightPhasesLoader(fight).process_phase_transitions([transition])
+        FightPhasesLoader(fight, game_data).process_phase_transitions([transition])
 
     assert transition.startTime == 25_000
     assert fight.phases == []

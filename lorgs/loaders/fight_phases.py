@@ -10,11 +10,14 @@ from lorgs.clients import wcl
 from lorgs.logger import logger
 
 from .base_loader import BaseLoader
+from .actor_loader import _active_game_data
 from .boss_loader import BossLoader
 
 
 if TYPE_CHECKING:
     from lorgs.clients.wcl import WarcraftlogsClient
+    from lorgs.models.game_data import GameData
+    from lorgs.models.raid_boss import RaidBoss
     from lorgs.models.warcraftlogs_fight import Fight
 
 
@@ -22,12 +25,13 @@ def queue_boss_loader(
     fight: Fight,
     loaders: list[BaseLoader],
     fights_loading_boss: list[Fight],
+    game_data: GameData | None = None,
 ) -> None:
     """Queue the boss load, and remember the Fight when that load will run."""
     if fight.boss is None:
         return
 
-    boss_loader = BossLoader(fight.boss)
+    boss_loader = BossLoader(fight.boss, game_data)
     if boss_loader.needs_load():
         fights_loading_boss.append(fight)
     loaders.append(boss_loader)
@@ -55,7 +59,7 @@ def fights_ready_for_phase_correction(
     return ready
 
 
-def correct_loaded_phases(fight: Fight) -> None:
+def correct_loaded_phases(fight: Fight, game_data: GameData | None = None) -> None:
     """Apply the boss's phase correction once its Casts are loaded.
 
     A failure is logged and the Fight's Phases stay as they were.
@@ -65,7 +69,10 @@ def correct_loaded_phases(fight: Fight) -> None:
         return
 
     try:
-        fight.phases = boss.raid_boss.process_phases(fight.phases, boss.casts)
+        raid_boss = (game_data or _active_game_data()).get_boss(full_name_slug=boss.boss_slug)
+        if raid_boss is None:
+            raise ValueError(f"Invalid boss_slug: {boss.boss_slug}")
+        fight.phases = raid_boss.process_phases(fight.phases, boss.casts)
     except Exception:  # ruff: ignore[blind-except]  # one boss must not fail the load
         logger.exception("Failed to correct phases for fight %s", fight.fight_id)
 
@@ -78,8 +85,15 @@ class FightPhasesLoader(BaseLoader):
 
     """
 
-    def __init__(self, fight: Fight) -> None:
+    def __init__(self, fight: Fight, game_data: GameData | None = None) -> None:
         self.fight = fight
+        self.game_data = game_data or _active_game_data()
+
+    def _raid_boss(self) -> RaidBoss | None:
+        """The Actor Type of the Fight's boss, looked up in the Game Data."""
+        if self.fight.boss is None:
+            return None
+        return self.game_data.get_boss(full_name_slug=self.fight.boss.boss_slug)
 
     def get_query(self) -> str:
         if not self.fight.report:
@@ -109,7 +123,7 @@ class FightPhasesLoader(BaseLoader):
         if not phase_transitions:
             return
 
-        raid_boss = self.fight.boss.raid_boss if self.fight.boss else None
+        raid_boss = self._raid_boss()
         if not raid_boss:
             return
 
@@ -133,9 +147,7 @@ class FightPhasesLoader(BaseLoader):
     def needs_load(self) -> bool:
         if self.fight.phases:
             return False
-        if not (boss := self.fight.boss):
-            return False
-        if not (raid_boss := boss.raid_boss):
+        if not (raid_boss := self._raid_boss()):
             return False
         return raid_boss.phase_type == raid_boss.PhaseType.DYNAMIC
 

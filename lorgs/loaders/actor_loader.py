@@ -53,7 +53,7 @@ class ActorLoader(BaseLoader):
         if isinstance(self.actor, Player):
             actor_type = self.game_data.get_spec(self.actor.spec_slug)
         elif isinstance(self.actor, Boss):
-            actor_type = self.actor.raid_boss
+            actor_type = self.game_data.get_boss(full_name_slug=self.actor.boss_slug)
         else:
             actor_type = None
         if actor_type is None:

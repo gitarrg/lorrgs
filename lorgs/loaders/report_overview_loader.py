@@ -117,7 +117,7 @@ class ReportOverviewLoader(BaseLoader):
             if self.report.get_fight(fight_data.id):
                 continue  # already loaded
 
-            if fight := FightLoader.fight_from_wcl_fight(fight_data, report=self.report):
+            if fight := FightLoader.fight_from_wcl_fight(fight_data, report=self.report, game_data=self.game_data):
                 fight.report = self.report
                 self.report.fights.append(fight)
 

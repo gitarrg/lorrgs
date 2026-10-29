@@ -17,6 +17,7 @@ from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_report import Report
 
+from .actor_loader import _active_game_data
 from .base_loader import BaseLoader
 from .fight_phases import (
     FightPhasesLoader,
@@ -28,25 +29,43 @@ from .player_loader import PlayerLoader
 
 
 if typing.TYPE_CHECKING:
+    from lorgs.models.game_data import GameData
+    from lorgs.models.raid_boss import RaidBoss
+    from lorgs.models.wow_spec import WowSpec
     from lorgs.models.warcraftlogs_ranking import SpecRanking
 
 
 class SpecRankingLoader(BaseLoader):
     """Loads spec ranking data and actor events from WarcraftLogs."""
 
-    def __init__(self, ranking: SpecRanking) -> None:
+    def __init__(self, ranking: SpecRanking, game_data: GameData | None = None) -> None:
         self.ranking = ranking
+        self.game_data = game_data or _active_game_data()
+
+    @property
+    def boss(self) -> RaidBoss:
+        boss = self.game_data.get_boss(full_name_slug=self.ranking.boss_slug)
+        if boss is None:
+            raise ValueError(f"Unknown Boss: {self.ranking.boss_slug}")
+        return boss
+
+    @property
+    def spec(self) -> WowSpec:
+        spec = self.game_data.get_spec(self.ranking.spec_slug)
+        if spec is None:
+            raise ValueError(f"Unknown Spec: {self.ranking.spec_slug}")
+        return spec
 
     def get_query(self) -> str:
         return textwrap.dedent(
             f"""\
         worldData
         {{
-            encounter(id: {self.ranking.boss.id})
+            encounter(id: {self.boss.id})
             {{
                 characterRankings(
-                    className: "{self.ranking.spec.wow_class.name_slug_cap}"
-                    specName: "{self.ranking.spec.name_slug_cap}"
+                    className: "{self.spec.wow_class.name_slug_cap}"
+                    specName: "{self.spec.name_slug_cap}"
                     metric: {self.ranking.metric}
                     difficulty: {self.ranking.raid_difficulty.value}
                     includeCombatantInfo: false
@@ -152,7 +171,7 @@ class SpecRankingLoader(BaseLoader):
             clear_old: If True, old reports will be deleted.
 
         """
-        logger.info(f"{self.ranking.boss.name} vs. {self.ranking.spec.name} START | {limit=} | {clear_old=}")
+        logger.info(f"{self.boss.name} vs. {self.spec.name} START | {limit=} | {clear_old=}")
 
         ###########################
         # Step 1: Fetch rankings
@@ -170,8 +189,9 @@ class SpecRankingLoader(BaseLoader):
         ##############################################
         # Load each report separately so a private or deleted one can be dropped.
         top_fight = self.ranking.get_top_fight()
+        game_data = self.game_data
         skipped = await asyncio.gather(
-            *[SpecRankingLoader._load_report(report, client, top_fight) for report in self.ranking.reports],
+            *[SpecRankingLoader._load_report(report, game_data, client, top_fight) for report in self.ranking.reports],
         )
         skipped_ids = {report_id for report_id in skipped if report_id}
         if skipped_ids:
@@ -184,6 +204,7 @@ class SpecRankingLoader(BaseLoader):
     @staticmethod
     async def _load_report(
         report: Report,
+        game_data: GameData,
         client: WarcraftlogsClient,
         top_fight: Fight | None,
     ) -> str | None:
@@ -192,14 +213,14 @@ class SpecRankingLoader(BaseLoader):
         fights_loading_boss: list[Fight] = []
         fights_loading_phases: list[Fight] = []
         for fight in report.fights:
-            phase_loader = FightPhasesLoader(fight)
+            phase_loader = FightPhasesLoader(fight, game_data)
             if phase_loader.needs_load():
                 fights_loading_phases.append(fight)
             loaders.append(phase_loader)
             if top_fight is not None and fight is top_fight:
-                queue_boss_loader(fight, loaders, fights_loading_boss)
+                queue_boss_loader(fight, loaders, fights_loading_boss, game_data)
             for player in fight.players:
-                loaders.append(PlayerLoader(player))
+                loaders.append(PlayerLoader(player, game_data=game_data))
 
         loaders = [loader for loader in loaders if loader.needs_load()]
         try:
@@ -212,5 +233,5 @@ class SpecRankingLoader(BaseLoader):
             return report.report_id
 
         for fight in fights_ready_for_phase_correction(fights_loading_phases, fights_loading_boss):
-            correct_loaded_phases(fight)
+            correct_loaded_phases(fight, game_data)
         return None

@@ -8,6 +8,7 @@ from typing import override
 import pytest
 
 import lorgs.data  # noqa: F401  # registers specs and bosses
+from lorgs.data import GAME_DATA
 from lorgs.data.expansions.midnight.raids.the_venomous_abyss.nekzali import (
     NEKZALI,
     RITUAL_OF_AWAKENING,
@@ -23,6 +24,8 @@ from lorgs.models.warcraftlogs_fight import Fight, Phase
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 from lorgs.models.warcraftlogs_report import Report
+
+from ..helpers import game_data_with
 
 
 def test_other_bosses_phases_are_unchanged() -> None:
@@ -261,7 +264,11 @@ def test_spec_ranking_keeps_phases_when_process_phases_raises(caplog: pytest.Log
     )
 
     with caplog.at_level(logging.ERROR, logger="Lorgs"):
-        asyncio.run(SpecRankingLoader(ranking).load(client=_QuietWarcraftlogsClient(), limit=10))
+        asyncio.run(
+            SpecRankingLoader(ranking, game_data_with(bosses=[boss_type], specs=[GAME_DATA.get_spec("paladin-holy")])).load(
+                client=_QuietWarcraftlogsClient(), limit=10,
+            ),
+        )
 
     assert [(phase.phase_id, phase.timestamp) for phase in fight.phases] == [(2, 10_000)]
     assert "phase correction failed" in caplog.text

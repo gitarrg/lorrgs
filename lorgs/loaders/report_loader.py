@@ -5,6 +5,7 @@ import asyncio
 import typing
 
 # IMPORT LOCAL LIBRARIES
+from lorgs.loaders.actor_loader import _active_game_data
 from lorgs.loaders.fight_loader import FightLoader
 from lorgs.loaders.fight_phases import (
     FightPhasesLoader,
@@ -20,6 +21,7 @@ from lorgs.logger import logger
 if typing.TYPE_CHECKING:
     from lorgs.clients.wcl.client import WarcraftlogsClient
     from lorgs.loaders.base_loader import BaseLoader
+    from lorgs.models.game_data import GameData
     from lorgs.models.warcraftlogs_fight import Fight
     from lorgs.models.warcraftlogs_report import Report
 
@@ -32,8 +34,9 @@ class ReportLoader:
     In the future we might inherit from BaseLoader, but for now it's not really necessary.
     """
 
-    def __init__(self, report: Report) -> None:
+    def __init__(self, report: Report, game_data: GameData | None = None) -> None:
         self.report = report
+        self.game_data = game_data or _active_game_data()
 
     ############################################################################
     # Load
@@ -52,7 +55,7 @@ class ReportLoader:
         # load the report overview if not already loaded
         # TODO: might have to compare this to the requested fight ids
         if not self.report.fights:
-            overview_loader = ReportOverviewLoader(report=self.report)
+            overview_loader = ReportOverviewLoader(report=self.report, game_data=self.game_data)
             await overview_loader.load(client=client)
 
         loaders, fights_loading_phases, fights_loading_boss = await self._collect_loaders(
@@ -68,7 +71,7 @@ class ReportLoader:
 
         ready = fights_ready_for_phase_correction(fights_loading_phases, fights_loading_boss)
         for fight in ready:
-            correct_loaded_phases(fight)
+            correct_loaded_phases(fight, self.game_data)
 
     async def _collect_loaders(
         self,
@@ -94,14 +97,14 @@ class ReportLoader:
             # we can't use the ReportOverview since player specs might be
             # different from fight to fight
             if not fight.players:
-                phases_need_load = FightPhasesLoader(fight).needs_load()
-                await FightLoader(fight=fight).load(client=client)
+                phases_need_load = FightPhasesLoader(fight, self.game_data).needs_load()
+                await FightLoader(fight=fight, game_data=self.game_data).load(client=client)
                 if phases_need_load:
                     fights_loading_phases.append(fight)
 
             # boss
             if load_boss:
-                queue_boss_loader(fight, loaders, fights_loading_boss)
+                queue_boss_loader(fight, loaders, fights_loading_boss, self.game_data)
 
             # players
             for player_id in player_ids:
@@ -111,6 +114,6 @@ class ReportLoader:
                     # on a multi-select load
                     continue
 
-                loaders.append(PlayerLoader(player))
+                loaders.append(PlayerLoader(player, game_data=self.game_data))
 
         return loaders, fights_loading_phases, fights_loading_boss

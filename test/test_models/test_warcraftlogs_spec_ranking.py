@@ -14,25 +14,16 @@ class TestSpecRankingLoader(unittest.TestCase):
 
     def setUp(self) -> None:
         self.spec_ranking = SpecRanking(spec_slug="test-spec", boss_slug="test-boss", metric="dps")
-        self.loader = SpecRankingLoader(self.spec_ranking)
-
-        self.boss_patch = mock.patch("lorgs.models.raid_boss.RaidBoss.get")
-        self.boss_mock = self.boss_patch.start()
-        self.boss_mock.return_value = mock.MagicMock(id=2048)
-
-
-        self.spec_patch = mock.patch("lorgs.models.wow_spec.WowSpec.get")
-        self.spec_mock = self.spec_patch.start()
-        self.spec_mock.return_value = mock.MagicMock(**{
+        boss = mock.MagicMock(id=2048)
+        spec = mock.MagicMock(**{
             "wow_class.name_slug_cap": "ClassName",
             "name_slug_cap": "SpecName",
             "role.metric": "dps",
         })
-
-    def tearDown(self) -> None:
-        self.boss_patch.stop()
-        self.spec_patch.stop()
-
+        game_data = mock.MagicMock()
+        game_data.get_boss.return_value = boss
+        game_data.get_spec.return_value = spec
+        self.loader = SpecRankingLoader(self.spec_ranking, game_data)
 
     def test__get_query(self):
         query = self.loader.get_query()

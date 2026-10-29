@@ -10,7 +10,6 @@ from lorgs.clients import wcl
 from lorgs.loaders.fight_phases import FightPhasesLoader
 from lorgs.logger import logger
 from lorgs.models.difficulty import RaidDifficulty
-from lorgs.models.raid_boss import RaidBoss
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_player import Player
@@ -58,7 +57,11 @@ class FightLoader(BaseLoader):
         return not self.fight.players
 
     @staticmethod
-    def fight_from_wcl_fight(fight_data: wcl.ReportFight, report: Report) -> Fight | None:
+    def fight_from_wcl_fight(
+        fight_data: wcl.ReportFight,
+        report: Report,
+        game_data: GameData | None = None,
+    ) -> Fight | None:
         """Create a Fight from a WCL Fight."""
         # skip trash fights
         if not fight_data.encounterID:
@@ -81,12 +84,13 @@ class FightLoader(BaseLoader):
         fight.report = report
 
         # Fight: Boss
-        if raid_boss := RaidBoss.get(id=fight_data.encounterID):
+        game_data = game_data or _active_game_data()
+        if raid_boss := game_data.get_boss(boss_id=fight_data.encounterID):
             fight.boss = Boss.from_raid_boss(raid_boss)
             fight.boss.fight = fight
 
         # Fight: Phases
-        phase_loader = FightPhasesLoader(fight=fight)
+        phase_loader = FightPhasesLoader(fight=fight, game_data=game_data)
         phase_loader.process_phase_transitions(fight_data.phaseTransitions)
 
         return fight
@@ -149,7 +153,7 @@ class FightLoader(BaseLoader):
         if summary := report_data.report.summary:
             self._process_summary(summary)
 
-        phase_loader = FightPhasesLoader(fight=self.fight)
+        phase_loader = FightPhasesLoader(fight=self.fight, game_data=self.game_data)
         if phase_loader.needs_load():
             phase_loader.process_query_result(query_result)
 

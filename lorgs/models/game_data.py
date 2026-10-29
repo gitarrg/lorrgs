@@ -23,7 +23,7 @@ from lorgs.models.wow_actor import WowActor
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spec import WowSpec
-from lorgs.models.wow_spell import WowSpell
+from lorgs.models.wow_spell import SpellTag, WowSpell
 from lorgs.models.wow_trinket import WowTrinket
 
 
@@ -135,6 +135,11 @@ class GameData:
         spells += self.extra_spells
         spells += [spell.until for spell in spells if spell.until]
         return utils.uniqify(spells)
+
+    @functools.cached_property
+    def raid_cooldowns(self) -> list[WowSpell]:
+        """The spells tagged as Raid Cooldowns."""
+        return [spell for spell in self.spells if SpellTag.RAID_CD in spell.tags]
 
     @functools.cached_property
     def trinkets(self) -> list[WowTrinket]:

@@ -3,7 +3,7 @@
 from __future__ import annotations
 
 # IMPORT LOCAL LIBRARIES
-from lorgs import data  # pylint: disable=unused-import  # ruff: ignore[unused-import]
+from lorgs.data import GAME_DATA
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_comp_ranking
 from lorgs.models.task_payloads import CompRankingPayload
@@ -17,12 +17,12 @@ async def load_comp_rankings(payload: CompRankingPayload) -> tuple[bool, str]:
     ################################
     # get comp ranking object
     ranking = warcraftlogs_comp_ranking.CompRanking.get_or_create(boss_slug=payload.boss_slug)
-    if not ranking.boss:
+    if not GAME_DATA.get_boss(full_name_slug=payload.boss_slug):
         raise TaskValidationError("invalid boss")
 
     ################################
     # load and save
-    await ranking.load(page=payload.page, clear_old=payload.clear)
+    await ranking.load(GAME_DATA, page=payload.page, clear_old=payload.clear)
     ranking.save()
     return True, "done"
 

@@ -23,9 +23,9 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
         difficulty=GAME_DATA.resolve_difficulty(payload.boss_slug, payload.difficulty),
         metric=payload.metric,
     )
-    if not ranking.boss:
+    if not GAME_DATA.get_boss(full_name_slug=payload.boss_slug):
         raise TaskValidationError("invalid boss")
-    if not ranking.spec:
+    if not GAME_DATA.get_spec(payload.spec_slug):
         raise TaskValidationError("invalid spec")
 
     needs_refresh = payload.clear or ranking.needs_refresh(limit=payload.limit)
@@ -33,7 +33,7 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
         logger.info(f"already updated: {payload=}")
         return True, "already updated"
 
-    await SpecRankingLoader(ranking).load(limit=payload.limit, clear_old=payload.clear)
+    await SpecRankingLoader(ranking, GAME_DATA).load(limit=payload.limit, clear_old=payload.clear)
     ranking.save()
     return True, "done"
 
