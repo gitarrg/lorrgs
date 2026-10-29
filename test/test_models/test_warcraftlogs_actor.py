@@ -8,6 +8,9 @@ from lorgs.loaders.actor_loader import ActorLoader
 from lorgs.models.warcraftlogs_actor import BaseActor
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models import wow_class
+from lorgs.models.game_data import GameData
+from lorgs.models.season import Season
+from lorgs.models.wow_spell import WowSpell
 from lorgs.models import wow_role
 from lorgs.models import wow_spec
 
@@ -94,6 +97,22 @@ class TestActorLoaderProcess(unittest.TestCase):
         self.actor.source_id = 10
         self.loader.process_query_result(casts_data)
         assert not self.actor.casts
+
+
+def test_spell_variation_is_resolved_to_the_main_spell() -> None:
+    season = Season(name="Test", ilvl=1)
+    main = WowSpell(spell_id=500, variations=[501])
+    game_data = GameData(roles=[], classes=[], seasons=[season], current_season=season, spells=[main])
+    actor = _TestActor()
+    actor.source_id = 10
+    events = [
+        {"timestamp": 1000, "type": "cast", "sourceID": 10, "abilityGameID": 501},
+        {"timestamp": 2000, "type": "cast", "sourceID": 10, "abilityGameID": 777},
+    ]
+
+    ActorLoader(actor, game_data).process_query_result(helpers.wrap_data(events, "report", "events", "data"))
+
+    assert [cast.spell_id for cast in actor.casts] == [500, 777]
 
 
 def _cast_query(timestamp: int) -> dict:

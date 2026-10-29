@@ -1,11 +1,17 @@
 import sys
 import unittest
-from unittest import mock
 
 import pytest
 
 from lorgs.models.warcraftlogs_cast import Cast, process_auras, process_until_events
+from lorgs.models.game_data import GameData
+from lorgs.models.season import Season
 from lorgs.models.wow_spell import WowSpell
+
+
+def _game_data(*spells: WowSpell) -> GameData:
+    season = Season(name="Test", ilvl=1)
+    return GameData(roles=[], classes=[], seasons=[season], current_season=season, spells=list(spells))
 
 
 class Test_Cast(unittest.TestCase):
@@ -22,7 +28,7 @@ class Test_Cast(unittest.TestCase):
         ]
         expected = [Cast(spell_id=10, timestamp=100, duration=150, event_type="applybuff")]
 
-        result = process_auras(events)
+        result = process_auras(events, _game_data())
         assert result == expected
 
     def test__process_auras__multiple_applications(self):
@@ -34,7 +40,7 @@ class Test_Cast(unittest.TestCase):
         ]
         expected = [Cast(spell_id=10, timestamp=110, duration=140, event_type="applybuff")]
 
-        result = process_auras(events)
+        result = process_auras(events, _game_data())
         assert len(result) == 1  # the removebuff event should be dropped
         assert result == expected
 
@@ -50,7 +56,7 @@ class Test_Cast(unittest.TestCase):
             Cast(spell_id=10, timestamp=200, event_type="applybuff", duration=60),
         ]
 
-        result = process_auras(events)
+        result = process_auras(events, _game_data())
         assert len(result) == 2  # the removebuff event should be dropped
         assert result == expected
 
@@ -66,7 +72,7 @@ class Test_Cast(unittest.TestCase):
             Cast(spell_id=20, timestamp=120, event_type="applybuff", duration=140),  # 120 - 260
         ]
 
-        result = process_auras(events)
+        result = process_auras(events, _game_data())
         assert len(result) == 2
         assert result == expected
 
@@ -76,13 +82,8 @@ class Test_Cast(unittest.TestCase):
             Cast(spell_id=10, timestamp=4000, event_type="removebuff"),
         ]
 
-        # mock the spell to return 6sec as its default duration
-        with mock.patch("lorgs.models.wow_spell.WowSpell.get") as mock_get_spell:
-            mock_get_spell.return_value = mock.MagicMock()
-            mock_get_spell.return_value.duration = 6
-
-            # Run
-            result = process_auras(events)
+        # the spell has 6sec as its default duration
+        result = process_auras(events, _game_data(WowSpell(spell_id=10, duration=6)))
 
         assert len(result) == 1  # still one entry
         event = result[0]
@@ -97,7 +98,7 @@ class Test_Cast(unittest.TestCase):
             Cast(spell_id=10, timestamp=5000, event_type="applybuff"),
         ]
 
-        result = process_auras(events)
+        result = process_auras(events, _game_data())
 
         assert result == [Cast(spell_id=10, timestamp=1000, event_type="applybuff")]
 
@@ -117,7 +118,7 @@ class Test_Cast(unittest.TestCase):
         ]
 
         # run
-        result = process_until_events(events)
+        result = process_until_events(events, _game_data(spell, until_event))
         assert len(result) == 1
         cast = result[0]
         assert cast.timestamp == 2000  # make sure its the first event
@@ -126,7 +127,7 @@ class Test_Cast(unittest.TestCase):
     def test_process_until_events_multipleA(self) -> None:
         # Arrange some test abilities
         until_event = WowSpell(spell_id=200)
-        _ = WowSpell(spell_id=100, until=until_event)
+        spell = WowSpell(spell_id=100, until=until_event)
 
         # test event data
         events = [
@@ -137,7 +138,7 @@ class Test_Cast(unittest.TestCase):
         ]
 
         # run
-        result = process_until_events(events)
+        result = process_until_events(events, _game_data(spell, until_event))
 
         # validate
         expected = [
@@ -149,7 +150,7 @@ class Test_Cast(unittest.TestCase):
     def test_process_until_events_multipleB(self) -> None:
         # Arrange some test abilities
         until_event = WowSpell(spell_id=200)
-        _ = WowSpell(spell_id=100, until=until_event)
+        spell = WowSpell(spell_id=100, until=until_event)
 
         # test event data
         events = [
@@ -160,7 +161,7 @@ class Test_Cast(unittest.TestCase):
         ]
 
         # run
-        result = process_until_events(events)
+        result = process_until_events(events, _game_data(spell, until_event))
 
         # validate
         expected = [

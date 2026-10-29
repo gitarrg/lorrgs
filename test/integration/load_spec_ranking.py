@@ -22,7 +22,7 @@ async def test__load_rankings():
     for player in spec_ranking.players:
         print(player.name)
         for cast in player.casts:
-            print("...", cast, cast.spell)
+            print("...", cast)
         # return
     # return
 

@@ -5,7 +5,7 @@ from __future__ import annotations
 # IMPORT STANDARD LIBRARIES
 import typing
 from collections import defaultdict
-from typing import Any, ClassVar
+from typing import Any
 
 from lorgs import utils
 from lorgs.models import base
@@ -64,11 +64,6 @@ class SpellTag:
 class WowSpell(base.MemoryModel):
     """Container to define a spell."""
 
-    spell_variations: ClassVar[dict[tuple[int, str], int]] = {}
-    """Map to track spell variations and their "master"-spells.
-        `[key: id of the variation] = id of the "master"-spell`
-    """
-
     spell_id: int
     cooldown: float = 0.0
     duration: float = 0.0
@@ -111,7 +106,6 @@ class WowSpell(base.MemoryModel):
 
     def post_init(self) -> None:
         self.wowhead_data = self.wowhead_data or f"spell={self.spell_id}"
-        self.add_variations(*self.variations)
         return super().post_init()
 
     @staticmethod
@@ -136,11 +130,6 @@ class WowSpell(base.MemoryModel):
         """
         spell_ids = cls.spell_ids(spells)
         return ",".join(str(spell_id) for spell_id in spell_ids)
-
-    @classmethod
-    def resolve_spell_id(cls, spell_id: int, event_type: str = "cast") -> int:
-        """Resolve a Spell ID for a spell variation to its main-spell."""
-        return cls.spell_variations.get((spell_id, event_type)) or spell_id
 
     def __str__(self) -> str:
         return f"<Spell({self.spell_id}, name={self.name})>"
@@ -169,7 +158,7 @@ class WowSpell(base.MemoryModel):
             "tags": self.tags,
         }
 
-    def add_variation(self, spell_id: int, event_type: str = ""):
+    def add_variation(self, spell_id: int) -> None:
         """Add an additional spell ids for the "same" spell.
 
         eg.: glyphed versions of the spell
@@ -177,7 +166,6 @@ class WowSpell(base.MemoryModel):
         different phases for the same mechanic
         """
         self.variations.append(spell_id)
-        self.spell_variations[spell_id, event_type or self.event_type] = self.spell_id
 
     def add_variations(self, *spell_ids: int):
         for spell_id in spell_ids:

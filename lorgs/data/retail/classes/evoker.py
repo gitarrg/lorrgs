@@ -94,7 +94,7 @@ class PreservationEvoker(WowSpec):
         for cast in casts:
 
             if cast.spell_id == STASIS_RELEASE.spell_id:
-                stasis_release = cast.timestamp + cast.get_duration()
+                stasis_release = cast.timestamp + (cast.duration or int(STASIS_RELEASE.duration * 1000))
 
             can_be_stored = cast.spell_id in stasis_storable_spells
             within_release_window = cast.timestamp - stasis_release < release_window_ms

@@ -44,7 +44,7 @@ class DevourerDemonHunter(WowSpec):
         drops = [
             Cast(
                 spell_id=DROP_META.spell_id,
-                timestamp=cast.timestamp + cast.get_duration(),
+                timestamp=cast.timestamp + (cast.duration or int(VOID_META.duration * 1000)),
                 duration=0,
             )
             for cast in casts

@@ -193,6 +193,18 @@ class GameData:
         """The first spell with exactly this id (variations are not matched)."""
         return next((spell for spell in self.get_spells(spell_id) if spell.spell_id == spell_id), None)
 
+    def resolve_spell_id(self, spell_id: int, event_type: str = "cast") -> int:
+        """The id of the main spell, if `spell_id` is a variation of a spell with this event type."""
+        for spell in self.get_spells(spell_id):
+            if spell.spell_id != spell_id and event_type in spell.event_types:
+                return spell.spell_id
+        return spell_id
+
+    def default_duration(self, spell_id: int) -> int:
+        """The default duration of the spell in milliseconds (0 if unknown)."""
+        spell = self.get_spell(spell_id)
+        return int(spell.duration * 1000) if spell else 0
+
     def get_role(self, code: str) -> WowRole | None:
         return self.roles_by_code.get(code)
 

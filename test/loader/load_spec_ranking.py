@@ -35,12 +35,12 @@ async def main():
             if fight.boss:
                 print("FB", fight.boss)
                 for cast in fight.boss.casts:
-                    print("FBC", cast.spell)
+                    print("FBC", cast)
 
             for player in fight.players:
                 print("FP", player.name)
                 for cast in player.casts:
-                    print("FPC", cast.spell)
+                    print("FPC", cast)
         """
 
     loader = SpecRankingLoader(ranking=ranking)

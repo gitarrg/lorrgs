@@ -5,13 +5,14 @@ from __future__ import annotations
 import typing
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.models.wow_spell import WowSpell, build_spell_query
+from lorgs.models.wow_spell import build_spell_query
 
 from .actor_loader import ActorLoader
 
 
 if typing.TYPE_CHECKING:
     from lorgs.clients import wcl
+    from lorgs.models.game_data import GameData
     from lorgs.models.warcraftlogs_player import Player
 
 
@@ -41,8 +42,8 @@ class PlayerLoader(ActorLoader):
 
     actor: Player
 
-    def __init__(self, actor: Player) -> None:
-        super().__init__(actor)
+    def __init__(self, actor: Player, game_data: GameData | None = None) -> None:
+        super().__init__(actor, game_data)
 
     ############################################################################
     #
@@ -125,7 +126,7 @@ class PlayerLoader(ActorLoader):
             data["ts"] = event.timestamp
 
         spell_id = event.abilityGameID
-        spell = WowSpell.get(spell_id=spell_id)
+        spell = self.game_data.get_spell(spell_id)
         if spell:
             data["spell_name"] = spell.name
             data["spell_icon"] = spell.icon

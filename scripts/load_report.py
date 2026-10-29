@@ -17,6 +17,7 @@ from lorgs import (
     data,  # ruff: ignore[unused-import]
     utils,
 )
+from lorgs.data import GAME_DATA
 from lorgs.loaders.report_loader import ReportLoader
 from lorgs.models.warcraftlogs_user_report import UserReport
 
@@ -33,7 +34,7 @@ def print_actor(actor: BaseActor) -> None:
         return
 
     for cast in casts:
-        spell = cast.spell
+        spell = GAME_DATA.get_spell(cast.spell_id)
         name = spell.name if spell else ""
         timestamp = utils.format_time(cast.timestamp)
         print(f"  {timestamp:>7}  {cast.event_type:<12}  {cast.spell_id:<7}  {name}")

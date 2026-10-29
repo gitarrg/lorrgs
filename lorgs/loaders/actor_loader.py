@@ -16,14 +16,22 @@ from lorgs.models.wow_spell import WowSpell, build_spell_query
 
 if typing.TYPE_CHECKING:
     from lorgs.clients.wcl import WarcraftlogsClient
+    from lorgs.models.game_data import GameData
     from lorgs.models.warcraftlogs_actor import BaseActor
+
+
+def _active_game_data() -> GameData:
+    from lorgs.data import GAME_DATA  # ruff: ignore[import-outside-top-level]
+
+    return GAME_DATA
 
 
 class ActorLoader(BaseLoader):
     """Loads event data for a single actor from WarcraftLogs."""
 
-    def __init__(self, actor: BaseActor) -> None:
+    def __init__(self, actor: BaseActor, game_data: GameData | None = None) -> None:
         self.actor = actor
+        self.game_data = game_data or _active_game_data()
         self.actor_type = actor.actor_type
 
     def needs_load(self) -> bool:
@@ -141,15 +149,19 @@ class ActorLoader(BaseLoader):
                 continue
 
             # create the cast object
-            cast = Cast.from_report_event(cast_data)
+            cast = Cast(
+                spell_id=self.game_data.resolve_spell_id(cast_data.abilityGameID, cast_data.type),
+                timestamp=cast_data.timestamp,
+                event_type=cast_data.type,
+            )
             if self.actor.fight:
                 cast.timestamp = self.actor.fight.to_fight_time(cast.timestamp)
             self.actor.casts.append(cast)
 
         ##############################
         # Post Processing
-        self.actor.casts = process_until_events(self.actor.casts)
-        self.actor.casts = process_auras(self.actor.casts)
+        self.actor.casts = process_until_events(self.actor.casts, self.game_data)
+        self.actor.casts = process_auras(self.actor.casts, self.game_data)
 
         # Filter out same event at the same time (eg.: raid wide debuff apply)
         self.actor.casts = utils.uniqify(

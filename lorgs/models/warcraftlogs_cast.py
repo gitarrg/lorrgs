@@ -11,11 +11,10 @@ import pydantic
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.models import base
-from lorgs.models.wow_spell import WowSpell
 
 
 if TYPE_CHECKING:
-    from lorgs.clients import wcl
+    from lorgs.models.game_data import GameData
 
 
 class Cast(base.BaseModel):
@@ -39,15 +38,6 @@ class Cast(base.BaseModel):
 
     #############################
 
-    @classmethod
-    def from_report_event(cls, event: wcl.ReportEvent) -> Cast:
-        spell_id = WowSpell.resolve_spell_id(event.abilityGameID, event.type)
-        return cls(
-            spell_id=spell_id,
-            timestamp=event.timestamp,
-            event_type=event.type,
-        )
-
     def model_dump(self, **kwargs: typing.Any) -> dict[str, typing.Any]:
         kwargs.setdefault("by_alias", True)
         kwargs.setdefault("exclude_unset", True)
@@ -57,29 +47,16 @@ class Cast(base.BaseModel):
         time_fmt = utils.format_time(self.timestamp)
         return f"Cast(id={self.spell_id}, ts={time_fmt})"
 
-    @property
-    def spell(self) -> WowSpell | None:
-        return WowSpell.get(spell_id=self.spell_id)
-
-    def get_duration(self) -> int:
-        if self.duration:
-            return self.duration
-
-        if self.spell:
-            return int(self.spell.duration * 1000)
-
-        return 0
-
     ############################################################################
     # Cast Processing functions
     #
-    def convert_to_start_event(self) -> None:
+    def convert_to_start_event(self, default_duration: int) -> None:
         """Convert this Cast into a start event.
 
         eg.: Convert from "remove debuff" to "apply debuff"
-        and automatically shift the timestamp based on the spell default duration
+        and automatically shift the timestamp based on the spell default duration (in milliseconds).
         """
-        duration = self.get_duration()
+        duration = self.duration or default_duration
         if not duration:
             # TMP hack for eg.: Phase Events, where we're only interested in remove event
             return
@@ -88,7 +65,7 @@ class Cast(base.BaseModel):
         self.timestamp -= duration
 
 
-def process_auras(events: list[Cast]) -> list[Cast]:
+def process_auras(events: list[Cast], game_data: GameData) -> list[Cast]:
     """Calculate Aura Durations from "applybuff" to "applydebuff".
 
     Also converts "removebuff" events without matching "apply"
@@ -127,15 +104,15 @@ def process_auras(events: list[Cast]) -> list[Cast]:
                 event.spell_id = -1
             else:
                 # Automatically create start event
-                event.convert_to_start_event()
+                event.convert_to_start_event(game_data.default_duration(event.spell_id))
 
     return [event for event in events if event.spell_id >= 0]
 
 
-def process_until_events(casts: list[Cast]) -> list[Cast]:
+def process_until_events(casts: list[Cast], game_data: GameData) -> list[Cast]:
     """Dynamically set the duration from the corresponding "until"-event."""
     for cast in casts:
-        spell = cast.spell
+        spell = game_data.get_spell(cast.spell_id)
         if not (spell and spell.until):
             continue
 
