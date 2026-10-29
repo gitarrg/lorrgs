@@ -1,6 +1,6 @@
 """All the Game Data of one Game Version, indexed for lookup (ADR 0003).
 
-A `GameData` is built once per Game Version, at import, from the objects its package defines.
+A `GameData` is built once per Game Version, at import, in the `version.py` of its package.
 Every Game Version owns its `GameData`; lookups never mix between Game Versions.
 """
 
@@ -8,16 +8,12 @@ from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
 import functools
-import types
 import typing
 from collections import defaultdict
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.models.raid_zone import AUTO_DIFFICULTY, RaidZone
-from lorgs.models.season import Season
-from lorgs.models.wow_class import WowClass
-from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spell import SpellTag, WowSpell
 from lorgs.models.wow_trinket import WowTrinket
 
@@ -26,36 +22,10 @@ if typing.TYPE_CHECKING:
     from lorgs.models.difficulty import RaidDifficulty
     from lorgs.models.dungeon import Dungeon
     from lorgs.models.raid_boss import RaidBoss
+    from lorgs.models.season import Season
+    from lorgs.models.wow_class import WowClass
+    from lorgs.models.wow_role import WowRole
     from lorgs.models.wow_spec import WowSpec
-
-
-T = typing.TypeVar("T")
-
-# modules outside of these prefixes are never searched for Game Data
-_SHARED_PREFIX = "lorgs.data.expansions."
-
-
-def _modules_of(package: types.ModuleType) -> list[types.ModuleType]:
-    """The package, its imported submodules and the `expansions/` modules it imported."""
-    prefix = package.__name__
-    found: dict[str, types.ModuleType] = {}
-    todo = [package]
-    while todo:
-        module = todo.pop()
-        if module.__name__ in found:
-            continue
-        found[module.__name__] = module
-        for value in vars(module).values():
-            if not isinstance(value, types.ModuleType):
-                continue
-            if value.__name__.startswith((prefix + ".", _SHARED_PREFIX)):
-                todo.append(value)
-    return list(found.values())
-
-
-def _members[T](modules: list[types.ModuleType], cls: type[T]) -> list[T]:
-    """The module-level instances of `cls`."""
-    return utils.uniqify(v for module in modules for v in vars(module).values() if isinstance(v, cls))
 
 
 class GameData:  # ruff: ignore[too-many-public-methods]
@@ -84,24 +54,6 @@ class GameData:  # ruff: ignore[too-many-public-methods]
         """Spells that no Actor Type holds (yet)."""
 
         self._link_back_references()
-
-    @classmethod
-    def from_package(
-        cls,
-        package: types.ModuleType,
-        current_season: Season,
-        difficulties: tuple[RaidDifficulty, ...],
-    ) -> GameData:
-        """Collect everything the Game Version's package (and the `expansions/` modules it imports) defines."""
-        modules = _modules_of(package)
-        return cls(
-            roles=_members(modules, WowRole),
-            classes=_members(modules, WowClass),
-            seasons=_members(modules, Season),
-            current_season=current_season,
-            difficulties=difficulties,
-            spells=_members(modules, WowSpell),
-        )
 
     def _link_back_references(self) -> None:
         for role in self.roles:

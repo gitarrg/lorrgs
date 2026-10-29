@@ -1,11 +1,10 @@
 """Game data of the Retail Game Version.
 
-Registers the Classes, Specs and their spells, plus every expansion's Raids and Dungeons
-Retail uses. The `lorgs.data` package loads this package when Retail is the active Game Version.
+Registers the Retail Classes, Specs and their spells, plus every expansion's Raids and Dungeons.
+`version.py` builds the Game Data and the Game Version from them.
 """
 
 # ruff: file-ignore[unused-import, unsorted-imports]
-
 
 # Roles
 from lorgs.data.retail.roles import *
@@ -37,21 +36,5 @@ from lorgs.data.expansions import midnight
 from lorgs.data.retail.season import CURRENT_SEASON
 
 # Game Data
-import sys
-
-from lorgs.models.difficulty import RaidDifficulty
-from lorgs.models.game_data import GameData
-from lorgs.models.game_version import GameVersion
-
-GAME_DATA = GameData.from_package(
-    sys.modules[__name__],
-    CURRENT_SEASON,
-    difficulties=(RaidDifficulty.HEROIC, RaidDifficulty.MYTHIC),
-)
-
-GAME_VERSION = GameVersion(
-    name="retail",
-    title="Retail",
-    wcl_game_version=1,
-    data=GAME_DATA,
-)
+from lorgs.data.retail.version import GAME_DATA as GAME_DATA
+from lorgs.data.retail.version import GAME_VERSION as GAME_VERSION

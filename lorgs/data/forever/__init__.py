@@ -1,32 +1,24 @@
 """Game data of the WoW Forever Game Version.
 
 Registers the Classes and Specs of the beta and the Classic Raids (no spells yet).
+`version.py` builds the Game Data and the Game Version from them.
 `lorgs.data` imports this package, so every process serves Forever.
 """
 
-# Game Data
-import sys
+# ruff: file-ignore[unused-import, unsorted-imports]
 
-from lorgs.data.forever.classes import *
+# Roles
 from lorgs.data.forever.roles import *
-from lorgs.data.forever.season import CURRENT_SEASON as CURRENT_SEASON
-from lorgs.models.difficulty import RaidDifficulty
-from lorgs.models.game_data import GameData
-from lorgs.models.game_version import GameVersion
 
+# Classes
+from lorgs.data.forever.classes import *
 
-GAME_DATA = GameData.from_package(  # ruff: ignore[non-empty-init-module]
-    sys.modules[__name__],
-    CURRENT_SEASON,
-    difficulties=(RaidDifficulty.NORMAL,),
-)
+# Raids
+from lorgs.data.expansions import classic
 
+# Seasons
+from lorgs.data.forever.season import CURRENT_SEASON
 
-GAME_VERSION = GameVersion(  # ruff: ignore[non-empty-init-module]
-    name="forever",
-    title="WoW Forever",
-    wcl_game_version=99,  # placeholder until #86
-    data=GAME_DATA,
-    collapse_raids=True,
-    has_comp_modes=False,
-)
+# Game Data
+from lorgs.data.forever.version import GAME_DATA as GAME_DATA
+from lorgs.data.forever.version import GAME_VERSION as GAME_VERSION

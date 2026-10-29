@@ -19,19 +19,5 @@ from lorgs.data.expansions import mists_of_pandaria
 from lorgs.data.mists.season import CURRENT_SEASON
 
 # Game Data
-import sys
-
-from lorgs.models.difficulty import RaidDifficulty
-from lorgs.models.game_data import GameData
-from lorgs.models.game_version import GameVersion
-
-GAME_DATA = GameData.from_package(sys.modules[__name__], CURRENT_SEASON, difficulties=(RaidDifficulty.HEROIC,))
-
-GAME_VERSION = GameVersion(
-    name="mists",
-    title="Classic: Mists of Pandaria",
-    wcl_game_version=6,
-    data=GAME_DATA,
-    collapse_raids=True,
-    has_comp_modes=False,
-)
+from lorgs.data.mists.version import GAME_DATA as GAME_DATA
+from lorgs.data.mists.version import GAME_VERSION as GAME_VERSION

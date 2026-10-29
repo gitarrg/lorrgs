@@ -13,11 +13,11 @@ def test_api_starts_and_serves_classes_and_specs() -> None:
     assert {route: status for route, (status, _) in routes.items()} == dict.fromkeys(routes, 200)
     assert len(routes["/api/forever/classes"][1]) == 9
     assert len(routes["/api/forever/specs"][1]["specs"]) == 27
-    assert len(routes["/api/forever/zones"][1]) == 7
-    assert len(routes["/api/forever/bosses"][1]["bosses"]) == 59
+    assert len(routes["/api/forever/zones"][1]) == 2
+    assert len(routes["/api/forever/bosses"][1]["bosses"]) == 9
     assert routes["/api/forever/spells"][1] == {}
     assert routes["/api/forever/trinkets"][1] == {}
-    assert len(routes["/api/forever/seasons/current"][1]["raids"]) == 7
+    assert len(routes["/api/forever/seasons/current"][1]["raids"]) == 2
     assert routes["/api/forever/roles"][1]["roles"], "every Game Version has its own roles"
 
 
@@ -29,5 +29,5 @@ def test_current_season_is_forever() -> None:
 
 def test_task_keywords_expand_to_the_specs() -> None:
     assert len(PAYLOAD_EXPANDERS["spec_slug"]({"game_version": "forever"})) == 27
-    assert len(PAYLOAD_EXPANDERS["boss_slug"]({"game_version": "forever"})) == 59
+    assert len(PAYLOAD_EXPANDERS["boss_slug"]({"game_version": "forever"})) == 9
     assert PAYLOAD_EXPANDERS["difficulty"]({"game_version": "forever"}) == ["normal"]
