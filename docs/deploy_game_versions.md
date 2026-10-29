@@ -1,58 +1,39 @@
-# Deploy Mists + Forever
+# Deploy Mists + Forever (CDK)
 
-No code changes needed. IAM and CORS (incl. `*.lorrgs-frontend.pages.dev`) are already fine.
+`infra/` is a CDK app (Python) for every Game Version except Retail. Retail is not deployed by anything yet.
 
-## 1. AWS resources
+| Stack | Contains |
+| --- | --- |
+| `lorrgs-shared` | Lambda layers `lorrgs-shared-requirements` and `lorrgs-shared-core` (shared by all Game Versions) |
+| `lorrgs-<version>` | 2 FIFO queues, `-api` and `-sqs` Lambdas (code + SQS triggers), 6h refresh schedule, API Gateway HTTP API, CloudFront distribution, IAM roles |
 
-- Needs `uv` on the PATH (`PATH=$PATH:~/.local/bin`).
-- Dry run, then apply:
-  ```bash
-  for v in mists forever; do scripts/setup_game_version.py $v; done
-  for v in mists forever; do scripts/setup_game_version.py $v --apply; done
-  ```
-- Note the printed Function URLs (`https://xxxx.lambda-url.eu-west-1.on.aws/`).
-- Creates per version: 2 FIFO queues, 2 Lambdas, SQS triggers, Function URL, DISABLED 6h schedule.
+`scripts/deploy` wraps the CDK CLI (`npx aws-cdk@2`); `scripts/deploy --help` lists the usual commands. If jsii complains about its package cache, set `JSII_RUNTIME_PACKAGE_CACHE_ROOT` to a private directory.
 
-## 2. Deploy code
+## One-time
 
-- Push to `main` (GitHub Action), or manually:
-  ```bash
-  AWS_CONFIG_FILE=.github/workflows/aws_config PYTHONPATH=. uv run python scripts/deploy.py
-  ```
+1. `scripts/deploy bootstrap aws://746912274922/eu-west-1`
+2. Put the credentials in `.env` (repo root): the keys in `SECRETS` (`infra/stacks.py`). The deploy copies them onto the Lambdas; use the Retail values.
+3. Mists was created by the old setup script and CDK can't adopt those resources. Delete them first (they hold no data): Lambdas `lorrgs-mists-api` / `lorrgs-mists-sqs`, queues `lorrgs-mists-main.fifo` / `lorrgs-mists-user-reports.fifo`, schedule `lorrgs-mists-load_spec_rankings`.
 
-## 3. API URL env vars
-
-- The setup script already sets `LORRGS_API_URL_RETAIL`, `LORRGS_API_URL_MISTS`, and `LORRGS_API_URL_FOREVER` on the new Lambdas (`lorrgs-mists-api`, `lorrgs-forever-api`, and the `sqs` ones). Retail (`lorrgs-api`) still needs them set by hand:
-  ```
-  LORRGS_API_URL_RETAIL=https://api2.lorrgs.io
-  LORRGS_API_URL_MISTS=https://mists-api.lorrgs.io
-  LORRGS_API_URL_FOREVER=https://forever-api.lorrgs.io
-  ```
-- Credentials are not copied. Set `WCL_*`, `DISCORD_*`, `REDIS_URL`, `SECRET_KEY`, and `MONGO_URI` on the new Lambdas (same values as Retail).
-- Without the API urls the version doesn't show in the frontend menu.
-
-## 4. Cloudflare
-
-- DNS: proxied CNAMEs, host only (no `https://`, no trailing `/`):
-  - `mists-api` → mists Function URL host
-  - `forever-api` → forever Function URL host
-- Origin Rule per hostname (Rules → Origin Rules):
-  - Match `http.host eq "mists-api.lorrgs.io"` (same for forever)
-  - Set Host Header to the Function URL host (Lambda URLs reject other Hosts)
-- Check: `curl https://mists-api.lorrgs.io/api/game_versions`
-
-## 5. Frontend preview
+## Deploy
 
 ```bash
-cd ~/wow/lorrgs-frontend
-git push -u origin multi_version
+scripts/deploy diff    # dry run
+scripts/deploy         # deploy all stacks
 ```
 
-- Pages builds a preview at `https://multi-version.lorrgs-frontend.pages.dev` (check Pages → Deployments).
-- No Pages env vars needed (uses `api2.lorrgs.io`). Production stays on `main`.
+Code or layer changes are picked up by the same command. Assets are hashed by their sources (package folder, `uv.lock`); unchanged ones are not rebuilt or uploaded.
+A changed credential in `.env` (e.g. the yearly `WCL_AUTH_TOKEN`) is only picked up by a deploy.
 
-## 6. Later
+## Cloudflare
 
-- Enable the schedules in EventBridge Scheduler once there is boss data: `lorrgs-mists-load_spec_rankings`, `lorrgs-forever-load_spec_rankings`.
+CloudFront has no custom domain; Cloudflare stays in front.
+
+- DNS: proxied CNAME `<version>-api` → the stack output `DistributionDomain`.
+- Origin Rule per hostname: Host Header = the `DistributionDomain` value.
+- Check: `curl https://mists-api.lorrgs.io/api/game_versions`
+
+## Later
+
+- Enable the refresh schedule once there is boss data: `GAME_VERSIONS` in `infra/app.py`.
 - Forever `wcl_game_version=99` is a placeholder until #86.
-- `WCL_AUTH_TOKEN` expires yearly; rotate it on all Lambdas.

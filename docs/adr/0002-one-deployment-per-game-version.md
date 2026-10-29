@@ -11,4 +11,4 @@ Lorrgs serves more than one Game Version (Retail, WoW Forever). Each Game Versio
 
 - Code outside `lorgs/data/` must not import a specific Game Version's data; it goes through the registries or the active Game Version's config.
 - A single process never holds two Game Versions' data, so tests that use real game data run once per Game Version.
-- Infrastructure exists once per Game Version; `scripts/deploy.py` deploys the same layers and code to each prefixed set of Lambdas.
+- Infrastructure exists once per Game Version; the CDK app in `infra/` deploys the same layers and code to each Game Version's stack.

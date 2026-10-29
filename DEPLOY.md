@@ -2,6 +2,12 @@
 
 ## One time
 
+bootstrap CDK
+
+```sh
+scripts/deploy bootstrap aws://{AWS_ACCOUNT}/eu-west-1
+```
+
 setup github secrets
 
 ```sh

@@ -1,5 +1,8 @@
 {
   "app": "uv run --group infra python -m infra.app",
   "output": "infra/cdk.out",
-  "watch": { "exclude": ["**/__pycache__", "infra/cdk.out"] }
+  "watch": { "exclude": ["**/__pycache__", "infra/cdk.out"] },
+  "context": {
+    "@aws-cdk/core:defaultCrossStackReferences": "strong"
+  }
 }
