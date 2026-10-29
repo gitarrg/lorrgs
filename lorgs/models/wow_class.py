@@ -4,6 +4,8 @@ from __future__ import annotations
 # IMPORT STANDARD LIBRARIES
 import typing
 
+import pydantic
+
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.models.wow_actor import WowActor
@@ -56,8 +58,13 @@ class WowClass(WowActor):
             "color": self.color,
         }
 
+    _specs: set[WowSpec] | None = pydantic.PrivateAttr(default=None)
+    """Filled in by the Game Version's `GameData`."""
+
     @property
     def specs(self) -> set[WowSpec]:
+        if self._specs is not None:
+            return self._specs
         from lorgs.models.wow_spec import WowSpec  # ruff: ignore[import-outside-top-level]
 
         return {spec for spec in WowSpec.list() if spec.wow_class == self}

@@ -92,3 +92,52 @@ def get_api_routes(*paths: str) -> dict[str, tuple[int, typing.Any]]:
         return {path: await get(app, path) for path in paths}
 
     return asyncio.run(main())
+
+
+def assert_game_data_matches_registry() -> None:
+    """The active Game Version's `GameData` holds the same objects as the `MemoryModel` registry.
+
+    Runs in a fresh interpreter: other tests register their own objects in the (process wide) registry.
+    """
+    import subprocess
+    import sys
+
+    result = subprocess.run(
+        [sys.executable, "-c", "from test.helpers import _assert_game_data_matches_registry as f; f()"],
+        capture_output=True, text=True, check=False, env={**os.environ, "PYTHONPATH": "."},
+    )
+    assert result.returncode == 0, result.stdout + result.stderr
+
+
+def _assert_game_data_matches_registry() -> None:
+    """The active Game Version's `GameData` holds the same objects as the `MemoryModel` registry."""
+    from lorgs.data import GAME_DATA
+    from lorgs.models.dungeon import Dungeon
+    from lorgs.models.raid_boss import RaidBoss
+    from lorgs.models.raid_zone import RaidZone
+    from lorgs.models.season import Season
+    from lorgs.models.wow_class import WowClass
+    from lorgs.models.wow_role import WowRole
+    from lorgs.models.wow_spec import WowSpec
+    from lorgs.models.wow_spell import WowSpell
+
+    collections = [
+        (WowRole, GAME_DATA.roles),
+        (WowClass, GAME_DATA.classes),
+        (WowSpec, GAME_DATA.specs),
+        (RaidZone, GAME_DATA.zones),
+        (RaidBoss, GAME_DATA.bosses),
+        (Dungeon, GAME_DATA.dungeons),
+        (Season, GAME_DATA.seasons),
+    ]
+    for model, objects in collections:
+        assert {id(obj) for obj in objects} == {id(obj) for obj in model.list()}, model.__name__
+
+    # `add_buff(spell)` stores a copy, which an Actor Type holds but the registry never saw
+    registered = {id(spell) for spell in WowSpell.list()}
+    held = {id(spell) for spell in GAME_DATA.spells}
+    assert registered <= held
+    buff_copies = {
+        id(buff) for actor in [*GAME_DATA.classes, *GAME_DATA.specs, *GAME_DATA.bosses] for buff in actor.buffs
+    }
+    assert held - registered <= buff_copies

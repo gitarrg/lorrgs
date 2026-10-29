@@ -7,6 +7,9 @@ import typing
 from enum import Enum
 from typing import Any
 
+# IMPORT THIRD PARTY LIBRARIES
+import pydantic
+
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.models.wow_actor import WowActor
@@ -16,6 +19,7 @@ from lorgs.models.wow_trinket import WowTrinket
 if typing.TYPE_CHECKING:
     from lorgs.clients import wcl
     from lorgs.models.warcraftlogs_cast import Cast
+    from lorgs.models.raid_zone import RaidZone
     from lorgs.models.warcraftlogs_fight import Phase
     from lorgs.models.wow_spell import WowSpell
 
@@ -46,6 +50,14 @@ class RaidBoss(WowActor):
 
     phase_type: PhaseType = PhaseType.STATIC
     """Type of phases for this boss."""
+
+    _zone: RaidZone | None = pydantic.PrivateAttr(default=None)
+    """Filled in by the Game Version's `GameData`."""
+
+    @property
+    def zone(self) -> RaidZone | None:
+        """The Raid Zone this Boss belongs to."""
+        return self._zone
 
     def __repr__(self):
         return f"<RaidBoss(id={self.id} name={self.name})>"
