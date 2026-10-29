@@ -1,22 +1,14 @@
 #!/usr/bin/env bash
-# Deploy the CDK stacks in infra/ (lorrgs-all serves every Game Version; old lorrgs-mists, lorrgs-forever).
+# Deploy the CDK stacks in infra/: lorrgs-layers (Lambda layers) and lorrgs (serves every Game Version).
 #
 # Usage: scripts/deploy [<cdk command> [args...]]
 #
-#   scripts/deploy                             deploy all stacks (default: "deploy --all")
-#   scripts/deploy deploy lorrgs-forever       deploy one stack
+#   scripts/deploy                 deploy both stacks (default: "deploy --all")
+#   scripts/deploy deploy lorrgs   deploy one stack
+#   scripts/deploy diff            show what would change (dry run)
+#   scripts/deploy synth           build templates + assets into infra/cdk.out (offline)
+#   scripts/deploy list            list the stacks
 #
-#   scripts/deploy diff                        show what would change (dry run)
-#   scripts/deploy diff lorrgs-forever         for one stack (plus lorrgs-shared, which it depends on)
-#   scripts/deploy diff lorrgs-forever -e      for that stack only (--exclusively)
-#
-#   scripts/deploy deploy --all --no-execute   create change sets without applying them
-#   scripts/deploy synth                       build templates + assets into infra/cdk.out (offline)
-#   scripts/deploy list                        list the stacks
-#
-# Stacks: lorrgs-shared (layers), lorrgs-all (queues, Lambdas, schedules, API Gateway, CloudFront for every Game Version),
-# lorrgs-<version> (the same for one Game Version, until cutover).
-#   scripts/deploy diff lorrgs-all -e          only the new stack
 # Arguments are passed to the CDK CLI (npx aws-cdk@2); see docs/deploy_game_versions.md.
 
 if [[ "$1" == "-h" || "$1" == "--help" ]]; then

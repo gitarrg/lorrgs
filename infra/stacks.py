@@ -1,10 +1,7 @@
-"""Stacks: `lorrgs-shared` (layers), `lorrgs-all` (serves every Game Version) and the old `lorrgs-<version>` ones.
+"""Stacks: `lorrgs-layers` (Lambda layers) and `lorrgs` (serves every Game Version, ADR 0003).
 
-Cloudflare -> CloudFront -> API Gateway -> <prefix>-api -> SQS -> <prefix>-sqs
+Cloudflare -> CloudFront -> API Gateway -> lorrgs-api -> SQS -> lorrgs-sqs
                                           EventBridge Scheduler -> SQS (every 6h, per Game Version)
-
-`lorrgs-all` (prefix `lorrgs-all`, host `api.lorrgs.io`) is the end state (ADR 0003). The per-version stacks
-(prefix `lorrgs-<version>`, host `<version>-api.lorrgs.io`) stay up until the cutover.
 """
 
 from __future__ import annotations
@@ -68,7 +65,7 @@ class SharedStack(cdk.Stack):
             return lambda_.LayerVersion(
                 self,
                 name,
-                layer_version_name=f"lorrgs-shared-{name}",
+                layer_version_name=f"lorrgs-layers-{name}",
                 code=code,
                 compatible_runtimes=[lambda_.Runtime.PYTHON_3_13],
                 compatible_architectures=[lambda_.Architecture.ARM_64],
@@ -98,24 +95,22 @@ class RefreshSchedule(typing.NamedTuple):
     enabled: bool = False
 
 
-class ApiStack(cdk.Stack):
-    """Queues, Lambdas, API Gateway and CloudFront under one name `prefix` and one host."""
+class LorrgsStack(cdk.Stack):
+    """Queues, Lambdas, schedules, API Gateway and CloudFront serving every Game Version on `api.lorrgs.io`."""
 
-    schedule_ids_per_version: bool
+    prefix = "lorrgs"
+    domain = "api.lorrgs.io"
 
     def __init__(
         self,
         scope: Construct,
         construct_id: str,
         *,
-        prefix: str,
-        domain: str,
+        schedules: dict[str, RefreshSchedule],
         layers: list[lambda_.ILayerVersion],
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
-        self.prefix = prefix
-        self.domain = domain
         self.layers = layers
         self.certificate = acm.Certificate.from_certificate_arn(
             self,
@@ -141,18 +136,19 @@ class ApiStack(cdk.Stack):
         for fn in (api_fn, sqs_fn):
             main_queue.grant_send_messages(fn)
             user_queue.grant_send_messages(fn)
-            # the code serves every Game Version, whichever stack it is deployed in
             for version in GAME_VERSIONS.values():
                 bucket.grant_read_write(fn, f"{version.s3_prefix}*")
             for table in tables:
                 table.grant_read_write_data(fn)
 
         sqs_fn.add_event_source(
-            event_sources.SqsEventSource(main_queue, batch_size=5, max_concurrency=2, report_batch_item_failures=True)
+            event_sources.SqsEventSource(main_queue, batch_size=5, max_concurrency=2, report_batch_item_failures=True),
         )
         sqs_fn.add_event_source(event_sources.SqsEventSource(user_queue, batch_size=1, report_batch_item_failures=True))
 
-        self.add_schedules(main_queue)
+        role = self.schedule_role(main_queue)
+        for name, refresh in schedules.items():
+            self.schedule(main_queue, role, GAME_VERSIONS[name], refresh_cron(refresh.hour_offset), refresh.enabled)
 
         # API
         http_api = apigw.HttpApi(
@@ -168,11 +164,8 @@ class ApiStack(cdk.Stack):
 
         cdk.CfnOutput(self, "DistributionDomain", value=distribution.distribution_domain_name)
 
-    def add_schedules(self, queue: sqs.Queue) -> None:
-        raise NotImplementedError
-
     def name(self, name: str) -> str:
-        """eg.: lorrgs-mists-api"""
+        """eg.: lorrgs-api"""
         return f"{self.prefix}-{name}"
 
     def queue(self, name: str) -> sqs.Queue:
@@ -224,10 +217,8 @@ class ApiStack(cdk.Stack):
         }
         scheduler.CfnSchedule(
             self,
-            f"schedule-{game_version.name}" if self.schedule_ids_per_version else "schedule",
-            name=self.name(f"load_spec_rankings_{game_version.name}")
-            if self.schedule_ids_per_version
-            else self.name("load_spec_rankings"),
+            f"schedule-{game_version.name}",
+            name=self.name(f"load_spec_rankings-{game_version.name}"),
             state="ENABLED" if enabled else "DISABLED",
             schedule_expression=cron,
             schedule_expression_timezone="Europe/London",
@@ -278,56 +269,3 @@ class ApiStack(cdk.Stack):
                 viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.ALLOW_ALL,  # allow HTTP and HTTPS
             ),
         )
-
-
-class GameVersionStack(ApiStack):
-    """The old per-version stack (`lorrgs-<version>`): serves one host and refreshes its own Game Version."""
-
-    schedule_ids_per_version = False
-
-    def __init__(
-        self,
-        scope: Construct,
-        construct_id: str,
-        *,
-        game_version: GameVersion,
-        layers: list[lambda_.ILayerVersion],
-        schedule_enabled: bool,
-        **kwargs,
-    ) -> None:
-        self.gv = game_version
-        self.schedule_enabled = schedule_enabled
-        super().__init__(
-            scope,
-            construct_id,
-            prefix=f"lorrgs-{game_version.name}",
-            domain=f"{game_version.name}-api.lorrgs.io",
-            layers=layers,
-            **kwargs,
-        )
-
-    def add_schedules(self, queue: sqs.Queue) -> None:
-        self.schedule(queue, self.schedule_role(queue), self.gv, "cron(0 */6 * * ? *)", self.schedule_enabled)
-
-
-class AllGameVersionsStack(ApiStack):
-    """One stack serving every Game Version (ADR 0003): `api.lorrgs.io`, one pair of queues, one schedule each."""
-
-    schedule_ids_per_version = True
-
-    def __init__(
-        self,
-        scope: Construct,
-        construct_id: str,
-        *,
-        schedules: dict[str, RefreshSchedule],
-        layers: list[lambda_.ILayerVersion],
-        **kwargs,
-    ) -> None:
-        self.schedules = schedules
-        super().__init__(scope, construct_id, prefix="lorrgs-all", domain="api.lorrgs.io", layers=layers, **kwargs)
-
-    def add_schedules(self, queue: sqs.Queue) -> None:
-        role = self.schedule_role(queue)
-        for name, refresh in self.schedules.items():
-            self.schedule(queue, role, GAME_VERSIONS[name], refresh_cron(refresh.hour_offset), refresh.enabled)

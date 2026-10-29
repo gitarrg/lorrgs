@@ -1,4 +1,4 @@
-"""CDK app: `lorrgs-all` serves every Game Version; the old per-version stacks stay up until the cutover.
+"""CDK app: `lorrgs-layers` (Lambda layers) and `lorrgs` (serves every Game Version).
 
 scripts/deploy diff
 scripts/deploy
@@ -13,7 +13,7 @@ import dotenv
 # IMPORT LOCAL LIBRARIES
 from lorgs.data import FOREVER, MISTS, RETAIL
 
-from .stacks import AllGameVersionsStack, GameVersionStack, RefreshSchedule, SharedStack
+from .stacks import LorrgsStack, RefreshSchedule, SharedStack
 
 
 ENV = cdk.Environment(account="746912274922", region="eu-west-1")
@@ -26,37 +26,21 @@ SCHEDULES = {
     FOREVER.name: RefreshSchedule(hour_offset=2, enabled=False),
 }
 
-# Game Versions that still have an old per-version stack (Retail never had one)
-OLD_GAME_VERSIONS = {
-    MISTS,
-    FOREVER,
-}
-
 dotenv.load_dotenv()  # the Lambdas' SECRETS (see infra/stacks.py)
 
 app = cdk.App()
 
 shared = SharedStack(
     app,
-    "lorrgs-shared",
+    "lorrgs-layers",
     env=ENV,
 )
 
-AllGameVersionsStack(
+LorrgsStack(
     app,
-    "lorrgs-all",
+    "lorrgs",
     env=ENV,
     layers=shared.layers,  # ty: ignore[invalid-argument-type]
     schedules=SCHEDULES,
 )
-
-for game_version in OLD_GAME_VERSIONS:
-    GameVersionStack(
-        app,
-        f"lorrgs-{game_version.name}",
-        env=ENV,
-        game_version=game_version,
-        layers=shared.layers,  # ty: ignore[invalid-argument-type]
-        schedule_enabled=False,
-    )
 app.synth()
