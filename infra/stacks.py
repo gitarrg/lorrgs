@@ -16,6 +16,7 @@ import aws_cdk as cdk
 from aws_cdk import (
     aws_apigatewayv2 as apigw,
     aws_apigatewayv2_integrations as apigw_integrations,
+    aws_certificatemanager as acm,
     aws_cloudfront as cloudfront,
     aws_cloudfront_origins as origins,
     aws_dynamodb as dynamodb,
@@ -49,6 +50,9 @@ SECRETS = (
     "SECRET_KEY",
 )
 """Copied from the deploying environment (`.env` locally) onto the Lambdas."""
+
+# Existing cert for lorrgs.io and *.lorrgs.io. CloudFront requires it to live in us-east-1.
+API_CERTIFICATE_ARN = os.getenv("API_CERTIFICATE_ARN", "")
 
 
 class SharedStack(cdk.Stack):
@@ -85,6 +89,11 @@ class GameVersionStack(cdk.Stack):
         super().__init__(scope, construct_id, **kwargs)
         self.gv = game_version
         self.layers = layers
+        self.certificate = acm.Certificate.from_certificate_arn(
+            self,
+            "api-certificate",
+            API_CERTIFICATE_ARN or "",
+        )
 
         # SQS
         main_queue = self.queue("main")
@@ -213,12 +222,15 @@ class GameVersionStack(cdk.Stack):
             self,
             "distribution",
             comment=self.name("api"),
+            domain_names=[self.gv.api_url],
+            certificate=self.certificate,
+            minimum_protocol_version=cloudfront.SecurityPolicyProtocol.TLS_V1_2_2021,
             price_class=cloudfront.PriceClass.PRICE_CLASS_100,
             default_behavior=cloudfront.BehaviorOptions(
                 origin=origins.HttpOrigin(f"{http_api.http_api_id}.execute-api.{self.region}.amazonaws.com"),
                 allowed_methods=cloudfront.AllowedMethods.ALLOW_ALL,
                 cache_policy=cache_policy,
                 origin_request_policy=cloudfront.OriginRequestPolicy.ALL_VIEWER_EXCEPT_HOST_HEADER,
-                viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+                viewer_protocol_policy=cloudfront.ViewerProtocolPolicy.ALLOW_ALL,  # allow HTTP and HTTPS
             ),
         )

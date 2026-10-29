@@ -27,11 +27,24 @@ A changed credential in `.env` (e.g. the yearly `WCL_AUTH_TOKEN`) is only picked
 
 ## Cloudflare
 
-CloudFront has no custom domain; Cloudflare stays in front.
+CloudFront accepts `Host: <version>-api.lorrgs.io` because that name is an alternate domain on the distribution. The viewer certificate is the existing `*.lorrgs.io` cert (`API_CERTIFICATE_ARN` in `infra/stacks.py`). Cloudflare only proxies; it does not rewrite the Host header.
 
-- DNS: proxied CNAME `<version>-api` → the stack output `DistributionDomain`.
-- Origin Rule per hostname: Host Header = the `DistributionDomain` value.
-- Check: `curl https://mists-api.lorrgs.io/api/game_versions`
+**DNS → Records** in the `lorrgs.io` zone. One proxied CNAME per Game Version, aimed at the stack output `DistributionDomain`.
+
+| Type | Name | Target | Proxy |
+| --- | --- | --- | --- |
+| CNAME | `mists-api` | `d3unhum4eh0gk0.cloudfront.net` | Proxied |
+| CNAME | `forever-api` | `d18wjavgpzemrj.cloudfront.net` | Proxied |
+
+`scripts/deploy` attaches the certificate and the alternate domain, and sets the viewer protocol policy to HTTP and HTTPS. Cloudflare connects to CloudFront over HTTP, so redirecting that hop to HTTPS loops. Browsers still use HTTPS up to Cloudflare. No new DNS records.
+
+### Check
+
+```bash
+curl -sI -H "Origin: https://multi-version.lorrgs-frontend.pages.dev" https://forever-api.lorrgs.io/api/roles
+```
+
+Expect `HTTP/2 200` and `access-control-allow-origin` echoing that origin. A CloudFront HTML 403 means the alternate domain is not on the distribution yet.
 
 ## Later
 

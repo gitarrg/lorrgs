@@ -8,6 +8,10 @@ Compares how top players and raid groups use their cooldowns, using fights recor
 A separately released edition of World of Warcraft with its own classes, spells, raids and Warcraft Logs rankings, e.g. Retail, WoW Forever or WoW Classic: Mists of Pandaria. Each Game Version is compared only against itself.
 _Avoid_: game, flavor, version (alone)
 
+**Game Data**:
+The hand-written description of one Game Version's roles, classes, specs, spells, raids, bosses, dungeons and seasons that Lorrgs compares Fights against. Each Game Version has its own Game Data, even where two of them describe the same thing.
+_Avoid_: static data, world data, registry
+
 **Patch**:
 A numbered content update within a Game Version (e.g. 12.0, 12.0.5).
 _Avoid_: version
