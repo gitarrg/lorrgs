@@ -60,7 +60,22 @@ curl -sI -H "Origin: https://multi-version.lorrgs-frontend.pages.dev" https://ap
 
 Expect `HTTP/2 200` and `access-control-allow-origin` echoing that origin (the app sets the CORS headers). A CloudFront HTML 403 means the alternate domain is not on the distribution yet.
 
+## Rollout (cutover, #116)
+
+The new `lorrgs` stack cannot be deployed next to prod: the current Retail prod resources are not managed by CDK and have the names the stack wants (Lambdas `lorrgs-api` / `lorrgs-sqs`, queues `lorrgs-main.fifo` / `lorrgs-user-reports.fifo`, behind `api2.lorrgs.io`). CloudFormation does not adopt or overwrite them: the deploy fails on "already exists" and rolls back. So the old ones are deleted first, which means a gap in service unless it is kept short. Do this when the frontend is ready for `api.lorrgs.io/api/{game_version}/`.
+
+1. Frontend ready: it calls `https://api.lorrgs.io/api/{game_version}/...`, and maps a User Report's `game_version` with `wcl_game_version` from `/api/game_versions`. Do not switch it yet.
+2. Copy Retail's un-prefixed S3 rankings to `retail/` (Spec and Comp Ranking objects), so nothing is missing after the switch. Repeat right before step 5 to catch the last refresh.
+3. Pause the old Retail refresh schedule so nothing writes un-prefixed keys during the cutover.
+4. `scripts/deploy diff`: expect only creates for `lorrgs-layers` and `lorrgs`.
+5. Delete the old Retail Lambdas `lorrgs-api` and `lorrgs-sqs` and queues `lorrgs-main.fifo` and `lorrgs-user-reports.fifo` (plus their old event source mappings, roles and schedule). Drain the queues first or accept dropping queued tasks. The API is down from here until step 7.
+6. `scripts/deploy` (creates `lorrgs-layers` and `lorrgs`). Add the Cloudflare `api` CNAME to the `DistributionDomain` output.
+7. Run the check under "Check" below, then switch the frontend to `api.lorrgs.io`.
+8. Enable the schedules (`enabled=True` in `infra/app.py`, redeploy) one Game Version at a time, once each has boss data. Retail's last.
+9. Clean up: delete the old stacks (`lorrgs-shared`, `lorrgs-mists`, `lorrgs-forever`), the `mists-api` / `forever-api` DNS records, the `api2.lorrgs.io` routing, the un-prefixed Retail ranking keys in S3, and the `GameVersion` fields `api_url` and `deploy_prefix`.
+
+Rollback before step 5: nothing to undo. After it: redeploy the old Retail Lambdas and queues, and point the frontend back at `api2.lorrgs.io`.
+
 ## Later
 
-- Cutover (#116): switch the frontend to `api.lorrgs.io`, copy Retail's un-prefixed S3 rankings to `retail/`, enable the schedules, delete the old stacks (`lorrgs-shared`, `lorrgs-mists`, `lorrgs-forever`) and the `mists-api` / `forever-api` DNS records.
 - Forever `wcl_game_version=99` is a placeholder until #86.
