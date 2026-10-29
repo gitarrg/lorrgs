@@ -49,9 +49,9 @@ def _modules_of(package: types.ModuleType) -> list[types.ModuleType]:
     return list(found.values())
 
 
-def _members(modules: list[types.ModuleType], cls: type[T]) -> list[T]:
+def _members[T](modules: list[types.ModuleType], cls: type[T]) -> list[T]:
     """The module-level instances of `cls`."""
-    return utils.uniqify((v for module in modules for v in vars(module).values() if isinstance(v, cls)))
+    return utils.uniqify(v for module in modules for v in vars(module).values() if isinstance(v, cls))
 
 
 class GameData:
@@ -60,7 +60,7 @@ class GameData:
     Only the roots are stored. Everything derived from them is computed on first access.
     """
 
-    def __init__(  # ruff: ignore[too-many-arguments]
+    def __init__(
         self,
         *,
         roles: list[WowRole],
@@ -92,10 +92,10 @@ class GameData:
 
     def _link_back_references(self) -> None:
         for role in self.roles:
-            role._specs = {spec for spec in self.specs if spec.role is role}  # noqa: SLF001
+            role._specs = {spec for spec in self.specs if spec.role is role}  # ruff: ignore[private-member-access]
         for zone in self.zones:
             for boss in zone.bosses:
-                boss._zone = zone  # noqa: SLF001
+                boss._zone = zone  # ruff: ignore[private-member-access]
 
     ####################################################################################################################
     # Derived
@@ -113,20 +113,23 @@ class GameData:
 
     @functools.cached_property
     def specs(self) -> list[WowSpec]:
-        return utils.uniqify((spec for wow_class in self.classes for spec in sorted(wow_class.specs)))
+        return utils.uniqify(spec for wow_class in self.classes for spec in sorted(wow_class.specs))
 
     @functools.cached_property
     def bosses(self) -> list[RaidBoss]:
-        return utils.uniqify((boss for zone in self.zones for boss in zone.bosses))
+        return utils.uniqify(boss for zone in self.zones for boss in zone.bosses)
 
     @functools.cached_property
     def spells(self) -> list[WowSpell]:
         """Every spell an Actor Type, a zone or a dungeon holds, plus the stand-alone ones."""
         spells: list[WowSpell] = []
+
         for actor in (*self.classes, *self.specs, *self.bosses):
             spells += [*actor.spells, *actor.buffs, *actor.debuffs, *actor.events]
+
         for owner in (*self.zones, *self.dungeons, *self.bosses):
             spells += owner.trinkets
+
         spells += self.extra_spells
         spells += [spell.until for spell in spells if spell.until]
         return utils.uniqify(spells)
