@@ -62,7 +62,7 @@ Expect `HTTP/2 200` and `access-control-allow-origin` echoing that origin (the a
 
 ## Rollout (cutover, #116)
 
-The new `lorrgs` stack cannot be deployed next to prod: the current Retail prod resources are not managed by CDK and have the names the stack wants (Lambdas `lorrgs-api` / `lorrgs-sqs`, queues `lorrgs-main.fifo` / `lorrgs-user-reports.fifo`, behind `api2.lorrgs.io`). CloudFormation does not adopt or overwrite them: the deploy fails on "already exists" and rolls back. So the old ones are deleted first, which means a gap in service unless it is kept short. Do this when the frontend is ready for `api.lorrgs.io/api/{game_version}/`.
+The new `lorrgs` stack cannot be deployed next to prod: the current Retail prod resources are not managed by CDK and have the names the stack wants (Lambdas `lorrgs-api` / `lorrgs-sqs`, queues `lorrgs-main.fifo` / `lorrgs-user-reports.fifo`, behind `api2.lorrgs.io`). CloudFormation does not adopt or overwrite them: the deploy fails on "already exists" and rolls back. So the old ones are deleted first, which means a gap in service unless it is kept short. Do this when the frontend is ready for `api.lorrgs.io/api/{game_version}/`. `docs/aws_cutover_inventory.md` lists every AWS resource this makes obsolete and when it can be deleted.
 
 1. Frontend ready: it calls `https://api.lorrgs.io/api/{game_version}/...`, and maps a User Report's `game_version` with `wcl_game_version` from `/api/game_versions`. Do not switch it yet.
 2. Copy Retail's un-prefixed S3 rankings to `retail/` (Spec and Comp Ranking objects), so nothing is missing after the switch. Repeat right before step 5 to catch the last refresh.
