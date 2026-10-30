@@ -120,7 +120,7 @@ class CompRanking(base.S3Model):
     """all reports for this boss."""
 
     # Config
-    key: typing.ClassVar[str] = "{boss_slug}"
+    key: typing.ClassVar[str] = "{game_version}/{table_name}/{boss_slug}"
 
     ############################################################################
     # Query
