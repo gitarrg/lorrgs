@@ -44,11 +44,26 @@ T = typing.TypeVar("T", bound="BaseClient")
 CONCURRENT_CONNECTIONS = int(os.getenv("CONCURRENT_CONNECTIONS") or 10)
 """int: Number of parallel Requests."""
 
+RETRY_STATUSES = {429, 500, 502, 503, 504}
+"""HTTP statuses worth retrying."""
+
+MAX_RETRIES = 3
+"""Retries per request after the first attempt."""
+
+MAX_RETRY_DELAY = 30
+"""Longest wait (in seconds) before a retry; a longer `Retry-After` fails right away."""
+
+
+def _retry_delay(resp: aiohttp.ClientResponse, attempt: int) -> float:
+    """Seconds to wait before retrying `resp`: its `Retry-After`, or an exponential backoff."""
+    retry_after = resp.headers.get("Retry-After", "")
+    try:
+        return float(retry_after)
+    except ValueError:
+        return 2**attempt
+
 
 class BaseClient:
-
-    _sem = asyncio.Semaphore(value=CONCURRENT_CONNECTIONS)
-    """Semaphore used to control the number of parallel Requests."""
 
     # reference used to provide a singelton interface.
     _instance: typing.Self | None = None
@@ -84,8 +99,8 @@ class BaseClient:
 
     def __init__(self) -> None:
         self.headers: dict[str, typing.Any] = {}
-        # self.session: typing.Optional[aiohttp.ClientSession] = None
-        session_timeout = aiohttp.ClientTimeout(total=60)
+        # No total timeout: requests queued behind `limit_per_host` would spend it waiting for a free connection.
+        session_timeout = aiohttp.ClientTimeout(sock_connect=10, sock_read=60)
         conn = aiohttp.TCPConnector(limit_per_host=CONCURRENT_CONNECTIONS)
         self.session = aiohttp.ClientSession(connector=conn, timeout=session_timeout)
 
@@ -97,22 +112,42 @@ class BaseClient:
     async def ensure_auth(self) -> None:
         """Ensure the Client is authenticated prior making any Requests."""
 
+    async def refresh_auth(self, rejected_headers: dict[str, typing.Any]) -> bool:
+        """Get new credentials after `rejected_headers` got a 401. Return whether a retry makes sense."""
+        return False
+
     @timeit
     async def query(self, url: str, query: str) -> typing.Any:
         """Executes a "query" to "url".
 
         reuses a shared ClientSession and limits the maximum number of
-        parallel connections
+        parallel connections. Retries rate limits and server errors with a
+        backoff, and a 401 once after refreshing the credentials.
 
         Args:
             url (str): the url to execute the query on
             query (str): the query to execute
 
         """
-        await self.ensure_auth()
-        async with self.session.get(url=url, json={"query": query}, headers=self.headers) as resp:
-            resp.raise_for_status()
-            return await resp.json()
+        auth_refreshed = False
+        for attempt in range(MAX_RETRIES + 1):
+            await self.ensure_auth()
+            headers = dict(self.headers)
+            async with self.session.get(url=url, json={"query": query}, headers=headers) as resp:
+                last_attempt = attempt == MAX_RETRIES
+                if resp.status == 401 and not auth_refreshed and not last_attempt and await self.refresh_auth(headers):
+                    auth_refreshed = True
+                    continue
+
+                delay = _retry_delay(resp, attempt)
+                if resp.status not in RETRY_STATUSES or last_attempt or delay > MAX_RETRY_DELAY:
+                    resp.raise_for_status()
+                    return await resp.json()
+
+            logger.warning("HTTP %s from %s, retrying in %ss", resp.status, url, delay)
+            await asyncio.sleep(delay)
+
+        raise AssertionError("unreachable: the last attempt always returns or raises")
 
 
 class WarcraftlogsClient(BaseClient):
@@ -134,6 +169,8 @@ class WarcraftlogsClient(BaseClient):
 
         logger.info("NEW CLIENT: %s", self.client_id)
         self._num_queries = 0
+        # one token request at a time, shared by all queries waiting on it
+        self._auth_lock = asyncio.Lock()
 
     ################################
     #   Connection
@@ -147,20 +184,33 @@ class WarcraftlogsClient(BaseClient):
             "client_secret": self.client_secret,
         }
         logger.debug("Auth: %s", self.client_id)
-        async with aiohttp.ClientSession() as session, session.post(url=self.URL_AUTH, data=data) as resp:
-            try:
-                response: dict[str, str] = await resp.json()
-            except Exception:
-                logger.error(resp.text())
-                raise
+        async with self.session.post(url=self.URL_AUTH, data=data) as resp:
+            if not resp.ok:
+                logger.error("Auth failed: %s %s", resp.status, await resp.text())
+                resp.raise_for_status()
+            response: dict[str, str] = await resp.json()
 
-        token = response.get("access_token", "")
+        token = response.get("access_token")
+        if not token:
+            raise WarcraftlogsQueryError([f"Auth response has no access_token: {response}"])
         self.headers["Authorization"] = "Bearer " + token
 
     async def ensure_auth(self) -> None:
         if self.headers.get("Authorization"):
             return
-        await self.update_auth_token()
+        async with self._auth_lock:
+            if not self.headers.get("Authorization"):
+                await self.update_auth_token()
+
+    async def refresh_auth(self, rejected_headers: dict[str, typing.Any]) -> bool:
+        if not (self.client_id and self.client_secret):
+            return False
+        async with self._auth_lock:
+            # another query may have refreshed it while we waited
+            if self.headers.get("Authorization") == rejected_headers.get("Authorization"):
+                logger.warning("Auth token rejected, requesting a new one")
+                await self.update_auth_token()
+        return True
 
     async def get_rate_info(self) -> dict[str, int]:
         query = """
