@@ -3,7 +3,6 @@
 # pylint: disable=invalid-name
 from __future__ import annotations
 
-import asyncio
 import datetime
 import enum
 import functools
@@ -260,22 +259,6 @@ def get(iterable: typing.Iterable[T], **attrs) -> T | None:
         if all_(pred(elem) == value for pred, value in converted):
             return elem
     return None
-
-
-def run_in_executor(_func):
-    """Wraps a function to run inside the asyncio default executor.
-
-    We can use this to make blocking functions async (more or less)
-
-    """
-
-    @functools.wraps(_func)
-    def wrapped(*args, **kwargs):
-        loop = asyncio.get_event_loop()
-        func = functools.partial(_func, *args, **kwargs)
-        return loop.run_in_executor(executor=None, func=func)
-
-    return wrapped
 
 
 class CaseInsensitiveEnum(enum.Enum):

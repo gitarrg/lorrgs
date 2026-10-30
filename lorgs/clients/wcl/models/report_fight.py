@@ -1,10 +1,7 @@
 from __future__ import annotations
 
-# IMPORT STANDARD LIBRARIES
-import typing
-
 # IMPORT THIRD PARTY LIBRARIES
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel, ValidationInfo, field_validator, model_validator
 
 
 class PhaseTransition(BaseModel):
@@ -61,16 +58,18 @@ class ReportFight(BaseModel):
     phaseTransitions: list[PhaseTransition] = []
     """The start times of the phases in the fight."""
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def remove_nones(cls, values):
         return {k: v for k, v in values.items() if v is not None}
 
-    @validator("fightPercentage", "bossPercentage")
-    def fix_percentage(cls, value: float, values: dict[str, typing.Any]):
+    @field_validator("fightPercentage", "bossPercentage")
+    @classmethod
+    def fix_percentage(cls, value: float, info: ValidationInfo):
         """Set Fight/Boss Percentage for Kills to 0.0.
 
         Sometimes we receive very low values like 0.01-0.04
         for kills rather than exact 0.0.
         """
-        kill: bool = values.get("kill", True)
+        kill: bool = info.data.get("kill", True)
         return 0 if kill else value

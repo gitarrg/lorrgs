@@ -5,7 +5,7 @@ import datetime
 import typing
 
 # IMPORT THIRD PARTY LIBRARIES
-from pydantic import BaseModel, root_validator, validator
+from pydantic import BaseModel, field_validator, model_validator
 
 # IMPORT LOCAL LIBRARIES
 from .guild import Guild
@@ -53,7 +53,8 @@ class Report(BaseModel):
     guild: Guild | None = None
     """The guild that the report belongs to. If this is null, then the report was uploaded to the user's personal logs."""
 
-    @validator("events", pre=True)
+    @field_validator("events", mode="before")
+    @classmethod
     def unwrap_event_data(cls, v):
         """Events come in wraped in an ReportEventPaginator. Lets skip that step."""
         v = v or {}
@@ -68,6 +69,7 @@ class ReportData(BaseModel):
 
     report: Report
 
-    @root_validator(pre=True)
+    @model_validator(mode="before")
+    @classmethod
     def unwrap_data(cls, v):
         return (v and v.get("reportData")) or v

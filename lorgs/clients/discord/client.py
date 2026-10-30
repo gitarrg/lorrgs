@@ -16,7 +16,7 @@ from lorgs.clients.discord.models import (
 )
 
 
-API_URL = "https://discordapp.com/api"
+API_URL = "https://discord.com/api/v10"
 
 DISCORD_CLIENT_ID = os.getenv("DISCORD_CLIENT_ID")
 DISCORD_CLIENT_SECRET = os.getenv("DISCORD_CLIENT_SECRET")
