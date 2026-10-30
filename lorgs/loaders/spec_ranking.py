@@ -189,13 +189,29 @@ class SpecRankingLoader(BaseLoader):
             self.ranking.reports = self.ranking.reports[:limit]
 
         ##############################################
-        # Load each report separately so a private or deleted one can be dropped.
+        # Load each report separately so a private, deleted or failing one can be dropped.
         top_fight = self.ranking.get_top_fight()
         game_data = self.game_data
-        skipped = await asyncio.gather(
+        results = await asyncio.gather(
             *[SpecRankingLoader._load_report(report, game_data, client, top_fight) for report in self.ranking.reports],
+            return_exceptions=True,
         )
-        skipped_ids = {report_id for report_id in skipped if report_id}
+        skipped_ids: set[str] = set()
+        errors: list[Exception] = []
+        for report, result in zip(self.ranking.reports, results):
+            if isinstance(result, Exception):
+                logger.error("Skipping report %s: failed to load", report.report_id, exc_info=result)
+                errors.append(result)
+                skipped_ids.add(report.report_id)
+            elif isinstance(result, BaseException):  # eg.: CancelledError
+                raise result
+            elif result:
+                skipped_ids.add(result)
+
+        # a failure in every report is not a few bad logs: fail the task instead of saving an empty ranking
+        if errors and len(errors) == len(results):
+            raise errors[0]
+
         if skipped_ids:
             self.ranking.reports = [report for report in self.ranking.reports if report.report_id not in skipped_ids]
 

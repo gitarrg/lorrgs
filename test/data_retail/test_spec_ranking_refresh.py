@@ -7,7 +7,7 @@ import logging
 import pytest
 
 import lorgs.data  # noqa: F401  # registers specs and bosses
-from lorgs.clients.wcl.client import PrivateReportError, UnknownReportError
+from lorgs.clients.wcl.client import PrivateReportError, UnknownReportError, WarcraftlogsQueryError
 from lorgs.data import RETAIL
 from lorgs.loaders.spec_ranking import SpecRankingLoader
 from lorgs.models.warcraftlogs_boss import Boss
@@ -135,3 +135,32 @@ def _stored_report(code: str, *, fight_id: int, name: str, amount: float) -> Rep
             ),
         ],
     )
+
+
+def test_refresh_drops_a_report_that_fails_to_load(caplog: pytest.LogCaptureFixture) -> None:
+    ranking = _refresh(caplog, WarcraftlogsQueryError)
+
+    assert [report.report_id for report in ranking.reports] == [GOOD_REPORT]
+    assert PRIVATE_REPORT in caplog.text
+
+
+class AlwaysFailingWarcraftlogsClient(FakeWarcraftlogsClient):
+    """Rankings load, every report fails."""
+
+    async def query(self, query: str) -> dict[str, object]:
+        if "characterRankings" in query:
+            return RANKINGS
+        raise WarcraftlogsQueryError(["Internal server error."])
+
+
+def test_refresh_fails_when_every_report_fails() -> None:
+    ranking = SpecRanking(
+        game_version="retail",
+        difficulty="mythic",
+        spec_slug="paladin-holy",
+        boss_slug="nekzali-the-soulcoiler",
+        metric="hps",
+    )
+
+    with pytest.raises(WarcraftlogsQueryError):
+        asyncio.run(SpecRankingLoader(ranking, RETAIL).load(client=AlwaysFailingWarcraftlogsClient(Exception), limit=10))
