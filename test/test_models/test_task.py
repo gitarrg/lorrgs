@@ -1,4 +1,9 @@
+import pytest
+
 from lorgs.models.task import Task
+
+
+pytestmark = pytest.mark.skip(reason="needs a Redis on localhost:6379")
 
 
 def test_create_task():

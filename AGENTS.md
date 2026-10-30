@@ -52,7 +52,7 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
 - Stored rankings have a required `game_version` and S3 keys `{game_version}/{table}/...` (Retail too). A Spec Ranking key is `{game_version}/spec_ranking/{season_slug}/{spec_slug}/{boss_slug}__{difficulty}__{metric}`, using the current season of its Game Version. SQS payloads carry a required `game_version`, which is also the start of the FIFO message group; `queue_updates.py --game-version <name>` picks it.
 - Tests, one run for every Game Version: `PYTHONPATH=. uv run pytest test`
   - Tests that use real game data live in `test/data_retail/`, `test/data_forever/` or `test/data_mists/`; they all run together. Every other test builds what it needs from fixtures (`test/conftest.py`).
-  - `test_task.py` needs a Redis on `localhost:6379`.
+  - `test_task.py` is skipped: it needs a Redis on `localhost:6379`.
 - Scripts use the shebang `#!/usr/bin/env -S PYTHONPATH=. uv run`; e.g. `scripts/load_report.py <wcl report url>`.
 - Deploy: `scripts/deploy` (CDK app in `infra/`: Lambda layers, code, queues, schedules, API Gateway, CloudFront: stacks `lorrgs-layers` and `lorrgs`). See `docs/deploy_game_versions.md`. Pushing to `main` only syncs `lorrgs_assets/` to S3 (GitHub Action). There is no PR CI.
 - Logs: `aws logs tail /aws/lambda/lorrgs-api --follow --since 10m`.
