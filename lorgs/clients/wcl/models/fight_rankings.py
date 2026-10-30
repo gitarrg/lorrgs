@@ -18,7 +18,7 @@ class FightRankingsItemsReport(BaseModel):
 
     fightID: int = 0
 
-    startTime: datetime.datetime = datetime.datetime.fromtimestamp(0)
+    startTime: datetime.datetime = datetime.datetime.fromtimestamp(0, datetime.UTC)
     """Report Start Time."""
 
 
@@ -37,7 +37,7 @@ class FightRankingsFight(BaseModel):
     duration: int = 0
     """Fight Duration in Milliseconds."""
 
-    startTime: datetime.datetime = datetime.datetime.fromtimestamp(0)
+    startTime: datetime.datetime = datetime.datetime.fromtimestamp(0, datetime.UTC)
     """Fight Start Time in Milliseconds."""
 
     guild: Guild | None = None

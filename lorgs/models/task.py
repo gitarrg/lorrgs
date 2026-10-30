@@ -22,7 +22,7 @@ class Task(redis.RedisModel):
 
     task_id: str = ""
     status: str = STATUS.NEW
-    updated: datetime.datetime = pydantic.Field(default_factory=datetime.datetime.now)
+    updated: datetime.datetime = pydantic.Field(default_factory=lambda: datetime.datetime.now(datetime.UTC))
     message: str = ""
     items: dict[str, typing.Any] = {}
 

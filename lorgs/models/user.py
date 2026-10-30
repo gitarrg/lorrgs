@@ -4,7 +4,7 @@ from __future__ import annotations
 
 # IMPORT THIRD PARTY LIBRARIES
 import typing
-from datetime import datetime
+from datetime import UTC, datetime
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import discord
@@ -46,7 +46,7 @@ class User(base.DynamoDBModel):
     extra_roles: list[str] = []
 
     # last time the roles have been checked
-    updated: datetime = datetime.min
+    updated: base.UTCDatetime = base.UTC_MIN
 
     # Config
     pkey: typing.ClassVar[str] = "{discord_id}"
@@ -101,7 +101,7 @@ class User(base.DynamoDBModel):
         self.discord_tag = user_info.tag
         self.discord_avatar = member_info.avatar or user_info.avatar or ""
         self.discord_roles = member_info.roles or []
-        self.updated = datetime.utcnow()
+        self.updated = datetime.now(UTC)
 
     def add_extra_role(self, role: str) -> None:
         """Add an extra role to the user."""

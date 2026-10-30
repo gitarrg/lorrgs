@@ -14,7 +14,7 @@ LOG_FORMAT = "[%(reltime)s][%(name)s] %(levelname)s: [%(funcName)s] %(message)s"
 
 class DeltaTimeFormatter(logging.Formatter):
     def format(self, record):
-        duration = datetime.datetime.utcfromtimestamp(record.relativeCreated / 1000)
+        duration = datetime.datetime.fromtimestamp(record.relativeCreated / 1000, datetime.UTC)
         record.reltime = duration.strftime("%M:%S.%f")[:7]
 
         # add a custom "funcName" so we can overwrite it if needed

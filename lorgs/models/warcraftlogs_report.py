@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-import datetime
 import typing
 
 # IMPORT LOCAL LIBRARIES
@@ -23,7 +22,7 @@ class Report(base.BaseModel):
     report_id: str
     """16 digit unique id/code as used on warcraftlogs."""
 
-    start_time: datetime.datetime = datetime.datetime.min
+    start_time: base.UTCDatetime = base.UTC_MIN
     """time the report itself has started. The first fight might start later."""
 
     title: str = ""

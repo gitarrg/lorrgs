@@ -24,7 +24,7 @@ class UserReport(Report, base.DynamoDBModel):
     """
 
     # datetime: timetamp of last update
-    updated: datetime.datetime = datetime.datetime.min
+    updated: base.UTCDatetime = base.UTC_MIN
     ttl: int = 0
 
     # Config

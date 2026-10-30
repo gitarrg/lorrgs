@@ -33,7 +33,7 @@ class Phase(pydantic.BaseModel):
 class Fight(base.BaseModel):
     fight_id: int
 
-    start_time: datetime.datetime
+    start_time: base.UTCDatetime
     """Encounter Start."""
 
     duration: int = 0

@@ -26,10 +26,10 @@ class Report(BaseModel):
     title: str = ""
     """A title for the report."""
 
-    startTime: datetime.datetime = datetime.datetime.fromtimestamp(0)
+    startTime: datetime.datetime = datetime.datetime.fromtimestamp(0, datetime.UTC)
     """The start time of the report. Representing the timestamp of the first event contained in the report.."""
 
-    endTime: datetime.datetime = datetime.datetime.fromtimestamp(0)
+    endTime: datetime.datetime = datetime.datetime.fromtimestamp(0, datetime.UTC)
     """The end time of the report. Representing the timestamp of the last event contained in the report."""
 
     visibility: typing.Literal["public", "private", "unlisted"] = "public"

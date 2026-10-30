@@ -9,6 +9,7 @@ import typing
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.data import get_game_version
+from lorgs.models.base import UTC_MIN, UTCDatetime
 from lorgs.models.base.s3 import S3Model
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.warcraftlogs_report import Report  # ruff: ignore[typing-only-first-party-import] # pydantic requires this import
@@ -31,7 +32,7 @@ class SpecRanking(S3Model):
     reports: list[Report] = []
     """Sorted Reports for this Spec & Boss."""
 
-    updated: datetime.datetime = datetime.datetime.min
+    updated: UTCDatetime = UTC_MIN
     dirty: bool = False
 
     # Config
@@ -58,8 +59,7 @@ class SpecRanking(S3Model):
         A ranking with fewer stored reports than ``limit`` is refreshed.
         Extra stored reports do not force a Refresh: a smaller limit can ride the
         time window. Otherwise a ranking is refreshed only when its last Refresh
-        is more than ``refresh_after`` old. Timestamps stored without a timezone
-        are treated as UTC.
+        is more than ``refresh_after`` old.
         """
         if now is None:
             now = datetime.datetime.now(datetime.UTC)
@@ -67,10 +67,7 @@ class SpecRanking(S3Model):
             return True
         if len(self.reports) < limit:
             return True
-        updated = self.updated
-        if updated.tzinfo is None:
-            updated = updated.replace(tzinfo=datetime.UTC)
-        return now - updated > self.refresh_after
+        return now - self.updated > self.refresh_after
 
     def post_init(self) -> None:
         for report in self.reports:

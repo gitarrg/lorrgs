@@ -2,7 +2,8 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-from typing import Any, ClassVar, Self, TypeVar
+import datetime
+from typing import Annotated, Any, ClassVar, Self, TypeVar
 
 # IMPORT THIRD PARTY LIBRARIES
 import pydantic
@@ -12,6 +13,20 @@ from lorgs import utils
 
 
 T = TypeVar("T", bound="BaseModel")
+
+
+def as_utc(value: datetime.datetime) -> datetime.datetime:
+    """Treat a timestamp without a timezone as UTC."""
+    if value.tzinfo is None:
+        return value.replace(tzinfo=datetime.UTC)
+    return value
+
+
+UTCDatetime = Annotated[datetime.datetime, pydantic.AfterValidator(as_utc)]
+"""A timezone-aware datetime. Naive values (stored by older versions) are read as UTC."""
+
+UTC_MIN = datetime.datetime.min.replace(tzinfo=datetime.UTC)
+"""The earliest timezone-aware datetime: default for "never updated"."""
 
 
 class BaseModel(pydantic.BaseModel):

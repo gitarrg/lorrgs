@@ -114,7 +114,7 @@ class CompRanking(base.S3Model):
     # the nameslug of the boss
 
     # datetime: timetamp of last update
-    updated: datetime.datetime = datetime.datetime.min
+    updated: base.UTCDatetime = base.UTC_MIN
 
     reports: list[CompRankingReport] = []
     """all reports for this boss."""

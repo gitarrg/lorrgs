@@ -23,7 +23,7 @@ async def send_metric(prefix: str, **values: int) -> None:
             "name": f"{prefix}.{name}",
             "value": value,
             "interval": 10000,
-            "time": int(datetime.datetime.now().timestamp()),
+            "time": int(datetime.datetime.now(datetime.UTC).timestamp()),
         }
         for name, value in values.items()
     ]
