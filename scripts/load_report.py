@@ -129,7 +129,7 @@ class WarcraftReport(pydantic.BaseModel):
                 print_fight(fight, game_data)
             return
 
-        if not save_report:
+        if save_report:
             user_report.save()
 
         print(self.as_lorrgs_url())
