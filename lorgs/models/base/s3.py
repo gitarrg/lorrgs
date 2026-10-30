@@ -36,7 +36,8 @@ class S3Model(base.BaseModel):
     #
 
     @classmethod
-    def get_json(cls, **kwargs: Any) -> Any:
+    def get_raw(cls, **kwargs: Any) -> bytes:
+        """The stored JSON as bytes, without parsing it."""
         key = cls.get_key(**kwargs)
         try:
             with Timer(f"s3.get_raw: {key}"):
@@ -44,8 +45,11 @@ class S3Model(base.BaseModel):
         except ClientError:
             raise KeyError("Invalid Key: %s", key)
 
-        body = data["Body"]
-        return json.loads(body.read())
+        return data["Body"].read()
+
+    @classmethod
+    def get_json(cls, **kwargs: Any) -> Any:
+        return json.loads(cls.get_raw(**kwargs))
 
     @classmethod
     def get(cls, **kwargs: Any) -> Self | None:

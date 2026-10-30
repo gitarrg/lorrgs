@@ -20,7 +20,6 @@ router = fastapi.APIRouter(tags=["spec_ranking"], prefix="/spec_ranking")
 @router.get("/{spec_slug}/{boss_slug}")
 async def get_spec_ranking(
     game_version: GameVersionDep,
-    response: fastapi.Response,
     spec_slug: str,
     boss_slug: str,
     difficulty: str = AUTO_DIFFICULTY,
@@ -31,13 +30,9 @@ async def get_spec_ranking(
 
     logger.info(f"{spec_slug}/{boss_slug} | start ({difficulty}/{metric})")
 
-    # shorter cache timeout for the start of the tier (where frequent changes happen)
-    response.headers["Cache-Control"] = "max-age=300"
-
     try:
-        # Fetch the json directly for performance reasons.
-        # this avoids parsing the json into a model just to dump it back to json right away
-        return warcraftlogs_ranking.SpecRanking.get_json(
+        # Serve the stored json as it is, without parsing and re-encoding it on every request.
+        body = warcraftlogs_ranking.SpecRanking.get_raw(
             game_version=game_version.name,
             boss_slug=boss_slug,
             spec_slug=spec_slug,
@@ -46,6 +41,10 @@ async def get_spec_ranking(
         )
     except KeyError:
         raise fastapi.HTTPException(status_code=404, detail="Not found.")
+
+    # shorter cache timeout for the start of the tier (where frequent changes happen).
+    # Set on the returned Response: FastAPI drops headers set on an injected one.
+    return fastapi.Response(body, media_type="application/json", headers={"Cache-Control": "max-age=300"})
 
 
 @router.get("/{spec_slug}/{boss_slug}/info")
