@@ -72,7 +72,10 @@ def send_message_batch(payloads: Iterable[payload_type], queue_url="", chunk_siz
 
     # Send
     for entries in utils.chunks(messages, n=chunk_size):
-        SQS_CLIENT.send_message_batch(
+        response = SQS_CLIENT.send_message_batch(
             QueueUrl=queue_url or SQS_QUEUE_URL,
             Entries=entries,
         )
+        # SQS reports rejected entries in the response instead of raising
+        if failed := response.get("Failed"):
+            raise RuntimeError(f"SQS rejected {len(failed)} of {len(entries)} messages: {failed}")

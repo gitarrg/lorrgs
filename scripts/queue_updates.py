@@ -68,8 +68,8 @@ class RankingTask:
     metric: str
 
 
-async def load_remote(task: RankingTask, *, limit: int = 50, clear: bool = False):
-    payload = SpecRankingPayload(
+def build_payload(task: RankingTask, *, limit: int = 50, clear: bool = False) -> SpecRankingPayload:
+    return SpecRankingPayload(
         game_version=task.game_version.name,
         spec_slug=task.spec.full_name_slug,
         boss_slug=task.boss.full_name_slug,
@@ -78,7 +78,11 @@ async def load_remote(task: RankingTask, *, limit: int = 50, clear: bool = False
         limit=limit,
         clear=clear,
     )
-    return sqs.send_message(payload=payload)
+
+
+def load_remote(tasks: list[RankingTask], *, limit: int = 50, clear: bool = False) -> None:
+    sqs.send_message_batch(build_payload(task, limit=limit, clear=clear) for task in tasks)
+    print(f"queued {len(tasks)} tasks")
 
 
 async def load_local(task: RankingTask, *, limit: int = 50, clear: bool = False):
@@ -267,21 +271,19 @@ def confirm() -> bool:
         return False
 
 
-async def run(tasks: list[RankingTask], args: argparse.Namespace) -> None:
-    load = load_local if args.mode == "local" else load_remote
+async def run_local(tasks: list[RankingTask], args: argparse.Namespace) -> None:
+    # ruff: disable[import-outside-top-level]
+    from lorgs.clients.wcl import WarcraftlogsClient
+    # ruff: enable[import-outside-top-level]
+
     try:
         for i, task in enumerate(tasks, start=1):
             print(
                 f"[{i}/{len(tasks)}] {task.spec.full_name_slug} {task.boss.full_name_slug} {task.difficulty} {task.metric}"
             )
-            await load(task, limit=args.limit, clear=args.clear)
+            await load_local(task, limit=args.limit, clear=args.clear)
     finally:
-        if args.mode == "local":
-            # ruff: disable[import-outside-top-level]
-            from lorgs.clients.wcl import WarcraftlogsClient
-            # ruff: enable[import-outside-top-level]
-
-            await WarcraftlogsClient.close_instance()
+        await WarcraftlogsClient.close_instance()
 
 
 def main() -> None:
@@ -301,7 +303,10 @@ def main() -> None:
     if not args.yes and not confirm():
         sys.exit("aborted")
 
-    asyncio.run(run(tasks, args))
+    if args.mode == "local":
+        asyncio.run(run_local(tasks, args))
+    else:
+        load_remote(tasks, limit=args.limit, clear=args.clear)
 
 
 if __name__ == "__main__":

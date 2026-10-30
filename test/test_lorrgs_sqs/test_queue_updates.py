@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 import pathlib
 import sys
@@ -34,9 +33,9 @@ def test_tasks_and_payloads_carry_the_game_version(queue_updates) -> None:
 
     assert task.game_version is MISTS
     assert task.difficulty == "heroic"
-    with mock.patch.object(queue_updates.sqs, "send_message") as send_message:
-        asyncio.run(queue_updates.load_remote(task))
-    payload = send_message.call_args.kwargs["payload"]
+    with mock.patch.object(queue_updates.sqs, "send_message_batch") as send_message_batch:
+        queue_updates.load_remote([task])
+    (payload,) = send_message_batch.call_args.args[0]
     assert payload.game_version == "mists"
 
 
