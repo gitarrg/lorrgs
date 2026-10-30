@@ -73,6 +73,13 @@ async def process_message(message: dict) -> None:
 
         return submit_messages(queue_url, messages)
 
+    if not payloads:
+        logger.warning(f"payload expands to nothing: {payload=}")
+        return
+
+    # a keyword may expand to a single value (eg.: `difficulty=all` in a zone that ranks one difficulty)
+    message = {**message, "body": json.dumps(payloads[0])}
+
     #################################
     # run the Handler
     handler = TASK_HANDLERS.get(task) or TASK_HANDLERS["unknown"]
