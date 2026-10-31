@@ -7,6 +7,19 @@ tables=(
     SpecializationSpells
     SpellName
     SpellCooldowns
+    SpecSetMember
+    TraitCond
+    TraitDefinition
+    TraitEdge
+    TraitNode
+    TraitNodeEntry
+    TraitNodeGroupXTraitCond
+    TraitNodeGroupXTraitNode
+    TraitNodeXTraitCond
+    TraitNodeXTraitNodeEntry
+    TraitSubTree
+    TraitTree
+    TraitTreeLoadout
 )
 
 for table in "${tables[@]}"; do

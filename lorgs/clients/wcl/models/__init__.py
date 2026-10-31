@@ -20,8 +20,8 @@ from .world_data import WorldData
 __all__ = [
     "CharacterRanking",
     "CharacterRankingReportFightData",
-    "CharacterRankings",
     "CharacterRankingTalent",
+    "CharacterRankings",
     "CompositionEntry",
     "DeathEvent",
     "FightRankings",

@@ -147,7 +147,10 @@ def test_query_requests_combatant_info_only_with_talents() -> None:
     for has_talents in (True, False):
         loader = _talent_loader(has_talents=has_talents)
         loader.game_data.get_boss.return_value = mock.MagicMock(id=1)
-        loader.game_data.get_spec.return_value = mock.MagicMock(**{"wow_class.name_slug_cap": "C", "name_slug_cap": "S"})
+        loader.game_data.get_spec.return_value = mock.MagicMock(**{
+            "wow_class.name_slug_cap": "C",
+            "name_slug_cap": "S",
+        })
         assert f"includeCombatantInfo: {str(has_talents).lower()}" in loader.get_query()
 
 

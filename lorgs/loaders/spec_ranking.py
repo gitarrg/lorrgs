@@ -131,7 +131,7 @@ class SpecRankingLoader(BaseLoader):
         for report in self.ranking.reports:
             for fight in report.fights:
                 for player in fight.players:
-                    old_players[(report.report_id, fight.fight_id, player.name)] = player
+                    old_players[report.report_id, fight.fight_id, player.name] = player
 
         # merge new rankings
         for ranking_data in rankings:
