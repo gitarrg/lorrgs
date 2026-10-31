@@ -21,7 +21,7 @@ ENV = cdk.Environment(account="746912274922", region="eu-west-1")
 # Game Version -> its 6h ranking refresh: offset by one hour each (Retail 0/6/12/18, Mists 1/7/13/19,
 # Forever 2/8/14/20) to spread the Warcraft Logs quota. Enable one once it has boss data.
 SCHEDULES = {
-    RETAIL.name: RefreshSchedule(hour_offset=0, enabled=False),
+    RETAIL.name: RefreshSchedule(hour_offset=0, enabled=True),
     MISTS.name: RefreshSchedule(hour_offset=1, enabled=False),
     FOREVER.name: RefreshSchedule(hour_offset=2, enabled=False),
 }
