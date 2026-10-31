@@ -4,6 +4,7 @@ from .character_ranking import (
     CharacterRanking,
     CharacterRankingReportFightData,
     CharacterRankings,
+    CharacterRankingTalent,
 )
 from .fight_rankings import FightRankings, FightRankingsFight, FightRankingsItemsReport
 from .query import Query
@@ -20,6 +21,7 @@ __all__ = [
     "CharacterRanking",
     "CharacterRankingReportFightData",
     "CharacterRankings",
+    "CharacterRankingTalent",
     "CompositionEntry",
     "DeathEvent",
     "FightRankings",

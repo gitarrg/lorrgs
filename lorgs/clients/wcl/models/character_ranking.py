@@ -35,6 +35,16 @@ class CharacterRankingReportServerData(BaseModel):
     """Region of the Server. (eg.: "US", "EU", "KR", "TW")"""
 
 
+class CharacterRankingTalent(BaseModel):
+    """One talent choice of a ranked player (only returned with `includeCombatantInfo`, Retail only)."""
+
+    talentID: int
+    """ID of the talent node *entry* (not a spell id)."""
+
+    points: int = 1
+    """Ranks the player put into it."""
+
+
 class CharacterRanking(BaseModel):
     """Represents a Character/Player on the Rankings for a given Boss/Difficulty/Metric.
 
@@ -64,6 +74,9 @@ class CharacterRanking(BaseModel):
     hidden: bool = False
 
     server: CharacterRankingReportServerData = CharacterRankingReportServerData()
+
+    talents: list[CharacterRankingTalent] = []
+    """Talent choices. Empty unless requested with `includeCombatantInfo` (and known to Warcraft Logs)."""
 
 
 class CharacterRankings(BaseModel):

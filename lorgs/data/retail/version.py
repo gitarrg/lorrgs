@@ -58,4 +58,5 @@ GAME_VERSION = GameVersion(
     title="Retail",
     wcl_game_version=1,
     data=GAME_DATA,
+    has_talents=True,
 )
