@@ -45,6 +45,11 @@ SPECS_FOLDER = "images/specs/"
 LOCAL_SPECS_FOLDER = pathlib.Path(__file__).parent.parent / "lorrgs_assets" / "images" / "specs"
 
 
+EXTRA_ICONS = [
+    "ability_marksmanship.jpg",  # used for "Talents"
+]
+
+
 def get_images(folder: str) -> list[str]:
     """Retrieve a list of images from the S3 bucket.
 
@@ -159,6 +164,10 @@ for spell in spells:
 
     print(f"uploading: {icon} for {spell.name}")
     upload(icon)
+
+for extra_icon in EXTRA_ICONS:
+    print(f"uploading: {extra_icon} for Talents")
+    upload(extra_icon)
 
 
 # Upload the Spec images
