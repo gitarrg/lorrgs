@@ -3,10 +3,8 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-import datetime
 import operator
 import re
-import textwrap
 import typing
 from collections import defaultdict
 from collections.abc import Callable
@@ -17,16 +15,13 @@ import pydantic
 import typing_extensions
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.clients import wcl
 from lorgs.models import base, warcraftlogs_report
-from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_fight import Fight
 from lorgs.models.warcraftlogs_player import Player  # ruff: ignore[typing-only-first-party-import]
 
 
 if typing.TYPE_CHECKING:
     from lorgs.models.game_data import GameData
-    from lorgs.models.game_version import GameVersion
 
 
 class FilterExpression(pydantic.BaseModel):
@@ -121,98 +116,6 @@ class CompRanking(base.S3Model):
 
     # Config
     key: typing.ClassVar[str] = "{game_version}/{table_name}/{boss_slug}"
-
-    ############################################################################
-    # Query
-    #
-    def get_query(self, game_data: GameData, metric: str = "execution", page: int = 1) -> str:
-        """Get the Query to load this Fight Rankings."""
-        boss = game_data.get_boss(full_name_slug=self.boss_slug)
-        if not boss:
-            raise ValueError(f"Unknown Boss: {self.boss_slug}")
-
-        return textwrap.dedent(
-            f"""
-            worldData
-            {{
-                encounter(id: {boss.id})
-                {{
-                    fightRankings(
-                        metric: {metric}
-                        page: {page}
-                    )
-                }}
-            }}
-            """,
-        )
-
-    def add_report(self, fight_data: wcl.FightRankingsFight):
-        """Add a new Report/Fight to the Ranking."""
-        boss = Boss(boss_slug=self.boss_slug)
-
-        fight = CompRankingFight(
-            fight_id=fight_data.report.fightID,
-            start_time=fight_data.startTime,
-            duration=fight_data.duration,
-            boss=boss,
-            players=[],
-            damage_taken=fight_data.damageTaken,
-            deaths=fight_data.deaths,
-        )
-
-        report = CompRankingReport(
-            report_id=fight_data.report.code,
-            start_time=fight_data.report.startTime,
-            fights=[fight],
-        )
-
-        self.reports.append(report)
-
-    async def load_page(self, game_data: GameData, page=0, metric: str = "execution"):
-        """Get Top Fights for a given encounter."""
-        # build a list of old Reports
-        old_reports: list[tuple[str, int]] = []
-        for report in self.reports:
-            for fight in report.fights:
-                old_reports.append((report.report_id, fight.fight_id))
-
-        # execute the query
-        query = self.get_query(game_data, metric=metric, page=page)
-        query_result = await wcl.WarcraftlogsClient.get_instance().query(query)
-        rankings = wcl.Query.model_validate(query_result).world_data.encounter.fightRankings
-
-        # add fights
-        for fight_data in rankings.rankings:
-            key = (fight_data.report.code, fight_data.report.fightID)
-            if key not in old_reports:
-                self.add_report(fight_data)
-
-    async def load(self, game_version: GameVersion, limit: int = 0, *, clear_old: bool = False, page=1):
-        """Fetch reports for this BossRanking.
-
-        params:
-            game_version (GameVersion): the Game Version the ranking belongs to.
-            limit (int): maximum number of reports to load.
-            page (int): page number to load (starts from 1).
-            clear_old (bool): if true old reports will be deleted.
-
-        """
-        if self.game_version != game_version.name:
-            raise ValueError(f"Ranking belongs to Game Version {self.game_version!r}, not {game_version.name!r}")
-        game_data = game_version.data
-
-        # copy the list, to make pydantic belive it has changed
-        self.reports = self.reports[:]
-
-        # old reports
-        if clear_old:
-            self.reports = []
-        await self.load_page(game_data, page=page)
-        if limit:
-            self.reports = self.reports[:limit]
-
-        self.sort_reports()
-        self.updated = datetime.datetime.now(datetime.UTC)
 
     def sort_reports(self) -> None:
         self.reports = sort_reports(self.reports)

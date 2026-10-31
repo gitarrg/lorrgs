@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 # IMPORT LOCAL LIBRARIES
+from lorgs.loaders.comp_ranking import CompRankingLoader
 from lorgs.logger import logger
 from lorgs.models import warcraftlogs_comp_ranking
 from lorgs.models.task_payloads import CompRankingPayload
@@ -25,7 +26,7 @@ async def load_comp_rankings(payload: CompRankingPayload) -> tuple[bool, str]:
 
     ################################
     # load and save
-    await ranking.load(game_version, page=payload.page, clear_old=payload.clear)
+    await CompRankingLoader(ranking, game_version, page=payload.page, clear_old=payload.clear).load()
     ranking.save()
     return True, "done"
 

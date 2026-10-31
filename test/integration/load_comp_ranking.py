@@ -6,6 +6,7 @@ import asyncio
 
 from lorgs.data import RETAIL
 from lorgs.data.retail import GAME_DATA
+from lorgs.loaders.comp_ranking import CompRankingLoader
 from lorgs.models import warcraftlogs_comp_ranking
 
 
@@ -18,7 +19,7 @@ async def test__load_rankings(boss_slug: str, page=1, clear=False) -> None:
 
     ################################
     # load and save
-    await ranking.load(RETAIL, page=page, clear_old=clear)
+    await CompRankingLoader(ranking, RETAIL, page=page, clear_old=clear).load()
     ranking.save()
     return True, "done"
 

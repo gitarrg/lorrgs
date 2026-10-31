@@ -16,6 +16,7 @@ from lorgs.data import GAME_VERSIONS, MISTS, RETAIL
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader, UnsupportedGameVersionError
 from lorgs.models.base.dynamodb import DynamoDBModel
 from lorgs.models.user import User
+from lorgs.loaders.comp_ranking import CompRankingLoader
 from lorgs.models.warcraftlogs_comp_ranking import CompRanking
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 from lorgs.models.warcraftlogs_user_report import UserReport
@@ -145,9 +146,7 @@ def test_overview_loader_rejects_an_unsupported_game_version_naming_it() -> None
 #
 
 
-def test_comp_ranking_load_rejects_another_game_version() -> None:
-    import asyncio
-
+def test_comp_ranking_loader_rejects_another_game_version() -> None:
     ranking = CompRanking(game_version="mists", boss_slug="b")
     with pytest.raises(ValueError, match="belongs to Game Version 'mists', not 'retail'"):
-        asyncio.run(ranking.load(RETAIL))
+        CompRankingLoader(ranking, RETAIL)
