@@ -13,6 +13,7 @@ __pycache__/
 *.scannerwork
 .coverage
 .mypy_cache
+.jsii-cache/
 
 
 ################

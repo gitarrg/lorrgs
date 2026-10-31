@@ -1,4 +1,4 @@
-"""CDK app: `lorrgs-layers` (Lambda layers) and `lorrgs` (serves every Game Version).
+"""CDK app: `lorrgs` (serves every Game Version; Lambda layers live in that stack).
 
 scripts/deploy diff
 scripts/deploy
@@ -13,7 +13,7 @@ import dotenv
 # IMPORT LOCAL LIBRARIES
 from lorgs.data import FOREVER, MISTS, RETAIL
 
-from .stacks import LorrgsStack, RefreshSchedule, SharedStack
+from .stacks import LorrgsStack, RefreshSchedule
 
 
 ENV = cdk.Environment(account="746912274922", region="eu-west-1")
@@ -26,21 +26,14 @@ SCHEDULES = {
     FOREVER.name: RefreshSchedule(hour_offset=2, enabled=False),
 }
 
-dotenv.load_dotenv()  # the Lambdas' SECRETS (see infra/stacks.py)
+dotenv.load_dotenv()  # the Lambdas' SECRETS and API_CERTIFICATE_ARN (see infra/stacks.py)
 
 app = cdk.App()
-
-shared = SharedStack(
-    app,
-    "lorrgs-layers",
-    env=ENV,
-)
 
 LorrgsStack(
     app,
     "lorrgs",
     env=ENV,
-    layers=shared.layers,  # ty: ignore[invalid-argument-type]
     schedules=SCHEDULES,
 )
 app.synth()

@@ -1,7 +1,11 @@
-"""Stacks: `lorrgs-layers` (Lambda layers) and `lorrgs` (serves every Game Version, ADR 0003).
+"""Stack `lorrgs`: serves every Game Version (ADR 0003).
 
 Cloudflare -> CloudFront -> API Gateway -> lorrgs-api -> SQS -> lorrgs-sqs
                                           EventBridge Scheduler -> SQS (every 6h, per Game Version)
+
+Lambda layers live here. A layer version is immutable, so a code change replaces
+it. CloudFormation can replace it in the same stack as the functions that import
+the layer ARN: new version, repoint the functions, then delete the old version.
 """
 
 from __future__ import annotations
@@ -54,27 +58,7 @@ SECRETS = (
 """Copied from the deploying environment (`.env` locally) onto the Lambdas."""
 
 # Existing cert for lorrgs.io and *.lorrgs.io. CloudFront requires it to live in us-east-1.
-API_CERTIFICATE_ARN = os.getenv("API_CERTIFICATE_ARN", "")
-
-
-class SharedStack(cdk.Stack):
-    def __init__(self, scope: Construct, construct_id: str, **kwargs) -> None:
-        super().__init__(scope, construct_id, **kwargs)
-
-        def layer(name: str, code: lambda_.Code) -> lambda_.LayerVersion:
-            return lambda_.LayerVersion(
-                self,
-                name,
-                layer_version_name=f"lorrgs-layers-{name}",
-                code=code,
-                compatible_runtimes=[lambda_.Runtime.PYTHON_3_13],
-                compatible_architectures=[lambda_.Architecture.ARM_64],
-            )
-
-        self.layers = [
-            layer("requirements", assets.requirements_layer()),
-            layer("core", assets.package_layer("lorgs")),
-        ]
+# Read at stack construction, after `dotenv.load_dotenv()` in infra/app.py.
 
 
 REFRESH_INTERVAL_HOURS = 6
@@ -107,15 +91,17 @@ class LorrgsStack(cdk.Stack):
         construct_id: str,
         *,
         schedules: dict[str, RefreshSchedule],
-        layers: list[lambda_.ILayerVersion],
         **kwargs,
     ) -> None:
         super().__init__(scope, construct_id, **kwargs)
-        self.layers = layers
+        self.layers = [
+            self.layer("requirements", assets.requirements_layer()),
+            self.layer("core", assets.package_layer("lorgs")),
+        ]
         self.certificate = acm.Certificate.from_certificate_arn(
             self,
             "api-certificate",
-            API_CERTIFICATE_ARN or "",
+            os.getenv("API_CERTIFICATE_ARN", ""),
         )
 
         # SQS
@@ -173,6 +159,16 @@ class LorrgsStack(cdk.Stack):
     def name(self, name: str) -> str:
         """eg.: lorrgs-api."""
         return f"{self.prefix}-{name}"
+
+    def layer(self, name: str, code: lambda_.Code) -> lambda_.LayerVersion:
+        return lambda_.LayerVersion(
+            self,
+            f"layer-{name}",
+            layer_version_name=f"lorrgs-layers-{name}",
+            code=code,
+            compatible_runtimes=[lambda_.Runtime.PYTHON_3_13],
+            compatible_architectures=[lambda_.Architecture.ARM_64],
+        )
 
     def queue(self, name: str) -> sqs.Queue:
         return sqs.Queue(

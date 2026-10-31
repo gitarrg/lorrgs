@@ -54,7 +54,7 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
   - Tests that use real game data live in `test/data_retail/`, `test/data_forever/` or `test/data_mists/`; they all run together. Every other test builds what it needs from fixtures (`test/conftest.py`).
   - `test_task.py` is skipped: it needs a Redis on `localhost:6379`.
 - Scripts use the shebang `#!/usr/bin/env -S PYTHONPATH=. uv run`; e.g. `scripts/load_report.py <wcl report url>`.
-- Deploy: `scripts/deploy` (CDK app in `infra/`: Lambda layers, code, queues, schedules, API Gateway, CloudFront: stacks `lorrgs-layers` and `lorrgs`). See `docs/deploy_game_versions.md`. Pushing to `main` only syncs `lorrgs_assets/` to S3 (GitHub Action). There is no PR CI.
+- Deploy: `scripts/deploy` (CDK app in `infra/`: one stack, `lorrgs`, holding the Lambda layers, code, queues, schedules, API Gateway and CloudFront). See `docs/deploy_game_versions.md`. Pushing to `main` only syncs `lorrgs_assets/` to S3 (GitHub Action). There is no PR CI.
 - Logs: `aws logs tail /aws/lambda/lorrgs-api --follow --since 10m`.
 - `WCL_AUTH_TOKEN` in `.env` and the Lambdas expires yearly.
 

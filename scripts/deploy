@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
-# Deploy the CDK stacks in infra/: lorrgs-layers (Lambda layers) and lorrgs (serves every Game Version).
+# Deploy the CDK app in infra/: the lorrgs stack (Lambdas, their layers, queues, API).
 #
 # Usage: scripts/deploy [<cdk command> [args...]]
 #
-#   scripts/deploy                 deploy both stacks (default: "deploy --all")
-#   scripts/deploy deploy lorrgs   deploy one stack
+#   scripts/deploy                 deploy (default: "deploy --all")
+#   scripts/deploy deploy lorrgs   deploy the stack
 #   scripts/deploy diff            show what would change (dry run)
 #   scripts/deploy synth           build templates + assets into infra/cdk.out (offline)
 #   scripts/deploy list            list the stacks
