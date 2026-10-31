@@ -110,9 +110,7 @@ def test_spell_variation_is_resolved_to_the_main_spell() -> None:
         {"timestamp": 2000, "type": "cast", "sourceID": 10, "abilityGameID": 777},
     ]
 
-    ActorLoader(actor, game_data, actor_type=MOCK_SPEC).process_query_result(
-        helpers.events_query(events)
-    )
+    ActorLoader(actor, game_data, actor_type=MOCK_SPEC).process_query_result(helpers.events_query(events))
 
     assert [cast.spell_id for cast in actor.casts] == [500, 777]
 

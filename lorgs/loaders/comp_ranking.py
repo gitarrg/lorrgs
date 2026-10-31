@@ -26,14 +26,15 @@ class CompRankingLoader(BaseLoader):
     Only the ranking page is fetched, no fight events.
     """
 
+    metric = "execution"
+    """Ranking metric to query."""
+
     def __init__(
         self,
         ranking: CompRanking,
         game_version: GameVersion,
         *,
-        metric: str = "execution",
         page: int = 1,
-        limit: int = 0,
         clear_old: bool = False,
     ) -> None:
         if ranking.game_version != game_version.name:
@@ -41,9 +42,7 @@ class CompRankingLoader(BaseLoader):
             raise ValueError(msg)
         super().__init__(game_version.data)
         self.ranking = ranking
-        self.metric = metric
         self.page = page
-        self.limit = limit
         self.clear_old = clear_old
 
     def get_query(self) -> str:
@@ -95,7 +94,5 @@ class CompRankingLoader(BaseLoader):
             if (fight_data.report.code, fight_data.report.fightID) not in known:
                 self.add_report(fight_data)
 
-        if self.limit:
-            ranking.reports = ranking.reports[: self.limit]
         ranking.sort_reports()
         ranking.updated = datetime.datetime.now(datetime.UTC)
