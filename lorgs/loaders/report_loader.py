@@ -1,39 +1,27 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
-import asyncio
 import typing
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.loaders.boss_loader import BossLoader
-from lorgs.loaders.fight_loader import FightLoader
-from lorgs.loaders.player_loader import PlayerLoader
+from lorgs.loaders.fights_loader import FightFailure, FightPlan, load_fights
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader
 from lorgs.logger import logger
 
 
 if typing.TYPE_CHECKING:
     from lorgs.clients.wcl.client import WarcraftlogsClient
-    from lorgs.loaders.base_loader import BaseLoader
     from lorgs.models.game_data import GameData
     from lorgs.models.warcraftlogs_report import Report
 
 
 class ReportLoader:
-    """Loader for Report instances.
-
-    Note: this behaves similar to a BaseLoader, but is not a subclass of it.
-    since all the logic is delegated to the other loaders.
-    In the future we might inherit from BaseLoader, but for now it's not really necessary.
-    """
+    """Loads a Report's overview and the Fights picked from it. The Fights themselves are loaded by `load_fights`."""
 
     def __init__(self, report: Report, game_data: GameData) -> None:
         self.report = report
         self.game_data = game_data
 
-    ############################################################################
-    # Load
-    #
     async def load(
         self,
         client: WarcraftlogsClient | None = None,
@@ -41,62 +29,23 @@ class ReportLoader:
         player_ids: list[int] | None = None,
         *,
         load_boss: bool = False,
-    ) -> None:
-        fight_ids = fight_ids or []
-        player_ids = player_ids or []
-
-        # load the report overview if not already loaded
-        # TODO: might have to compare this to the requested fight ids
+    ) -> list[FightFailure]:
+        """Load the overview if missing, then the picked Fights. Returns the Fights that failed."""
         if not self.report.fights:
-            overview_loader = ReportOverviewLoader(report=self.report, game_data=self.game_data)
-            await overview_loader.load(client=client)
+            await ReportOverviewLoader(
+                report=self.report,
+                game_data=self.game_data,
+            ).load(client=client)
 
-        loaders = await self._collect_loaders(
-            client,
-            fight_ids,
-            player_ids,
-            load_boss=load_boss,
-        )
-        loaders = [loader for loader in loaders if loader.needs_load()]
-        logger.info(f"load {len(loaders)} items")
-        if loaders:
-            await asyncio.gather(*[loader.load(client=client) for loader in loaders])
-
-    async def _collect_loaders(
-        self,
-        client: WarcraftlogsClient | None,
-        fight_ids: list[int],
-        player_ids: list[int],
-        *,
-        load_boss: bool,
-    ) -> list[BaseLoader]:
-        loaders: list[BaseLoader] = []
-        for fight_id in fight_ids:
+        plans: list[FightPlan] = []
+        for fight_id in fight_ids or []:
             fight = self.report.get_fight(fight_id)
             if not fight:
-                # ReportOverviewLoader should have loaded the fight
-                # this must be an invalid ID or a bug
+                # invalid id or a bug: the overview should have loaded every Fight
                 logger.error(f"Fight {fight_id} not found in report")
                 continue
+            plan = FightPlan(fight=fight, players=player_ids or None, boss=load_boss)
+            plans.append(plan)
 
-            # make sure the fight overview is loaded
-            # we can't use the ReportOverview since player specs might be
-            # different from fight to fight
-            if not fight.players:
-                await FightLoader(fight=fight, game_data=self.game_data).load(client=client)
-
-            # boss
-            if load_boss and fight.boss:
-                loaders.append(BossLoader(fight.boss, self.game_data))
-
-            # players
-            for player_id in player_ids:
-                player = fight.get_player(source_id=player_id)
-                if not player:
-                    # could be a player thats benched on this fight,
-                    # on a multi-select load
-                    continue
-
-                loaders.append(PlayerLoader(player, game_data=self.game_data))
-
-        return loaders
+        logger.info(f"load {len(plans)} fights")
+        return await load_fights(plans, self.game_data, client=client)

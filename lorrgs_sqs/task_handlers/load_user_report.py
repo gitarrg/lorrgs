@@ -6,6 +6,9 @@ to be triggered via SQS
 
 from __future__ import annotations
 
+# IMPORT STANDARD LIBRARIES
+import typing
+
 # IMPORT LOCAL LIBRARIES
 from lorgs.loaders.report_loader import ReportLoader
 from lorgs.logger import logger
@@ -14,6 +17,10 @@ from lorgs.models.task import Task
 from lorgs.models.task_payloads import UserReportPayload
 from lorgs.models.warcraftlogs_user_report import UserReport
 from lorrgs_sqs.exceptions import TaskValidationError
+
+
+if typing.TYPE_CHECKING:
+    from lorgs.loaders.fights_loader import FightFailure
 
 
 def set_task_item_status(task: Task):
@@ -41,7 +48,8 @@ def set_task_item_status(task: Task):
     return handler
 
 
-async def load_user_report(payload: UserReportPayload) -> None:
+async def load_user_report(payload: UserReportPayload) -> list[FightFailure]:
+    """Load the picked Fights, save what loaded, and return the Fights that failed."""
     logger.info(f"load_user_report: {payload}")
 
     ################################
@@ -49,12 +57,13 @@ async def load_user_report(payload: UserReportPayload) -> None:
     user_report = UserReport.get_or_create(report_id=payload.report_id)
 
     report_loader = ReportLoader(report=user_report, game_data=payload.get_game_version().data)
-    await report_loader.load(
+    failures = await report_loader.load(
         fight_ids=payload.fight_ids,
         player_ids=payload.player_ids,
         load_boss=True,
     )
     user_report.save()
+    return failures
 
 
 async def main(message: dict[str, str]) -> None:
@@ -75,9 +84,17 @@ async def main(message: dict[str, str]) -> None:
 
     # Main
     try:
-        await load_user_report(payload)
+        failures = await load_user_report(payload)
     except:
         task.set(status=task.STATUS.FAILED)
         raise
+
+    if failures:
+        # the error reaches the frontend through the task's message and items
+        msg = "; ".join(f"Fight {f.fight.fight_id}: {type(f.error).__name__}: {f.error}" for f in failures)
+        task.set(status=task.STATUS.FAILED, message=msg)
+        for failure in failures:
+            for player_id in payload.player_ids:
+                task.set(**{f"items.{failure.fight.fight_id}_{player_id}.status": task.STATUS.FAILED})
     else:
         task.set(status=task.STATUS.DONE)
