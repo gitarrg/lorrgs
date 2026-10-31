@@ -39,6 +39,8 @@ jobs:
       # AWS
       - run: scripts/deploy deploy --all --require-approval never
         env:
+          # AWS
+          API_CERTIFICATE_ARN: ${{ secrets.API_CERTIFICATE_ARN }}
           # WCL
           WCL_CLIENT_ID: ${{ secrets.WCL_CLIENT_ID }}
           WCL_CLIENT_SECRET: ${{ secrets.WCL_CLIENT_SECRET }}
