@@ -120,27 +120,27 @@ def _ranking_data(talents: list[dict] | None = None) -> wcl.Query:
     return wcl.Query.model_validate({"worldData": {"encounter": {"characterRankings": {"rankings": [entry]}}}})
 
 
-def test_talents_are_stored_compact() -> None:
+def test_talents_are_stored_as_ranks_by_entry_id() -> None:
     loader = _talent_loader(has_talents=True)
     loader.process_query_result(
         _ranking_data([{"talentID": 100, "points": 1}, {"talentID": 101, "points": 2}, {"talentID": 102}])
     )
 
     player = loader.ranking.players[0]
-    assert player.talents == [100, (101, 2), 102]
-    assert '"talents":[100,[101,2],102]' in player.model_dump_json(exclude_unset=True)
+    assert player.talents == {100: 1, 101: 2, 102: 1}
+    assert '"talents":{"100":1,"101":2,"102":1}' in player.model_dump_json(exclude_unset=True)
 
 
 def test_player_without_talents_has_none() -> None:
     loader = _talent_loader(has_talents=True)
     loader.process_query_result(_ranking_data())
-    assert loader.ranking.players[0].talents == []
+    assert loader.ranking.players[0].talents == {}
 
 
 def test_talents_are_skipped_without_game_version_support() -> None:
     loader = _talent_loader(has_talents=False)
     loader.process_query_result(_ranking_data([{"talentID": 100, "points": 1}]))
-    assert loader.ranking.players[0].talents == []
+    assert loader.ranking.players[0].talents == {}
 
 
 def test_query_requests_combatant_info_only_with_talents() -> None:
@@ -164,6 +164,6 @@ def test_refresh_backfills_talents_without_touching_casts() -> None:
 
     assert len(loader.ranking.players) == 1
     assert loader.ranking.players[0] is player
-    assert player.talents == [(100, 3)]
+    assert player.talents == {100: 3}
     assert player.casts == [mock.sentinel.cast]
     assert "talents" in player.model_fields_set

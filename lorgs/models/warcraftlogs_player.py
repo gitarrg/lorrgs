@@ -21,8 +21,8 @@ class Player(BaseActor):
 
     total: float = 0
 
-    talents: list[int | tuple[int, int]] = []
-    """Talent node entry ids, compact: a bare id for rank 1, `[id, rank]` for a higher rank. Retail Spec Rankings only."""
+    talents: dict[int, int] = {}
+    """Talents as `{node entry id: rank}`. Retail Spec Rankings only."""
 
     deaths: list = []
     resurrects: list = []

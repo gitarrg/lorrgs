@@ -31,9 +31,9 @@ if typing.TYPE_CHECKING:
     from lorgs.models.wow_spec import WowSpec
 
 
-def compact_talents(talents: list[wcl.CharacterRankingTalent]) -> list[int | tuple[int, int]]:
-    """Store a talent as its entry id, and add the rank only when it is above 1."""
-    return [t.talentID if t.points <= 1 else (t.talentID, t.points) for t in talents]
+def talent_ranks(talents: list[wcl.CharacterRankingTalent]) -> dict[int, int]:
+    """Map each talent's node entry id to its rank."""
+    return {t.talentID: t.points for t in talents}
 
 
 class SpecRankingLoader(BaseLoader):
@@ -98,7 +98,7 @@ class SpecRankingLoader(BaseLoader):
             spec_slug=self.ranking.spec_slug,
         )
         if self.has_talents and ranking_data.talents:
-            player.talents = compact_talents(ranking_data.talents)
+            player.talents = talent_ranks(ranking_data.talents)
 
         boss = Boss(boss_slug=self.ranking.boss_slug)
 
@@ -143,7 +143,7 @@ class SpecRankingLoader(BaseLoader):
             if old_player := old_players.get(key):
                 # backfill Talents without reloading the casts
                 if self.has_talents and ranking_data.talents:
-                    old_player.talents = compact_talents(ranking_data.talents)
+                    old_player.talents = talent_ranks(ranking_data.talents)
                 continue
 
             # new ranking
