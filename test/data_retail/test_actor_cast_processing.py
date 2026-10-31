@@ -11,6 +11,7 @@ import lorgs.data.retail.classes.druid  # noqa: F401  # registers Restoration Dr
 import lorgs.data.retail.classes.evoker  # noqa: F401  # registers Preservation and its load handlers
 import lorgs.data.retail.classes.hunter  # noqa: F401  # registers Marksmanship and its load handler
 import lorgs.data.retail.classes.shaman  # noqa: F401  # registers Restoration Shaman and its load handler
+from lorgs.clients import wcl
 from lorgs.data.retail import GAME_DATA, HEAL
 from lorgs.loaders.actor_loader import ActorLoader
 from lorgs.models.difficulty import RaidDifficulty
@@ -24,15 +25,15 @@ from lorgs.models.warcraftlogs_report import Report
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_role import WowRole
 from lorgs.models.wow_spec import WowSpec
-from test.helpers import wrap_data
+from test.helpers import events_query
 
 
 TREE_OF_LIFE = 33891
 TRANQUILITY = 740
 
 
-def _events(*rows: dict[str, int | str]) -> dict:
-    return wrap_data(list(rows), "report", "events", "data")
+def _events(*rows: dict[str, int | str]) -> wcl.Query:
+    return events_query(rows)
 
 
 def _cast(timestamp: int, spell_id: int, source_id: int = 10) -> dict[str, int | str]:
@@ -54,7 +55,7 @@ def _aura(timestamp: int, spell_id: int, event_type: str, source_id: int = 10) -
     }
 
 
-def _load(spec_slug: str, events: dict, game_data: GameData | None = None) -> Player:
+def _load(spec_slug: str, events: wcl.Query, game_data: GameData | None = None) -> Player:
     player = Player(source_id=10, spec_slug=spec_slug, name="Healer")
     ActorLoader(player, game_data or GAME_DATA).process_query_result(events)
     return player

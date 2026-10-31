@@ -2,11 +2,9 @@ from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
 import textwrap
-import typing
 from typing import TYPE_CHECKING
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.clients import wcl
 from lorgs.logger import logger
 from lorgs.models.warcraftlogs_cast import Cast
 from lorgs.models.wow_spell import build_spell_query
@@ -15,6 +13,7 @@ from .base_loader import BaseLoader
 
 
 if TYPE_CHECKING:
+    from lorgs.clients import wcl
     from lorgs.clients.wcl import WarcraftlogsClient
     from lorgs.models.game_data import GameData
     from lorgs.models.raid_boss import RaidBoss
@@ -105,8 +104,8 @@ class FightPhasesLoader(BaseLoader):
         for phase in phases:
             self.fight.add_phase(phase)
 
-    def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
-        report = wcl.ReportData(**query_result).report
+    def process_query_result(self, query: wcl.Query) -> None:
+        report = query.report
 
         phase_transitions = [
             phase_transition

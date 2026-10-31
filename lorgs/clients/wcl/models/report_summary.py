@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 # IMPORT THIRD PARTY LIBRARIES
-from pydantic import BaseModel, model_validator
+from pydantic import BaseModel
 
 
 class UnitInfo(BaseModel):
@@ -64,10 +64,3 @@ class ReportSummary(BaseModel):
     damageDone: list[PlayerTotal] = []
     healingDone: list[PlayerTotal] = []
     deathEvents: list[DeathEvent] = []
-
-    @model_validator(mode="before")
-    @classmethod
-    def unwrap_data(cls, v):
-        if v and v.get("data"):
-            v = v["data"]
-        return v

@@ -5,7 +5,7 @@ import datetime
 import typing
 
 # IMPORT THIRD PARTY LIBRARIES
-from pydantic import BaseModel, field_validator, model_validator
+from pydantic import BaseModel, field_validator
 
 # IMPORT LOCAL LIBRARIES
 from .guild import Guild
@@ -56,11 +56,21 @@ class Report(BaseModel):
     @field_validator("events", mode="before")
     @classmethod
     def unwrap_event_data(cls, v):
-        """Events come in wraped in an ReportEventPaginator. Lets skip that step."""
-        v = v or {}
+        """Events come wrapped in a ReportEventPaginator (`events { data }`). Lets skip that step."""
         try:
             return v["data"]
-        except KeyError as e:
+        except (KeyError, TypeError) as e:
+            raise ValueError("Missing `data`.") from e
+
+    @field_validator("summary", mode="before")
+    @classmethod
+    def unwrap_summary_data(cls, v):
+        """`table(...)` returns JSON wrapped in `data`. Lets skip that step."""
+        if v is None:
+            return v
+        try:
+            return v["data"]
+        except (KeyError, TypeError) as e:
             raise ValueError("Missing `data`.") from e
 
 
@@ -68,8 +78,3 @@ class ReportData(BaseModel):
     """The ReportData object enables the retrieval of single reports or filtered collections of reports."""
 
     report: Report
-
-    @model_validator(mode="before")
-    @classmethod
-    def unwrap_data(cls, v):
-        return (v and v.get("reportData")) or v

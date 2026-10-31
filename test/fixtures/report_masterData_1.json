@@ -1,312 +1,310 @@
 {
-	"data": {
-		"reportData": {
-			"report": {
-				"startTime": 1666891263596,
-				"endTime": 1666896380714,
-				"title": "Sepulcher of the First Ones",
-				"zone": {
-					"name": "Sepulcher of the First Ones",
-					"id": 29
+	"reportData": {
+		"report": {
+			"startTime": 1666891263596,
+			"endTime": 1666896380714,
+			"title": "Sepulcher of the First Ones",
+			"zone": {
+				"name": "Sepulcher of the First Ones",
+				"id": 29
+			},
+			"owner": {
+				"name": "Arrg"
+			},
+			"fights": [
+				{
+					"id": 1,
+					"encounterID": 2553,
+					"startTime": 119220,
+					"endTime": 179310,
+					"fightPercentage": 73.9,
+					"kill": false
 				},
-				"owner": {
-					"name": "Arrg"
+				{
+					"id": 2,
+					"encounterID": 2553,
+					"name": "Artificer Xy'mox",
+					"startTime": 271703,
+					"endTime": 493690,
+					"kill": true
 				},
-				"fights": [
-					{
-						"id": 1,
-						"encounterID": 2553,
-						"startTime": 119220,
-						"endTime": 179310,
-						"fightPercentage": 73.9,
-						"kill": false
-					},
-					{
-						"id": 2,
-						"encounterID": 2553,
-						"name": "Artificer Xy'mox",
-						"startTime": 271703,
-						"endTime": 493690,
-						"kill": true
-					},
-					{
-						"id": 3,
-						"encounterID": 0,
-						"name": "Artificer Xy'mox",
-						"startTime": 493715,
-						"endTime": 493844,
-						"fightPercentage": null
-					},
-					{
-						"id": 4,
-						"encounterID": 0,
-						"name": "Halondrus",
-						"startTime": 549826,
-						"endTime": 615204,
-						"fightPercentage": null,
-						"kill": null
-					},
-					{
-						"id": 5,
-						"encounterID": 2417,
-						"name": "Stone Legion Generals",
-						"startTime": 2708687,
-						"endTime": 2881245,
-						"fightPercentage": 47.8,
-						"kill": false
-					},
-					{
-						"id": 6,
-						"encounterID": 2417,
-						"name": "Stone Legion Generals",
-						"startTime": 2970425,
-						"endTime": 3144236,
-						"fightPercentage": 47.65,
-						"kill": false
-					},
-					{
-						"id": 7,
-						"encounterID": 2417,
-						"name": "Stone Legion Generals",
-						"startTime": 3303597,
-						"endTime": 3578817,
-						"fightPercentage": 0.01,
-						"kill": true
-					},
-					{
-						"id": 8,
-						"encounterID": 0,
-						"name": "General Kaal",
-						"startTime": 3578866,
-						"endTime": 3579072,
-						"fightPercentage": null,
-						"kill": null
-					},
-					{
-						"id": 9,
-						"encounterID": 0,
-						"name": "Sire Denathrius",
-						"startTime": 3875915,
-						"endTime": 3885726,
-						"fightPercentage": null,
-						"kill": null
-					},
-					{
-						"id": 10,
-						"encounterID": 0,
-						"name": "Sire Denathrius",
-						"startTime": 3886211,
-						"endTime": 3890387,
-						"fightPercentage": null,
-						"kill": null
-					},
-					{
-						"id": 11,
-						"encounterID": 2407,
-						"name": "Sire Denathrius",
-						"startTime": 4082010,
-						"endTime": 4295872,
-						"fightPercentage": 62.24,
-						"kill": false
-					},
-					{
-						"id": 12,
-						"encounterID": 2407,
-						"name": "Sire Denathrius",
-						"startTime": 4395952,
-						"endTime": 4579989,
-						"fightPercentage": 61.83,
-						"kill": false
-					},
-					{
-						"id": 13,
-						"encounterID": 2407,
-						"name": "Sire Denathrius",
-						"startTime": 4665550,
-						"endTime": 5115816,
-						"fightPercentage": 0.01,
-						"kill": true
-					}
-				],
-				"masterData": {
-					"actors": [
-						{
-							"name": "Arrgmage",
-							"id": 1,
-							"subType": "Druid",
-							"type": "Player",
-							"icon": "Druid-Restoration"
-						},
-						{
-							"name": "Frenogmonk",
-							"id": 3,
-							"subType": "Monk",
-							"type": "Player",
-							"icon": "Monk-Windwalker"
-						},
-						{
-							"name": "Monkkuron",
-							"id": 4,
-							"subType": "Monk",
-							"type": "Player",
-							"icon": "Monk-Brewmaster"
-						},
-						{
-							"name": "Höllenknödel",
-							"id": 5,
-							"subType": "DeathKnight",
-							"type": "Player",
-							"icon": "DeathKnight-Blood"
-						},
-						{
-							"name": "Assarad",
-							"id": 6,
-							"subType": "DeathKnight",
-							"type": "Player",
-							"icon": "DeathKnight"
-						},
-						{
-							"name": "Miriwood",
-							"id": 7,
-							"subType": "Mage",
-							"type": "Player",
-							"icon": "Mage-Fire"
-						},
-						{
-							"name": "Aski",
-							"id": 8,
-							"subType": "Priest",
-							"type": "Player",
-							"icon": "Priest-Holy"
-						},
-						{
-							"name": "Sycraim",
-							"id": 9,
-							"subType": "Druid",
-							"type": "Player",
-							"icon": "Druid-Balance"
-						},
-						{
-							"name": "Laûriel",
-							"id": 11,
-							"subType": "Mage",
-							"type": "Player",
-							"icon": "Mage-Fire"
-						},
-						{
-							"name": "Priestic",
-							"id": 13,
-							"subType": "Priest",
-							"type": "Player",
-							"icon": "Priest-Shadow"
-						},
-						{
-							"name": "Moluw",
-							"id": 14,
-							"subType": "Warrior",
-							"type": "Player",
-							"icon": "Warrior-Arms"
-						},
-						{
-							"name": "Mayotrap",
-							"id": 15,
-							"subType": "Hunter",
-							"type": "Player",
-							"icon": "Hunter-BeastMastery"
-						},
-						{
-							"name": "Monalyrium",
-							"id": 18,
-							"subType": "Shaman",
-							"type": "Player",
-							"icon": "Shaman-Enhancement"
-						},
-						{
-							"name": "Thyrio",
-							"id": 19,
-							"subType": "Shaman",
-							"type": "Player",
-							"icon": "Shaman-Restoration"
-						},
-						{
-							"name": "Lockhess",
-							"id": 20,
-							"subType": "Warlock",
-							"type": "Player",
-							"icon": "Warlock-Affliction"
-						},
-						{
-							"name": "Âlyza",
-							"id": 23,
-							"subType": "Rogue",
-							"type": "Player",
-							"icon": "Rogue-Outlaw"
-						},
-						{
-							"name": "Tézor",
-							"id": 24,
-							"subType": "Warlock",
-							"type": "Player",
-							"icon": "Warlock-Affliction"
-						},
-						{
-							"name": "Uuhuub",
-							"id": 26,
-							"subType": "Paladin",
-							"type": "Player",
-							"icon": "Paladin-Retribution"
-						},
-						{
-							"name": "Clapping",
-							"id": 27,
-							"subType": "DemonHunter",
-							"type": "Player",
-							"icon": "DemonHunter-Havoc"
-						},
-						{
-							"name": "Roiiben",
-							"id": 31,
-							"subType": "Druid",
-							"type": "Player",
-							"icon": "Druid-Balance"
-						},
-						{
-							"name": "Mulverik",
-							"id": 124,
-							"subType": "Hunter",
-							"type": "Player",
-							"icon": "Hunter-BeastMastery"
-						},
-						{
-							"name": "Axéàs",
-							"id": 129,
-							"subType": "Paladin",
-							"type": "Player",
-							"icon": "Paladin-Holy"
-						},
-						{
-							"name": "Frenogw",
-							"id": 131,
-							"subType": "Warrior",
-							"type": "Player",
-							"icon": "Warrior-Arms"
-						},
-						{
-							"name": "Izquierda",
-							"id": 166,
-							"subType": "Priest",
-							"type": "Player",
-							"icon": "Priest-Shadow"
-						},
-						{
-							"name": "Viscc",
-							"id": 175,
-							"subType": "DemonHunter",
-							"type": "Player",
-							"icon": "DemonHunter-Vengeance"
-						}
-					]
+				{
+					"id": 3,
+					"encounterID": 0,
+					"name": "Artificer Xy'mox",
+					"startTime": 493715,
+					"endTime": 493844,
+					"fightPercentage": null
+				},
+				{
+					"id": 4,
+					"encounterID": 0,
+					"name": "Halondrus",
+					"startTime": 549826,
+					"endTime": 615204,
+					"fightPercentage": null,
+					"kill": null
+				},
+				{
+					"id": 5,
+					"encounterID": 2417,
+					"name": "Stone Legion Generals",
+					"startTime": 2708687,
+					"endTime": 2881245,
+					"fightPercentage": 47.8,
+					"kill": false
+				},
+				{
+					"id": 6,
+					"encounterID": 2417,
+					"name": "Stone Legion Generals",
+					"startTime": 2970425,
+					"endTime": 3144236,
+					"fightPercentage": 47.65,
+					"kill": false
+				},
+				{
+					"id": 7,
+					"encounterID": 2417,
+					"name": "Stone Legion Generals",
+					"startTime": 3303597,
+					"endTime": 3578817,
+					"fightPercentage": 0.01,
+					"kill": true
+				},
+				{
+					"id": 8,
+					"encounterID": 0,
+					"name": "General Kaal",
+					"startTime": 3578866,
+					"endTime": 3579072,
+					"fightPercentage": null,
+					"kill": null
+				},
+				{
+					"id": 9,
+					"encounterID": 0,
+					"name": "Sire Denathrius",
+					"startTime": 3875915,
+					"endTime": 3885726,
+					"fightPercentage": null,
+					"kill": null
+				},
+				{
+					"id": 10,
+					"encounterID": 0,
+					"name": "Sire Denathrius",
+					"startTime": 3886211,
+					"endTime": 3890387,
+					"fightPercentage": null,
+					"kill": null
+				},
+				{
+					"id": 11,
+					"encounterID": 2407,
+					"name": "Sire Denathrius",
+					"startTime": 4082010,
+					"endTime": 4295872,
+					"fightPercentage": 62.24,
+					"kill": false
+				},
+				{
+					"id": 12,
+					"encounterID": 2407,
+					"name": "Sire Denathrius",
+					"startTime": 4395952,
+					"endTime": 4579989,
+					"fightPercentage": 61.83,
+					"kill": false
+				},
+				{
+					"id": 13,
+					"encounterID": 2407,
+					"name": "Sire Denathrius",
+					"startTime": 4665550,
+					"endTime": 5115816,
+					"fightPercentage": 0.01,
+					"kill": true
 				}
+			],
+			"masterData": {
+				"actors": [
+					{
+						"name": "Arrgmage",
+						"id": 1,
+						"subType": "Druid",
+						"type": "Player",
+						"icon": "Druid-Restoration"
+					},
+					{
+						"name": "Frenogmonk",
+						"id": 3,
+						"subType": "Monk",
+						"type": "Player",
+						"icon": "Monk-Windwalker"
+					},
+					{
+						"name": "Monkkuron",
+						"id": 4,
+						"subType": "Monk",
+						"type": "Player",
+						"icon": "Monk-Brewmaster"
+					},
+					{
+						"name": "Höllenknödel",
+						"id": 5,
+						"subType": "DeathKnight",
+						"type": "Player",
+						"icon": "DeathKnight-Blood"
+					},
+					{
+						"name": "Assarad",
+						"id": 6,
+						"subType": "DeathKnight",
+						"type": "Player",
+						"icon": "DeathKnight"
+					},
+					{
+						"name": "Miriwood",
+						"id": 7,
+						"subType": "Mage",
+						"type": "Player",
+						"icon": "Mage-Fire"
+					},
+					{
+						"name": "Aski",
+						"id": 8,
+						"subType": "Priest",
+						"type": "Player",
+						"icon": "Priest-Holy"
+					},
+					{
+						"name": "Sycraim",
+						"id": 9,
+						"subType": "Druid",
+						"type": "Player",
+						"icon": "Druid-Balance"
+					},
+					{
+						"name": "Laûriel",
+						"id": 11,
+						"subType": "Mage",
+						"type": "Player",
+						"icon": "Mage-Fire"
+					},
+					{
+						"name": "Priestic",
+						"id": 13,
+						"subType": "Priest",
+						"type": "Player",
+						"icon": "Priest-Shadow"
+					},
+					{
+						"name": "Moluw",
+						"id": 14,
+						"subType": "Warrior",
+						"type": "Player",
+						"icon": "Warrior-Arms"
+					},
+					{
+						"name": "Mayotrap",
+						"id": 15,
+						"subType": "Hunter",
+						"type": "Player",
+						"icon": "Hunter-BeastMastery"
+					},
+					{
+						"name": "Monalyrium",
+						"id": 18,
+						"subType": "Shaman",
+						"type": "Player",
+						"icon": "Shaman-Enhancement"
+					},
+					{
+						"name": "Thyrio",
+						"id": 19,
+						"subType": "Shaman",
+						"type": "Player",
+						"icon": "Shaman-Restoration"
+					},
+					{
+						"name": "Lockhess",
+						"id": 20,
+						"subType": "Warlock",
+						"type": "Player",
+						"icon": "Warlock-Affliction"
+					},
+					{
+						"name": "Âlyza",
+						"id": 23,
+						"subType": "Rogue",
+						"type": "Player",
+						"icon": "Rogue-Outlaw"
+					},
+					{
+						"name": "Tézor",
+						"id": 24,
+						"subType": "Warlock",
+						"type": "Player",
+						"icon": "Warlock-Affliction"
+					},
+					{
+						"name": "Uuhuub",
+						"id": 26,
+						"subType": "Paladin",
+						"type": "Player",
+						"icon": "Paladin-Retribution"
+					},
+					{
+						"name": "Clapping",
+						"id": 27,
+						"subType": "DemonHunter",
+						"type": "Player",
+						"icon": "DemonHunter-Havoc"
+					},
+					{
+						"name": "Roiiben",
+						"id": 31,
+						"subType": "Druid",
+						"type": "Player",
+						"icon": "Druid-Balance"
+					},
+					{
+						"name": "Mulverik",
+						"id": 124,
+						"subType": "Hunter",
+						"type": "Player",
+						"icon": "Hunter-BeastMastery"
+					},
+					{
+						"name": "Axéàs",
+						"id": 129,
+						"subType": "Paladin",
+						"type": "Player",
+						"icon": "Paladin-Holy"
+					},
+					{
+						"name": "Frenogw",
+						"id": 131,
+						"subType": "Warrior",
+						"type": "Player",
+						"icon": "Warrior-Arms"
+					},
+					{
+						"name": "Izquierda",
+						"id": 166,
+						"subType": "Priest",
+						"type": "Player",
+						"icon": "Priest-Shadow"
+					},
+					{
+						"name": "Viscc",
+						"id": 175,
+						"subType": "DemonHunter",
+						"type": "Player",
+						"icon": "DemonHunter-Vengeance"
+					}
+				]
 			}
 		}
 	}

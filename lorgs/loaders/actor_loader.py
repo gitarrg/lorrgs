@@ -8,7 +8,6 @@ import typing
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
-from lorgs.clients import wcl
 from lorgs.loaders.base_loader import BaseLoader
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_cast import Cast, add_cast_counters, process_auras, process_until_events
@@ -17,6 +16,7 @@ from lorgs.models.wow_spell import WowSpell, build_spell_query
 
 
 if typing.TYPE_CHECKING:
+    from lorgs.clients import wcl
     from lorgs.clients.wcl import WarcraftlogsClient
     from lorgs.models.game_data import GameData
     from lorgs.models.warcraftlogs_actor import BaseActor
@@ -140,10 +140,8 @@ class ActorLoader(BaseLoader):
             casts = step.process_casts(casts)
         return casts
 
-    def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
-        query_result = query_result.get("reportData") or query_result
-        report_data = wcl.ReportData(**query_result)
-        casts_data = report_data.report.events
+    def process_query_result(self, query: wcl.Query) -> None:
+        casts_data = query.report.events
 
         if not casts_data:
             return

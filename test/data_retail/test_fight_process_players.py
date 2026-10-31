@@ -51,8 +51,7 @@ class TestFightProcessPlayers(unittest.TestCase):
 
     def test_example_fixture(self):
         self.fight.duration = 0
-        fight_data = load_fixture("fight_summary_1.json")
-        self.loader.process_query_result(fight_data["data"]["reportData"])
+        self.loader.process_query_result(wcl.Query.model_validate(load_fixture("fight_summary_1.json")))
 
         assert len(self.fight.players) == 20
         assert self.fight.duration == 728598

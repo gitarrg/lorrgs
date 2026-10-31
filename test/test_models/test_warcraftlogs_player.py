@@ -66,8 +66,8 @@ def test_deaths_raise_when_the_fight_has_no_report() -> None:
     assert player.deaths == []
 
 
-def _resurrect_query() -> dict:
-    return helpers.wrap_data(
+def _resurrect_query() -> wcl.Query:
+    return helpers.events_query(
         [
             {
                 "timestamp": 25_000,
@@ -77,9 +77,6 @@ def _resurrect_query() -> dict:
                 "abilityGameID": 20484,
             }
         ],
-        "report",
-        "events",
-        "data",
     )
 
 

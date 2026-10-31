@@ -38,17 +38,16 @@ def load_fixture(filename: str):
         return json.load(json_file)
 
 
-def wrap_data(data: typing.Any, *parents: str):
-    """Wraps the `data` in a nested dict.
+def report_query(**report: typing.Any):
+    """A report query result as `WarcraftlogsClient.query` returns it, parsed the way loaders get it."""
+    from lorgs.clients import wcl
 
-    Example:
-        >>> wrap_data([1, 2, 3], "foo", "bar")
-        {'foo': {'bar': [1, 2, 3]}}
-    """
-    parents = parents[::-1]
-    for parent in parents:
-        data = {parent: data}
-    return data
+    return wcl.Query.model_validate({"reportData": {"report": report}})
+
+
+def events_query(events: typing.Iterable[dict[str, typing.Any]]):
+    """A report query result holding just these events."""
+    return report_query(events={"data": list(events)})
 
 
 def get_api_routes(*paths: str) -> dict[str, tuple[int, typing.Any]]:

@@ -7,6 +7,7 @@ import abc
 import typing
 
 # IMPORT LOCAL LIBRARIES
+from lorgs.clients import wcl
 from lorgs.clients.wcl import WarcraftlogsClient
 
 
@@ -25,8 +26,8 @@ class BaseLoader:
         """Get the query for the loader."""
 
     @abc.abstractmethod
-    def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
-        """Process the query result."""
+    def process_query_result(self, query: wcl.Query) -> None:
+        """Process the query result, parsed into the root `wcl.Query`."""
 
     def needs_load(self) -> bool:  # ruff: ignore[no-self-use]
         """Check if the data needs to be loaded."""
@@ -45,4 +46,4 @@ class BaseLoader:
         if not result:
             return
 
-        self.process_query_result(result)
+        self.process_query_result(wcl.Query.model_validate(result))

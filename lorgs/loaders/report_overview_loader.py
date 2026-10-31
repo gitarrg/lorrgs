@@ -5,7 +5,6 @@ import textwrap
 import typing
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.clients import wcl
 from lorgs.data import get_game_version_by_wcl_id
 from lorgs.loaders.fight_loader import FightLoader
 from lorgs.logger import logger
@@ -15,6 +14,7 @@ from .base_loader import BaseLoader
 
 
 if typing.TYPE_CHECKING:
+    from lorgs.clients import wcl
     from lorgs.models.game_data import GameData
     from lorgs.models.warcraftlogs_report import Report
 
@@ -138,9 +138,8 @@ class ReportOverviewLoader(BaseLoader):
         # make pydantic believe the list has changed
         self.report.fights = self.report.fights[:]
 
-    def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
-        report_data = wcl.ReportData(**query_result)
-        report = report_data.report
+    def process_query_result(self, query: wcl.Query) -> None:
+        report = query.report
 
         if self.game_data is None:
             wcl_game_version = report.masterData.gameVersion if report.masterData else 1

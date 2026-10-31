@@ -1,593 +1,595 @@
 {
-    "report": {
-        "summary": {
-            "data": {
-                "totalTime": 221987,
-                "itemLevel": 302,
-                "composition": [
-                    {
-                        "name": "Sycraim",
-                        "id": 9,
-                        "guid": 165384992,
-                        "type": "Druid",
-                        "specs": [
-                            {
-                                "spec": "Balance",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Aski",
-                        "id": 8,
-                        "guid": 165629553,
-                        "type": "Priest",
-                        "specs": [
-                            {
-                                "spec": "Holy",
-                                "role": "healer"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Priestic",
-                        "id": 13,
-                        "guid": 112290302,
-                        "type": "Priest",
-                        "specs": [
-                            {
-                                "spec": "Shadow",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Arrgmage",
-                        "id": 1,
-                        "guid": 165384764,
-                        "type": "Druid",
-                        "specs": [
-                            {
-                                "spec": "Restoration",
-                                "role": "healer"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Moluw",
-                        "id": 14,
-                        "guid": 165114976,
-                        "type": "Warrior",
-                        "specs": [
-                            {
-                                "spec": "Arms",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Clapping",
-                        "id": 27,
-                        "guid": 163516704,
-                        "type": "DemonHunter",
-                        "specs": [
-                            {
-                                "spec": "Havoc",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "La\u00fbriel",
-                        "id": 11,
-                        "guid": 165099486,
-                        "type": "Mage",
-                        "specs": [
-                            {
-                                "spec": "Fire",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Frenogmonk",
-                        "id": 3,
-                        "guid": 164909020,
-                        "type": "Monk",
-                        "specs": [
-                            {
-                                "spec": "Windwalker",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Assarad",
-                        "id": 6,
-                        "guid": 112282299,
-                        "type": "DeathKnight",
-                        "specs": [
-                            {
-                                "spec": "Unholy",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Mayotrap",
-                        "id": 15,
-                        "guid": 163127802,
-                        "type": "Hunter",
-                        "specs": [
-                            {
-                                "spec": "BeastMastery",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Uuhuub",
-                        "id": 26,
-                        "guid": 112304879,
-                        "type": "Paladin",
-                        "specs": [
-                            {
-                                "spec": "Retribution",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Miriwood",
-                        "id": 7,
-                        "guid": 164983011,
-                        "type": "Mage",
-                        "specs": [
-                            {
-                                "spec": "Fire",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Lockhess",
-                        "id": 20,
-                        "guid": 121991166,
-                        "type": "Warlock",
-                        "specs": [
-                            {
-                                "spec": "Affliction",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "H\u00f6llenkn\u00f6del",
-                        "id": 5,
-                        "guid": 154937634,
-                        "type": "DeathKnight",
-                        "specs": [
-                            {
-                                "spec": "Blood",
-                                "role": "tank"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "T\u00e9zor",
-                        "id": 24,
-                        "guid": 165315461,
-                        "type": "Warlock",
-                        "specs": [
-                            {
-                                "spec": "Affliction",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Monalyrium",
-                        "id": 18,
-                        "guid": 112299021,
-                        "type": "Shaman",
-                        "specs": [
-                            {
-                                "spec": "Enhancement",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Thyrio",
-                        "id": 19,
-                        "guid": 103196005,
-                        "type": "Shaman",
-                        "specs": [
-                            {
-                                "spec": "Restoration",
-                                "role": "healer"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "\u00c2lyza",
-                        "id": 23,
-                        "guid": 165381277,
-                        "type": "Rogue",
-                        "specs": [
-                            {
-                                "spec": "Outlaw",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Roiiben",
-                        "id": 31,
-                        "guid": 165408890,
-                        "type": "Druid",
-                        "specs": [
-                            {
-                                "spec": "Balance",
-                                "role": "dps"
-                            }
-                        ]
-                    },
-                    {
-                        "name": "Monkkuron",
-                        "id": 4,
-                        "guid": 113759115,
-                        "type": "Monk",
-                        "specs": [
-                            {
-                                "spec": "Brewmaster",
-                                "role": "tank"
-                            }
-                        ]
-                    }
-                ],
-                "damageDone": [
-                    {
-                        "name": "Sycraim",
-                        "id": 9,
-                        "guid": 165384992,
-                        "type": "Druid",
-                        "icon": "Druid-Balance",
-                        "total": 7151976
-                    },
-                    {
-                        "name": "Aski",
-                        "id": 8,
-                        "guid": 165629553,
-                        "type": "Priest",
-                        "icon": "Priest-Holy",
-                        "total": 591366
-                    },
-                    {
-                        "name": "Priestic",
-                        "id": 13,
-                        "guid": 112290302,
-                        "type": "Priest",
-                        "icon": "Priest-Shadow",
-                        "total": 4687781
-                    },
-                    {
-                        "name": "Arrgmage",
-                        "id": 1,
-                        "guid": 165384764,
-                        "type": "Druid",
-                        "icon": "Druid-Restoration",
-                        "total": 542330
-                    },
-                    {
-                        "name": "Moluw",
-                        "id": 14,
-                        "guid": 165114976,
-                        "type": "Warrior",
-                        "icon": "Warrior-Arms",
-                        "total": 6698711
-                    },
-                    {
-                        "name": "Clapping",
-                        "id": 27,
-                        "guid": 163516704,
-                        "type": "DemonHunter",
-                        "icon": "DemonHunter-Havoc",
-                        "total": 5820817
-                    },
-                    {
-                        "name": "La\u00fbriel",
-                        "id": 11,
-                        "guid": 165099486,
-                        "type": "Mage",
-                        "icon": "Mage-Fire",
-                        "total": 6041208
-                    },
-                    {
-                        "name": "Frenogmonk",
-                        "id": 3,
-                        "guid": 164909020,
-                        "type": "Monk",
-                        "icon": "Monk-Windwalker",
-                        "total": 4851244
-                    },
-                    {
-                        "name": "Mayotrap",
-                        "id": 15,
-                        "guid": 163127802,
-                        "type": "Hunter",
-                        "icon": "Hunter-BeastMastery",
-                        "total": 5962035
-                    },
-                    {
-                        "name": "Assarad",
-                        "id": 6,
-                        "guid": 112282299,
-                        "type": "DeathKnight",
-                        "icon": "DeathKnight-Unholy",
-                        "total": 4922476
-                    },
-                    {
-                        "name": "Uuhuub",
-                        "id": 26,
-                        "guid": 112304879,
-                        "type": "Paladin",
-                        "icon": "Paladin-Retribution",
-                        "total": 6478101
-                    },
-                    {
-                        "name": "Miriwood",
-                        "id": 7,
-                        "guid": 164983011,
-                        "type": "Mage",
-                        "icon": "Mage-Fire",
-                        "total": 5200623
-                    },
-                    {
-                        "name": "Lockhess",
-                        "id": 20,
-                        "guid": 121991166,
-                        "type": "Warlock",
-                        "icon": "Warlock-Affliction",
-                        "total": 5507725
-                    },
-                    {
-                        "name": "H\u00f6llenkn\u00f6del",
-                        "id": 5,
-                        "guid": 154937634,
-                        "type": "DeathKnight",
-                        "icon": "DeathKnight-Blood",
-                        "total": 2417215
-                    },
-                    {
-                        "name": "T\u00e9zor",
-                        "id": 24,
-                        "guid": 165315461,
-                        "type": "Warlock",
-                        "icon": "Warlock-Affliction",
-                        "total": 5641894
-                    },
-                    {
-                        "name": "Thyrio",
-                        "id": 19,
-                        "guid": 103196005,
-                        "type": "Shaman",
-                        "icon": "Shaman-Restoration",
-                        "total": 91113
-                    },
-                    {
-                        "name": "Monalyrium",
-                        "id": 18,
-                        "guid": 112299021,
-                        "type": "Shaman",
-                        "icon": "Shaman-Enhancement",
-                        "total": 5895074
-                    },
-                    {
-                        "name": "\u00c2lyza",
-                        "id": 23,
-                        "guid": 165381277,
-                        "type": "Rogue",
-                        "icon": "Rogue-Outlaw",
-                        "total": 4914848
-                    },
-                    {
-                        "name": "Roiiben",
-                        "id": 31,
-                        "guid": 165408890,
-                        "type": "Druid",
-                        "icon": "Druid-Balance",
-                        "total": 6499051
-                    },
-                    {
-                        "name": "Monkkuron",
-                        "id": 4,
-                        "guid": 113759115,
-                        "type": "Monk",
-                        "icon": "Monk-Brewmaster",
-                        "total": 3234766
-                    }
-                ],
-                "healingDone": [
-                    {
-                        "name": "Sycraim",
-                        "id": 9,
-                        "guid": 165384992,
-                        "type": "Druid",
-                        "icon": "Druid-Balance",
-                        "total": 496149
-                    },
-                    {
-                        "name": "Aski",
-                        "id": 8,
-                        "guid": 165629553,
-                        "type": "Priest",
-                        "icon": "Priest-Holy",
-                        "total": 4931389
-                    },
-                    {
-                        "name": "Arrgmage",
-                        "id": 1,
-                        "guid": 165384764,
-                        "type": "Druid",
-                        "icon": "Druid-Restoration",
-                        "total": 3994392
-                    },
-                    {
-                        "name": "Priestic",
-                        "id": 13,
-                        "guid": 112290302,
-                        "type": "Priest",
-                        "icon": "Priest-Shadow",
-                        "total": 1179597
-                    },
-                    {
-                        "name": "Moluw",
-                        "id": 14,
-                        "guid": 165114976,
-                        "type": "Warrior",
-                        "icon": "Warrior-Arms",
-                        "total": 395569
-                    },
-                    {
-                        "name": "Clapping",
-                        "id": 27,
-                        "guid": 163516704,
-                        "type": "DemonHunter",
-                        "icon": "DemonHunter-Havoc",
-                        "total": 332652
-                    },
-                    {
-                        "name": "La\u00fbriel",
-                        "id": 11,
-                        "guid": 165099486,
-                        "type": "Mage",
-                        "icon": "Mage-Fire",
-                        "total": 380659
-                    },
-                    {
-                        "name": "Frenogmonk",
-                        "id": 3,
-                        "guid": 164909020,
-                        "type": "Monk",
-                        "icon": "Monk-Windwalker",
-                        "total": 286881
-                    },
-                    {
-                        "name": "Assarad",
-                        "id": 6,
-                        "guid": 112282299,
-                        "type": "DeathKnight",
-                        "icon": "DeathKnight-Unholy",
-                        "total": 440722
-                    },
-                    {
-                        "name": "Mayotrap",
-                        "id": 15,
-                        "guid": 163127802,
-                        "type": "Hunter",
-                        "icon": "Hunter-BeastMastery",
-                        "total": 93250
-                    },
-                    {
-                        "name": "Uuhuub",
-                        "id": 26,
-                        "guid": 112304879,
-                        "type": "Paladin",
-                        "icon": "Paladin-Retribution",
-                        "total": 315952
-                    },
-                    {
-                        "name": "Miriwood",
-                        "id": 7,
-                        "guid": 164983011,
-                        "type": "Mage",
-                        "icon": "Mage-Fire",
-                        "total": 472527
-                    },
-                    {
-                        "name": "Lockhess",
-                        "id": 20,
-                        "guid": 121991166,
-                        "type": "Warlock",
-                        "icon": "Warlock-Affliction",
-                        "total": 634379
-                    },
-                    {
-                        "name": "H\u00f6llenkn\u00f6del",
-                        "id": 5,
-                        "guid": 154937634,
-                        "type": "DeathKnight",
-                        "icon": "DeathKnight-Blood",
-                        "total": 1636575
-                    },
-                    {
-                        "name": "T\u00e9zor",
-                        "id": 24,
-                        "guid": 165315461,
-                        "type": "Warlock",
-                        "icon": "Warlock-Affliction",
-                        "total": 739010
-                    },
-                    {
-                        "name": "Thyrio",
-                        "id": 19,
-                        "guid": 103196005,
-                        "type": "Shaman",
-                        "icon": "Shaman-Restoration",
-                        "total": 3034020
-                    },
-                    {
-                        "name": "Monalyrium",
-                        "id": 18,
-                        "guid": 112299021,
-                        "type": "Shaman",
-                        "icon": "Shaman-Enhancement",
-                        "total": 586989
-                    },
-                    {
-                        "name": "\u00c2lyza",
-                        "id": 23,
-                        "guid": 165381277,
-                        "type": "Rogue",
-                        "icon": "Rogue-Outlaw",
-                        "total": 351730
-                    },
-                    {
-                        "name": "Roiiben",
-                        "id": 31,
-                        "guid": 165408890,
-                        "type": "Druid",
-                        "icon": "Druid-Balance",
-                        "total": 591167
-                    },
-                    {
-                        "name": "Monkkuron",
-                        "id": 4,
-                        "guid": 113759115,
-                        "type": "Monk",
-                        "icon": "Monk-Brewmaster",
-                        "total": 937884
-                    }
-                ],
-                "deathEvents": [
-                    {
-                        "name": "Clapping",
-                        "id": 27,
-                        "guid": 163516704,
-                        "type": "DemonHunter",
-                        "icon": "DemonHunter-Havoc",
-                        "deathTime": 53288,
-                        "ability": {
-                            "name": "Melee",
-                            "guid": 1,
-                            "type": 1,
-                            "abilityIcon": "inv_axe_02.jpg"
+    "reportData": {
+        "report": {
+            "summary": {
+                "data": {
+                    "totalTime": 221987,
+                    "itemLevel": 302,
+                    "composition": [
+                        {
+                            "name": "Sycraim",
+                            "id": 9,
+                            "guid": 165384992,
+                            "type": "Druid",
+                            "specs": [
+                                {
+                                    "spec": "Balance",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Aski",
+                            "id": 8,
+                            "guid": 165629553,
+                            "type": "Priest",
+                            "specs": [
+                                {
+                                    "spec": "Holy",
+                                    "role": "healer"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Priestic",
+                            "id": 13,
+                            "guid": 112290302,
+                            "type": "Priest",
+                            "specs": [
+                                {
+                                    "spec": "Shadow",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Arrgmage",
+                            "id": 1,
+                            "guid": 165384764,
+                            "type": "Druid",
+                            "specs": [
+                                {
+                                    "spec": "Restoration",
+                                    "role": "healer"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Moluw",
+                            "id": 14,
+                            "guid": 165114976,
+                            "type": "Warrior",
+                            "specs": [
+                                {
+                                    "spec": "Arms",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Clapping",
+                            "id": 27,
+                            "guid": 163516704,
+                            "type": "DemonHunter",
+                            "specs": [
+                                {
+                                    "spec": "Havoc",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "La\u00fbriel",
+                            "id": 11,
+                            "guid": 165099486,
+                            "type": "Mage",
+                            "specs": [
+                                {
+                                    "spec": "Fire",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Frenogmonk",
+                            "id": 3,
+                            "guid": 164909020,
+                            "type": "Monk",
+                            "specs": [
+                                {
+                                    "spec": "Windwalker",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Assarad",
+                            "id": 6,
+                            "guid": 112282299,
+                            "type": "DeathKnight",
+                            "specs": [
+                                {
+                                    "spec": "Unholy",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Mayotrap",
+                            "id": 15,
+                            "guid": 163127802,
+                            "type": "Hunter",
+                            "specs": [
+                                {
+                                    "spec": "BeastMastery",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Uuhuub",
+                            "id": 26,
+                            "guid": 112304879,
+                            "type": "Paladin",
+                            "specs": [
+                                {
+                                    "spec": "Retribution",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Miriwood",
+                            "id": 7,
+                            "guid": 164983011,
+                            "type": "Mage",
+                            "specs": [
+                                {
+                                    "spec": "Fire",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Lockhess",
+                            "id": 20,
+                            "guid": 121991166,
+                            "type": "Warlock",
+                            "specs": [
+                                {
+                                    "spec": "Affliction",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "H\u00f6llenkn\u00f6del",
+                            "id": 5,
+                            "guid": 154937634,
+                            "type": "DeathKnight",
+                            "specs": [
+                                {
+                                    "spec": "Blood",
+                                    "role": "tank"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "T\u00e9zor",
+                            "id": 24,
+                            "guid": 165315461,
+                            "type": "Warlock",
+                            "specs": [
+                                {
+                                    "spec": "Affliction",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Monalyrium",
+                            "id": 18,
+                            "guid": 112299021,
+                            "type": "Shaman",
+                            "specs": [
+                                {
+                                    "spec": "Enhancement",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Thyrio",
+                            "id": 19,
+                            "guid": 103196005,
+                            "type": "Shaman",
+                            "specs": [
+                                {
+                                    "spec": "Restoration",
+                                    "role": "healer"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "\u00c2lyza",
+                            "id": 23,
+                            "guid": 165381277,
+                            "type": "Rogue",
+                            "specs": [
+                                {
+                                    "spec": "Outlaw",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Roiiben",
+                            "id": 31,
+                            "guid": 165408890,
+                            "type": "Druid",
+                            "specs": [
+                                {
+                                    "spec": "Balance",
+                                    "role": "dps"
+                                }
+                            ]
+                        },
+                        {
+                            "name": "Monkkuron",
+                            "id": 4,
+                            "guid": 113759115,
+                            "type": "Monk",
+                            "specs": [
+                                {
+                                    "spec": "Brewmaster",
+                                    "role": "tank"
+                                }
+                            ]
                         }
-                    }
-                ],
-                "logVersion": 16,
-                "gameVersion": 1
+                    ],
+                    "damageDone": [
+                        {
+                            "name": "Sycraim",
+                            "id": 9,
+                            "guid": 165384992,
+                            "type": "Druid",
+                            "icon": "Druid-Balance",
+                            "total": 7151976
+                        },
+                        {
+                            "name": "Aski",
+                            "id": 8,
+                            "guid": 165629553,
+                            "type": "Priest",
+                            "icon": "Priest-Holy",
+                            "total": 591366
+                        },
+                        {
+                            "name": "Priestic",
+                            "id": 13,
+                            "guid": 112290302,
+                            "type": "Priest",
+                            "icon": "Priest-Shadow",
+                            "total": 4687781
+                        },
+                        {
+                            "name": "Arrgmage",
+                            "id": 1,
+                            "guid": 165384764,
+                            "type": "Druid",
+                            "icon": "Druid-Restoration",
+                            "total": 542330
+                        },
+                        {
+                            "name": "Moluw",
+                            "id": 14,
+                            "guid": 165114976,
+                            "type": "Warrior",
+                            "icon": "Warrior-Arms",
+                            "total": 6698711
+                        },
+                        {
+                            "name": "Clapping",
+                            "id": 27,
+                            "guid": 163516704,
+                            "type": "DemonHunter",
+                            "icon": "DemonHunter-Havoc",
+                            "total": 5820817
+                        },
+                        {
+                            "name": "La\u00fbriel",
+                            "id": 11,
+                            "guid": 165099486,
+                            "type": "Mage",
+                            "icon": "Mage-Fire",
+                            "total": 6041208
+                        },
+                        {
+                            "name": "Frenogmonk",
+                            "id": 3,
+                            "guid": 164909020,
+                            "type": "Monk",
+                            "icon": "Monk-Windwalker",
+                            "total": 4851244
+                        },
+                        {
+                            "name": "Mayotrap",
+                            "id": 15,
+                            "guid": 163127802,
+                            "type": "Hunter",
+                            "icon": "Hunter-BeastMastery",
+                            "total": 5962035
+                        },
+                        {
+                            "name": "Assarad",
+                            "id": 6,
+                            "guid": 112282299,
+                            "type": "DeathKnight",
+                            "icon": "DeathKnight-Unholy",
+                            "total": 4922476
+                        },
+                        {
+                            "name": "Uuhuub",
+                            "id": 26,
+                            "guid": 112304879,
+                            "type": "Paladin",
+                            "icon": "Paladin-Retribution",
+                            "total": 6478101
+                        },
+                        {
+                            "name": "Miriwood",
+                            "id": 7,
+                            "guid": 164983011,
+                            "type": "Mage",
+                            "icon": "Mage-Fire",
+                            "total": 5200623
+                        },
+                        {
+                            "name": "Lockhess",
+                            "id": 20,
+                            "guid": 121991166,
+                            "type": "Warlock",
+                            "icon": "Warlock-Affliction",
+                            "total": 5507725
+                        },
+                        {
+                            "name": "H\u00f6llenkn\u00f6del",
+                            "id": 5,
+                            "guid": 154937634,
+                            "type": "DeathKnight",
+                            "icon": "DeathKnight-Blood",
+                            "total": 2417215
+                        },
+                        {
+                            "name": "T\u00e9zor",
+                            "id": 24,
+                            "guid": 165315461,
+                            "type": "Warlock",
+                            "icon": "Warlock-Affliction",
+                            "total": 5641894
+                        },
+                        {
+                            "name": "Thyrio",
+                            "id": 19,
+                            "guid": 103196005,
+                            "type": "Shaman",
+                            "icon": "Shaman-Restoration",
+                            "total": 91113
+                        },
+                        {
+                            "name": "Monalyrium",
+                            "id": 18,
+                            "guid": 112299021,
+                            "type": "Shaman",
+                            "icon": "Shaman-Enhancement",
+                            "total": 5895074
+                        },
+                        {
+                            "name": "\u00c2lyza",
+                            "id": 23,
+                            "guid": 165381277,
+                            "type": "Rogue",
+                            "icon": "Rogue-Outlaw",
+                            "total": 4914848
+                        },
+                        {
+                            "name": "Roiiben",
+                            "id": 31,
+                            "guid": 165408890,
+                            "type": "Druid",
+                            "icon": "Druid-Balance",
+                            "total": 6499051
+                        },
+                        {
+                            "name": "Monkkuron",
+                            "id": 4,
+                            "guid": 113759115,
+                            "type": "Monk",
+                            "icon": "Monk-Brewmaster",
+                            "total": 3234766
+                        }
+                    ],
+                    "healingDone": [
+                        {
+                            "name": "Sycraim",
+                            "id": 9,
+                            "guid": 165384992,
+                            "type": "Druid",
+                            "icon": "Druid-Balance",
+                            "total": 496149
+                        },
+                        {
+                            "name": "Aski",
+                            "id": 8,
+                            "guid": 165629553,
+                            "type": "Priest",
+                            "icon": "Priest-Holy",
+                            "total": 4931389
+                        },
+                        {
+                            "name": "Arrgmage",
+                            "id": 1,
+                            "guid": 165384764,
+                            "type": "Druid",
+                            "icon": "Druid-Restoration",
+                            "total": 3994392
+                        },
+                        {
+                            "name": "Priestic",
+                            "id": 13,
+                            "guid": 112290302,
+                            "type": "Priest",
+                            "icon": "Priest-Shadow",
+                            "total": 1179597
+                        },
+                        {
+                            "name": "Moluw",
+                            "id": 14,
+                            "guid": 165114976,
+                            "type": "Warrior",
+                            "icon": "Warrior-Arms",
+                            "total": 395569
+                        },
+                        {
+                            "name": "Clapping",
+                            "id": 27,
+                            "guid": 163516704,
+                            "type": "DemonHunter",
+                            "icon": "DemonHunter-Havoc",
+                            "total": 332652
+                        },
+                        {
+                            "name": "La\u00fbriel",
+                            "id": 11,
+                            "guid": 165099486,
+                            "type": "Mage",
+                            "icon": "Mage-Fire",
+                            "total": 380659
+                        },
+                        {
+                            "name": "Frenogmonk",
+                            "id": 3,
+                            "guid": 164909020,
+                            "type": "Monk",
+                            "icon": "Monk-Windwalker",
+                            "total": 286881
+                        },
+                        {
+                            "name": "Assarad",
+                            "id": 6,
+                            "guid": 112282299,
+                            "type": "DeathKnight",
+                            "icon": "DeathKnight-Unholy",
+                            "total": 440722
+                        },
+                        {
+                            "name": "Mayotrap",
+                            "id": 15,
+                            "guid": 163127802,
+                            "type": "Hunter",
+                            "icon": "Hunter-BeastMastery",
+                            "total": 93250
+                        },
+                        {
+                            "name": "Uuhuub",
+                            "id": 26,
+                            "guid": 112304879,
+                            "type": "Paladin",
+                            "icon": "Paladin-Retribution",
+                            "total": 315952
+                        },
+                        {
+                            "name": "Miriwood",
+                            "id": 7,
+                            "guid": 164983011,
+                            "type": "Mage",
+                            "icon": "Mage-Fire",
+                            "total": 472527
+                        },
+                        {
+                            "name": "Lockhess",
+                            "id": 20,
+                            "guid": 121991166,
+                            "type": "Warlock",
+                            "icon": "Warlock-Affliction",
+                            "total": 634379
+                        },
+                        {
+                            "name": "H\u00f6llenkn\u00f6del",
+                            "id": 5,
+                            "guid": 154937634,
+                            "type": "DeathKnight",
+                            "icon": "DeathKnight-Blood",
+                            "total": 1636575
+                        },
+                        {
+                            "name": "T\u00e9zor",
+                            "id": 24,
+                            "guid": 165315461,
+                            "type": "Warlock",
+                            "icon": "Warlock-Affliction",
+                            "total": 739010
+                        },
+                        {
+                            "name": "Thyrio",
+                            "id": 19,
+                            "guid": 103196005,
+                            "type": "Shaman",
+                            "icon": "Shaman-Restoration",
+                            "total": 3034020
+                        },
+                        {
+                            "name": "Monalyrium",
+                            "id": 18,
+                            "guid": 112299021,
+                            "type": "Shaman",
+                            "icon": "Shaman-Enhancement",
+                            "total": 586989
+                        },
+                        {
+                            "name": "\u00c2lyza",
+                            "id": 23,
+                            "guid": 165381277,
+                            "type": "Rogue",
+                            "icon": "Rogue-Outlaw",
+                            "total": 351730
+                        },
+                        {
+                            "name": "Roiiben",
+                            "id": 31,
+                            "guid": 165408890,
+                            "type": "Druid",
+                            "icon": "Druid-Balance",
+                            "total": 591167
+                        },
+                        {
+                            "name": "Monkkuron",
+                            "id": 4,
+                            "guid": 113759115,
+                            "type": "Monk",
+                            "icon": "Monk-Brewmaster",
+                            "total": 937884
+                        }
+                    ],
+                    "deathEvents": [
+                        {
+                            "name": "Clapping",
+                            "id": 27,
+                            "guid": 163516704,
+                            "type": "DemonHunter",
+                            "icon": "DemonHunter-Havoc",
+                            "deathTime": 53288,
+                            "ability": {
+                                "name": "Melee",
+                                "guid": 1,
+                                "type": 1,
+                                "abilityIcon": "inv_axe_02.jpg"
+                            }
+                        }
+                    ],
+                    "logVersion": 16,
+                    "gameVersion": 1
+                }
             }
         }
     }

@@ -4,6 +4,7 @@ from unittest import mock
 
 import pytest
 
+from lorgs.clients import wcl
 from lorgs.loaders.actor_loader import ActorLoader
 from lorgs.models.warcraftlogs_actor import BaseActor
 from lorgs.models.warcraftlogs_player import Player
@@ -75,7 +76,7 @@ class TestActorLoaderProcess(unittest.TestCase):
                 "abilityGameID": 103,
             },
         ]
-        casts_data = helpers.wrap_data(casts_events, "report", "events", "data")
+        casts_data = helpers.events_query(casts_events)
 
         self.actor.source_id = 10
         self.loader.process_query_result(casts_data)
@@ -90,7 +91,7 @@ class TestActorLoaderProcess(unittest.TestCase):
     def test__process_casts__ignore_other_source_ids(self):
         """Make sure a cast from another ID is not added"""
         casts_events = [{"sourceID": 123}]
-        casts_data = helpers.wrap_data(casts_events, "report", "events", "data")
+        casts_data = helpers.events_query(casts_events)
 
         assert not self.actor.casts
         self.actor.source_id = 10
@@ -110,18 +111,15 @@ def test_spell_variation_is_resolved_to_the_main_spell() -> None:
     ]
 
     ActorLoader(actor, game_data, actor_type=MOCK_SPEC).process_query_result(
-        helpers.wrap_data(events, "report", "events", "data")
+        helpers.events_query(events)
     )
 
     assert [cast.spell_id for cast in actor.casts] == [500, 777]
 
 
-def _cast_query(timestamp: int) -> dict:
-    return helpers.wrap_data(
+def _cast_query(timestamp: int) -> wcl.Query:
+    return helpers.events_query(
         [{"timestamp": timestamp, "type": "cast", "sourceID": 10, "abilityGameID": 101}],
-        "report",
-        "events",
-        "data",
     )
 
 

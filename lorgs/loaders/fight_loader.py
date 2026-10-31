@@ -5,7 +5,6 @@ import datetime
 import typing
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.clients import wcl
 from lorgs.loaders.fight_phases import FightPhasesLoader
 from lorgs.logger import logger
 from lorgs.models.difficulty import RaidDifficulty
@@ -17,6 +16,7 @@ from .base_loader import BaseLoader
 
 
 if typing.TYPE_CHECKING:
+    from lorgs.clients import wcl
     from lorgs.clients.wcl.client import WarcraftlogsClient
     from lorgs.models.game_data import GameData
     from lorgs.models.warcraftlogs_report import Report
@@ -127,15 +127,13 @@ class FightLoader(BaseLoader):
 
         self.fight.players.sort(key=lambda player: Fight.sort_key(player, self.game_data))
 
-    def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
-        report_data = wcl.ReportData(**query_result)
-
-        if summary := report_data.report.summary:
+    def process_query_result(self, query: wcl.Query) -> None:
+        if summary := query.report.summary:
             self._process_summary(summary)
 
         phase_loader = FightPhasesLoader(fight=self.fight, game_data=self.game_data)
         if phase_loader.needs_load():
-            phase_loader.process_query_result(query_result)
+            phase_loader.process_query_result(query)
 
     async def load(self, client: WarcraftlogsClient | None = None) -> None:
         """Load the data for the actor."""

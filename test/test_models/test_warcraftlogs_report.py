@@ -6,7 +6,7 @@ from lorgs.loaders.fight_loader import FightLoader
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_report import Report
-from test.helpers import game_data_with
+from test.helpers import game_data_with, report_query
 
 
 class TestReport(unittest.TestCase):
@@ -21,20 +21,20 @@ class TestReport(unittest.TestCase):
         assert "REPORT_ID" in self.loader.get_query()
 
     def test_process_query_result_title(self):
-        self.loader.process_query_result({"report": {"title": "new title"}})
+        self.loader.process_query_result(report_query(title="new title"))
         assert self.report.title == "new title"
 
     def test_process_query_result_start_time(self):
         start_time = datetime.datetime(2024, 5, 1, tzinfo=datetime.UTC)
-        self.loader.process_query_result({"report": {"startTime": start_time}})
+        self.loader.process_query_result(report_query(startTime=start_time))
         assert self.report.start_time == start_time
 
     def test_process_query_result_zone_id_valid(self):
-        self.loader.process_query_result({"report": {"zone": {"id": 42}}})
+        self.loader.process_query_result(report_query(zone={"id": 42}))
         assert self.report.zone_id == 42
 
     def test_process_query_result_zone_id_missing(self):
-        self.loader.process_query_result({"report": {}})
+        self.loader.process_query_result(report_query())
         assert self.report.zone_id == -1
 
     def test_process_master_data_clears_players(self):

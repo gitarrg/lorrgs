@@ -179,11 +179,7 @@ class CompRanking(base.S3Model):
         # execute the query
         query = self.get_query(game_data, metric=metric, page=page)
         query_result = await wcl.WarcraftlogsClient.get_instance().query(query)
-        query_result = query_result["worldData"]
-
-        # parse data
-        world_data = wcl.WorldData(**query_result)
-        rankings = world_data.encounter.fightRankings
+        rankings = wcl.Query.model_validate(query_result).world_data.encounter.fightRankings
 
         # add fights
         for fight_data in rankings.rankings:

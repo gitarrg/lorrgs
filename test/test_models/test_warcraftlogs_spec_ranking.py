@@ -6,6 +6,7 @@ import pytest
 
 
 # IMPORT LOCAL LIBRARIES
+from lorgs.clients import wcl
 from lorgs.loaders.spec_ranking import SpecRankingLoader
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 from ..helpers import load_fixture
@@ -58,7 +59,7 @@ class TestSpecRankingLoader(unittest.TestCase):
                 }
             }
         }
-        self.loader.process_query_result(data)
+        self.loader.process_query_result(wcl.Query.model_validate(data))
 
         assert len(self.spec_ranking.reports) == 1
 
@@ -78,7 +79,7 @@ class TestSpecRankingLoader(unittest.TestCase):
 
         data = load_fixture("spec_rankings_1.json")
 
-        self.loader.process_query_result(data)
+        self.loader.process_query_result(wcl.Query.model_validate(data))
 
         assert len(self.spec_ranking.reports) == 10
 

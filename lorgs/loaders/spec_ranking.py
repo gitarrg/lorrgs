@@ -9,7 +9,6 @@ import textwrap
 import typing
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.clients import wcl
 from lorgs.clients.wcl.client import PrivateReportError, UnknownReportError, WarcraftlogsClient
 from lorgs.logger import logger
 from lorgs.models.warcraftlogs_boss import Boss
@@ -24,6 +23,7 @@ from .player_loader import PlayerLoader
 
 
 if typing.TYPE_CHECKING:
+    from lorgs.clients import wcl
     from lorgs.models.game_data import GameData
     from lorgs.models.game_version import GameVersion
     from lorgs.models.raid_boss import RaidBoss
@@ -146,11 +146,8 @@ class SpecRankingLoader(BaseLoader):
 
         self.ranking.reports.sort(key=get_total, reverse=True)
 
-    def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
-        query_result = query_result["worldData"]
-        world_data = wcl.WorldData(**query_result)
-
-        rankings = world_data.encounter.characterRankings.rankings
+    def process_query_result(self, query: wcl.Query) -> None:
+        rankings = query.world_data.encounter.characterRankings.rankings
         self.merge_rankings(rankings)
         self.ranking.post_init()
 

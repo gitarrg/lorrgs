@@ -19,7 +19,7 @@ from lorgs.models.user import User
 from lorgs.models.warcraftlogs_comp_ranking import CompRanking
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 from lorgs.models.warcraftlogs_user_report import UserReport
-from test.helpers import game_data_with
+from test.helpers import game_data_with, report_query
 
 
 SPEC_RANKING_KWARGS = {"spec_slug": "mage-fire", "boss_slug": "some-boss", "difficulty": "mythic", "metric": "dps"}
@@ -88,14 +88,14 @@ def test_old_user_report_items_load_as_retail() -> None:
 def test_overview_loader_sets_game_version_from_master_data() -> None:
     report = UserReport(report_id="abc")
     loader = ReportOverviewLoader(report, game_data_with())
-    loader.process_query_result({"report": {"masterData": {"actors": [], "gameVersion": 5}}})
+    loader.process_query_result(report_query(masterData={"actors": [], "gameVersion": 5}))
     assert report.game_version == 5
 
 
 def test_overview_loader_without_game_version_keeps_retail() -> None:
     report = UserReport(report_id="abc")
     loader = ReportOverviewLoader(report)
-    loader.process_query_result({"report": {"masterData": {"actors": []}}})
+    loader.process_query_result(report_query(masterData={"actors": []}))
     assert report.game_version == RETAIL.wcl_game_version
 
 
@@ -106,7 +106,7 @@ def test_overview_query_asks_for_game_version() -> None:
 def test_loaded_user_report_stores_game_version() -> None:
     report = UserReport(report_id="abc")
     ReportOverviewLoader(report, game_data_with()).process_query_result(
-        {"report": {"masterData": {"actors": [], "gameVersion": 5}}},
+        report_query(masterData={"actors": [], "gameVersion": 5}),
     )
 
     with mock.patch.object(DynamoDBModel, "get_table") as get_table:
@@ -124,20 +124,20 @@ def test_loaded_user_report_stores_game_version() -> None:
 def test_overview_loader_picks_the_game_data_from_the_log() -> None:
     report = UserReport(report_id="abc")
     loader = ReportOverviewLoader(report)
-    loader.process_query_result({"report": {"masterData": {"actors": [], "gameVersion": MISTS.wcl_game_version}}})
+    loader.process_query_result(report_query(masterData={"actors": [], "gameVersion": MISTS.wcl_game_version}))
     assert loader.game_data is MISTS.data
 
 
 def test_overview_loader_without_game_version_in_the_log_uses_retail() -> None:
     loader = ReportOverviewLoader(UserReport(report_id="abc"))
-    loader.process_query_result({"report": {"masterData": {"actors": []}}})
+    loader.process_query_result(report_query(masterData={"actors": []}))
     assert loader.game_data is RETAIL.data
 
 
 def test_overview_loader_rejects_an_unsupported_game_version_naming_it() -> None:
     loader = ReportOverviewLoader(UserReport(report_id="abc"))
     with pytest.raises(UnsupportedGameVersionError, match="5"):
-        loader.process_query_result({"report": {"masterData": {"actors": [], "gameVersion": 5}}})
+        loader.process_query_result(report_query(masterData={"actors": [], "gameVersion": 5}))
 
 
 ################################################################################
