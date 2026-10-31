@@ -123,5 +123,8 @@ async def _load_steps(
             loaders.append(PlayerLoader(player, game_data=game_data))
 
     loaders = [loader for loader in loaders if loader.needs_load()]
-    if loaders:
-        await asyncio.gather(*[loader.load(client=client) for loader in loaders])
+    tasks = [loader.load(client=client) for loader in loaders]
+    results = await asyncio.gather(*tasks, return_exceptions=True)
+    for result in results:
+        if isinstance(result, BaseException):
+            raise result

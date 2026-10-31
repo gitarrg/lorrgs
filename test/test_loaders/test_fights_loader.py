@@ -100,3 +100,28 @@ def test_failing_fight_is_returned_and_others_still_load(spec: WowSpec, game_dat
 
     assert [(f.fight.fight_id, type(f.error)) for f in failures] == [(2, RuntimeError)]
     assert any("fightIDs: 1" in q or "fightIDs:1" in q for q in client.queries)
+
+
+def test_failing_actor_does_not_leave_other_actors_loading(spec: WowSpec, game_data: GameData) -> None:
+    """The Fight is only reported once every Actor load has finished."""
+    report = _report(spec, loaded=True)
+    fight = report.fights[0]
+    for player in fight.players:
+        player.casts = []
+    finished: list[str] = []
+
+    class SlowClient(FakeClient):
+        calls = 0
+
+        async def query(self, query: str) -> dict[str, object]:
+            SlowClient.calls += 1
+            if SlowClient.calls == 1:
+                raise RuntimeError("boom")
+            await asyncio.sleep(0.01)
+            finished.append(query)
+            return await super().query(query)
+
+    failures = _run([FightPlan(fight, players="all")], game_data, SlowClient())
+
+    assert len(failures) == 1
+    assert len(finished) == 1
