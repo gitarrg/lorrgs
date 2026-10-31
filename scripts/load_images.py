@@ -1,7 +1,7 @@
 #!/usr/bin/env -S PYTHONPATH=. uv run --env-file=.env
-"""Uploads spell icons and spec images to our S3 bucket.
+"""Uploads spell icons, talent icons and spec images to our S3 bucket.
 
-Spell icons are fetched from wowhead. Spec images are read from `lorrgs_assets/images/specs/`.
+Spell and talent icons are fetched from wowhead. Spec images are read from `lorrgs_assets/images/specs/`.
 Only images missing in the bucket are uploaded.
 
 PYTHONPATH=. uv run scripts/load_images.py
@@ -23,7 +23,7 @@ from PIL import Image
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
-from lorgs.data import GAME_VERSIONS
+from lorgs.data import GAME_VERSIONS, talent_trees
 
 
 if typing.TYPE_CHECKING:
@@ -121,6 +121,17 @@ def upload(filename: str) -> None:
     upload_image(response.content, FOLDER, filename)
 
 
+def get_talent_icons() -> set[str]:
+    """Icons of every talent (see `scripts/generate_talent_trees.py`)."""
+    return {
+        entry["icon"]
+        for tree in talent_trees.load_spec_trees().values()
+        for node in tree["nodes"]
+        for entry in node["entries"]
+        if entry["icon"]
+    }
+
+
 def upload_spec_images() -> None:
     """Upload the local spec images missing in the S3 bucket."""
     existing = set(get_images(SPECS_FOLDER))
@@ -164,6 +175,17 @@ for spell in spells:
 
     print(f"uploading: {icon} for {spell.name}")
     upload(icon)
+    images.append(icon)
+
+
+# Talent icons share the folder with the spell icons
+for icon in sorted(get_talent_icons()):
+    if icon in images:
+        continue
+
+    print(f"uploading: {icon} for Talents")
+    upload(icon)
+    images.append(icon)
 
 for extra_icon in EXTRA_ICONS:
     print(f"uploading: {extra_icon} for Talents")

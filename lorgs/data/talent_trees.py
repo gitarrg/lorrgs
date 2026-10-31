@@ -17,7 +17,9 @@ import typing
 
 TABLES = (
     "ChrSpecialization",
+    "ManifestInterfaceData",
     "SpecSetMember",
+    "SpellMisc",
     "SpellName",
     "TraitCond",
     "TraitDefinition",
@@ -118,6 +120,18 @@ class _Db2:
         self.entries = {r["ID"]: r for r in tables["TraitNodeEntry"]}
         self.sub_tree_names = {r["ID"]: r["Name_lang"] for r in tables["TraitSubTree"]}
 
+        # icon file id -> name, as used for our spell icons: "Spell_Nature_Rejuvenation.blp" -> "spell_nature_rejuvenation.jpg"
+        # Wowhead serves a space in the DB2 filename as a hyphen.
+        self.icon_names = {
+            r["ID"]: r["FileName"].lower().removesuffix(".blp").replace(" ", "-") + ".jpg"
+            for r in tables["ManifestInterfaceData"]
+            if r["FilePath"].lower() == "interface\\icons\\"
+        }
+        # spell id -> icon file id (spells with per-difficulty rows: the base one, DifficultyID 0, wins)
+        self.spell_icons: dict[str, str] = {}
+        for row in sorted(tables["SpellMisc"], key=lambda r: r["DifficultyID"] == "0"):
+            self.spell_icons[row["SpellID"]] = row["SpellIconFileDataID"]
+
         self.nodes_by_tree: dict[str, dict[str, dict[str, str]]] = collections.defaultdict(dict)
         for row in tables["TraitNode"]:
             self.nodes_by_tree[row["TraitTreeID"]][row["ID"]] = row
@@ -139,10 +153,14 @@ class _Db2:
             or self.sub_tree_names.get(entry["TraitSubTreeID"])
             or ""
         )
+        icon_id = definition.get("OverrideIcon", "0")
+        if icon_id == "0":
+            icon_id = self.spell_icons.get(str(spell_id), "0")
         return {
             "id": int(entry["ID"]),
             "name": name,
             "spell_id": spell_id,
+            "icon": self.icon_names.get(icon_id, ""),
             "index": int(node_entry_row["_Index"]),
         }
 

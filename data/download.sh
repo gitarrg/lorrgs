@@ -4,7 +4,9 @@
 tables=(
     ChrClasses
     ChrSpecialization
+    ManifestInterfaceData
     SpecializationSpells
+    SpellMisc
     SpellName
     SpellCooldowns
     SpecSetMember

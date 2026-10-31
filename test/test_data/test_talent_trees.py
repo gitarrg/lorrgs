@@ -46,6 +46,12 @@ def _tables(tmp_path: pathlib.Path) -> dict:
         ],
     )
     _write(tmp_path, "SpellName", [{"ID": 111, "Name_lang": "Spell A"}, {"ID": 222, "Name_lang": "Spell B"}])
+    _write(
+        tmp_path,
+        "ManifestInterfaceData",
+        [{"ID": 9, "FileName": "Spell_Frost_Ring of Frost.blp", "FilePath": "Interface\\Icons\\"}],
+    )
+    _write(tmp_path, "SpellMisc", [{"SpellID": 111, "SpellIconFileDataID": 9, "DifficultyID": 0}])
     _write(tmp_path, "TraitTree", [{"ID": 1, "TraitSystemID": 0}])
     _write(
         tmp_path,
@@ -162,7 +168,15 @@ def test_node_and_entry_data(tmp_path: pathlib.Path) -> None:
         "max_ranks": 2,
         "tree": "class",
         "hero_tree": None,
-        "entries": [{"id": 1000, "name": "Spell A", "spell_id": 111, "index": 0}],
+        "entries": [
+            {
+                "id": 1000,
+                "name": "Spell A",
+                "spell_id": 111,
+                "icon": "spell_frost_ring-of-frost.jpg",
+                "index": 0,
+            }
+        ],
     }
     assert nodes[30]["type"] == "hero_selection"
     assert nodes[30]["entries"][0]["name"] == "Heroes"  # no spell: named after the Sub Tree
