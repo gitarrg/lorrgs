@@ -74,7 +74,12 @@ def test_expansion_without_a_valid_game_version_is_a_validation_error() -> None:
 
 
 def test_expanded_messages_are_in_a_message_group_of_their_game_version() -> None:
-    body = json.dumps({"task": "load_spec_rankings", "game_version": "mists", "boss_slug": "all", **{"spec_slug": "mage-fire"}})
+    body = json.dumps({
+        "task": "load_spec_rankings",
+        "game_version": "mists",
+        "boss_slug": "all",
+        **{"spec_slug": "mage-fire"},
+    })
     message = {"body": body, "eventSourceARN": "arn:aws:sqs:eu-west-1:1:queue.fifo"}
 
     with mock.patch.object(handler, "submit_messages") as submit_messages:

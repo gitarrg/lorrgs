@@ -1,4 +1,4 @@
-"""05: Megaera"""
+"""05: Megaera."""
 
 from lorgs.models.raid_boss import RaidBoss
 

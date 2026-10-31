@@ -33,7 +33,7 @@ from .thok import THOK
 #   Tier: 1054 Siege of Orgrimmar
 #
 ################################################################################
-SIEGE_OF_ORGRIMMAR = RaidZone(  # ruff: ignore[non-empty-init-module]
+SIEGE_OF_ORGRIMMAR = RaidZone(
     id=1054,
     name="Siege of Orgrimmar",
     icon="achievement_raid_soo_orgrimmar_outdoors.jpg",

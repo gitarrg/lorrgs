@@ -11,12 +11,14 @@ async def main(message):
         raise OSError("Missing DISCORD_WEBHOOK_URL")
 
     data = {
-        "embeds": [{
-            "fields": [
-                {"name": "ID", "value": message.get("messageId")},
-                {"name": "Body", "value": message.get("body")},
-            ],
-        }],
+        "embeds": [
+            {
+                "fields": [
+                    {"name": "ID", "value": message.get("messageId")},
+                    {"name": "Body", "value": message.get("body")},
+                ],
+            },
+        ],
     }
 
     async with aiohttp.ClientSession() as session, session.post(url=DISCORD_WEBHOOK_URL, json=data):

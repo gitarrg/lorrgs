@@ -1,4 +1,3 @@
-
 from lorrgs_sqs import helpers
 
 
@@ -11,5 +10,3 @@ def test_queue_arn_to_url():
 
 if __name__ == "__main__":
     test_queue_arn_to_url()
-
-

@@ -1,5 +1,6 @@
 """Seams: the mists GameData indexes the objects its package defines."""
 
+
 def test_game_data_is_the_package_game_data() -> None:
     from lorgs.data.mists import GAME_DATA
     from lorgs.data import MISTS

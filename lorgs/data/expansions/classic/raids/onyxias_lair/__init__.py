@@ -10,7 +10,7 @@ from lorgs.models.raid_zone import RaidZone
 from .onyxia import ONYXIA
 
 
-ONYXIAS_LAIR = RaidZone(  # ruff: ignore[non-empty-init-module]
+ONYXIAS_LAIR = RaidZone(
     id=1001,
     name="Onyxia's Lair",
     icon="achievement_boss_onyxia.jpg",

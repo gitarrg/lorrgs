@@ -1,4 +1,4 @@
-"""Twin Emperors"""
+"""Twin Emperors."""
 
 from lorgs.models.raid_boss import RaidBoss
 

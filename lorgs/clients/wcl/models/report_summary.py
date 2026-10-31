@@ -58,7 +58,6 @@ class CompositionEntry(UnitInfo):
 
 
 class ReportSummary(BaseModel):
-
     totalTime: int = 0
     itemLevel: float = 0
     composition: list[CompositionEntry] = []

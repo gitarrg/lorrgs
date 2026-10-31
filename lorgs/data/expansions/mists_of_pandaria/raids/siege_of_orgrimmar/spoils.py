@@ -1,4 +1,4 @@
-"""10: Spoils"""
+"""10: Spoils."""
 
 from lorgs.models.raid_boss import RaidBoss
 

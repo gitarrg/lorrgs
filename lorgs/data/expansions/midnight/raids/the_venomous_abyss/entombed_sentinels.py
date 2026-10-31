@@ -1,4 +1,5 @@
 """Entombed Sentinels (The Venomous Abyss)."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -15,7 +16,6 @@ if typing.TYPE_CHECKING:
 
 
 class EntombedSentinels(RaidBoss):
-
     id: int = 3445
     name: str = "Entombed Sentinels"
     nick: str = "Sentinels"

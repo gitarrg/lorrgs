@@ -4,6 +4,7 @@ PTR NS 31%
 https://www.warcraftlogs.com/reports/pfkrcn7xPdDL1jqH?fight=11
 
 """
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -19,7 +20,6 @@ if typing.TYPE_CHECKING:
 
 
 class LostExplorers(RaidBoss):
-
     id: int = 3497
     name: str = "The Lost Explorers"
     nick: str = "The Lost Turtles"

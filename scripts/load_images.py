@@ -7,12 +7,14 @@ Only images missing in the bucket are uploaded.
 PYTHONPATH=. uv run scripts/load_images.py
 
 """
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
 import io
 import os
 import pathlib
+import typing
 
 # IMPORT THIRD PARTY LIBRARIES
 import boto3
@@ -22,9 +24,12 @@ from PIL import Image
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.data import GAME_VERSIONS
-from lorgs.models.raid_boss import RaidBoss
-from lorgs.models.raid_zone import RaidZone
-from lorgs.models.wow_spell import WowSpell
+
+
+if typing.TYPE_CHECKING:
+    from lorgs.models.raid_boss import RaidBoss
+    from lorgs.models.raid_zone import RaidZone
+    from lorgs.models.wow_spell import WowSpell
 
 
 # S3_CLIENT = boto3.client("s3")
@@ -104,7 +109,7 @@ def upload(filename: str) -> None:
     """
     # Download the file from the HTTP URL
     url = f"https://wow.zamimg.com/images/wow/icons/large/{filename}"
-    response = requests.get(url)
+    response = requests.get(url, timeout=30)
     if not response:
         response.raise_for_status()
 

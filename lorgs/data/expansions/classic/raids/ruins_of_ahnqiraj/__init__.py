@@ -15,7 +15,7 @@ from .moam import MOAM
 from .ossirian_the_unscarred import OSSIRIAN_THE_UNSCARRED
 
 
-RUINS_OF_AHNQIRAJ = RaidZone(  # ruff: ignore[non-empty-init-module]
+RUINS_OF_AHNQIRAJ = RaidZone(
     id=1004,
     name="Ruins of Ahn'Qiraj",
     icon="inv_misc_ahnqirajtrinket_03.jpg",

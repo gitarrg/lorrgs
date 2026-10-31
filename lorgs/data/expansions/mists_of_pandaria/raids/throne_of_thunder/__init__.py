@@ -32,7 +32,7 @@ from .twins import TWINS
 #   Tier: 1046 Throne of Thunder
 #
 ################################################################################
-THRONE_OF_THUNDER = RaidZone(  # ruff: ignore[non-empty-init-module]
+THRONE_OF_THUNDER = RaidZone(
     id=1051.3,  # WCL zone is 1046; shifted so the frontend (sorts by id) lists it after Terrace of Endless Spring
     name="Throne of Thunder",
     icon="achievement_raid_thunder_king.jpg",

@@ -2,6 +2,9 @@
 
 from __future__ import annotations
 
+# IMPORT STANDARD LIBRARIES
+import typing
+
 # IMPORT THIRD PARTY LIBRARIES
 import fastapi
 
@@ -9,28 +12,35 @@ import fastapi
 from lorgs.clients import sqs
 from lorgs.models.task_payloads import CompRankingPayload
 from lorgs.models.warcraftlogs_comp_ranking import CompRanking, CompRankingFight, FilterExpression
-from lorrgs_api.dependencies import GameVersionDep  # ruff: ignore[typing-only-first-party-import]
+from lorrgs_api.dependencies import GameVersionDep
 
 
 router = fastapi.APIRouter(tags=["comp_ranking"])
 
 
 @router.get("/comp_ranking/{boss_slug}", response_model_exclude_unset=True)
-async def get_comp_ranking(
+async def get_comp_ranking(  # ruff: ignore[complex-structure]
     game_version: GameVersionDep,
     response: fastapi.Response,
     boss_slug: str,
     # Query Params
     limit: int = 20,
-    roles: list[str] = fastapi.Query([], alias="role"),
-    specs: list[str] = fastapi.Query([], alias="spec"),
+    roles: typing.Annotated[list[str], fastapi.Query(alias="role")] = [],  # ruff: ignore[mutable-argument-default]
+    specs: typing.Annotated[list[str], fastapi.Query(alias="spec")] = [],  # ruff: ignore[mutable-argument-default]
     killtime_min: int = 0,
     killtime_max: int = 0,
 ) -> CompRanking:
     """Fetch comp rankings for a given boss encounter.
 
     Args:
+        game_version (GameVersionDep): The Game Version.
+        response (fastapi.Response): to set the Cache-Control header
         boss_slug (str): name of the boss (full_name_slug)
+        limit (int): max number of reports
+        roles (list[str]): role filter expressions (query `role`)
+        specs (list[str]): spec filter expressions (query `spec`)
+        killtime_min (int): min fight duration in seconds
+        killtime_max (int): max fight duration in seconds
 
     """
     # shorter cache timeout for the start of the tier (where frequent changes happen)
@@ -79,6 +89,7 @@ async def task_load_comp_rankings(
     response: fastapi.Response,
     boss_slug: str = "all",
     limit: int = 50,
+    *,
     clear: bool = False,
 ):
     """Submit a scheduled task to update a single or all Comp Rankings."""
@@ -96,7 +107,7 @@ async def task_load_comp_rankings(
                 game_version=game_version.name,
                 boss_slug=boss_slug,
                 page=page + 1,  # +1 because pages start at one.
-            )
+            ),
         )
 
     if payloads:

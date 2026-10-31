@@ -11,11 +11,7 @@ import typing
 from operator import attrgetter
 
 
-T = typing.TypeVar("T")
-U = typing.TypeVar("U")
-
-
-def chunks(lst: list[T], n: int) -> typing.Generator[list[T]]:
+def chunks[T](lst: list[T], n: int) -> typing.Generator[list[T]]:
     """Yield successive n-sized chunks from lst."""
     if n <= 0:  # special case to allow unchucked
         yield lst
@@ -63,7 +59,7 @@ def format_big_number(num: float) -> str:
 
     """
     magnitude = 0
-    while abs(num) >= 1000:
+    while abs(num) >= 1000:  # ruff: ignore[magic-value-comparison]
         magnitude += 1
         num /= 1000.0
     # add more suffixes if you need them
@@ -112,7 +108,7 @@ def str_int_list(string: str, sep=".") -> list[int]:
     return [int(v) for v in string.split(sep)]
 
 
-def rename_dict_keys(data: dict[str, typing.Any], names: dict[str, str], reverse=False) -> dict[str, typing.Any]:
+def rename_dict_keys(data: dict[str, typing.Any], names: dict[str, str], *, reverse=False) -> dict[str, typing.Any]:
     """Renames keys in a dictornary.
 
     Examples:
@@ -132,7 +128,7 @@ def rename_dict_keys(data: dict[str, typing.Any], names: dict[str, str], reverse
     return {name_map.get(k, k): v for k, v in data.items()}
 
 
-def flatten(values: typing.Iterable[typing.Iterable[T]]) -> list[T]:
+def flatten[T](values: typing.Iterable[typing.Iterable[T]]) -> list[T]:
     """Flattens a list of lists into a single large list.
 
     https://stackoverflow.com/questions/952914/how-to-make-a-flat-list-out-of-a-list-of-lists
@@ -145,7 +141,7 @@ def flatten(values: typing.Iterable[typing.Iterable[T]]) -> list[T]:
     return list(itertools.chain.from_iterable(values))
 
 
-def as_list(func: typing.Callable[[U], typing.Generator[T]]) -> typing.Callable[[U], list[T]]:
+def as_list[U, T](func: typing.Callable[[U], typing.Generator[T]]) -> typing.Callable[[U], list[T]]:
     """Wrap a Generator to return a list."""
 
     @functools.wraps(func)
@@ -197,47 +193,19 @@ def find[T](predicate: typing.Callable[[T], typing.Any], seq: typing.Iterable[T]
     return None
 
 
-def get(iterable: typing.Iterable[T], **attrs) -> T | None:
-    r"""A helper that returns the first element in the iterable that meets
-    all the traits passed in ``attrs``. This is an alternative for
-    :func:`~discord.utils.find`.
+def get[T](iterable: typing.Iterable[T], **attrs) -> T | None:
+    """Return the first element whose attributes match all `attrs`, or None.
 
-    When multiple attributes are specified, they are checked using
-    logical AND, not logical OR. Meaning they have to meet every
-    attribute passed in and not one of them.
+    Attributes are compared with AND. Use `x__y` to match the nested attribute `x.y`.
+    Adapted from `discord.utils.get`.
 
-    To have a nested attribute search (i.e. search by ``x.y``) then
-    pass in ``x__y`` as the keyword argument.
+    Args:
+        iterable (Iterable[T]): the elements to search through
+        **attrs: attribute names and the values they must equal
 
-    If nothing is found that matches the attributes passed, then
-    ``None`` is returned.
-
-    Examples
-    --------
-    Basic usage:
-
-    .. code-block:: python3
-
-        member = discord.utils.get(message.guild.members, name='Foo')
-
-    Multiple attribute matching:
-
-    .. code-block:: python3
-
-        channel = discord.utils.get(guild.voice_channels, name='Foo', bitrate=64000)
-
-    Nested attribute matching:
-
-    .. code-block:: python3
-
-        channel = discord.utils.get(client.get_all_channels(), guild__name='Cool', name='general')
-
-    Parameters
-    ----------
-    iterable
-        An iterable to search through.
-    \*\*attrs
-        Keyword arguments that denote attributes to search with.
+    Example:
+        >>> get(fight.players, name="Foo")
+        >>> get(fight.players, source_id=5, name="Foo")
 
     """
     # global -> local

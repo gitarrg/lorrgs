@@ -1,12 +1,10 @@
-
 import os
 import json
 
 import boto3
 from botocore.exceptions import ClientError
 
-sqs = boto3.resource('sqs')
-
+sqs = boto3.resource("sqs")
 
 
 QUEUE_NAME = "test1.fifo"
@@ -55,7 +53,6 @@ def process_message():
         print("\tID:", message.message_id)
         print("\t", message.message_attributes)
         print("\t", message.body)
-
 
 
 if __name__ == "__main__":

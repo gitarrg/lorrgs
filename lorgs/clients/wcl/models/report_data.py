@@ -60,8 +60,8 @@ class Report(BaseModel):
         v = v or {}
         try:
             return v["data"]
-        except KeyError:
-            raise ValueError("Missing `data`.")
+        except KeyError as e:
+            raise ValueError("Missing `data`.") from e
 
 
 class ReportData(BaseModel):

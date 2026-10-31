@@ -1,4 +1,4 @@
-"""13: Klaxxi"""
+"""13: Klaxxi."""
 
 from lorgs.models.raid_boss import RaidBoss
 

@@ -1,5 +1,6 @@
 """Seams: the retail GameData indexes the objects its package defines."""
 
+
 def test_game_data_is_the_package_game_data() -> None:
     from lorgs.data.retail import GAME_DATA
     from lorgs.data import RETAIL
@@ -44,7 +45,15 @@ def test_spells_are_found_by_id_and_variation_id() -> None:
 def test_no_object_is_in_two_collections() -> None:
     from lorgs.data.retail import GAME_DATA
 
-    collections = [GAME_DATA.roles, GAME_DATA.classes, GAME_DATA.specs, GAME_DATA.zones, GAME_DATA.bosses,
-                   GAME_DATA.dungeons, [GAME_DATA.season], GAME_DATA.spells]
+    collections = [
+        GAME_DATA.roles,
+        GAME_DATA.classes,
+        GAME_DATA.specs,
+        GAME_DATA.zones,
+        GAME_DATA.bosses,
+        GAME_DATA.dungeons,
+        [GAME_DATA.season],
+        GAME_DATA.spells,
+    ]
     ids = [id(obj) for objects in collections for obj in objects]
     assert len(ids) == len(set(ids))

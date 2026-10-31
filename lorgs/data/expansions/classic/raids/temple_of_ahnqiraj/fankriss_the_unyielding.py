@@ -1,4 +1,4 @@
-"""Fankriss the Unyielding"""
+"""Fankriss the Unyielding."""
 
 from lorgs.models.raid_boss import RaidBoss
 

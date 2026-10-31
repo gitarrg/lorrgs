@@ -1,4 +1,4 @@
-"""07: Durumu"""
+"""07: Durumu."""
 
 from lorgs.models.raid_boss import RaidBoss
 

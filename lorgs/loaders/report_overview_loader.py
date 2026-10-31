@@ -10,13 +10,13 @@ from lorgs.data import get_game_version_by_wcl_id
 from lorgs.loaders.fight_loader import FightLoader
 from lorgs.logger import logger
 from lorgs.models.warcraftlogs_player import Player
-from lorgs.models.warcraftlogs_report import Report
 
 from .base_loader import BaseLoader
 
 
 if typing.TYPE_CHECKING:
     from lorgs.models.game_data import GameData
+    from lorgs.models.warcraftlogs_report import Report
 
 
 class UnsupportedGameVersionError(ValueError):

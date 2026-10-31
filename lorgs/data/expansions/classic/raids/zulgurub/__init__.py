@@ -19,7 +19,7 @@ from .high_priestess_marli import HIGH_PRIESTESS_MARLI
 from .jindo_the_hexxer import JINDO_THE_HEXXER
 
 
-ZULGURUB = RaidZone(  # ruff: ignore[non-empty-init-module]
+ZULGURUB = RaidZone(
     id=1003,
     name="Zul'Gurub",
     icon="achievement_boss_hakkar.jpg",

@@ -1,4 +1,4 @@
-"""Bloodlord Mandokir"""
+"""Bloodlord Mandokir."""
 
 from lorgs.models.raid_boss import RaidBoss
 

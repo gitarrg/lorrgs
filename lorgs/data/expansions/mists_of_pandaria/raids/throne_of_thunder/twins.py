@@ -1,4 +1,4 @@
-"""11: Twins"""
+"""11: Twins."""
 
 from lorgs.models.raid_boss import RaidBoss
 

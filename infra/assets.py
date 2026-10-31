@@ -1,4 +1,5 @@
 """Lambda code and layers, built locally (no Docker)."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -22,7 +23,7 @@ class LocalBundling:
     def __init__(self, build: typing.Callable[[pathlib.Path], None]) -> None:
         self.build = build
 
-    def try_bundle(self, output_dir: str, options: cdk.BundlingOptions) -> bool:
+    def try_bundle(self, output_dir: str, options: cdk.BundlingOptions) -> bool:  # ruff: ignore[unused-method-argument]
         self.build(pathlib.Path(output_dir))
         return True
 
@@ -32,7 +33,7 @@ def bundle(source: pathlib.Path, build: typing.Callable[[pathlib.Path], None], *
     return lambda_.Code.from_asset(
         str(source),
         exclude=["__pycache__"],
-        bundling=cdk.BundlingOptions(image=lambda_.Runtime.PYTHON_3_13.bundling_image, local=LocalBundling(build)),
+        bundling=cdk.BundlingOptions(image=lambda_.Runtime.PYTHON_3_13.bundling_image, local=LocalBundling(build)),  # ty: ignore[invalid-argument-type]
         **kwargs,
     )
 
@@ -57,19 +58,30 @@ def requirements_layer() -> lambda_.Code:
     def build(out: pathlib.Path) -> None:
         reqs = out / "requirements.txt"
         subprocess.check_call([  # ruff: ignore[start-process-with-partial-path, subprocess-without-shell-equals-true]
-            "uv", "export",
-            "--no-dev", "--no-emit-project",
-            "--no-hashes", "-q",
-            "-o", reqs,
-        ],
-        )
+            "uv",
+            "export",
+            "--no-dev",
+            "--no-emit-project",
+            "--no-hashes",
+            "-q",
+            "-o",
+            reqs,
+        ])
         subprocess.check_call([  # ruff: ignore[start-process-with-partial-path, subprocess-without-shell-equals-true]
-            "uv", "pip", "install",
-            "-q", "-r", reqs,
-            "--target", out / "python",
-            "--python-platform", "aarch64-manylinux2014",
-            "--python-version", "3.13",
-            "--only-binary", ":all:",
+            "uv",
+            "pip",
+            "install",
+            "-q",
+            "-r",
+            reqs,
+            "--target",
+            out / "python",
+            "--python-platform",
+            "aarch64-manylinux2014",
+            "--python-version",
+            "3.13",
+            "--only-binary",
+            ":all:",
         ])
         reqs.unlink()
 

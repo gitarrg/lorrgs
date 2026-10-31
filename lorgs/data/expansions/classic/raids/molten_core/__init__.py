@@ -19,7 +19,7 @@ from .shazzrah import SHAZZRAH
 from .sulfuron_harbinger import SULFURON_HARBINGER
 
 
-MOLTEN_CORE = RaidZone(  # ruff: ignore[non-empty-init-module]
+MOLTEN_CORE = RaidZone(
     id=1000,
     name="Molten Core",
     icon="achievement_boss_ragnaros.jpg",

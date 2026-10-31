@@ -1,4 +1,4 @@
-"""05: Galakras"""
+"""05: Galakras."""
 
 from lorgs.models.raid_boss import RaidBoss
 

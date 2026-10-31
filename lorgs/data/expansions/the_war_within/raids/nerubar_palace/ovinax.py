@@ -1,4 +1,4 @@
-"""05: Ulgrax"""
+"""05: Ulgrax."""
 
 from lorgs.models.raid_boss import RaidBoss
 

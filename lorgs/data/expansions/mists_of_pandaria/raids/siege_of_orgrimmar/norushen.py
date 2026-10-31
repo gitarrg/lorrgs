@@ -1,4 +1,4 @@
-"""03: Norushen"""
+"""03: Norushen."""
 
 from lorgs.models.raid_boss import RaidBoss
 

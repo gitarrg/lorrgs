@@ -1,5 +1,3 @@
-
-
 import asyncio
 import os
 import json
@@ -27,7 +25,8 @@ def save_fixture(filename: str, content):
     file_path = os.path.join(ROOT, filename)
     with open(file_path, "w", encoding="utf-8") as json_file:
         return json.dump(
-            content, json_file,
+            content,
+            json_file,
             indent=4,
         )
 
@@ -41,7 +40,7 @@ def load_fixture(filename: str):
 
 def wrap_data(data: typing.Any, *parents: str):
     """Wraps the `data` in a nested dict.
-    
+
     Example:
         >>> wrap_data([1, 2, 3], "foo", "bar")
         {'foo': {'bar': [1, 2, 3]}}
@@ -75,9 +74,17 @@ def get_api_routes(*paths: str) -> dict[str, tuple[int, typing.Any]]:
                 body += message.get("body", b"")
 
         scope = {
-            "type": "http", "asgi": {"version": "3.0"}, "http_version": "1.1", "method": "GET",
-            "scheme": "https", "path": path, "raw_path": path.encode(), "query_string": b"",
-            "headers": [], "client": ("127.0.0.1", 1), "server": ("test", 443),
+            "type": "http",
+            "asgi": {"version": "3.0"},
+            "http_version": "1.1",
+            "method": "GET",
+            "scheme": "https",
+            "path": path,
+            "raw_path": path.encode(),
+            "query_string": b"",
+            "headers": [],
+            "client": ("127.0.0.1", 1),
+            "server": ("test", 443),
         }
         await app(scope, receive, send)
         return status, json.loads(body)

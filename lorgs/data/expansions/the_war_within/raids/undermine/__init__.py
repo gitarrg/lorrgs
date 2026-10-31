@@ -35,7 +35,7 @@ from .vexie import VEXIE
 #   Tier: 42 Liberation of Undermine
 #
 ################################################################################
-LIBERATION_OF_UNDERMINE = RaidZone(  # ruff: ignore[non-empty-init-module]
+LIBERATION_OF_UNDERMINE = RaidZone(
     id=42,
     name="Liberation of Undermine",
     icon="inv_achievement_zone_undermine.jpg",

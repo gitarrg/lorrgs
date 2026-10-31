@@ -97,6 +97,10 @@ ignore = [
     "if-else-block-instead-of-if-exp", # simplify-boolean-expression
     "reimplemented-builtin",  # simplify loop
     "missing-todo-link", # missing link on todo
+    "missing-todo-author",
+    "missing-todo-colon",
+    "missing-todo-description",
+    "line-contains-todo",  # FIX002: TODOs are fine, TD rules still check their format
     "raise-vanilla-args", # Tryceratops - Checks for long exception messages that are not defined in the exception class itself.
     "unconventional-import-alias",
     "multiple-leading-hashes-for-block-comment",
@@ -110,10 +114,17 @@ ignore = [
 [lint.per-file-ignores]
 "test/**" = ["ALL"]
 "lorgs/data/**" = [
+    "non-empty-init-module",  # packages define their zones, collections and Game Versions in __init__
     "whitespace-after-open-bracket",
     "multiple-spaces-before-operator",
     "multiple-spaces-after-comma",
     "missing-whitespace",
+]
+
+"lorrgs_api/routes/**" = [
+    # FastAPI handlers declare every path/query param as an argument
+    "too-many-arguments",
+    "too-many-positional-arguments",
 ]
 
 "lorgs/clients/wcl/models/**" = [
@@ -125,7 +136,21 @@ ignore = [
 [lint.flake8-type-checking]
 # Pydantic resolves field annotations when the model class is created.
 # this stops ruff from suggesting to move them into TYPE_CHECKING-Blocks
-runtime-evaluated-base-classes = ["pydantic.BaseModel"]
+runtime-evaluated-base-classes = [
+    "pydantic.BaseModel",
+    "lorgs.models.base.BaseModel",
+    "lorgs.models.base.base.BaseModel",
+    "lorgs.models.base.StaticModel",
+]
+# FastAPI resolves the annotations of route handlers (eg.: `GameVersionDep`) at runtime.
+runtime-evaluated-decorators = [
+    "fastapi.APIRouter.get",
+    "fastapi.APIRouter.post",
+    "fastapi.APIRouter.put",
+    "fastapi.APIRouter.patch",
+    "fastapi.APIRouter.delete",
+    "fastapi.APIRouter.websocket",
+]
 
 [lint.isort]
 length-sort = false

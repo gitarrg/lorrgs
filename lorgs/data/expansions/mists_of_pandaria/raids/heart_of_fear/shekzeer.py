@@ -1,4 +1,4 @@
-"""06: Shek'zeer"""
+"""06: Shek'zeer."""
 
 from lorgs.models.raid_boss import RaidBoss
 

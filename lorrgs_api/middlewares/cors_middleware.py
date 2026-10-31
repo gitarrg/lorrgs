@@ -1,4 +1,5 @@
 """Adds a CORS Middleware."""
+
 # IMPORT STANDARD LIBRARIES
 import os
 
@@ -19,7 +20,8 @@ ORIGINS = [
 # allow_origins matches literally, so the wildcard has to be a regex.
 ORIGIN_REGEX = r"https://([A-Za-z0-9-]+\.)?lorrgs-frontend\.pages\.dev"
 
-def init(app: fastapi.FastAPI, enabled=True):
+
+def init(app: fastapi.FastAPI, *, enabled=True):
 
     if not enabled:
         return

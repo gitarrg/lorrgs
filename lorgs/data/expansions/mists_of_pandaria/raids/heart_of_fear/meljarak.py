@@ -1,4 +1,4 @@
-"""04: Mel'jarak"""
+"""04: Mel'jarak."""
 
 from lorgs.models.raid_boss import RaidBoss
 

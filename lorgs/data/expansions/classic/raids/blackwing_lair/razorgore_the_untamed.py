@@ -1,4 +1,4 @@
-"""Razorgore the Untamed"""
+"""Razorgore the Untamed."""
 
 from lorgs.models.raid_boss import RaidBoss
 

@@ -12,13 +12,13 @@ import pydantic
 from lorgs import utils
 from lorgs.models import base
 from lorgs.models.difficulty import RaidDifficulty
-from lorgs.models.warcraftlogs_boss import Boss  # ruff: ignore[typing-only-first-party-import] # required by pydantic
-from lorgs.models.warcraftlogs_player import Player  # ruff: ignore[typing-only-first-party-import] # required by pydantic
+from lorgs.models.warcraftlogs_boss import Boss
+from lorgs.models.warcraftlogs_player import Player
 
 
 if typing.TYPE_CHECKING:
     from lorgs.models.game_data import GameData
-    from lorgs.models.warcraftlogs_report import Report
+    from lorgs.models.warcraftlogs_report import Report  # ruff: ignore[runtime-import-in-type-checking-block]  # only a PrivateAttr annotation
 
 
 class Phase(pydantic.BaseModel):
@@ -91,17 +91,17 @@ class Fight(base.BaseModel):
         }
 
     @staticmethod
-    def _sort_key(player: Player, game_data: GameData) -> tuple:
+    def sort_key(player: Player, game_data: GameData) -> tuple:
         if spec := game_data.get_spec(player.spec_slug):
             return (spec.role, spec, player.name)
         return (None, None, player.name)
 
-    def as_dict(self, game_data: GameData, player_ids: list[int] = []) -> dict:
+    def as_dict(self, game_data: GameData, player_ids: list[int] | None = None) -> dict:
         # Get players
         players = self.players
         if player_ids:
             players = [player for player in players if player.source_id in player_ids]
-        players = sorted(players, key=lambda player: self._sort_key(player, game_data))
+        players = sorted(players, key=lambda player: self.sort_key(player, game_data))
 
         # Return
         return {

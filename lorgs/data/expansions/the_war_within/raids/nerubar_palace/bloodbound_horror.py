@@ -1,4 +1,4 @@
-"""02: The Bloodbound Horror"""
+"""02: The Bloodbound Horror."""
 
 from lorgs.models.raid_boss import RaidBoss
 

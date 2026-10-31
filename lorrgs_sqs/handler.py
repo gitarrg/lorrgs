@@ -49,7 +49,7 @@ def submit_messages(queue_url: str, messages: list[dict], chunk_size: int = 10) 
         logger.info(f"entries: {entries=}")
         response = SQS_CLIENT.send_message_batch(
             QueueUrl=queue_url,
-            Entries=entries,  # type: ignore
+            Entries=entries,  # ty: ignore[invalid-argument-type]
         )
         logger.info(f"response: {response=}")
 
@@ -75,7 +75,7 @@ async def process_message(message: dict) -> None:
 
     if not payloads:
         logger.warning(f"payload expands to nothing: {payload=}")
-        return
+        return None
 
     # a keyword may expand to a single value (eg.: `difficulty=all` in a zone that ranks one difficulty)
     message = {**message, "body": json.dumps(payloads[0])}
@@ -84,6 +84,7 @@ async def process_message(message: dict) -> None:
     # run the Handler
     handler = TASK_HANDLERS.get(task) or TASK_HANDLERS["unknown"]
     await handler(message)
+    return None
 
 
 async def process_messages(messages: list) -> dict[str, typing.Any]:
@@ -95,7 +96,7 @@ async def process_messages(messages: list) -> dict[str, typing.Any]:
             await process_message(message)
         except (TaskValidationError, pydantic.ValidationError):
             logger.warning("Validation error processing message", exc_info=True)
-        except Exception:
+        except Exception:  # ruff: ignore[blind-except]  # report the message as failed, keep processing the batch
             logger.exception("Error processing message")
             failures.append(message.get("MessageId"))
 
@@ -104,7 +105,7 @@ async def process_messages(messages: list) -> dict[str, typing.Any]:
     }
 
 
-def handler(event, context=None) -> None:
+def handler(event, context=None) -> None:  # ruff: ignore[unused-function-argument]
     """Main Handler called by Lambda."""
     logger.info(f"handler: {event=}")
     records = event.get("Records") or []

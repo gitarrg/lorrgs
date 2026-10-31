@@ -3,6 +3,7 @@
 # IMPORT STANDARD LIBRARIES
 import json
 import os
+import typing
 import uuid
 from collections.abc import Iterable
 
@@ -12,6 +13,10 @@ from pydantic import BaseModel
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
+
+
+if typing.TYPE_CHECKING:
+    from types_boto3_sqs.type_defs import SendMessageBatchRequestEntryTypeDef
 
 
 payload_type = str | dict | BaseModel
@@ -61,7 +66,7 @@ def send_message(payload: payload_type, queue_url="", message_group=""):
 def send_message_batch(payloads: Iterable[payload_type], queue_url="", chunk_size=10):
     """Batch Submit multiple Messages."""
     # Wrap Payloads
-    messages = [
+    messages: list[SendMessageBatchRequestEntryTypeDef] = [
         {
             "Id": str(i),
             "MessageGroupId": new_message_group(payload),

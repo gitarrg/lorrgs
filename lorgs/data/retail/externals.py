@@ -3,10 +3,10 @@
 # fmt: off
 
 # IMPORT LOCAL LIBRARIES
+from lorgs.data.constants import *
 from lorgs.data.retail.classes import *  # for Colors
 from lorgs.data.retail.classes import ALL_SPECS
 from lorgs.data.retail.classes.other import OTHER_EXTERNALS
-from lorgs.data.constants import *
 
 
 # To avoid issues with different Talents that can proc Bloodlust like Effects,

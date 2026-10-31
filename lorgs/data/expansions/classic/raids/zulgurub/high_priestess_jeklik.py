@@ -1,4 +1,4 @@
-"""High Priestess Jeklik"""
+"""High Priestess Jeklik."""
 
 from lorgs.models.raid_boss import RaidBoss
 

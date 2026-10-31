@@ -1,4 +1,5 @@
 """Base for static game data (roles, classes, specs, spells, raids, ...)."""
+
 from __future__ import annotations
 
 # IMPORT LOCAL LIBRARIES

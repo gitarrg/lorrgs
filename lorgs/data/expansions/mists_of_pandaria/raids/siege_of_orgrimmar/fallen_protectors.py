@@ -1,4 +1,4 @@
-"""02: Fallen Protectors"""
+"""02: Fallen Protectors."""
 
 from lorgs.models.raid_boss import RaidBoss
 

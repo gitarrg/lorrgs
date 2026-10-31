@@ -1,4 +1,4 @@
-"""01: Immerseus"""
+"""01: Immerseus."""
 
 from lorgs.models.raid_boss import RaidBoss
 

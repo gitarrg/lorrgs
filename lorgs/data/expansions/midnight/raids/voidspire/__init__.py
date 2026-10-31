@@ -28,7 +28,7 @@ from .vorasius import VORASIUS
 #   Tier: 46 The Voidspire
 #
 ################################################################################
-VOIDSPIRE = RaidZone(  # ruff: ignore[non-empty-init-module]
+VOIDSPIRE = RaidZone(
     id=46.1,
     name="The Voidspire",
     icon="inv_achievement_raid_voidspire.jpg",

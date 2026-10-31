@@ -191,7 +191,7 @@ class CompRanking(base.S3Model):
             if key not in old_reports:
                 self.add_report(fight_data)
 
-    async def load(self, game_version: GameVersion, limit: int = 0, clear_old: bool = False, page=1):
+    async def load(self, game_version: GameVersion, limit: int = 0, *, clear_old: bool = False, page=1):
         """Fetch reports for this BossRanking.
 
         params:

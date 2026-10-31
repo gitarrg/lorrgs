@@ -1,4 +1,4 @@
-"""03: Gara'jal"""
+"""03: Gara'jal."""
 
 from lorgs.models.raid_boss import RaidBoss
 

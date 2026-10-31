@@ -1,4 +1,4 @@
-"""Jin'do the Hexxer"""
+"""Jin'do the Hexxer."""
 
 from lorgs.models.raid_boss import RaidBoss
 

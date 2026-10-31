@@ -1,4 +1,4 @@
-"""01: Stone Guard"""
+"""01: Stone Guard."""
 
 from lorgs.models.raid_boss import RaidBoss
 

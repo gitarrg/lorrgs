@@ -1,4 +1,4 @@
-"""Edge of Madness"""
+"""Edge of Madness."""
 
 from lorgs.models.raid_boss import RaidBoss
 

@@ -1,4 +1,4 @@
-"""Ossirian the Unscarred"""
+"""Ossirian the Unscarred."""
 
 from lorgs.models.raid_boss import RaidBoss
 

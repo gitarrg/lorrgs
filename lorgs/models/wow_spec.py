@@ -1,4 +1,5 @@
 """Models for Classes, Specs, Spells and Roles."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES

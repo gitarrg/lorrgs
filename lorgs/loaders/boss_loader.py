@@ -1,4 +1,5 @@
 """Loaders for Actor (Player / Boss) data from WarcraftLogs."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES

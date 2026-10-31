@@ -3,6 +3,7 @@
 >>> PYTHONPATH=. uv run --env-file=.env  test/loader/load_spec_ranking.py
 
 """
+
 import asyncio
 
 from lorgs.data.retail import *  # noqa: F403

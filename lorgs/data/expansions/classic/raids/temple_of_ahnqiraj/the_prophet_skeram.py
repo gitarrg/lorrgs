@@ -1,4 +1,4 @@
-"""The Prophet Skeram"""
+"""The Prophet Skeram."""
 
 from lorgs.models.raid_boss import RaidBoss
 

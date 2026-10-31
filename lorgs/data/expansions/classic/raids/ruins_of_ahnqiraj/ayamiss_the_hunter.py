@@ -1,4 +1,4 @@
-"""Ayamiss the Hunter"""
+"""Ayamiss the Hunter."""
 
 from lorgs.models.raid_boss import RaidBoss
 

@@ -1,4 +1,4 @@
-"""02: Horridon"""
+"""02: Horridon."""
 
 from lorgs.models.raid_boss import RaidBoss
 

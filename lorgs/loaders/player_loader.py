@@ -1,4 +1,5 @@
 """Loaders for Actor (Player / Boss) data from WarcraftLogs."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -110,7 +111,7 @@ class PlayerLoader(ActorLoader):
         spell_id = event.abilityGameID
 
         # special case: Ankh
-        if spell_id == 21169:   # ruff: ignore[magic-value-comparison]
+        if spell_id == 21169:  # ruff: ignore[magic-value-comparison]
             event.type = "resurrect"
 
         if event.type == "resurrect":

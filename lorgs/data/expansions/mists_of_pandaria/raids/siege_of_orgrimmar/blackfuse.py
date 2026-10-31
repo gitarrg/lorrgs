@@ -1,4 +1,4 @@
-"""12: Blackfuse"""
+"""12: Blackfuse."""
 
 from lorgs.models.raid_boss import RaidBoss
 

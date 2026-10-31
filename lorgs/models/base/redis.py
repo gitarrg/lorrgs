@@ -22,7 +22,6 @@ TRedisModel = TypeVar("TRedisModel", bound="RedisModel")
 
 
 class RedisModel(base.BaseModel):
-
     ttl: ClassVar[int] = 0
 
     ############################################################################
@@ -35,14 +34,14 @@ class RedisModel(base.BaseModel):
         key = cls.get_key(**kwargs)
         data = redis_client.json().get(key) or {}
         if data:
-            return cls(**data)
+            return cls(**data)  # ty: ignore[invalid-argument-type]
         return None
 
     ############################################################################
     # SET
     #
 
-    def save(self, exclude_unset=True, **kwargs: Any) -> None:
+    def save(self, *, exclude_unset=True, **kwargs: Any) -> None:
         """Save the Object."""
         key = self.get_key(**self.model_dump())
 
@@ -64,6 +63,6 @@ class RedisModel(base.BaseModel):
         key = self.get_key(**self.model_dump())
         for path, value in kwargs.items():
             if not path.startswith("."):
-                path = f".{path}"
+                path = f".{path}"  # ruff: ignore[redefined-loop-name]
 
             redis_client.json().set(name=key, path=path, obj=value)

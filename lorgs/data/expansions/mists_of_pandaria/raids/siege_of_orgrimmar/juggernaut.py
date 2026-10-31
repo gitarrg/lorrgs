@@ -1,4 +1,4 @@
-"""06: Juggernaut"""
+"""06: Juggernaut."""
 
 from lorgs.models.raid_boss import RaidBoss
 

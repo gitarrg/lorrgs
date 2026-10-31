@@ -91,7 +91,6 @@ class FightPhasesLoader(BaseLoader):
 
         phases: list[Phase] = []
         for phase_transition in phase_transitions:
-
             start_time = self.fight.to_fight_time(phase_transition.startTime)
             converted = phase_transition.model_copy(update={"startTime": start_time})
 

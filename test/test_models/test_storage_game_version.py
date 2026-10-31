@@ -37,7 +37,10 @@ def test_s3_keys_start_with_the_game_version(game_version: str) -> None:
         SpecRanking.get_key(game_version=game_version, **SPEC_RANKING_KWARGS)
         == f"{game_version}/spec_ranking/{season_slug}/mage-fire/some-boss__mythic__dps"
     )
-    assert CompRanking.get_key(game_version=game_version, boss_slug="some-boss") == f"{game_version}/comp_ranking/some-boss"
+    assert (
+        CompRanking.get_key(game_version=game_version, boss_slug="some-boss")
+        == f"{game_version}/comp_ranking/some-boss"
+    )
 
 
 def test_game_version_is_required() -> None:

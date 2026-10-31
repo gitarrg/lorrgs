@@ -20,7 +20,7 @@ from .volcoross import VOLCOROSS
 #   Tier: 35 Amirdrassil, the Dream's Hope
 #
 ################################################################################
-AMIRDRASSIL = RaidZone(  # ruff: ignore[non-empty-init-module]
+AMIRDRASSIL = RaidZone(
     id=35,
     name="Amirdrassil, the Dream's Hope",
     icon="inv_achievement_raidemeralddream_raid.jpg",

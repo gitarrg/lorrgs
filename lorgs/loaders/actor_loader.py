@@ -10,7 +10,6 @@ import typing
 from lorgs import utils
 from lorgs.clients import wcl
 from lorgs.loaders.base_loader import BaseLoader
-from lorgs.logger import logger
 from lorgs.models.warcraftlogs_boss import Boss
 from lorgs.models.warcraftlogs_cast import Cast, add_cast_counters, process_auras, process_until_events
 from lorgs.models.warcraftlogs_player import Player
@@ -102,7 +101,7 @@ class ActorLoader(BaseLoader):
                         {{data}}
                 }}
             }}
-        """
+        """,
         )
 
     ############################################################################
@@ -111,7 +110,7 @@ class ActorLoader(BaseLoader):
     #
     ############################################################################
 
-    def process_events(self, events: list[wcl.ReportEvent]) -> list[wcl.ReportEvent]:
+    def process_events(self, events: list[wcl.ReportEvent]) -> list[wcl.ReportEvent]:  # ruff: ignore[no-self-use]
         """Hook to preprocess the entire list of  Cast/Events.
 
         Args:

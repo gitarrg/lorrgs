@@ -4,6 +4,7 @@
 >>> PYTHONPATH=. uv run --env-file=.env  test/loader/load_user_report.py
 
 """
+
 import asyncio
 
 from lorgs.data.retail import *  # noqa: F403
@@ -37,13 +38,11 @@ async def main():
     report.save()
     print_info(report)
 
-
     host = "http://localhost:9001"
     figths_ids_str = ".".join([str(f) for f in fight_ids])
     players_ids_str = ".".join([str(p) for p in player_ids])
     url = f"{host}/user_report/pzRXNvHVG8qtk9ch?fight={figths_ids_str}&player={players_ids_str}"
     print(url)
-
 
 
 if __name__ == "__main__":

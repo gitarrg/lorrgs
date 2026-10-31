@@ -1,4 +1,4 @@
-"""High Priest Thekal"""
+"""High Priest Thekal."""
 
 from lorgs.models.raid_boss import RaidBoss
 

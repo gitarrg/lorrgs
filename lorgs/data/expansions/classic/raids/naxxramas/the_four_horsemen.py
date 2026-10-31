@@ -1,4 +1,4 @@
-"""The Four Horsemen"""
+"""The Four Horsemen."""
 
 from lorgs.models.raid_boss import RaidBoss
 

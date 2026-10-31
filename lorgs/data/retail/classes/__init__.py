@@ -1,4 +1,5 @@
 """All Playable Classes in the Game."""
+
 from __future__ import annotations
 
 from lorgs.data.retail.classes.deathknight import *

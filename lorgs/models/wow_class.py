@@ -1,4 +1,5 @@
 """Playable (and some non playble) Classes in WoW."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES

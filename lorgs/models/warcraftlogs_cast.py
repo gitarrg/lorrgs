@@ -129,11 +129,12 @@ def process_until_events(casts: list[Cast], game_data: GameData) -> list[Cast]:
 
 
 def add_cast_counters(events: list[Cast]) -> list[Cast]:
-    """Adds a counter to each event, tracking how many times
-    each (event_type, spell_id) pair has occurred.
+    """Add a counter to each event.
+
+    The counter tracks how many times each (event_type, spell_id) pair has occurred.
 
     Args:
-        casts (list[Cast]): A list of cast events.
+        events (list[Cast]): A list of cast events.
 
     Returns:
         list[Cast]: The same list with an added 'counter' attribute for each cast.

@@ -9,11 +9,11 @@ import blinker
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models import base
-from lorgs.models.warcraftlogs_cast import Cast  # ruff: ignore[typing-only-first-party-import] # pydantic requires this import
+from lorgs.models.warcraftlogs_cast import Cast
 
 
 if typing.TYPE_CHECKING:
-    from lorgs.models.warcraftlogs_fight import Fight
+    from lorgs.models.warcraftlogs_fight import Fight  # ruff: ignore[runtime-import-in-type-checking-block]  # only a PrivateAttr annotation
 
 
 class BaseActor(base.BaseModel):

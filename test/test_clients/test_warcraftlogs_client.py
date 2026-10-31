@@ -5,7 +5,13 @@ from unittest import mock
 
 import pytest
 
-from lorgs.clients.wcl.client import BaseClient, PrivateReportError, UnknownReportError, WarcraftlogsClient, WarcraftlogsQueryError
+from lorgs.clients.wcl.client import (
+    BaseClient,
+    PrivateReportError,
+    UnknownReportError,
+    WarcraftlogsClient,
+    WarcraftlogsQueryError,
+)
 
 
 PRIVATE_REPORT_MESSAGE = "You do not have permission to view this report."

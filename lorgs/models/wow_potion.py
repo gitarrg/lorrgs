@@ -8,7 +8,7 @@ class WowPotion(wow_item.WowItem):
 
     spell_type: str = SpellType.POTION
 
-    cooldown: int = 300  # default cooldown for all potions
+    cooldown: float = 300  # default cooldown for all potions
 
     roles: list[str] = ["tank", "heal", "mdps", "rdps"]
     """Codes of the Roles that use this potion. A Game Version attaches it to the specs of these Roles."""

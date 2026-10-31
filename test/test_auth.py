@@ -34,7 +34,7 @@ async def get_user_profile():
         "scope": "identify",
         "token_type": "Bearer",
     }
-    access_token: str = creds["access_token"]  # type: ignore
+    access_token: str = creds["access_token"]
     user_info = await discord.get_user_profile(access_token)
     print(user_info)
 

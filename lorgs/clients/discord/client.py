@@ -1,4 +1,5 @@
 """Very Basic Discord "client"."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES

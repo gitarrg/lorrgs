@@ -4,7 +4,16 @@ from lorrgs_sqs.helpers import PAYLOAD_EXPANDERS
 from test.helpers import get_api_routes
 
 
-WORLD_DATA_ROUTES = ["/api/forever/roles", "/api/forever/classes", "/api/forever/specs", "/api/forever/zones", "/api/forever/bosses", "/api/forever/spells", "/api/forever/trinkets", "/api/forever/seasons/current"]
+WORLD_DATA_ROUTES = [
+    "/api/forever/roles",
+    "/api/forever/classes",
+    "/api/forever/specs",
+    "/api/forever/zones",
+    "/api/forever/bosses",
+    "/api/forever/spells",
+    "/api/forever/trinkets",
+    "/api/forever/seasons/current",
+]
 
 
 def test_api_starts_and_serves_classes_and_specs() -> None:

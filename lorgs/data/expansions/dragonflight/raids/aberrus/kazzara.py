@@ -1,4 +1,4 @@
-"""01: Kazzara, the Hellforged"""
+"""01: Kazzara, the Hellforged."""
 
 from lorgs.models.raid_boss import RaidBoss
 

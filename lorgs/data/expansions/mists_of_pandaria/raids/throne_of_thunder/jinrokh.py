@@ -1,4 +1,4 @@
-"""01: Jin'rokh"""
+"""01: Jin'rokh."""
 
 from lorgs.models.raid_boss import RaidBoss
 

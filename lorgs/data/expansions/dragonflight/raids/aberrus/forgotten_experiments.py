@@ -1,4 +1,4 @@
-"""03: The Forgotten Experiments"""
+"""03: The Forgotten Experiments."""
 
 from lorgs.models.raid_boss import RaidBoss
 

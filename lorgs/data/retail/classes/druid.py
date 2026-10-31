@@ -156,4 +156,3 @@ REFORESTATION = DRUID_RESTORATION.add_buff(
     show=False,
     event_type="removebuff",  # TOL procs when the buff is removed
 )
-

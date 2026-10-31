@@ -35,25 +35,25 @@ class WowActor(base.StaticModel):
 
     @property
     def all_spells(self) -> list[WowSpell]:
-        """Get all spells actor can use."""
+        """All spells the actor can use."""
         spells = [p.all_spells for p in self.parents] + [self.spells]
         return utils.flatten(spells)
 
     @property
     def all_buffs(self) -> list[WowSpell]:
-        """Get all buffs that are relavent for this actor."""
+        """All buffs that are relevant for this actor."""
         buffs = [p.all_buffs for p in self.parents] + [self.buffs]
         return utils.flatten(buffs)
 
     @property
     def all_debuffs(self) -> list[WowSpell]:
-        """Get all debuffs that are relavent for this actor."""
+        """All debuffs that are relevant for this actor."""
         debuffs = [p.all_debuffs for p in self.parents] + [self.debuffs]
         return utils.flatten(debuffs)
 
     @property
     def all_events(self) -> list[WowSpell]:
-        """Get all events that are relavent for this actor."""
+        """All events that are relevant for this actor."""
         events = [p.all_events for p in self.parents] + [self.events]
         return utils.flatten(events)
 

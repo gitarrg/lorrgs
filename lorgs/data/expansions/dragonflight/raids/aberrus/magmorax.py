@@ -1,4 +1,4 @@
-"""07: Magmorax"""
+"""07: Magmorax."""
 
 from lorgs.models.raid_boss import RaidBoss
 

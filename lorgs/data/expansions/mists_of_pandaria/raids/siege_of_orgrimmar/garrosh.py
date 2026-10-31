@@ -1,4 +1,4 @@
-"""14: Garrosh"""
+"""14: Garrosh."""
 
 from lorgs.models.raid_boss import RaidBoss
 

@@ -1,4 +1,4 @@
-"""01: Protectors"""
+"""01: Protectors."""
 
 from lorgs.models.raid_boss import RaidBoss
 

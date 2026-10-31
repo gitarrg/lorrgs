@@ -1,4 +1,4 @@
-"""Noth the Plaguebringer"""
+"""Noth the Plaguebringer."""
 
 from lorgs.models.raid_boss import RaidBoss
 

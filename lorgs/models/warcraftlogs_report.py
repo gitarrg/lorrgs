@@ -8,8 +8,8 @@ import typing
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.models import base
-from lorgs.models.warcraftlogs_fight import Fight  # ruff: ignore[typing-only-first-party-import]  # required by pydantic
-from lorgs.models.warcraftlogs_player import Player  # ruff: ignore[typing-only-first-party-import]  # required by pydantic
+from lorgs.models.warcraftlogs_fight import Fight
+from lorgs.models.warcraftlogs_player import Player
 
 
 if typing.TYPE_CHECKING:

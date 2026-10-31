@@ -19,7 +19,7 @@ from .ulgrax import ULGRAX
 #   Tier: 38 Nerub-ar Palace
 #
 ################################################################################
-NERUBAR_PALACE = RaidZone(  # ruff: ignore[non-empty-init-module]
+NERUBAR_PALACE = RaidZone(
     id=38,
     name="Nerub-ar Palace",
     icon="achievement_zone_azjkahet.jpg",

@@ -72,7 +72,6 @@ class ReportLoader:
     ) -> list[BaseLoader]:
         loaders: list[BaseLoader] = []
         for fight_id in fight_ids:
-
             fight = self.report.get_fight(fight_id)
             if not fight:
                 # ReportOverviewLoader should have loaded the fight

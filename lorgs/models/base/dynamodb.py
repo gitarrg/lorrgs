@@ -17,7 +17,7 @@ from lorgs.models.base import base
 
 
 if typing.TYPE_CHECKING:
-    from mypy_boto3_dynamodb.service_resource import Table
+    from types_boto3_dynamodb.service_resource import Table
 
 
 dynamodb = boto3.resource("dynamodb")
@@ -90,17 +90,17 @@ class DynamoDBModel(base.BaseModel):
     # Save to DB
     #
 
-    def json_dict(self, exclude_unset: bool = True) -> dict[str, typing.Any]:
+    def json_dict(self, *, exclude_unset: bool = True) -> dict[str, typing.Any]:
         # convert into json compatible dict
         # this back and fort serialization makes sure all complex objects
         # are converted into json compatible formats.
         # There is some work done to simplify this: https://github.com/pydantic/pydantic/discussions/4456
-        return json.loads(  # type: ignore
+        return json.loads(
             self.model_dump_json(exclude_unset=exclude_unset, by_alias=True),
             parse_float=decimal.Decimal,  # dynamodb wants floats as decimals
         )
 
-    def save(self, exclude_unset: bool = True) -> None:
+    def save(self, *, exclude_unset: bool = True) -> None:
         data = self.json_dict(exclude_unset=exclude_unset)
 
         # insert the keys

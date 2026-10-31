@@ -1,4 +1,4 @@
-"""05: Sprocketmonger Lockenstock
+"""05: Sprocketmonger Lockenstock.
 
 PTR Logs:
     Mythic / Northern Sky

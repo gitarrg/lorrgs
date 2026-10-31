@@ -1,4 +1,4 @@
-"""06: Will of the Emperor"""
+"""06: Will of the Emperor."""
 
 from lorgs.models.raid_boss import RaidBoss
 

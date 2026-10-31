@@ -1,4 +1,4 @@
-"""07: Echo of Neltharion"""
+"""07: Echo of Neltharion."""
 
 from lorgs.models.raid_boss import RaidBoss
 

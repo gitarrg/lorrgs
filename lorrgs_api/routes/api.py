@@ -44,5 +44,5 @@ router.include_router(versioned_router)
 
 @router.get("/")
 @router.get("/{path:path}")
-def page_not_found(path=""):
+def page_not_found():
     raise fastapi.HTTPException(status_code=404, detail="Invalid Route")

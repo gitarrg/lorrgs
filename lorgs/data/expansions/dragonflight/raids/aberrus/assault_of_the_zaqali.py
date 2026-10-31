@@ -1,4 +1,4 @@
-"""04: Assault of the Zaqali"""
+"""04: Assault of the Zaqali."""
 
 from lorgs.models.raid_boss import RaidBoss
 

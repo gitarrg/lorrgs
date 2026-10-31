@@ -1,4 +1,4 @@
-"""06: The Vigilant Steward, Zskarn"""
+"""06: The Vigilant Steward, Zskarn."""
 
 from lorgs.models.raid_boss import RaidBoss
 

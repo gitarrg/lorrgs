@@ -1,4 +1,4 @@
-"""10: Iron Qon"""
+"""10: Iron Qon."""
 
 from lorgs.models.raid_boss import RaidBoss
 

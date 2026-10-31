@@ -1,4 +1,4 @@
-"""02: Feng"""
+"""02: Feng."""
 
 from lorgs.models.raid_boss import RaidBoss
 

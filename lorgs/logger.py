@@ -1,4 +1,5 @@
 """Define and setup Logger-Instances."""
+
 import datetime
 import functools
 import inspect
@@ -6,6 +7,7 @@ import logging
 import os
 import time
 from collections.abc import Callable
+from typing import Self
 
 
 LOG_FORMAT = "[%(reltime)s][%(name)s] %(levelname)s: [%(funcName)s] %(message)s"
@@ -40,7 +42,7 @@ else:
 
 
 class Timer:
-    def __init__(self, name: str, print_on_exit=True) -> None:
+    def __init__(self, name: str, *, print_on_exit=True) -> None:
         self.name = name
         self.start_time: float = 0
         self.elapsed_time: float = 0
@@ -50,11 +52,11 @@ class Timer:
         extra = {"funcNameCustom": self.name}  # add custom funcName for our LoggerFormatter
         logger.info(f"{self.elapsed_time * 1000:.02f}ms", extra=extra)
 
-    def __enter__(self) -> "Timer":
+    def __enter__(self) -> Self:
         self.start_time = time.time()
         return self
 
-    def __exit__(self, type, value, traceback) -> None:
+    def __exit__(self, exc_type, exc_value, traceback) -> None:
         self.elapsed_time = time.time() - self.start_time
         if self.print_on_exit:
             self.print()
@@ -67,14 +69,14 @@ def timeit(func: Callable) -> Callable:
 
         @functools.wraps(func)
         async def wrapped(*args, **kwargs):
-            with Timer(func.__name__):
+            with Timer(func.__name__):  # ty: ignore[unresolved-attribute]
                 return await func(*args, **kwargs)
 
     else:
 
         @functools.wraps(func)
         def wrapped(*args, **kwargs):
-            with Timer(func.__name__):
+            with Timer(func.__name__):  # ty: ignore[unresolved-attribute]
                 return func(*args, **kwargs)
 
     return wrapped

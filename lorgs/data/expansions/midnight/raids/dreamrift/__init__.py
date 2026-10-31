@@ -23,7 +23,7 @@ from .chimaerus import CHIMAERUS
 #   Tier: 46 The Dreamrift
 #
 ################################################################################
-DREAMRIFT = RaidZone(  # ruff: ignore[non-empty-init-module]
+DREAMRIFT = RaidZone(
     id=46.2,
     name="The Dreamrift",
     icon="inv_achievement_raid_riftofaln.jpg",

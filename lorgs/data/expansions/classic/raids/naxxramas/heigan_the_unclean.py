@@ -1,4 +1,4 @@
-"""Heigan the Unclean"""
+"""Heigan the Unclean."""
 
 from lorgs.models.raid_boss import RaidBoss
 

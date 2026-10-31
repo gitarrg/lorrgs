@@ -1,4 +1,5 @@
 """Endpoints dealing with user authentication."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -40,7 +41,7 @@ async def get_token(response: fastapi.Response, code: str):
         raise fastapi.HTTPException(status_code=401, detail=error)
 
     # load user info
-    access_token: str = user_credentials.get("access_token")  # type: ignore
+    access_token: str = user_credentials.get("access_token")  # ty: ignore[invalid-assignment]
     info = await discord.get_user_profile(access_token)
     # try:
     # except PermissionError:
@@ -82,8 +83,8 @@ async def get_user(response: fastapi.Response, user_id: str) -> dict[str, typing
         try:
             user = User(discord_id=user_id)
             await user.refresh()
-        except ValueError:
-            raise fastapi.HTTPException(status_code=404, detail="User not found")
+        except ValueError as e:
+            raise fastapi.HTTPException(status_code=404, detail="User not found") from e
         else:
             user.save()
 

@@ -1,4 +1,4 @@
-"""High Priestess Arlokk"""
+"""High Priestess Arlokk."""
 
 from lorgs.models.raid_boss import RaidBoss
 

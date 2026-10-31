@@ -148,7 +148,13 @@ class LorrgsStack(cdk.Stack):
 
         role = self.schedule_role(main_queue)
         for name, refresh in schedules.items():
-            self.schedule(main_queue, role, GAME_VERSIONS[name], refresh_cron(refresh.hour_offset), refresh.enabled)
+            self.schedule(
+                main_queue,
+                role,
+                GAME_VERSIONS[name],
+                refresh_cron(refresh.hour_offset),
+                enabled=refresh.enabled,
+            )
 
         # API
         http_api = apigw.HttpApi(
@@ -165,7 +171,7 @@ class LorrgsStack(cdk.Stack):
         cdk.CfnOutput(self, "DistributionDomain", value=distribution.distribution_domain_name)
 
     def name(self, name: str) -> str:
-        """eg.: lorrgs-api"""
+        """eg.: lorrgs-api."""
         return f"{self.prefix}-{name}"
 
     def queue(self, name: str) -> sqs.Queue:
@@ -202,6 +208,7 @@ class LorrgsStack(cdk.Stack):
         role: iam.Role,
         game_version: GameVersion,
         cron: str,
+        *,
         enabled: bool,
     ) -> None:
         """Rankings refresh of one Game Version."""

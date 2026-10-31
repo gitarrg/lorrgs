@@ -1,4 +1,4 @@
-"""04: Tortos"""
+"""04: Tortos."""
 
 from lorgs.models.raid_boss import RaidBoss
 

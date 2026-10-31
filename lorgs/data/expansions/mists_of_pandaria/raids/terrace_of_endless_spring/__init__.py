@@ -23,7 +23,7 @@ from .tsulong import TSULONG
 #   Tier: 1051 Terrace of Endless Spring
 #
 ################################################################################
-TERRACE_OF_ENDLESS_SPRING = RaidZone(  # ruff: ignore[non-empty-init-module]
+TERRACE_OF_ENDLESS_SPRING = RaidZone(
     id=1051.2,
     name="Terrace of Endless Spring",
     icon="achievement_raid_terraceofendlessspring04.jpg",

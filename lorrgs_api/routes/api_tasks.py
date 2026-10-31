@@ -1,4 +1,5 @@
 """Get Information about Tasks."""
+
 from __future__ import annotations
 
 # IMPORT THIRD PARTY LIBRARIES
@@ -35,8 +36,8 @@ async def get_task(response: fastapi.Response, task_id: str):
     response.headers["Cache-Control"] = "no-cache"
     try:
         return _get_task_info(task_id)
-    except KeyError:
-        raise fastapi.HTTPException(status_code=404, detail="Task not found.")
+    except KeyError as e:
+        raise fastapi.HTTPException(status_code=404, detail="Task not found.") from e
 
 
 @router.websocket("/{task_id}")

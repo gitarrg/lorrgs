@@ -12,7 +12,7 @@ import fastapi
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
 from lorgs.clients import sqs
-from lorgs.clients.wcl import InvalidReport, PrivateReportError
+from lorgs.clients.wcl import InvalidReportError, PrivateReportError
 from lorgs.clients.wcl.client import WarcraftlogsClient
 from lorgs.data import get_game_version_by_wcl_id
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader, UnsupportedGameVersionError
@@ -73,7 +73,7 @@ async def get_fights(report_id: str, fight: str, player: str = ""):
 
 
 @router.get("/{report_id}/load_overview", response_model_exclude_unset=True)
-async def load_user_report_overview(response: fastapi.Response, report_id: str, refresh: bool = False) -> UserReport:
+async def load_user_report_overview(response: fastapi.Response, report_id: str, *, refresh: bool = False) -> UserReport:
     """Load a Report's Overview/Masterdata."""
     response.headers["Cache-Control"] = "max-age=60"
 
@@ -85,7 +85,7 @@ async def load_user_report_overview(response: fastapi.Response, report_id: str, 
         loader = ReportOverviewLoader(report=user_report)
         try:
             await loader.load(client=client)
-        except InvalidReport as e:
+        except InvalidReportError as e:
             raise fastapi.HTTPException(status_code=404, detail="Report not found.") from e
         except PrivateReportError as e:
             raise fastapi.HTTPException(status_code=401, detail="No permission to view this report.") from e

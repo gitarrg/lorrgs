@@ -18,8 +18,8 @@ from lorgs.models.wow_trinket import WowTrinket
 
 if typing.TYPE_CHECKING:
     from lorgs.clients import wcl
-    from lorgs.models.warcraftlogs_cast import Cast
     from lorgs.models.raid_zone import RaidZone
+    from lorgs.models.warcraftlogs_cast import Cast
     from lorgs.models.warcraftlogs_fight import Phase
     from lorgs.models.wow_spell import WowSpell
 
@@ -86,7 +86,7 @@ class RaidBoss(WowActor):
         # inlined to avoid a cycle: Fight -> Boss -> RaidBoss
         from lorgs.models.warcraftlogs_fight import Phase  # ruff: ignore[import-outside-top-level]
 
-        if transition.startTime <= 100:  # skip pull as phase
+        if transition.startTime <= 100:  # ruff: ignore[magic-value-comparison]  # skip pull as phase
             return None
 
         return Phase(ts=transition.startTime, phase_id=transition.id)

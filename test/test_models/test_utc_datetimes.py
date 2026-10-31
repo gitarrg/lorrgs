@@ -17,7 +17,10 @@ EXPECTED = datetime.datetime(2026, 10, 18, 12, 0, tzinfo=datetime.UTC)
 STORED = [
     (User, {"discord_id": "123"}),
     (UserReport, {"report_id": "REPORT_ID"}),
-    (SpecRanking, {"game_version": "retail", "spec_slug": "paladin-holy", "boss_slug": "nekzali", "difficulty": "mythic"}),
+    (
+        SpecRanking,
+        {"game_version": "retail", "spec_slug": "paladin-holy", "boss_slug": "nekzali", "difficulty": "mythic"},
+    ),
     (CompRanking, {"game_version": "retail", "boss_slug": "nekzali"}),
 ]
 
@@ -47,22 +50,20 @@ def test_default_timestamp_is_aware(model, fields) -> None:
 
 def _stored_spec_ranking(updated: str, report_start: str, fight_start: str) -> SpecRanking:
     return SpecRanking.model_validate_json(
-        json.dumps(
-            {
-                "game_version": "retail",
-                "spec_slug": "paladin-holy",
-                "boss_slug": "nekzali",
-                "difficulty": "mythic",
-                "updated": updated,
-                "reports": [
-                    {
-                        "report_id": "REPORT_ID",
-                        "start_time": report_start,
-                        "fights": [{"fight_id": 1, "start_time": fight_start, "duration": 5000}],
-                    }
-                ],
-            }
-        )
+        json.dumps({
+            "game_version": "retail",
+            "spec_slug": "paladin-holy",
+            "boss_slug": "nekzali",
+            "difficulty": "mythic",
+            "updated": updated,
+            "reports": [
+                {
+                    "report_id": "REPORT_ID",
+                    "start_time": report_start,
+                    "fights": [{"fight_id": 1, "start_time": fight_start, "duration": 5000}],
+                }
+            ],
+        })
     )
 
 

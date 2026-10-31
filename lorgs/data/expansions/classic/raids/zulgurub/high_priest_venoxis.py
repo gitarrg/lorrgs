@@ -1,4 +1,4 @@
-"""High Priest Venoxis"""
+"""High Priest Venoxis."""
 
 from lorgs.models.raid_boss import RaidBoss
 

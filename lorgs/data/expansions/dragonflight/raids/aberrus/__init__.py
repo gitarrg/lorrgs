@@ -20,7 +20,7 @@ from .zskarn import ZSKARN
 #   Tier: 33 Aberrus, the Shadowed Crucible
 #
 ################################################################################
-ABERRUS = RaidZone(  # ruff: ignore[non-empty-init-module]
+ABERRUS = RaidZone(
     id=33,
     name="Aberrus, the Shadowed Crucible",
     icon="inv_achievement_raiddragon_raid.jpg",

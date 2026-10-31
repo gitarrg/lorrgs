@@ -25,7 +25,7 @@ from .zorlok import ZORLOK
 #   Tier: 1051 Heart of Fear
 #
 ################################################################################
-HEART_OF_FEAR = RaidZone(  # ruff: ignore[non-empty-init-module]
+HEART_OF_FEAR = RaidZone(
     id=1051.1,
     name="Heart of Fear",
     icon="achievement_raid_mantidraid01.jpg",

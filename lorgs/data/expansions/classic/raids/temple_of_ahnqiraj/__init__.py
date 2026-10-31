@@ -18,7 +18,7 @@ from .twin_emperors import TWIN_EMPERORS
 from .viscidus import VISCIDUS
 
 
-TEMPLE_OF_AHNQIRAJ = RaidZone(  # ruff: ignore[non-empty-init-module]
+TEMPLE_OF_AHNQIRAJ = RaidZone(
     id=1005,
     name="Temple of Ahn'Qiraj",
     icon="achievement_boss_cthun.jpg",

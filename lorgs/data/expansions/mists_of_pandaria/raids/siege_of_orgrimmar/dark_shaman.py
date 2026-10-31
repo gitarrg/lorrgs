@@ -1,4 +1,4 @@
-"""07: Dark Shaman"""
+"""07: Dark Shaman."""
 
 from lorgs.models.raid_boss import RaidBoss
 

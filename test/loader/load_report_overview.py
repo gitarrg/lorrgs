@@ -3,6 +3,7 @@
 >>> PYTHONPATH=. uv --env-file=.env  run tmp.py
 
 """
+
 import asyncio
 
 from lorgs.data.retail import *  # noqa: F403
@@ -11,7 +12,6 @@ from lorgs.models.warcraftlogs_report import Report
 
 
 async def main():
-
 
     report = Report(report_id="XQpJLB38k49ZP1Wz")
 

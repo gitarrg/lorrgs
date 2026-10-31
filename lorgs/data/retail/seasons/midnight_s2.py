@@ -31,7 +31,13 @@ MIDNIGHT_SEASON2 = Season(
     name="Midnight Season 2",
     slug="midnight_s2",
     ilvl=344,
-    consumables=[SILVERMOON_HEALTH_POTION, LIGHTFUSED_MANA_POTION, LIGHTS_POTENTIAL, POTION_OF_RECKLESSNESS, LIQUID_LUSTER],
+    consumables=[
+        SILVERMOON_HEALTH_POTION,
+        LIGHTFUSED_MANA_POTION,
+        LIGHTS_POTENTIAL,
+        POTION_OF_RECKLESSNESS,
+        LIQUID_LUSTER,
+    ],
     raids=[
         THE_VENOMOUS_ABYSS,
         THE_TIDEBOUND_GROTTO,

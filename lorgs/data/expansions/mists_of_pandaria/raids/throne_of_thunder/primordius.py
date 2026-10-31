@@ -1,4 +1,4 @@
-"""08: Primordius"""
+"""08: Primordius."""
 
 from lorgs.models.raid_boss import RaidBoss
 

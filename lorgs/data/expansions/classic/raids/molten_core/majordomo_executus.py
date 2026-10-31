@@ -1,4 +1,4 @@
-"""Majordomo Executus"""
+"""Majordomo Executus."""
 
 from lorgs.models.raid_boss import RaidBoss
 

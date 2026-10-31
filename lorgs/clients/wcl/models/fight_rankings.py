@@ -1,4 +1,5 @@
 """Models represeting the Data we recive from WCL under the worldData.encounter.fightRankings."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -12,7 +13,6 @@ from .guild import Guild
 
 
 class FightRankingsItemsReport(BaseModel):
-
     code: str = ""
     """Report Code"""
 
@@ -58,7 +58,6 @@ class FightRankingsFight(BaseModel):
 
 
 class FightRankings(BaseModel):
-
     ###################
     # Query
 

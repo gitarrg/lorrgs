@@ -4,7 +4,16 @@ from lorrgs_sqs.helpers import PAYLOAD_EXPANDERS
 from test.helpers import get_api_routes
 
 
-WORLD_DATA_ROUTES = ["/api/mists/roles", "/api/mists/classes", "/api/mists/specs", "/api/mists/zones", "/api/mists/bosses", "/api/mists/spells", "/api/mists/trinkets", "/api/mists/seasons/current"]
+WORLD_DATA_ROUTES = [
+    "/api/mists/roles",
+    "/api/mists/classes",
+    "/api/mists/specs",
+    "/api/mists/zones",
+    "/api/mists/bosses",
+    "/api/mists/spells",
+    "/api/mists/trinkets",
+    "/api/mists/seasons/current",
+]
 
 RAID_BOSS_COUNTS = {
     "mogushan-vaults": 6,

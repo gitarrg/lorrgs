@@ -1,4 +1,4 @@
-"""Buru the Gorger"""
+"""Buru the Gorger."""
 
 from lorgs.models.raid_boss import RaidBoss
 

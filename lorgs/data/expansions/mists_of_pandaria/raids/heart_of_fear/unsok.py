@@ -1,4 +1,4 @@
-"""05: Un'sok"""
+"""05: Un'sok."""
 
 from lorgs.models.raid_boss import RaidBoss
 

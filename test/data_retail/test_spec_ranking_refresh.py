@@ -163,4 +163,6 @@ def test_refresh_fails_when_every_report_fails() -> None:
     )
 
     with pytest.raises(WarcraftlogsQueryError):
-        asyncio.run(SpecRankingLoader(ranking, RETAIL).load(client=AlwaysFailingWarcraftlogsClient(Exception), limit=10))
+        asyncio.run(
+            SpecRankingLoader(ranking, RETAIL).load(client=AlwaysFailingWarcraftlogsClient(Exception), limit=10)
+        )

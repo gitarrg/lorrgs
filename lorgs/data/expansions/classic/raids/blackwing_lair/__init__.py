@@ -17,7 +17,7 @@ from .razorgore_the_untamed import RAZORGORE_THE_UNTAMED
 from .vaelastrasz_the_corrupt import VAELASTRASZ_THE_CORRUPT
 
 
-BLACKWING_LAIR = RaidZone(  # ruff: ignore[non-empty-init-module]
+BLACKWING_LAIR = RaidZone(
     id=1002,
     name="Blackwing Lair",
     icon="achievement_boss_nefarion.jpg",

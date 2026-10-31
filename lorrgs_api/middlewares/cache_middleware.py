@@ -2,6 +2,7 @@
 
 import os
 import time
+from http import HTTPStatus
 
 import fastapi
 
@@ -10,7 +11,7 @@ DEFAULT_CACHE_TIMEOUT = os.getenv("DEFAULT_CACHE_TIMEOUT") or 60 * 60  # 1h
 DEFAULT_CACHE_HEADER = f"max-age={DEFAULT_CACHE_TIMEOUT}"
 
 
-def init(app: fastapi.FastAPI, enabled=True):
+def init(app: fastapi.FastAPI, *, enabled=True):
 
     if not enabled:
         return
@@ -26,7 +27,7 @@ def init(app: fastapi.FastAPI, enabled=True):
     @app.middleware("http")
     async def add_default_cache_control(request: fastapi.Request, call_next):
         response = await call_next(request)
-        if response.status_code >= 400:
+        if response.status_code >= HTTPStatus.BAD_REQUEST:
             response.headers["Cache-Control"] = "no-store"
         else:
             response.headers.setdefault("Cache-Control", DEFAULT_CACHE_HEADER)

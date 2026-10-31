@@ -1,4 +1,4 @@
-"""05: Rashok, the Elder"""
+"""05: Rashok, the Elder."""
 
 from lorgs.models.raid_boss import RaidBoss
 

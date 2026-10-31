@@ -1,4 +1,4 @@
-"""03: Council"""
+"""03: Council."""
 
 from lorgs.models.raid_boss import RaidBoss
 

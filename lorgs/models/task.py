@@ -1,4 +1,5 @@
 """Model to Store Task Status."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES

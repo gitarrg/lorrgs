@@ -24,7 +24,7 @@ def test(n, func, *args, **kwargs) -> None:
         times.append(t.elapsed_time)
 
     total = sum(times)
-    print(f"DONE | total={total:0.2f}s | avg: {1000*total/n:0.4f}ms")
+    print(f"DONE | total={total:0.2f}s | avg: {1000 * total / n:0.4f}ms")
 
 
 def structure(data) -> SpecRanking:

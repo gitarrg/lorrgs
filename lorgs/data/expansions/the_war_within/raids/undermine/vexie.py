@@ -1,4 +1,4 @@
-"""01: Vexie
+"""01: Vexie.
 
 Example Fight:
 >>> scripts/load_report.py "https://www.warcraftlogs.com/reports/DzLQG1Rkp4xtdJgh?fight=10&type=casts&hostility=1&source=22"

@@ -1,20 +1,20 @@
 from .raids import (
-    MOLTEN_CORE,
-    ONYXIAS_LAIR,
     BLACKWING_LAIR,
-    ZULGURUB,
+    MOLTEN_CORE,
+    NAXXRAMAS,
+    ONYXIAS_LAIR,
     RUINS_OF_AHNQIRAJ,
     TEMPLE_OF_AHNQIRAJ,
-    NAXXRAMAS,
+    ZULGURUB,
 )
 
 
 __all__ = [
-    "MOLTEN_CORE",
-    "ONYXIAS_LAIR",
     "BLACKWING_LAIR",
-    "ZULGURUB",
+    "MOLTEN_CORE",
+    "NAXXRAMAS",
+    "ONYXIAS_LAIR",
     "RUINS_OF_AHNQIRAJ",
     "TEMPLE_OF_AHNQIRAJ",
-    "NAXXRAMAS",
+    "ZULGURUB",
 ]

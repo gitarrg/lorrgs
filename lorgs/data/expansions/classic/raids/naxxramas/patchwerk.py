@@ -1,4 +1,4 @@
-"""Patchwerk"""
+"""Patchwerk."""
 
 from lorgs.models.raid_boss import RaidBoss
 

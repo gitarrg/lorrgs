@@ -1,4 +1,4 @@
-"""03: Rik
+"""03: Rik.
 
 Example PTR Logs:
     * Mythic / Northern Sky:

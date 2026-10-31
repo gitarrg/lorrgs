@@ -42,8 +42,8 @@ class S3Model(base.BaseModel):
         try:
             with Timer(f"s3.get_raw: {key}"):
                 data = s3client.get_object(Bucket=cls.bucket, Key=key)
-        except ClientError:
-            raise KeyError("Invalid Key: %s", key)
+        except ClientError as e:
+            raise KeyError("Invalid Key: %s", key) from e
 
         return data["Body"].read()
 
@@ -67,7 +67,7 @@ class S3Model(base.BaseModel):
         # somehow handles the creation of child models.
         return cls(**content)
 
-    def save(self, exclude_unset=True, **kwargs: Any) -> None:
+    def save(self, *, exclude_unset=True, **kwargs: Any) -> None:
         key = self.get_key(**dict(self))
         data = self.model_dump_json(
             exclude_unset=exclude_unset,

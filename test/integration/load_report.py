@@ -1,10 +1,10 @@
-
 import dotenv
 import datetime
 from lorgs.clients import wcl
 
 from lorgs.models.warcraftlogs_fight import Fight
-dotenv.load_dotenv() # pylint: disable=wrong-import-position
+
+dotenv.load_dotenv()  # pylint: disable=wrong-import-position
 from lorgs import data
 
 import asyncio
@@ -16,7 +16,7 @@ from test import helpers
 def test_load_master_fixture():
 
     query_result = helpers.load_fixture("report_masterData_1.json")
-    query_result = query_result["data"]["reportData"] # Make "report" the root key
+    query_result = query_result["data"]["reportData"]  # Make "report" the root key
 
     report = Report(report_id="123")
     report.process_query_result(**query_result)
@@ -53,7 +53,6 @@ async def test_load_fight():
     fight.report = report
     fight.start_time = report.start_time + datetime.timedelta(milliseconds=271703)
     fight.end_time = report.start_time + datetime.timedelta(milliseconds=493690)
-
 
     # Update Fixture
     if False:

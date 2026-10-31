@@ -1,4 +1,3 @@
-
 import unittest
 from unittest import mock
 
@@ -12,7 +11,11 @@ GAME_DATA.get_spec.side_effect = SPECS.get
 
 def create_fake_player(role="", spec="", **kwargs):
     player = mock.MagicMock(spec_slug=f"{spec}/{role}", **kwargs)
-    SPECS[f"{spec}/{role}"] = mock.MagicMock(**{"role.code": role, "full_name_slug": spec, "wow_class.name_slug": f"class-{spec}"})
+    SPECS[f"{spec}/{role}"] = mock.MagicMock(**{
+        "role.code": role,
+        "full_name_slug": spec,
+        "wow_class.name_slug": f"class-{spec}",
+    })
     return player
 
 
@@ -26,7 +29,6 @@ FAKE_PLAYERS = [
 
 
 class TestGetComposition(unittest.TestCase):
-
     def test_empty(self):
         """Test an empty Comp."""
         result = get_composition(players=[], game_data=GAME_DATA)

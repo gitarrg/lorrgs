@@ -18,7 +18,7 @@ from .terros import TERROS
 #   Tier: 31 Vault of the Incarnates
 #
 ################################################################################
-VAULT_OF_THE_INCARNATES = RaidZone(  # ruff: ignore[non-empty-init-module]
+VAULT_OF_THE_INCARNATES = RaidZone(
     id=31,
     name="Vault of the Incarnates",
     icon="achievement_raidprimalist_raid.jpg",

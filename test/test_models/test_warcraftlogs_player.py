@@ -68,13 +68,15 @@ def test_deaths_raise_when_the_fight_has_no_report() -> None:
 
 def _resurrect_query() -> dict:
     return helpers.wrap_data(
-        [{
-            "timestamp": 25_000,
-            "type": "resurrect",
-            "sourceID": 3,
-            "targetID": 10,
-            "abilityGameID": 20484,
-        }],
+        [
+            {
+                "timestamp": 25_000,
+                "type": "resurrect",
+                "sourceID": 3,
+                "targetID": 10,
+                "abilityGameID": 20484,
+            }
+        ],
         "report",
         "events",
         "data",

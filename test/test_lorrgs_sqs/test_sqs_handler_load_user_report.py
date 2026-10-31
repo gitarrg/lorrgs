@@ -29,7 +29,7 @@ async def run() -> None:
 
     # setup Task object
     task = Task(task_id=message_id, status=Task.STATUS.WAITING)
-    for (f, p) in itertools.product(fight_ids, player_ids):
+    for f, p in itertools.product(fight_ids, player_ids):
         task.items[f"{f}_{p}"] = {"fight": f, "player": p, "status": task.status}
     task.save()
 

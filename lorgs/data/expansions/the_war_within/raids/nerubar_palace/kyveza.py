@@ -1,4 +1,4 @@
-"""06: Ky'veza"""
+"""06: Ky'veza."""
 
 from lorgs.models.raid_boss import RaidBoss
 

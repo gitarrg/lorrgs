@@ -25,7 +25,7 @@ from .will_of_the_emperor import WILL_OF_THE_EMPEROR
 #   Tier: 1050 Mogu'shan Vaults
 #
 ################################################################################
-MOGUSHAN_VAULTS = RaidZone(  # ruff: ignore[non-empty-init-module]
+MOGUSHAN_VAULTS = RaidZone(
     id=1050,
     name="Mogu'shan Vaults",
     icon="achievement_moguraid_01.jpg",

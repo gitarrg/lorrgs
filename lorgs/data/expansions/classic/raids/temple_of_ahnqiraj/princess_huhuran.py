@@ -1,4 +1,4 @@
-"""Princess Huhuran"""
+"""Princess Huhuran."""
 
 from lorgs.models.raid_boss import RaidBoss
 

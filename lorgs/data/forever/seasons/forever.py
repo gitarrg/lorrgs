@@ -3,12 +3,7 @@
 # IMPORT LOCAL LIBRARIES
 from lorgs.data.expansions.classic import (
     BLACKWING_LAIR,
-    MOLTEN_CORE,
-    NAXXRAMAS,
     ONYXIAS_LAIR,
-    RUINS_OF_AHNQIRAJ,
-    TEMPLE_OF_AHNQIRAJ,
-    ZULGURUB,
 )
 from lorgs.models.season import Season
 

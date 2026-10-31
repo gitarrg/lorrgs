@@ -24,7 +24,7 @@ from .lura import LURA
 #   Tier: 46 March on Qual'danas
 #
 ################################################################################
-MARCH_ON_QUALDANAS = RaidZone(  # ruff: ignore[non-empty-init-module]
+MARCH_ON_QUALDANAS = RaidZone(
     id=46.3,
     name="March on Qual'danas",
     icon="inv_achievement_raid_darkwell.jpg",

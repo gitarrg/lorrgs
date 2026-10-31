@@ -30,7 +30,7 @@ from .ulatek import ULATEK
 #   Tier: 54 The Venomous Abyss
 #
 ################################################################################
-THE_VENOMOUS_ABYSS = RaidZone(  # ruff: ignore[non-empty-init-module]
+THE_VENOMOUS_ABYSS = RaidZone(
     id=53.1,
     name="The Venomous Abyss",
     icon="8039569.jpg",

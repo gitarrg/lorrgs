@@ -1,4 +1,4 @@
-"""05: Dathea, Ascended"""
+"""05: Dathea, Ascended."""
 
 from lorgs.models.raid_boss import RaidBoss
 

@@ -24,7 +24,7 @@ from .thaddius import THADDIUS
 from .the_four_horsemen import THE_FOUR_HORSEMEN
 
 
-NAXXRAMAS = RaidZone(  # ruff: ignore[non-empty-init-module]
+NAXXRAMAS = RaidZone(
     id=1006,
     name="Naxxramas",
     icon="achievement_dungeon_naxxramas.jpg",

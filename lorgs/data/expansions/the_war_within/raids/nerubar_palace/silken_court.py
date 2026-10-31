@@ -1,4 +1,4 @@
-"""07: Silken Court"""
+"""07: Silken Court."""
 
 from lorgs.models.raid_boss import RaidBoss
 

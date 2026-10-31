@@ -1,4 +1,4 @@
-"""Vaelastrasz the Corrupt"""
+"""Vaelastrasz the Corrupt."""
 
 from lorgs.models.raid_boss import RaidBoss
 

@@ -1,4 +1,4 @@
-"""04: Spirit Kings"""
+"""04: Spirit Kings."""
 
 from lorgs.models.raid_boss import RaidBoss
 

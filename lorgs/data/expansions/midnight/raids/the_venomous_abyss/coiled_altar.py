@@ -4,6 +4,7 @@ NS:
 https://www.warcraftlogs.com/reports/pfkrcn7xPdDL1jqH?fight=45
 
 """
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -20,7 +21,6 @@ if typing.TYPE_CHECKING:
 
 
 class CoiledAltar(RaidBoss):
-
     id: int = 3429
     name: str = "The Coiled Altar"
     nick: str = "Coiled Altar"

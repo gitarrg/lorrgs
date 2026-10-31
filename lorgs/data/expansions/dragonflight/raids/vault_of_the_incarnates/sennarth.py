@@ -1,4 +1,4 @@
-"""04: Sennarth, The Cold Breath"""
+"""04: Sennarth, The Cold Breath."""
 
 from lorgs.models.raid_boss import RaidBoss
 

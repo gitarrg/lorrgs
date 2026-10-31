@@ -28,7 +28,7 @@ class Timer:
         return self
 
     def __exit__(self, type, value, traceback):
-        G[self.name] = f"{self.elapsed_time*1000:.02f}ms"
+        G[self.name] = f"{self.elapsed_time * 1000:.02f}ms"
         self.print()
 
 

@@ -11,7 +11,7 @@ from lorgs.data.constants import *
 from lorgs.data.retail.roles import *
 from lorgs.models.wow_class import WowClass
 from lorgs.models.wow_spec import WowSpec
-from lorgs.models.wow_spell import SpellTag, WowSpell
+from lorgs.models.wow_spell import SpellTag
 
 
 ################################################################################

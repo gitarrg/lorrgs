@@ -1,5 +1,6 @@
 """Seams: the forever GameData indexes the objects its package defines."""
 
+
 def test_game_data_is_the_package_game_data() -> None:
     from lorgs.data.forever import GAME_DATA
     from lorgs.data import FOREVER

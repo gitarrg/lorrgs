@@ -1,4 +1,4 @@
-"""Gothik the Harvester"""
+"""Gothik the Harvester."""
 
 from lorgs.models.raid_boss import RaidBoss
 

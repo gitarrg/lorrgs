@@ -1,10 +1,12 @@
 """Warcaftlogs API Client."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
 import asyncio
 import os
 import typing
+from http import HTTPStatus
 
 # IMPORT THIRD PARTY LIBRARIES
 import aiohttp
@@ -18,11 +20,11 @@ ERROR_MESSAGE_INVALID_REPORT = "This report does not exist."
 ERROR_MESSAGE_PRIVATE_REPORT = "You do not have permission to view this report."
 
 
-class InvalidReport(ValueError):
+class InvalidReportError(ValueError):
     """Exception raised when a report was not found."""
 
 
-class UnknownReportError(InvalidReport):
+class UnknownReportError(InvalidReportError):
     """The report was deleted or never existed."""
 
 
@@ -64,7 +66,6 @@ def _retry_delay(resp: aiohttp.ClientResponse, attempt: int) -> float:
 
 
 class BaseClient:
-
     # reference used to provide a singelton interface.
     _instance: typing.Self | None = None
 
@@ -86,7 +87,7 @@ class BaseClient:
         """
         if cls._instance is None:
             logger.debug(f"creating new {cls.__name__} Instance.")
-            cls._instance = cls(*args, **kwargs)  # ty:ignore[invalid-assignment]
+            cls._instance = cls(*args, **kwargs)
         return cls._instance
 
     @classmethod
@@ -112,7 +113,7 @@ class BaseClient:
     async def ensure_auth(self) -> None:
         """Ensure the Client is authenticated prior making any Requests."""
 
-    async def refresh_auth(self, rejected_headers: dict[str, typing.Any]) -> bool:
+    async def refresh_auth(self, rejected_headers: dict[str, typing.Any]) -> bool:  # ruff: ignore[no-self-use, unused-method-argument]
         """Get new credentials after `rejected_headers` got a 401. Return whether a retry makes sense."""
         return False
 
@@ -135,7 +136,12 @@ class BaseClient:
             headers = dict(self.headers)
             async with self.session.get(url=url, json={"query": query}, headers=headers) as resp:
                 last_attempt = attempt == MAX_RETRIES
-                if resp.status == 401 and not auth_refreshed and not last_attempt and await self.refresh_auth(headers):
+                if (
+                    resp.status == HTTPStatus.UNAUTHORIZED
+                    and not auth_refreshed
+                    and not last_attempt
+                    and await self.refresh_auth(headers)
+                ):
                     auth_refreshed = True
                     continue
 
@@ -151,7 +157,6 @@ class BaseClient:
 
 
 class WarcraftlogsClient(BaseClient):
-
     URL_API = "https://www.warcraftlogs.com/api/v2/client"
     URL_AUTH = "https://www.warcraftlogs.com/oauth/token"
 

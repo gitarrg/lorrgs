@@ -46,7 +46,6 @@ def player_from_composition_data(composition_data: wcl.CompositionEntry, game_da
 
 
 class FightLoader(BaseLoader):
-
     def __init__(self, fight: Fight, game_data: GameData) -> None:
         super().__init__(game_data)
         self.fight = fight
@@ -110,7 +109,6 @@ class FightLoader(BaseLoader):
 
         self.fight.players = []
         for composition_data in summary.composition:
-
             player = player_from_composition_data(composition_data, self.game_data)
             if not player:
                 continue
@@ -127,7 +125,7 @@ class FightLoader(BaseLoader):
             player.process_death_events(summary.deathEvents)
             self.fight.players.append(player)
 
-        self.fight.players.sort(key=lambda player: Fight._sort_key(player, self.game_data))
+        self.fight.players.sort(key=lambda player: Fight.sort_key(player, self.game_data))
 
     def process_query_result(self, query_result: dict[str, typing.Any]) -> None:
         report_data = wcl.ReportData(**query_result)

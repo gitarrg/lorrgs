@@ -1,4 +1,4 @@
-"""12: Lei Shen"""
+"""12: Lei Shen."""
 
 from lorgs.models.raid_boss import RaidBoss
 

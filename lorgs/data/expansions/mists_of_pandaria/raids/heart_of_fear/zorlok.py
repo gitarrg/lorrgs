@@ -1,4 +1,4 @@
-"""01: Zor'lok"""
+"""01: Zor'lok."""
 
 from lorgs.models.raid_boss import RaidBoss
 

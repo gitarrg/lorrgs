@@ -1,4 +1,5 @@
 """Models for a Role in the Game."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -11,7 +12,7 @@ from lorgs.models import base
 
 
 if typing.TYPE_CHECKING:
-    from lorgs.models.wow_spec import WowSpec
+    from lorgs.models.wow_spec import WowSpec  # ruff: ignore[runtime-import-in-type-checking-block]  # only a PrivateAttr annotation
 
 
 class WowRole(base.StaticModel):

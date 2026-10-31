@@ -1,4 +1,4 @@
-"""02: Ta'yak"""
+"""02: Ta'yak."""
 
 from lorgs.models.raid_boss import RaidBoss
 

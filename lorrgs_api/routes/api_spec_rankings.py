@@ -11,7 +11,7 @@ from lorgs.logger import logger
 from lorgs.models import selectors, warcraftlogs_ranking
 from lorgs.models.raid_zone import AUTO_DIFFICULTY
 from lorgs.models.task_payloads import SpecRankingPayload
-from lorrgs_api.dependencies import GameVersionDep  # ruff: ignore[typing-only-first-party-import]
+from lorrgs_api.dependencies import GameVersionDep
 
 
 router = fastapi.APIRouter(tags=["spec_ranking"], prefix="/spec_ranking")
@@ -39,8 +39,8 @@ async def get_spec_ranking(
             difficulty=game_version.data.resolve_difficulty(boss_slug, difficulty),
             metric=metric,
         )
-    except KeyError:
-        raise fastapi.HTTPException(status_code=404, detail="Not found.")
+    except KeyError as e:
+        raise fastapi.HTTPException(status_code=404, detail="Not found.") from e
 
     # shorter cache timeout for the start of the tier (where frequent changes happen).
     # Set on the returned Response: FastAPI drops headers set on an injected one.
@@ -72,8 +72,8 @@ async def get_spec_ranking_info(
             difficulty=game_version.data.resolve_difficulty(boss_slug, difficulty),
             metric=metric,
         )
-    except KeyError:
-        raise fastapi.HTTPException(status_code=404, detail="Not found.")
+    except KeyError as e:
+        raise fastapi.HTTPException(status_code=404, detail="Not found.") from e
 
     data.pop("reports", None)
     return data
@@ -93,6 +93,7 @@ async def spec_ranking_load(
     difficulty="all",
     metric="all",
     limit: int = 50,
+    *,
     clear: bool = False,
 ):
     """Queue an update for the given specs and bosses."""
@@ -124,6 +125,7 @@ async def flag_dirty(
     boss_slug: str,
     difficulty: str = AUTO_DIFFICULTY,
     metric: str = "",
+    *,
     dirty: bool = True,
 ):
     """Flag a Spec Ranking as dirty."""

@@ -60,7 +60,7 @@ async def main() -> None:
     await send_metric(prefix="wcl.rate_info", **rate_info)
 
 
-def handler(event=None, context=None) -> None:
+def handler(event=None, context=None) -> None:  # ruff: ignore[unused-function-argument]
     loop.run_until_complete(main())
 
 

@@ -1,4 +1,4 @@
-"""General Rajaxx"""
+"""General Rajaxx."""
 
 from lorgs.models.raid_boss import RaidBoss
 

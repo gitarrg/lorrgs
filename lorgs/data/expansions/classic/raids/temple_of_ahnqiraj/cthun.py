@@ -1,4 +1,4 @@
-"""C'Thun"""
+"""C'Thun."""
 
 from lorgs.models.raid_boss import RaidBoss
 

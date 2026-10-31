@@ -7,11 +7,16 @@ from one of these models.
 
 from __future__ import annotations
 
+import typing
+
 from pydantic import BaseModel, field_validator
 
 from lorgs.data import GAME_VERSIONS
-from lorgs.models.game_version import GameVersion
 from lorgs.models.raid_zone import AUTO_DIFFICULTY
+
+
+if typing.TYPE_CHECKING:
+    from lorgs.models.game_version import GameVersion
 
 
 class BaseTaskPayload(BaseModel):

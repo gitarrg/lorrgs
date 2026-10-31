@@ -12,10 +12,10 @@ from ..helpers import load_fixture
 
 
 class TestSpecRankingLoader(unittest.TestCase):
-
-
     def setUp(self) -> None:
-        self.spec_ranking = SpecRanking(game_version="retail", spec_slug="test-spec", boss_slug="test-boss", difficulty="mythic", metric="dps")
+        self.spec_ranking = SpecRanking(
+            game_version="retail", spec_slug="test-spec", boss_slug="test-boss", difficulty="mythic", metric="dps"
+        )
         boss = mock.MagicMock(id=2048)
         spec = mock.MagicMock(**{
             "wow_class.name_slug_cap": "ClassName",
@@ -35,7 +35,7 @@ class TestSpecRankingLoader(unittest.TestCase):
 
         assert 'className: "ClassName"' in query
         assert 'specName: "SpecName"' in query
-        assert 'metric: dps' in query
+        assert "metric: dps" in query
 
     def test__process_query_result_one(self):
 
@@ -48,14 +48,10 @@ class TestSpecRankingLoader(unittest.TestCase):
                                 "name": "PlayerName",
                                 "class": "Warrior",
                                 "spec": "Arms",
-							    "amount": 123456,
-							    "duration": 5432,
-							    "startTime": 1634544096374,
-							    "report": {
-								    "code": "REPORT_CODE",
-								    "fightID": 5,
-								    "startTime": 1634543354962
-							    }
+                                "amount": 123456,
+                                "duration": 5432,
+                                "startTime": 1634544096374,
+                                "report": {"code": "REPORT_CODE", "fightID": 5, "startTime": 1634543354962},
                             }
                         ]
                     }

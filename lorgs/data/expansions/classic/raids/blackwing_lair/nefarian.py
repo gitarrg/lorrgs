@@ -1,4 +1,4 @@
-"""Nefarian"""
+"""Nefarian."""
 
 from lorgs.models.raid_boss import RaidBoss
 

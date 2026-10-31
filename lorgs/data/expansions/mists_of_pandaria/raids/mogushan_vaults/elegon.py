@@ -1,4 +1,4 @@
-"""05: Elegon"""
+"""05: Elegon."""
 
 from lorgs.models.raid_boss import RaidBoss
 

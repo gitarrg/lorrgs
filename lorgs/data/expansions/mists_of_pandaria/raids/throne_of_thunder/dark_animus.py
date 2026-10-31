@@ -1,4 +1,4 @@
-"""09: Dark Animus"""
+"""09: Dark Animus."""
 
 from lorgs.models.raid_boss import RaidBoss
 

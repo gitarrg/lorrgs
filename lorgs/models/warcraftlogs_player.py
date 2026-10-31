@@ -6,6 +6,7 @@ import typing
 # IMPORT LOCAL LIBRARIES
 from lorgs.models.warcraftlogs_actor import BaseActor
 
+
 if typing.TYPE_CHECKING:
     from lorgs.clients import wcl
     from lorgs.models.game_data import GameData

@@ -1,4 +1,4 @@
-"""Golemagg the Incinerator"""
+"""Golemagg the Incinerator."""
 
 from lorgs.models.raid_boss import RaidBoss
 

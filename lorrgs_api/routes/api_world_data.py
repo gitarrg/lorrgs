@@ -9,10 +9,10 @@ from __future__ import annotations
 import fastapi
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.models.wow_spec import WowSpec  # ruff: ignore[typing-only-first-party-import]
-from lorgs.models.wow_spell import WowSpell  # ruff: ignore[typing-only-first-party-import]
-from lorgs.models.wow_trinket import WowTrinket  # ruff: ignore[typing-only-first-party-import]
-from lorrgs_api.dependencies import GameVersionDep  # ruff: ignore[typing-only-first-party-import]
+from lorgs.models.wow_spec import WowSpec
+from lorgs.models.wow_spell import WowSpell
+from lorgs.models.wow_trinket import WowTrinket
+from lorrgs_api.dependencies import GameVersionDep
 
 
 router = fastapi.APIRouter()
@@ -70,6 +70,7 @@ async def get_spec_spells(game_version: GameVersionDep, spec_slug: str) -> dict[
     """Get all spells for a given spec.
 
     Args:
+        game_version (GameVersionDep): The Game Version.
         spec_slug (str): name of the spec
 
     """
@@ -165,6 +166,7 @@ async def get_boss(game_version: GameVersionDep, boss_slug: str):
     """Get a single Boss.
 
     Args:
+        game_version (GameVersionDep): The Game Version.
         boss_slug (string): name of the boss
 
     """
@@ -179,6 +181,7 @@ async def get_boss_spells(game_version: GameVersionDep, boss_slug: str):
     """Get Spells for a given Boss.
 
     Args:
+        game_version (GameVersionDep): The Game Version.
         boss_slug (string): name of the boss
 
     """

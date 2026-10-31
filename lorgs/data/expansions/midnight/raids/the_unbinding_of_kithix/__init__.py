@@ -11,7 +11,6 @@ Logs:
     https://www.warcraftlogs.com/zone/rankings/53
 
 """
-# ruff: file-ignore[non-empty-init-module]
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.models.raid_zone import RaidZone

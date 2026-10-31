@@ -136,7 +136,7 @@ class WowSpell(base.StaticModel):
 
     @property
     def event_types(self) -> list[str]:
-        """Returns a list of all event types."""
+        """All event types."""
         return self.event_type.replace(",", " ").split()
 
     ##########################

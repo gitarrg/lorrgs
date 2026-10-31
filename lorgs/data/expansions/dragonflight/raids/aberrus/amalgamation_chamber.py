@@ -1,4 +1,4 @@
-"""02: The Amalgamation Chamber"""
+"""02: The Amalgamation Chamber."""
 
 from lorgs.models.raid_boss import RaidBoss
 

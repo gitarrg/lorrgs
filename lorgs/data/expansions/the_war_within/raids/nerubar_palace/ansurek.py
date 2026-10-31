@@ -1,4 +1,4 @@
-"""08: Ansurek"""
+"""08: Ansurek."""
 
 from lorgs.models.raid_boss import RaidBoss
 

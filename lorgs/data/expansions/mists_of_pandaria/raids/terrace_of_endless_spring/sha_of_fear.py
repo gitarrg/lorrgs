@@ -1,4 +1,4 @@
-"""04: Sha of Fear"""
+"""04: Sha of Fear."""
 
 from lorgs.models.raid_boss import RaidBoss
 

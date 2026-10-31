@@ -1,4 +1,5 @@
 """Base Class for all Models in our System."""
+
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
@@ -52,12 +53,10 @@ class BaseModel(pydantic.BaseModel):
         return cls.key.format(**kwargs)
 
     @classmethod
-    def get(cls, **kwargs: Any) -> Self | None:
-        ...
+    def get(cls, **kwargs: Any) -> Self | None: ...
 
     @classmethod
     def get_or_create(cls, **kwargs: Any) -> Self:
         return cls.get(**kwargs) or cls(**kwargs)
 
-    def save(self) -> None:
-        ...
+    def save(self) -> None: ...
