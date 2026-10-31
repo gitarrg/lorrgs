@@ -48,6 +48,8 @@ def test_game_versions_route_lists_all_game_versions() -> None:
     by_name = {version["name"]: version for version in body}
     assert by_name["retail"]["collapse_raids"] is False
     assert by_name["retail"]["has_comp_modes"] is True
+    assert by_name["retail"]["has_talents"] is True
+    assert by_name["mists"]["has_talents"] is False
     assert by_name["retail"]["wcl_game_version"] == 1
     assert by_name["mists"]["collapse_raids"] is True
     assert by_name["mists"]["has_comp_modes"] is False

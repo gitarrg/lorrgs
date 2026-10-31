@@ -36,6 +36,9 @@ class GameVersion:
     has_comp_modes: bool = True
     """Frontend: whether the Game Version has Comp Rankings (the home page hides them otherwise)."""
 
+    has_talents: bool = False
+    """Whether Spec Rankings store each player's Talents (Retail only)."""
+
     @property
     def difficulties(self) -> tuple[RaidDifficulty, ...]:
         """Difficulties we rank. The last entry is the default."""

@@ -28,6 +28,7 @@ async def get_game_versions() -> list[dict]:
             "wcl_game_version": version.wcl_game_version,
             "collapse_raids": version.collapse_raids,
             "has_comp_modes": version.has_comp_modes,
+            "has_talents": version.has_talents,
         }
         for version in GAME_VERSIONS.values()
     ]

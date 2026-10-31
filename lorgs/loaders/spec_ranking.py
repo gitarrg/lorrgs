@@ -31,6 +31,11 @@ if typing.TYPE_CHECKING:
     from lorgs.models.wow_spec import WowSpec
 
 
+def talent_ranks(talents: list[wcl.CharacterRankingTalent]) -> dict[int, int]:
+    """Map each talent's node entry id to its rank."""
+    return {t.talentID: t.points for t in talents}
+
+
 class SpecRankingLoader(BaseLoader):
     """Loads spec ranking data and actor events from WarcraftLogs."""
 
@@ -42,6 +47,7 @@ class SpecRankingLoader(BaseLoader):
             )
         super().__init__(game_version.data)
         self.ranking = ranking
+        self.has_talents = game_version.has_talents
 
     @property
     def boss(self) -> RaidBoss:
@@ -69,7 +75,7 @@ class SpecRankingLoader(BaseLoader):
                     specName: "{self.spec.name_slug_cap}"
                     metric: {self.ranking.metric}
                     difficulty: {self.ranking.raid_difficulty.value}
-                    includeCombatantInfo: false
+                    includeCombatantInfo: {str(self.has_talents).lower()}
                 )
             }}
         }}
@@ -91,6 +97,8 @@ class SpecRankingLoader(BaseLoader):
             total=ranking_data.amount,
             spec_slug=self.ranking.spec_slug,
         )
+        if self.has_talents and ranking_data.talents:
+            player.talents = talent_ranks(ranking_data.talents)
 
         boss = Boss(boss_slug=self.ranking.boss_slug)
 
@@ -119,12 +127,11 @@ class SpecRankingLoader(BaseLoader):
 
         """
         # build a map of old reports
-        old_reports: set[tuple[str, int, str]] = set()
+        old_players: dict[tuple[str, int, str], Player] = {}
         for report in self.ranking.reports:
             for fight in report.fights:
                 for player in fight.players:
-                    key = (report.report_id, fight.fight_id, player.name)
-                    old_reports.add(key)
+                    old_players[report.report_id, fight.fight_id, player.name] = player
 
         # merge new rankings
         for ranking_data in rankings:
@@ -133,7 +140,10 @@ class SpecRankingLoader(BaseLoader):
             key = (report_data.code, report_data.fightID, ranking_data.name)
 
             # check if the report has already been loaded
-            if key in old_reports:
+            if old_player := old_players.get(key):
+                # backfill Talents without reloading the casts
+                if self.has_talents and ranking_data.talents:
+                    old_player.talents = talent_ranks(ranking_data.talents)
                 continue
 
             # new ranking

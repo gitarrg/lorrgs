@@ -47,6 +47,14 @@ The top-ranked Fights on one boss for one spec, showing that spec's Casts.
 The top-ranked Fights on one boss, showing each raid's Composition and Raid Cooldowns, filterable by Composition.
 _Avoid_: comp search
 
+**Talents**:
+The exact set of talent choices (with ranks) one player had in one Fight.
+_Avoid_: loadout, talent build
+
+**Build**:
+A group of Talents of one spec that differ by only a few choices, treated as "the same way to play the spec". Builds are worked out from many Fights, not from one.
+_Avoid_: talent build, loadout, spec (alone)
+
 **Refresh**:
 Re-fetching a ranking's top Fights from Warcraft Logs and loading the new ones. A ranking is only refreshed when it is stale or Dirty.
 

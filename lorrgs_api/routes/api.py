@@ -12,6 +12,7 @@ from lorrgs_api.routes import (
     api_game_versions,
     api_season,
     api_spec_rankings,
+    api_talents,
     api_tasks,
     api_user_reports,
     api_world_data,
@@ -38,6 +39,7 @@ versioned_router = fastapi.APIRouter(prefix="/{game_version}", dependencies=[fas
 versioned_router.include_router(api_comp_rankings.router)
 versioned_router.include_router(api_season.router)
 versioned_router.include_router(api_spec_rankings.router)
+versioned_router.include_router(api_talents.router)
 versioned_router.include_router(api_world_data.router)
 router.include_router(versioned_router)
 
