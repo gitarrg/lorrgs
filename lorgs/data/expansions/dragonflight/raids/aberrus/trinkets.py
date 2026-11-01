@@ -10,7 +10,6 @@ WowTrinket(
     icon="inv_blacksmithing_khazgoriananvil.jpg",
     item=202617,
     ilvl=447,
-    query=False,
 ).add_specs(*AGI_SPECS, *STR_SPECS)
 
 
@@ -22,5 +21,4 @@ WowTrinket(
     icon="inv_cosmicvoid_orb.jpg",
     item=203963,
     ilvl=450,
-    query=False,
 ).add_specs(*ALL_SPECS)

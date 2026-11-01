@@ -57,3 +57,21 @@ def test_no_object_is_in_two_collections() -> None:
     ]
     ids = [id(obj) for objects in collections for obj in objects]
     assert len(ids) == len(set(ids))
+
+
+def test_specs_hold_only_trinkets_of_the_current_season() -> None:
+    from lorgs.data.retail import GAME_DATA
+    from lorgs.data.expansions.legion.dungeons.halls_of_valor import HORN_OF_VALOR
+    from lorgs.models.wow_trinket import WowTrinket
+
+    season_trinkets = list(GAME_DATA.season.trinkets)
+    assert season_trinkets
+    for spec in GAME_DATA.specs:
+        for spell in spec.all_spells:
+            if isinstance(spell, WowTrinket):
+                assert spell in season_trinkets, f"{spec.full_name_slug}: {spell.name}"
+    for trinket in season_trinkets:
+        assert all(trinket in spec.spells for spec in trinket.specs)
+
+    assert HORN_OF_VALOR.specs, "an older trinket still names its specs"
+    assert not any(HORN_OF_VALOR in spec.spells for spec in HORN_OF_VALOR.specs)

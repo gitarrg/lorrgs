@@ -50,4 +50,7 @@ https://www.wowhead.com/item=219299/synergistic-brewterializer
 ################################################################################
 
 
-CINDERBREW_MEADERY = Dungeon(name="Cinderbrew Meadery")
+CINDERBREW_MEADERY = Dungeon(
+    name="Cinderbrew Meadery",
+    trinkets=[RAVENOUS_HONEY_BUZZER],
+)

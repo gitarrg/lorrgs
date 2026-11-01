@@ -4,7 +4,6 @@ from lorgs.models.wow_trinket import WowTrinket
 
 ILVL = 639
 COLOR = "#a335ee"  # Epic Items
-QUERY = True
 
 
 # [Aberrant Spellforge]
@@ -46,7 +45,6 @@ WowTrinket(
     icon="inv_raid_oversizedacidgland_green.jpg",
     item=212453,
     ilvl=ILVL,
-    query=QUERY,
 ).add_specs(*STR_SPECS)
 
 

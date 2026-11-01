@@ -27,7 +27,6 @@ SOULLETTING_RUBY = WowTrinket(
     icon="inv_jewelcrafting_livingruby_01.jpg",
     duration=16,
     cooldown=120,
-    query=True,
     item=178811,
 )
 """On-Use crit

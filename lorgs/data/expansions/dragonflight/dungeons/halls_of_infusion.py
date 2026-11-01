@@ -16,7 +16,6 @@ IRIDEUS_FRAGMENT = WowTrinket(
     icon="inv_10_dungeonjewelry_titan_trinket_1facefragment_color3.jpg",
     item=193743,
     ilvl=447,
-    query=False,
 )
 IRIDEUS_FRAGMENT.add_specs(*ALL_SPECS)
 

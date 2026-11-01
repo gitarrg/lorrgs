@@ -56,6 +56,7 @@ class GameData:  # ruff: ignore[too-many-public-methods]
         self.season.activate()
         self._link_back_references()
         self._attach_consumables()
+        self._attach_trinkets()
 
     def _link_back_references(self) -> None:
         for zone in self.zones:
@@ -68,6 +69,13 @@ class GameData:  # ruff: ignore[too-many-public-methods]
             for spec in self.specs:
                 if spec.role.code in potion.roles and potion not in spec.spells:
                     spec.add_spells(potion)
+
+    def _attach_trinkets(self) -> None:
+        """Give the specs that use them the Trinkets of the current season. Older Trinkets stay off every spec."""
+        for trinket in self.season.trinkets:
+            for spec in trinket.specs:
+                if trinket not in spec.spells:
+                    spec.add_spells(trinket)
 
     @property
     def default_difficulty(self) -> RaidDifficulty:

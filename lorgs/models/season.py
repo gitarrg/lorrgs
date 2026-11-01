@@ -53,7 +53,6 @@ class Season(base.StaticModel):
 
         for trinket in self.trinkets:
             trinket.ilvl = self.ilvl
-            trinket.query = True
 
         if self.domain:
             for trinket in self.trinkets:
