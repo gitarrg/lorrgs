@@ -18,7 +18,7 @@ if typing.TYPE_CHECKING:
 POINTS_RESERVE = 0.2
 """Share of the hourly Warcraft Logs points kept for User Reports and manual refreshes."""
 
-POINTS_PER_REFRESH = 40
+POINTS_PER_REFRESH = 80
 """Estimated cost of one Refresh (see `scripts/measure_wcl_points.py`).
 
 Each query, the minimum of the readings:
