@@ -59,6 +59,7 @@ Adding raids, bosses, dungeons, seasons, or spells: follow `.cursor/skills/wow-e
 - Scripts use the shebang `#!/usr/bin/env -S PYTHONPATH=. uv run`; e.g. `scripts/load_report.py <wcl report url>`.
 - Deploy: `scripts/deploy` (CDK app in `infra/`: one stack, `lorrgs`, holding the Lambda layers, code, queues, schedules, API Gateway and CloudFront). See `docs/deploy_game_versions.md`. Pushing to `main` only syncs `lorrgs_assets/` to S3 (GitHub Action). There is no PR CI.
 - Logs: `aws logs tail /aws/lambda/lorrgs-api --follow --since 10m`.
+- Spec Ranking views per metric (#130): every served ranking logs `spec_ranking_view game_version=.. spec=.. boss=.. difficulty=.. metric=.. metric_given=..`. Only cache misses reach the Lambda (`max-age=300` at Cloudflare, CloudFront and the browser), so popular metrics are undercounted; good for "is this metric used at all". Counted by the saved Logs Insights query `lorrgs/spec-ranking-views` (eu-west-1, `SPEC_RANKING_VIEWS_QUERY` in `infra/stacks.py`).
 - `WCL_AUTH_TOKEN` in `.env` and the Lambdas expires yearly.
 
 ## Agent skills
