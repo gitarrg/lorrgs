@@ -39,6 +39,9 @@ class GameVersion:
     has_talents: bool = False
     """Whether Spec Rankings store each player's Talents (Retail only)."""
 
+    updates_enabled: bool = False
+    """Whether the Refresh Planner refreshes this Version's Spec Rankings. Keep in line with `infra/app.py`."""
+
     @property
     def difficulties(self) -> tuple[RaidDifficulty, ...]:
         """Difficulties we rank. The last entry is the default."""
