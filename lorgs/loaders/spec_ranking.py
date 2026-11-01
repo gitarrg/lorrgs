@@ -223,7 +223,6 @@ class SpecRankingLoader(BaseLoader):
             self.ranking.reports = [report for report in self.ranking.reports if report.report_id not in skipped_ids]
 
         self.ranking.updated = datetime.datetime.now(datetime.UTC)
-        self.ranking.dirty = False
         logger.info("done")
 
     @staticmethod

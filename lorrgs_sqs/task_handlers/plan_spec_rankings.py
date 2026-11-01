@@ -9,7 +9,7 @@ import typing
 from lorgs.clients.wcl import WarcraftlogsClient
 from lorgs.data import GAME_VERSIONS
 from lorgs.logger import logger
-from lorgs.models import refresh_planner, selectors
+from lorgs.models import dirty_markers, refresh_planner, selectors
 from lorgs.models.base.s3 import s3client
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 
@@ -61,19 +61,29 @@ async def plan_spec_rankings() -> tuple[bool, str]:
     for game_version in GAME_VERSIONS.values():
         if not game_version.updates_enabled:
             continue
-        candidates += refresh_planner.make_candidates(get_ranking_keys(game_version), list_last_modified(game_version))
+        candidates += refresh_planner.make_candidates(
+            get_ranking_keys(game_version),
+            list_last_modified(game_version),
+            dirty_markers.list_flagged(game_version),
+        )
 
     planned = refresh_planner.plan(candidates, budget)
     logger.info(
-        "refresh plan: limit %s, spent %s, budget %s refreshes, %s candidates, %s planned",
+        "refresh plan: limit %s, spent %s, budget %s refreshes, %s candidates (%s dirty), %s planned",
         info.get("limitPerHour"),
         info.get("pointsSpentThisHour"),
         budget,
         len(candidates),
+        sum(1 for c in candidates if c.dirty_since),
         len(planned),
     )
     for candidate in planned:
-        logger.info("would refresh: %s (last refreshed %s)", candidate.key, candidate.last_refreshed or "never")
+        logger.info(
+            "would refresh: %s (last refreshed %s%s)",
+            candidate.key,
+            candidate.last_refreshed or "never",
+            f", dirty since {candidate.dirty_since}" if candidate.dirty_since else "",
+        )
     return True, f"planned {len(planned)} of {len(candidates)}"
 
 

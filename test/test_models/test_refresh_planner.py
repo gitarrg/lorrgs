@@ -25,7 +25,7 @@ def _at(hour: int) -> datetime.datetime:
     ],
 )
 def test_budget(limit: int, spent: int, max_refreshes: int | None, expected: int) -> None:
-    assert refresh_planner.get_budget(limit, spent, max_refreshes=max_refreshes) == expected
+    assert refresh_planner.get_budget(limit, spent, cost=20, max_refreshes=max_refreshes) == expected
 
 
 def test_budget_uses_the_given_reserve_and_cost() -> None:
@@ -60,3 +60,31 @@ def test_make_candidates_pairs_keys_with_last_modified() -> None:
     result = refresh_planner.make_candidates(["a", "b"], {"a": _at(2), "other": _at(3)})
 
     assert result == [Candidate("a", _at(2)), Candidate("b", None)]
+
+
+def test_dirty_rankings_come_first_oldest_flag_first() -> None:
+    candidates = [
+        Candidate("stale", _at(1)),
+        Candidate("missing", None),
+        Candidate("dirty-new", _at(9), dirty_since=_at(8)),
+        Candidate("dirty-old", _at(9), dirty_since=_at(2)),
+    ]
+
+    assert [c.key for c in refresh_planner.sort_stalest_first(candidates)] == [
+        "dirty-old",
+        "dirty-new",
+        "missing",
+        "stale",
+    ]
+
+
+def test_dirty_rankings_count_against_the_budget() -> None:
+    candidates = [Candidate(f"d{i}", _at(1), dirty_since=_at(i)) for i in range(5)] + [Candidate("stale", None)]
+
+    assert [c.key for c in refresh_planner.plan(candidates, 3)] == ["d0", "d1", "d2"]
+
+
+def test_make_candidates_takes_dirty_since_from_the_markers() -> None:
+    result = refresh_planner.make_candidates(["a", "b"], {"a": _at(2), "b": _at(3)}, {"b": _at(4)})
+
+    assert result == [Candidate("a", _at(2)), Candidate("b", _at(3), _at(4))]

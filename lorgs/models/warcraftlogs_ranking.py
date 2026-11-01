@@ -33,7 +33,6 @@ class SpecRanking(S3Model):
     """Sorted Reports for this Spec & Boss."""
 
     updated: UTCDatetime = UTC_MIN
-    dirty: bool = False
 
     # Config
     key: typing.ClassVar[str] = (
@@ -55,15 +54,13 @@ class SpecRanking(S3Model):
     def needs_refresh(self, now: datetime.datetime | None = None) -> bool:
         """Whether this ranking should be re-fetched from Warcraft Logs.
 
-        A Dirty ranking is refreshed however recently it was last refreshed.
-        Otherwise a ranking is refreshed only when its last Refresh is more than
+        A ranking is refreshed only when its last Refresh is more than
         ``refresh_after`` old, however many reports it holds: a boss or spec with
         fewer ranked logs than the limit must not cost a Refresh on every run.
+        Dirty rankings are flagged by a marker (see `dirty_markers`), not known here.
         """
         if now is None:
             now = datetime.datetime.now(datetime.UTC)
-        if self.dirty:
-            return True
         return now - self.updated > self.refresh_after
 
     def post_init(self) -> None:

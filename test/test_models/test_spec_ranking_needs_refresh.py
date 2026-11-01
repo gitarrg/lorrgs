@@ -13,7 +13,6 @@ def _ranking(
     *,
     report_count: int = 2,
     updated: datetime.datetime | None = None,
-    dirty: bool = False,
 ) -> SpecRanking:
     return SpecRanking(
         game_version="retail",
@@ -22,14 +21,16 @@ def _ranking(
         boss_slug="nekzali",
         reports=[Report(report_id=f"report-{index}") for index in range(report_count)],
         updated=NOW - datetime.timedelta(minutes=30) if updated is None else updated,
-        dirty=dirty,
     )
 
 
-def test_dirty_ranking_refreshes_even_when_recent() -> None:
-    ranking = _ranking(dirty=True)
+def test_legacy_dirty_field_in_a_stored_ranking_is_ignored() -> None:
+    ranking = SpecRanking.model_validate(
+        {**_ranking().model_dump(), "dirty": True},
+    )
 
-    assert ranking.needs_refresh(now=NOW) is True
+    assert ranking.needs_refresh(now=NOW) is False
+    assert "dirty" not in ranking.model_dump()
 
 
 def test_clean_stale_ranking_refreshes() -> None:

@@ -6,7 +6,7 @@ from __future__ import annotations
 from lorgs.clients.wcl import WarcraftlogsClient
 from lorgs.loaders.spec_ranking import SpecRankingLoader
 from lorgs.logger import logger
-from lorgs.models import selectors, warcraftlogs_ranking
+from lorgs.models import dirty_markers, selectors, warcraftlogs_ranking
 from lorgs.models.task_payloads import SpecRankingPayload
 from lorrgs_sqs.exceptions import TaskValidationError
 
@@ -50,7 +50,8 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
         metric=payload.metric or selectors.default_metric(spec),
     )
 
-    needs_refresh = payload.clear or ranking.needs_refresh()
+    clear = payload.clear or payload.dirty
+    needs_refresh = clear or ranking.needs_refresh()
     if not needs_refresh:
         logger.info(f"already updated: {payload=}")
         return True, "already updated"
@@ -60,8 +61,17 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
     if not await has_points_to_spare(client):
         return True, "skipped: low on points"
 
-    await SpecRankingLoader(ranking, game_version).load(client=client, limit=payload.limit, clear_old=payload.clear)
+    await SpecRankingLoader(
+        ranking,
+        game_version,
+    ).load(
+        client=client,
+        limit=payload.limit,
+        clear_old=clear,
+    )
     ranking.save()
+    if payload.dirty:
+        dirty_markers.clear(ranking.get_key(**dict(ranking)))
     return True, "done"
 
 

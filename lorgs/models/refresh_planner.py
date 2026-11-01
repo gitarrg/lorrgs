@@ -55,6 +55,9 @@ class Candidate:
     last_refreshed: datetime.datetime | None
     """S3 `LastModified`. None when the ranking has no S3 object yet."""
 
+    dirty_since: datetime.datetime | None = None
+    """When the ranking was flagged Dirty (the marker's `LastModified`). None when it is not Dirty."""
+
 
 def get_budget(
     limit_per_hour: int,
@@ -72,9 +75,15 @@ def get_budget(
     return refreshes
 
 
+def _sort_key(candidate: Candidate) -> tuple[int, datetime.datetime]:
+    if candidate.dirty_since:
+        return (0, candidate.dirty_since)
+    return (1, candidate.last_refreshed or NEVER)
+
+
 def sort_stalest_first(candidates: Iterable[Candidate]) -> list[Candidate]:
-    """Rankings without a stored object first, then the oldest Refresh first. Ties keep their order."""
-    return sorted(candidates, key=lambda c: c.last_refreshed or NEVER)
+    """Dirty rankings first (flagged longest ago first), then those without a stored object, then oldest first."""
+    return sorted(candidates, key=_sort_key)
 
 
 def plan(candidates: Iterable[Candidate], budget: int) -> list[Candidate]:
@@ -82,6 +91,11 @@ def plan(candidates: Iterable[Candidate], budget: int) -> list[Candidate]:
     return sort_stalest_first(candidates)[:budget]
 
 
-def make_candidates(keys: Iterable[str], last_modified: Mapping[str, datetime.datetime]) -> list[Candidate]:
-    """Pair every ranking key with its S3 `LastModified`, if stored."""
-    return [Candidate(key, last_modified.get(key)) for key in keys]
+def make_candidates(
+    keys: Iterable[str],
+    last_modified: Mapping[str, datetime.datetime],
+    dirty: Mapping[str, datetime.datetime] | None = None,
+) -> list[Candidate]:
+    """Pair every ranking key with its S3 `LastModified` (if stored) and when it was flagged Dirty (if it is)."""
+    dirty = dirty or {}
+    return [Candidate(key, last_modified.get(key), dirty.get(key)) for key in keys]
