@@ -11,6 +11,7 @@ import time
 # IMPORT LOCAL LIBRARIES
 from lorgs.data import GAME_VERSIONS
 from lorgs.models.base.s3 import s3client
+from lorgs.models.game_version import GameVersion
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 
 
@@ -24,8 +25,7 @@ def human_readable_size(size: int) -> str:
     return f"{size / 1024 / 1024 / 1024:.2f}GB"
 
 
-def main(game_version_name: str) -> None:
-    game_version = GAME_VERSIONS[game_version_name]
+def main(game_version: GameVersion) -> None:
     prefix = f"{game_version.name}/{SpecRanking.get_table_name()}/{game_version.data.season.slug}/"
 
     start = time.perf_counter()
@@ -51,6 +51,16 @@ def main(game_version_name: str) -> None:
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--game-version", default="retail", choices=sorted(GAME_VERSIONS))
+    parser.add_argument(
+        "--game-version",
+        choices=sorted(GAME_VERSIONS),
+        help="default: every Game Version with updates enabled",
+    )
     args = parser.parse_args()
-    main(args.game_version)
+
+    if args.game_version:
+        game_versions = [GAME_VERSIONS[args.game_version]]
+    else:
+        game_versions = [gv for gv in GAME_VERSIONS.values() if gv.updates_enabled]
+    for game_version in game_versions:
+        main(game_version)

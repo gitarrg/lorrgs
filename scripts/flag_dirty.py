@@ -2,12 +2,11 @@
 
 # IMPORT STANDARD LIBRARIES
 import argparse
-import datetime
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.data import GAME_VERSIONS
 from lorgs.models import selectors
-from lorgs.models.warcraftlogs_ranking import SpecRanking
+from lorgs.models.dirty_marker import DirtyMarker
 
 
 def main(game_version_name: str) -> None:
@@ -24,17 +23,13 @@ def main(game_version_name: str) -> None:
     for key in keys:
         print(key.spec.full_name_slug, key.boss.full_name_slug, key.difficulty, key.metric)
 
-        spec_ranking = SpecRanking.get_or_create(
+        DirtyMarker(
             game_version=game_version.name,
             spec_slug=key.spec.full_name_slug,
             boss_slug=key.boss.full_name_slug,
             difficulty=key.difficulty,
             metric=key.metric,
-        )
-        if spec_ranking:
-            spec_ranking.dirty = True
-            spec_ranking.updated = datetime.datetime.now(datetime.UTC) - datetime.timedelta(hours=4)
-            spec_ranking.save()
+        ).save()
 
 
 if __name__ == "__main__":

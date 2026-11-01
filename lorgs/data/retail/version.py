@@ -59,4 +59,5 @@ GAME_VERSION = GameVersion(
     wcl_game_version=1,
     data=GAME_DATA,
     has_talents=True,
+    updates_enabled=True,
 )

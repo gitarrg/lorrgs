@@ -11,23 +11,6 @@ from lorgs.models.task_payloads import SpecRankingPayload
 from lorrgs_sqs.exceptions import TaskValidationError
 
 
-POINTS_RESERVE = 0.2
-"""Share of the hourly Warcraft Logs points kept for User Reports: Spec Rankings skip below it."""
-
-
-async def has_points_to_spare(client: WarcraftlogsClient) -> bool:
-    """Whether more than `POINTS_RESERVE` of this hour's points are left. True when Warcraft Logs does not say."""
-    info = await client.get_rate_info()
-    limit = info.get("limitPerHour", 0)
-    if not limit:
-        return True
-    points_left = limit - info.get("pointsSpentThisHour", 0)
-    if points_left > limit * POINTS_RESERVE:
-        return True
-    logger.warning("low on points: %s of %s left, resets in %ss", points_left, limit, info.get("pointsResetIn"))
-    return False
-
-
 async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
     """Load the Spec Ranking Data from Warcraftlogs and save it to the Database."""
     logger.info(f"loading: {payload} vs {payload.spec_slug} | {payload.difficulty=}")
@@ -50,18 +33,24 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
         metric=payload.metric or selectors.default_metric(spec),
     )
 
-    needs_refresh = payload.clear or ranking.needs_refresh()
+    clear = payload.clear or payload.dirty
+    needs_refresh = clear or ranking.needs_refresh()
     if not needs_refresh:
         logger.info(f"already updated: {payload=}")
         return True, "already updated"
 
-    # skipped, not retried: the next scheduled refresh picks the ranking up again
     client = WarcraftlogsClient.get_instance()
-    if not await has_points_to_spare(client):
-        return True, "skipped: low on points"
-
-    await SpecRankingLoader(ranking, game_version).load(client=client, limit=payload.limit, clear_old=payload.clear)
+    await SpecRankingLoader(
+        ranking,
+        game_version,
+    ).load(
+        client=client,
+        limit=payload.limit,
+        clear_old=clear,
+    )
     ranking.save()
+    if payload.dirty:
+        ranking.dirty_marker.clear()
     return True, "done"
 
 

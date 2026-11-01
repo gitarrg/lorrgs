@@ -63,13 +63,13 @@ def send_message(payload: payload_type, queue_url="", message_group=""):
     )
 
 
-def send_message_batch(payloads: Iterable[payload_type], queue_url="", chunk_size=10):
-    """Batch Submit multiple Messages."""
+def send_message_batch(payloads: Iterable[payload_type], queue_url="", chunk_size=10, message_group=""):
+    """Batch Submit multiple Messages. Each gets its own FIFO message group, unless `message_group` is given."""
     # Wrap Payloads
     messages: list[SendMessageBatchRequestEntryTypeDef] = [
         {
             "Id": str(i),
-            "MessageGroupId": new_message_group(payload),
+            "MessageGroupId": message_group or new_message_group(payload),
             "MessageBody": _serialize(payload),
         }
         for i, payload in enumerate(payloads)

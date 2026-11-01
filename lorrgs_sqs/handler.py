@@ -20,6 +20,7 @@ from lorrgs_sqs.task_handlers import (
     load_spec_builds,
     load_spec_rankings,
     load_user_report,
+    plan_spec_rankings,
     send_discord_message,
 )
 
@@ -32,6 +33,7 @@ TASK_HANDLERS = {
     "load_spec_rankings": load_spec_rankings.main,
     "load_comp_rankings": load_comp_rankings.main,
     "load_spec_builds": load_spec_builds.main,
+    "plan_spec_rankings": plan_spec_rankings.main,
 }
 
 

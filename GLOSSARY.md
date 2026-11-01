@@ -67,7 +67,7 @@ The Warcraft Logs points the Refresh Planner may spend in one hour: the hourly l
 _Avoid_: quota, rate limit (that is Warcraft Logs' own limit)
 
 **Dirty**:
-A ranking flagged for a full reload, because the data it was loaded with changed (e.g. a spell was added). A Dirty ranking is refreshed at the next opportunity, however recently it was last refreshed.
+A ranking flagged for a full reload, because the data it was loaded with changed (e.g. a spell was added). The flag is a small marker object in S3 (`DirtyMarker`, `{game_version}/dirty_marker/...`), so the Refresh Planner finds Dirty rankings with one listing. The Planner queues them first, and their Refresh reloads every report from scratch, then clears the marker.
 
 **Phase**:
 A named stretch of a Fight, starting at a timestamp. Intermissions are phases with fractional ids (e.g. 1.5).

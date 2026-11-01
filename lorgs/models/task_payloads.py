@@ -49,6 +49,8 @@ class SpecRankingPayload(BaseTaskPayload):
     """Empty for the spec's role default (eg.: hps for healers)."""
     limit: int = 50
     clear: bool = False
+    dirty: bool = False
+    """The ranking has a dirty marker: reload it from scratch, then clear the marker."""
 
 
 class SpecBuildsPayload(BaseTaskPayload):
