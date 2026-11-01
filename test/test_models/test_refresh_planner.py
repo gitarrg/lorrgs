@@ -88,3 +88,27 @@ def test_make_candidates_takes_dirty_since_from_the_markers() -> None:
     result = refresh_planner.make_candidates(["a", "b"], {"a": _at(2), "b": _at(3)}, {"b": _at(4)})
 
     assert result == [Candidate("a", _at(2)), Candidate("b", _at(3), _at(4))]
+
+
+def test_rankings_are_skipped_until_their_refresh_interval_has_passed() -> None:
+    day = datetime.timedelta(hours=23)
+    candidates = [
+        Candidate("recent", _at(5), refresh_interval=day),
+        Candidate("old", _at(1), refresh_interval=day),
+        Candidate("default", _at(5)),
+    ]
+    now = _at(5) + datetime.timedelta(hours=1)
+
+    assert [c.key for c in refresh_planner.plan(candidates, 10, now)] == ["default"]
+    later = _at(1) + day
+    assert [c.key for c in refresh_planner.plan(candidates, 10, later)] == ["old", "default"]
+
+
+def test_dirty_and_missing_rankings_ignore_the_refresh_interval() -> None:
+    day = datetime.timedelta(hours=23)
+    candidates = [
+        Candidate("dirty", _at(5), dirty_since=_at(4), refresh_interval=day),
+        Candidate("missing", None, refresh_interval=day),
+    ]
+
+    assert len(refresh_planner.plan(candidates, 10, _at(6))) == 2

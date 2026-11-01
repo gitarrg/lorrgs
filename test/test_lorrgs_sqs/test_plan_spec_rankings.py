@@ -2,12 +2,15 @@ import asyncio
 import datetime
 import types
 
+from lorgs.models import ranking_status
 from lorgs.models.task_payloads import SpecRankingPayload
 from lorrgs_sqs.task_handlers import plan_spec_rankings as handler
 
 
 def _payload(spec: str) -> SpecRankingPayload:
-    return SpecRankingPayload(game_version="retail", spec_slug=spec, boss_slug="boss", difficulty="heroic", metric="dps")
+    return SpecRankingPayload(
+        game_version="retail", spec_slug=spec, boss_slug="boss", difficulty="heroic", metric="dps"
+    )
 
 
 def _run(monkeypatch, *, last_modified, dirty, dry_run=False):
@@ -19,10 +22,18 @@ def _run(monkeypatch, *, last_modified, dirty, dry_run=False):
             return {"limitPerHour": 40 * 2 / 0.8, "pointsSpentThisHour": 0}  # budget: 2 Refreshes
 
     monkeypatch.setattr(handler.WarcraftlogsClient, "get_instance", lambda: Client())
-    monkeypatch.setattr(handler, "GAME_VERSIONS", {"retail": types.SimpleNamespace(name="retail", updates_enabled=True)})
+    monkeypatch.setattr(
+        handler,
+        "GAME_VERSIONS",
+        {
+            "retail": types.SimpleNamespace(
+                name="retail", updates_enabled=True, data=types.SimpleNamespace(get_spec=lambda slug: None)
+            )
+        },
+    )
     monkeypatch.setattr(handler, "get_ranking_payloads", lambda game_version: payloads)
-    monkeypatch.setattr(handler, "list_last_modified", lambda game_version: last_modified)
-    monkeypatch.setattr(handler.DirtyMarker, "list_flagged", lambda game_version: dirty)
+    monkeypatch.setattr(ranking_status, "list_last_modified", lambda game_version: last_modified)
+    monkeypatch.setattr(ranking_status.DirtyMarker, "list_flagged", lambda game_version: dirty)
     monkeypatch.setattr(
         handler.sqs,
         "send_message_batch",

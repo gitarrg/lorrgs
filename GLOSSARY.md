@@ -59,8 +59,11 @@ _Avoid_: talent build, loadout, spec (alone)
 Re-fetching a ranking's top Fights from Warcraft Logs and loading the new ones. A ranking is only refreshed when it is stale or Dirty.
 
 **Refresh Planner**:
-The hourly job that picks the Spec Rankings to refresh: the ones least recently refreshed, as many as fit the Refresh Budget, across every Game Version.
+The hourly job that picks the Spec Rankings to refresh: the ones least recently refreshed, as many as fit the Refresh Budget, across every Game Version. Off-metric rankings are skipped until they are 23h old.
 _Avoid_: scheduler, refresh schedule
+
+**Off-metric**:
+A metric of a spec's role other than its default (e.g. dps for healers, bossdps for dps specs). Refreshed at most once a day, the default metric as often as the budget allows.
 
 **Refresh Budget**:
 The Warcraft Logs points the Refresh Planner may spend in one hour: the hourly limit minus a reserve kept for User Reports and manual refreshes.

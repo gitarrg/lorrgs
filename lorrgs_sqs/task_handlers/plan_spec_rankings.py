@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
+import datetime
 import typing
 
 # IMPORT LOCAL LIBRARIES
@@ -11,8 +12,7 @@ from lorgs.clients.wcl import WarcraftlogsClient
 from lorgs.data import GAME_VERSIONS
 from lorgs.logger import logger
 from lorgs.models import refresh_planner
-from lorgs.models.dirty_marker import DirtyMarker
-from lorgs.models.ranking_status import get_ranking_payloads, list_last_modified
+from lorgs.models.ranking_status import get_candidates, get_ranking_payloads
 
 
 if typing.TYPE_CHECKING:
@@ -37,19 +37,18 @@ async def plan_spec_rankings(*, dry_run: bool = False) -> tuple[bool, str]:
             continue
         version_payloads = get_ranking_payloads(game_version)
         payloads.update(version_payloads)
-        candidates += refresh_planner.make_candidates(
-            version_payloads,
-            list_last_modified(game_version),
-            DirtyMarker.list_flagged(game_version),
-        )
+        candidates += get_candidates(game_version, version_payloads)
 
-    planned = refresh_planner.plan(candidates, budget)
+    now = datetime.datetime.now(datetime.UTC)
+    due = [c for c in candidates if c.is_due(now)]
+    planned = refresh_planner.plan(candidates, budget, now)
     logger.info(
-        "refresh plan: limit %s, spent %s, budget %s refreshes, %s candidates (%s dirty), %s planned",
+        "refresh plan: limit %s, spent %s, budget %s refreshes, %s candidates (%s due, %s dirty), %s planned",
         info.get("limitPerHour"),
         info.get("pointsSpentThisHour"),
         budget,
         len(candidates),
+        len(due),
         sum(1 for c in candidates if c.dirty_since),
         len(planned),
     )

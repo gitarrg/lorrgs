@@ -6,6 +6,7 @@ Shared by the Refresh Planner task and the status endpoint, so both see the rank
 from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
+import dataclasses
 import typing
 
 # IMPORT LOCAL LIBRARIES
@@ -77,8 +78,15 @@ def get_candidates(
     """Every Spec Ranking of the Game Version with its last refresh and Dirty flag, as the Refresh Planner sees them."""
     if payloads is None:
         payloads = get_ranking_payloads(game_version)
-    return refresh_planner.make_candidates(
+    candidates = refresh_planner.make_candidates(
         payloads,
         list_last_modified(game_version),
         DirtyMarker.list_flagged(game_version),
     )
+    data = game_version.data
+    return [
+        dataclasses.replace(candidate, refresh_interval=refresh_planner.OFF_METRIC_REFRESH_INTERVAL)
+        if payloads[candidate.key].metric != selectors.default_metric(data.get_spec(payloads[candidate.key].spec_slug))
+        else candidate
+        for candidate in candidates
+    ]

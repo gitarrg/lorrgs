@@ -41,6 +41,13 @@ One Refresh of 10 reports:
 MAX_REFRESHES_PER_HOUR: int | None = None
 """Cap on Refreshes per hour. Stands in for Warcraft Logs' Database points once we opt in. None: no cap."""
 
+OFF_METRIC_REFRESH_INTERVAL = datetime.timedelta(hours=23)
+"""Minimum time between Refreshes of an off-metric ranking (a metric other than its spec's default, eg.: dps for healers).
+
+23h rather than 24h: the planner runs at the start of the hour but S3 `LastModified` is a few minutes later,
+so a strict 24h would slip the refresh an hour later every day.
+"""
+
 NEVER = datetime.datetime.min.replace(tzinfo=datetime.UTC)
 """Last refreshed time of a ranking without a stored object: before every stored ranking."""
 
@@ -57,6 +64,15 @@ class Candidate:
 
     dirty_since: datetime.datetime | None = None
     """When the ranking was flagged Dirty (the marker's `LastModified`). None when it is not Dirty."""
+
+    refresh_interval: datetime.timedelta = datetime.timedelta(0)
+    """Minimum time between Refreshes. Dirty and never stored rankings ignore it."""
+
+    def is_due(self, now: datetime.datetime) -> bool:
+        """Whether the ranking may be refreshed now."""
+        if self.dirty_since or self.last_refreshed is None:
+            return True
+        return now - self.last_refreshed >= self.refresh_interval
 
 
 def get_budget(
@@ -86,8 +102,10 @@ def sort_stalest_first(candidates: Iterable[Candidate]) -> list[Candidate]:
     return sorted(candidates, key=_sort_key)
 
 
-def plan(candidates: Iterable[Candidate], budget: int) -> list[Candidate]:
-    """The stalest `budget` candidates."""
+def plan(candidates: Iterable[Candidate], budget: int, now: datetime.datetime | None = None) -> list[Candidate]:
+    """The stalest `budget` candidates that are due."""
+    now = now or datetime.datetime.now(datetime.UTC)
+    candidates = [c for c in candidates if c.is_due(now)]  # filter out the ones that are not due yet
     return sort_stalest_first(candidates)[:budget]
 
 
