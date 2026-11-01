@@ -1,7 +1,7 @@
 #!/usr/bin/env -S PYTHONPATH=. uv run --env-file=.env
-"""Uploads spell icons, talent icons and spec images to our S3 bucket.
+"""Uploads spell icons, talent icons, spec images and hero tree icons to our S3 bucket.
 
-Spell and talent icons are fetched from wowhead. Spec images are read from `lorrgs_assets/images/specs/`.
+Spell and talent icons are fetched from wowhead. Spec and hero tree images are read from `lorrgs_assets/images/`.
 Only images missing in the bucket are uploaded.
 
 PYTHONPATH=. uv run scripts/load_images.py
@@ -45,6 +45,10 @@ SPECS_FOLDER = "images/specs/"
 LOCAL_SPECS_FOLDER = pathlib.Path(__file__).parent.parent / "lorrgs_assets" / "images" / "specs"
 
 
+HERO_TREES_FOLDER = "images/hero_trees/"
+LOCAL_HERO_TREES_FOLDER = pathlib.Path(__file__).parent.parent / "lorrgs_assets" / "images" / "hero_trees"
+
+
 EXTRA_ICONS = [
     "ability_marksmanship.jpg",  # used for "Talents"
 ]
@@ -73,20 +77,21 @@ def convert_to_webp(data: bytes) -> bytes:
     return buffer.getvalue()
 
 
-def upload_image(data: bytes, folder: str, filename: str) -> None:
+def upload_image(data: bytes, folder: str, filename: str, content_type: str = "image/jpeg") -> None:
     """Upload a jpeg to S3, plus a webp version of it.
 
     Args:
         data (bytes): The jpeg image data.
         folder (str): The folder path in the S3 bucket.
         filename (str): The jpeg filename.
+        content_type (str): The mime type of the image.
 
     """
     # upload jpeg to S3
     BUCKET.put_object(
         Body=data,
         Key=f"{folder}{filename}",
-        ContentType="image/jpeg",
+        ContentType=content_type,
         CacheControl="public, max-age=31536000, immutable",
     )
 
@@ -144,6 +149,18 @@ def upload_spec_images() -> None:
         upload_image(path.read_bytes(), SPECS_FOLDER, path.name)
 
 
+def upload_hero_tree_images() -> None:
+    """Upload the local hero tree icons (transparent pngs) missing in the S3 bucket."""
+    existing = set(get_images(HERO_TREES_FOLDER))
+
+    for path in sorted(LOCAL_HERO_TREES_FOLDER.glob("*.png")):
+        if path.name in existing:
+            continue
+
+        print(f"uploading: {path.name}")
+        upload_image(path.read_bytes(), HERO_TREES_FOLDER, path.name, content_type="image/png")
+
+
 ################################################################################
 
 
@@ -194,3 +211,6 @@ for extra_icon in EXTRA_ICONS:
 
 # Upload the Spec images
 upload_spec_images()
+
+# Upload the Hero Tree icons
+upload_hero_tree_images()
