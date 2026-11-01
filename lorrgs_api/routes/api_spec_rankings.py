@@ -8,7 +8,8 @@ import fastapi
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
 from lorgs.logger import logger
-from lorgs.models import dirty_markers, selectors, warcraftlogs_ranking
+from lorgs.models import selectors, warcraftlogs_ranking
+from lorgs.models.dirty_marker import DirtyMarker
 from lorgs.models.raid_zone import AUTO_DIFFICULTY
 from lorgs.models.task_payloads import SpecRankingPayload
 from lorrgs_api.dependencies import GameVersionDep
@@ -133,7 +134,7 @@ async def flag_dirty(
 
     metric = metric or selectors.default_metric(game_version.data.get_spec(spec_slug))
 
-    ranking_key = warcraftlogs_ranking.SpecRanking.get_key(
+    marker = DirtyMarker(
         game_version=game_version.name,
         spec_slug=spec_slug,
         boss_slug=boss_slug,
@@ -141,9 +142,9 @@ async def flag_dirty(
         metric=metric,
     )
     if dirty:
-        dirty_markers.flag(ranking_key)
+        marker.save()
     else:
-        dirty_markers.clear(ranking_key)
+        marker.clear()
 
     return {
         "message": "success",

@@ -9,8 +9,9 @@ import typing
 from lorgs.clients.wcl import WarcraftlogsClient
 from lorgs.data import GAME_VERSIONS
 from lorgs.logger import logger
-from lorgs.models import dirty_markers, refresh_planner, selectors
+from lorgs.models import refresh_planner, selectors
 from lorgs.models.base.s3 import s3client
+from lorgs.models.dirty_marker import DirtyMarker
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 
 
@@ -46,7 +47,10 @@ def list_last_modified(game_version: GameVersion) -> dict[str, datetime.datetime
     """S3 `LastModified` of every stored Spec Ranking of the Game Version's current season, by key."""
     prefix = f"{game_version.name}/{SpecRanking.get_table_name()}/{game_version.data.season.slug}/"
     result: dict[str, datetime.datetime] = {}
-    for page in s3client.get_paginator("list_objects_v2").paginate(Bucket=SpecRanking.bucket, Prefix=prefix):
+    for page in s3client.get_paginator("list_objects_v2").paginate(
+        Bucket=SpecRanking.bucket,
+        Prefix=prefix,
+    ):
         for obj in page.get("Contents", []):
             result[obj["Key"]] = obj["LastModified"]
     return result
@@ -55,7 +59,10 @@ def list_last_modified(game_version: GameVersion) -> dict[str, datetime.datetime
 async def plan_spec_rankings() -> tuple[bool, str]:
     """Work out which Spec Rankings to refresh this hour, across all enabled Game Versions, and log them."""
     info = await WarcraftlogsClient.get_instance().get_rate_info()
-    budget = refresh_planner.get_budget(info.get("limitPerHour", 0), info.get("pointsSpentThisHour", 0))
+    budget = refresh_planner.get_budget(
+        info.get("limitPerHour", 0),
+        info.get("pointsSpentThisHour", 0),
+    )
 
     candidates: list[refresh_planner.Candidate] = []
     for game_version in GAME_VERSIONS.values():
@@ -64,7 +71,7 @@ async def plan_spec_rankings() -> tuple[bool, str]:
         candidates += refresh_planner.make_candidates(
             get_ranking_keys(game_version),
             list_last_modified(game_version),
-            dirty_markers.list_flagged(game_version),
+            DirtyMarker.list_flagged(game_version),
         )
 
     planned = refresh_planner.plan(candidates, budget)

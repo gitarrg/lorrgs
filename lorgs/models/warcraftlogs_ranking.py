@@ -16,6 +16,7 @@ from lorgs.models.warcraftlogs_report import Report  # ruff: ignore[typing-only-
 
 
 if typing.TYPE_CHECKING:
+    from lorgs.models.dirty_marker import DirtyMarker
     from lorgs.models.warcraftlogs_fight import Fight
     from lorgs.models.warcraftlogs_player import Player
 
@@ -51,13 +52,26 @@ class SpecRanking(S3Model):
 
         return super().get_key(**kwargs)
 
+    @property
+    def dirty_marker(self) -> DirtyMarker:
+        """The marker that flags this ranking as Dirty. It exists in S3 only while the ranking is flagged."""
+        from lorgs.models.dirty_marker import DirtyMarker  # ruff: ignore[import-outside-top-level]  # it imports this module
+
+        return DirtyMarker(
+            game_version=self.game_version,
+            spec_slug=self.spec_slug,
+            boss_slug=self.boss_slug,
+            difficulty=self.difficulty,
+            metric=self.metric,
+        )
+
     def needs_refresh(self, now: datetime.datetime | None = None) -> bool:
         """Whether this ranking should be re-fetched from Warcraft Logs.
 
         A ranking is refreshed only when its last Refresh is more than
         ``refresh_after`` old, however many reports it holds: a boss or spec with
         fewer ranked logs than the limit must not cost a Refresh on every run.
-        Dirty rankings are flagged by a marker (see `dirty_markers`), not known here.
+        Dirty rankings are flagged by a marker (see `DirtyMarker`), not known here.
         """
         if now is None:
             now = datetime.datetime.now(datetime.UTC)
