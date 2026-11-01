@@ -18,3 +18,12 @@ def test_refresh_cron_offsets(offset, expected):
 def test_refresh_cron_rejects_offset_outside_interval():
     with pytest.raises(ValueError):
         refresh_cron(6)
+
+
+def test_builds_cron_is_daily_after_the_ranking_refresh():
+    from infra.stacks import builds_cron
+
+    assert builds_cron(0) == "cron(30 3 * * ? *)"
+    assert builds_cron(2) == "cron(30 5 * * ? *)"
+    with pytest.raises(ValueError):
+        builds_cron(6)

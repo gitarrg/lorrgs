@@ -32,6 +32,12 @@ class WowSpec(WowActor):
     short_name: str = ""
     """Short Version of the Name. eg.: "Prot" or "Resto". Defaults to `self.name`"""
 
+    builds_ignore: list[int] = []
+    """Talent entry ids that never count towards the distance between Talents when grouping them into Builds."""
+
+    builds_force_new: list[int] = []
+    """Talent entry ids whose presence or absence always means a different Build, whatever the distance."""
+
     def post_init(self) -> None:
         self.parents.append(self.wow_class)
         self.wow_class.register_spec(self)

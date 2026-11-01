@@ -308,3 +308,20 @@ def load_spec_trees() -> dict[int, dict[str, typing.Any]]:
 
 def get_spec_tree(spec_id: int) -> dict[str, typing.Any] | None:
     return load_spec_trees().get(spec_id)
+
+
+def get_spec_scope(spec_id: int) -> tuple[frozenset[int], dict[int, str]] | None:
+    """The talent entries of a spec that count for its Builds (hero and spec talents), and the hero tree of each hero entry."""
+    tree = get_spec_tree(spec_id)
+    if tree is None:
+        return None
+    counted: set[int] = set()
+    hero_trees: dict[int, str] = {}
+    for node in tree["nodes"]:
+        if node["tree"] == "class":
+            continue
+        for entry in node["entries"]:
+            counted.add(entry["id"])
+            if node["hero_tree_slug"]:
+                hero_trees[entry["id"]] = node["hero_tree_slug"]
+    return frozenset(counted), hero_trees

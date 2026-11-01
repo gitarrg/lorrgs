@@ -15,7 +15,13 @@ from lorgs.clients import sqs
 from lorgs.logger import logger
 from lorrgs_sqs import helpers
 from lorrgs_sqs.exceptions import TaskValidationError
-from lorrgs_sqs.task_handlers import load_comp_rankings, load_spec_rankings, load_user_report, send_discord_message
+from lorrgs_sqs.task_handlers import (
+    load_comp_rankings,
+    load_spec_builds,
+    load_spec_rankings,
+    load_user_report,
+    send_discord_message,
+)
 
 
 TASK_HANDLERS = {
@@ -25,6 +31,7 @@ TASK_HANDLERS = {
     "load_user_report": load_user_report.main,
     "load_spec_rankings": load_spec_rankings.main,
     "load_comp_rankings": load_comp_rankings.main,
+    "load_spec_builds": load_spec_builds.main,
 }
 
 

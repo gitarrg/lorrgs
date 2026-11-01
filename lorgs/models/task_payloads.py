@@ -51,6 +51,14 @@ class SpecRankingPayload(BaseTaskPayload):
     clear: bool = False
 
 
+class SpecBuildsPayload(BaseTaskPayload):
+    """Payload to work out the Builds of a spec from its stored Spec Rankings."""
+
+    task: str = "load_spec_builds"
+    spec_slug: str
+    """A spec slug, or `all` for every playable spec."""
+
+
 class CompRankingPayload(BaseTaskPayload):
     """Payload to load comp (group composition) rankings for a boss."""
 

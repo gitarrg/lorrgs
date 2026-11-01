@@ -8,6 +8,7 @@ import fastapi
 # IMPORT LOCAL LIBRARIES
 from lorrgs_api.dependencies import get_game_version
 from lorrgs_api.routes import (
+    api_builds,
     api_comp_rankings,
     api_game_versions,
     api_season,
@@ -36,6 +37,7 @@ router.include_router(debug.router)
 # Versioned Routes: `/api/{game_version}/...`
 # Included after the global ones, so those win when a path would match both.
 versioned_router = fastapi.APIRouter(prefix="/{game_version}", dependencies=[fastapi.Depends(get_game_version)])
+versioned_router.include_router(api_builds.router)
 versioned_router.include_router(api_comp_rankings.router)
 versioned_router.include_router(api_season.router)
 versioned_router.include_router(api_spec_rankings.router)

@@ -72,11 +72,19 @@ def refresh_cron(hour_offset: int) -> str:
     return f"cron(0 {hours} * * ? *)"
 
 
+def builds_cron(hour_offset: int) -> str:
+    """Daily at 03:30 (Europe/London), `hour_offset` hours later: after the 00:00 ranking refresh has run through."""
+    if not 0 <= hour_offset < REFRESH_INTERVAL_HOURS:
+        raise ValueError(f"hour_offset must be in [0, {REFRESH_INTERVAL_HOURS}): {hour_offset}")
+    return f"cron(30 {3 + hour_offset} * * ? *)"
+
+
 class RefreshSchedule(typing.NamedTuple):
-    """The 6h ranking refresh of one Game Version."""
+    """The 6h ranking refresh of one Game Version, and its daily Builds refresh (Game Versions with talents only)."""
 
     hour_offset: int
     enabled: bool = False
+    builds_enabled: bool = False
 
 
 class LorrgsStack(cdk.Stack):
@@ -141,6 +149,14 @@ class LorrgsStack(cdk.Stack):
                 refresh_cron(refresh.hour_offset),
                 enabled=refresh.enabled,
             )
+            if GAME_VERSIONS[name].has_talents:
+                self.builds_schedule(
+                    main_queue,
+                    role,
+                    GAME_VERSIONS[name],
+                    builds_cron(refresh.hour_offset),
+                    enabled=refresh.builds_enabled,
+                )
 
         # API
         http_api = apigw.HttpApi(
@@ -231,6 +247,34 @@ class LorrgsStack(cdk.Stack):
                 "roleArn": role.role_arn,
                 "input": json.dumps(payload),
                 "sqsParameters": {"messageGroupId": f"{game_version.name}-load_spec_rankings"},
+                "retryPolicy": {"maximumEventAgeInSeconds": 86400, "maximumRetryAttempts": 0},
+            },
+        )
+
+    def builds_schedule(
+        self,
+        queue: sqs.Queue,
+        role: iam.Role,
+        game_version: GameVersion,
+        cron: str,
+        *,
+        enabled: bool,
+    ) -> None:
+        """Daily Builds refresh of every playable spec of one Game Version."""
+        payload = {"task": "load_spec_builds", "game_version": game_version.name, "spec_slug": "all"}
+        scheduler.CfnSchedule(
+            self,
+            f"builds-schedule-{game_version.name}",
+            name=self.name(f"load_spec_builds-{game_version.name}"),
+            state="ENABLED" if enabled else "DISABLED",
+            schedule_expression=cron,
+            schedule_expression_timezone="Europe/London",
+            flexible_time_window={"mode": "FLEXIBLE", "maximumWindowInMinutes": 15},
+            target={
+                "arn": queue.queue_arn,
+                "roleArn": role.role_arn,
+                "input": json.dumps(payload),
+                "sqsParameters": {"messageGroupId": f"{game_version.name}-load_spec_builds"},
                 "retryPolicy": {"maximumEventAgeInSeconds": 86400, "maximumRetryAttempts": 0},
             },
         )

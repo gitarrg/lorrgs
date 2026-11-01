@@ -47,7 +47,7 @@ from lorgs.clients import sqs
 from lorgs.data import GAME_VERSIONS
 from lorgs.models import selectors
 from lorgs.models.raid_zone import AUTO_DIFFICULTY, RaidZone
-from lorgs.models.task_payloads import SpecRankingPayload
+from lorgs.models.task_payloads import SpecBuildsPayload, SpecRankingPayload
 
 
 if typing.TYPE_CHECKING:
@@ -263,6 +263,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="wipe existing data first. default: off",
     )
 
+    parser.add_argument(
+        "--builds",
+        action="store_true",
+        help="work out the Builds of the selected specs from their stored rankings (Retail), instead of updating rankings",
+    )
     parser.add_argument("--dry-run", action="store_true", help="print the summary and exit")
     parser.add_argument("-y", "--yes", action="store_true", help="skip the confirmation prompt")
     return parser
@@ -306,11 +311,37 @@ async def run_local(tasks: list[RankingTask], args: argparse.Namespace) -> None:
         await WarcraftlogsClient.close_instance()
 
 
+def run_builds(parser: argparse.ArgumentParser, args: argparse.Namespace, game_version: GameVersion) -> None:
+    if not game_version.has_talents:
+        parser.error(f"{game_version.name} has no talents, so no Builds")
+    specs = select_specs(parser, args, game_version.data)
+    payloads = [SpecBuildsPayload(game_version=game_version.name, spec_slug=spec.full_name_slug) for spec in specs]
+    print(f"builds: {', '.join(p.spec_slug for p in payloads)}")
+    if args.dry_run:
+        return
+    if not args.yes and not confirm():
+        sys.exit("aborted")
+
+    if args.mode == "local":
+        # ruff: disable[import-outside-top-level]
+        from lorrgs_sqs.task_handlers.load_spec_builds import load_spec_builds
+        # ruff: enable[import-outside-top-level]
+
+        for payload in payloads:
+            print(payload.spec_slug, asyncio.run(load_spec_builds(payload)))
+    else:
+        sqs.send_message_batch(payloads)
+        print(f"queued {len(payloads)} tasks")
+
+
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
 
     game_version = GAME_VERSIONS[args.game_version]
+    if args.builds:
+        run_builds(parser, args, game_version)
+        return
     bosses = select_bosses(parser, args, game_version.data)
     specs = select_specs(parser, args, game_version.data)
     tasks = build_tasks(game_version, specs, bosses, args.difficulty, args.metric)
