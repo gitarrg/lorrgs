@@ -22,8 +22,8 @@ async def get_spec_builds(
     """The Builds of one spec and the settings they were worked out with.
 
     A spec without Builds (yet) returns an empty list.
-    Assign a player's Talents to a Build by their distance (talent entries with a differing rank, hero and spec talents
-    only, without `ignore`) to the `talents` of each Build: the nearest within `max(threshold, min_assign)`, else "Other".
+    Assign a player's Talents to a Build by their distance (talent nodes whose pick differs, hero and spec talents
+    only, without `ignore`) to the `talents` of each Build: the nearest within `max(threshold, assign_reach)`, else "Other".
     Talents of another hero tree, or differing in a `force_new_build` entry, never belong to the same Build.
     """
     spec = game_version.data.get_spec(spec_slug) if game_version.has_talents else None

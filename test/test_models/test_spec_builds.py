@@ -52,7 +52,7 @@ def test_small_hero_tree_group_above_min_share_is_a_build():
     main = talents(1, 2, 3, 4, *HERO_A)
     # same spec talents, other hero tree: a distance of 6 only because of the hero entries
     small = talents(1, 2, 3, 4, *HERO_B)
-    noise = [talents(5, 6, 7, i) for i in (8, 9, 10)]
+    noise = [talents(5, 6, 7, 8, 9, 10), talents(1), talents(2, 3, 4, 8)]  # too far apart to merge
     result = find_builds(pool_of((80, main), (12, small), *[(3, n) for n in noise]), SCOPE)
 
     assert [build.hero_tree for build in result.builds] == ["tree-a", "tree-b"]
@@ -67,15 +67,14 @@ def test_group_below_min_share_is_other():
     assert result.other == 4
 
 
-def test_hero_trees_never_share_a_build_even_with_a_high_threshold():
-    # many scattered loadouts push the threshold up; the two hero trees differ by one entry, plus hero choice
+def test_hero_trees_never_share_a_build_even_when_merging():
+    # many loadouts close enough to merge; the two hero trees differ by one entry, plus hero choice
     pool = []
     for i in range(10):
         pool += [talents(1, 2, 3, 4, 5, i + 1, *HERO_A)] * 6
         pool += [talents(1, 2, 3, 4, 5, i + 1, *HERO_B)] * 5
     result = find_builds(pool, SCOPE)
 
-    assert result.settings.threshold > 0
     for build in result.builds:
         trees = {SCOPE.hero_trees[e] for e in build.talents if e in SCOPE.hero_trees}
         assert len(trees) == 1
@@ -97,12 +96,12 @@ def test_class_talents_are_ignored_for_grouping_but_kept_in_the_loadout():
 
 def test_ignore_list():
     a = talents(1, 2, 3, 4, *HERO_A)
-    b = talents(1, 2, 3, 4, 5, *HERO_A)
+    b = talents(1, 2, 3, 4, 5, 6, 7, 8, *HERO_A)
 
     assert len(find_builds(pool_of((30, a), (30, b)), SCOPE).builds) == 2
-    result = find_builds(pool_of((30, a), (30, b)), SCOPE, ignore=[5])
+    result = find_builds(pool_of((30, a), (30, b)), SCOPE, ignore=[5, 6, 7, 8])
     assert len(result.builds) == 1
-    assert result.settings.ignore == [5]
+    assert result.settings.ignore == [5, 6, 7, 8]
 
 
 def test_force_new_build_list():
@@ -133,9 +132,10 @@ def test_one_moved_point_is_not_other_at_threshold_zero():
 
 
 def test_ranks_count_as_a_difference():
-    a = {1: 2, 2: 1, 21: 1}
-    b = {1: 1, 2: 1, 21: 1}
-    assert len(find_builds(pool_of((50, a), (50, b)), TalentScope(frozenset({1, 2, 21}), {21: "tree-a"})).builds) == 2
+    a = {1: 2, 2: 2, 3: 2, 4: 2, 21: 1}
+    b = {1: 1, 2: 1, 3: 1, 4: 1, 21: 1}
+    scope = TalentScope(frozenset({1, 2, 3, 4, 21}), {21: "tree-a"})
+    assert len(find_builds(pool_of((50, a), (50, b)), scope).builds) == 2
 
 
 def test_empty_pool():
@@ -151,20 +151,21 @@ def test_assign_talents():
 
     assert assign_talents(a, result, SCOPE).letter == "A"
     assert assign_talents(talents(6, 7, 8, 9, 10, 101, *HERO_A), result, SCOPE).letter == "B"
-    assert assign_talents(talents(1, 7, 8, 3, 5, *HERO_A), result, SCOPE) is None
+    assert assign_talents(talents(1, 2, 8, 9, *HERO_A), result, SCOPE) is None  # 5 nodes from either
 
 
 def test_max_builds():
+    scope = TalentScope(frozenset(range(1, 51)), {})
     pool = []
-    for i in range(1, 11):
-        pool += [talents(i, *HERO_A)] * 10
-    result = find_builds(pool, SCOPE)
+    for i in range(10):
+        pool += [talents(*range(5 * i + 1, 5 * i + 6))] * 10  # 10 nodes apart from each other
+    result = find_builds(pool, scope)
     assert len(result.builds) <= spec_builds.MAX_BUILDS
 
 
 def test_defining_talents_compare_within_the_hero_tree():
     a = talents(1, 2, 3, 4, *HERO_A)
-    b = talents(1, 2, 3, 5, *HERO_A)
+    b = talents(1, 5, 6, 7, 8, *HERO_A)
     c = talents(6, 7, 8, 9, *HERO_B)  # alone on its hero tree: the tree stands in
     result = find_builds(pool_of((40, a), (35, b), (25, c)), SCOPE)
 
@@ -172,5 +173,37 @@ def test_defining_talents_compare_within_the_hero_tree():
     assert by_tree["tree-b"].defining.has == {}
     assert by_tree["tree-b"].defining.lacks == {}
     build_a = next(build for build in result.builds if 4 in build.talents)
-    assert build_a.defining.has == {4: 1}
-    assert build_a.defining.lacks == {5: 1}
+    assert build_a.defining.has == {2: 1, 3: 1, 4: 1}
+    assert build_a.defining.lacks == {5: 1, 6: 1, 7: 1, 8: 1}
+
+
+def test_distance_counts_nodes():
+    scope = TalentScope(frozenset(range(1, 7)), {}, nodes={1: 100, 2: 100, 3: 101, 4: 102})
+
+    def dist(a: dict[int, int], b: dict[int, int]) -> int | None:
+        return spec_builds.distance(*(spec_builds._project(t, scope, (), ()) for t in (a, b)))
+
+    assert dist(talents(1, 5), talents(2, 5)) == 1  # a choice node swapped
+    assert dist({3: 1}, {3: 2}) == 1  # a rank
+    assert dist(talents(3, 5), talents(4, 5)) == 2  # a point moved to another node
+
+
+def test_builds_within_merge_distance_are_one():
+    main = talents(1, 2, 3, 4, *HERO_A)
+    variant = talents(1, 2, 5, 6, *HERO_A)  # 4 entries, but the same 4 nodes when 3/5 and 4/6 are choices
+    far = talents(7, 8, 9, 10, *HERO_A)
+    scope = TalentScope(SCOPE.counted, SCOPE.hero_trees, nodes={3: 200, 5: 200, 4: 201, 6: 201})
+
+    assert len(find_builds(pool_of((50, main), (30, variant), (20, far)), SCOPE).builds) == 3
+    result = find_builds(pool_of((50, main), (30, variant), (20, far)), scope)
+    assert [build.fights for build in result.builds] == [80, 20]
+    assert result.builds[0].talents == main
+
+
+def test_assign_reach():
+    main = talents(1, 2, 3, 4, *HERO_A)
+    result = find_builds(pool_of((100, main)), SCOPE)
+
+    assert result.settings.assign_reach == spec_builds.ASSIGN_REACH == 4
+    assert assign_talents(talents(1, 2, 5, 6, *HERO_A), result, SCOPE).letter == "A"  # 4 nodes
+    assert assign_talents(talents(1, 5, 6, 7, *HERO_A), result, SCOPE) is None  # 5 nodes

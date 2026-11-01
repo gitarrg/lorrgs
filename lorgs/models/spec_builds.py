@@ -26,6 +26,8 @@ if typing.TYPE_CHECKING:
     from collections.abc import Collection, Iterable, Mapping, Sequence
 
 
+# Distances count talent nodes whose pick differs: swapping a choice node is 1, moving a point to another node is 2.
+
 START_THRESHOLD = 0
 """Distance within which Talents are grouped, to begin with."""
 CAP_THRESHOLD = 10
@@ -36,9 +38,11 @@ MIN_SHARE = 0.05
 """A group needs this share of the pool to be a Build."""
 MAX_BUILDS = 4
 """At most this many Builds per spec."""
-MIN_ASSIGN = 2
-"""A player is assigned to a Build within at least this distance, so that a single point moved to another talent
-(distance 2: one entry loses its rank, one gains it) does not make a player "Other" when the threshold stays at 0."""
+MERGE_DISTANCE = 3
+"""Groups whose main Talents are within this distance are one Build: the larger one takes in the smaller."""
+ASSIGN_REACH = 4
+"""A player is assigned to the nearest Build on their hero tree within this distance (or the threshold, if larger),
+so players flexing a few choice nodes for a fight still count to it."""
 
 
 @dataclasses.dataclass(frozen=True)
@@ -51,6 +55,9 @@ class TalentScope:
     hero_trees: Mapping[int, str]
     """Entry id -> slug of its hero tree, for the entries of a hero tree and the hero tree selection."""
 
+    nodes: Mapping[int, int] = dataclasses.field(default_factory=dict)
+    """Entry id -> id of its node. An entry not in here is a node of its own."""
+
 
 @dataclasses.dataclass(frozen=True)
 class _Point:
@@ -59,18 +66,21 @@ class _Point:
     ranks: frozenset[tuple[int, int]]
     """`(entry id, rank)` of the counted entries, without the ignored ones."""
 
+    picks: frozenset[tuple[int, int, int]]
+    """`(node id, entry id, rank)`: the same, by node."""
+
     group: tuple[frozenset[str], frozenset[int]]
     """Hero trees and forced entries the player has. Points of different groups are never in the same Build."""
 
 
 def _project(talents: Mapping[int, int], scope: TalentScope, ignore: Collection[int], force: Collection[int]) -> _Point:
     taken = {entry for entry, rank in talents.items() if rank > 0}
+    ranks = frozenset(
+        (entry, rank) for entry, rank in talents.items() if rank > 0 and entry in scope.counted and entry not in ignore
+    )
     return _Point(
-        ranks=frozenset(
-            (entry, rank)
-            for entry, rank in talents.items()
-            if rank > 0 and entry in scope.counted and entry not in ignore
-        ),
+        ranks=ranks,
+        picks=frozenset((scope.nodes.get(entry, entry), entry, rank) for entry, rank in ranks),
         group=(
             frozenset(scope.hero_trees[entry] for entry in taken if entry in scope.hero_trees),
             frozenset(entry for entry in taken if entry in force),
@@ -79,17 +89,17 @@ def _project(talents: Mapping[int, int], scope: TalentScope, ignore: Collection[
 
 
 def distance(a: _Point, b: _Point) -> int | None:
-    """Number of talent entries whose rank differs. `None` when the two can not be in one Build."""
+    """Number of talent nodes whose pick (entry and rank) differs. `None` when the two can not be in one Build."""
     if a.group != b.group:
         return None
-    return len({entry for entry, _ in a.ranks ^ b.ranks})
+    return len({node for node, _, _ in a.picks ^ b.picks})
 
 
 class BuildSettings(pydantic.BaseModel):
     """What the Builds were worked out with."""
 
     threshold: int
-    min_assign: int = MIN_ASSIGN
+    assign_reach: int = ASSIGN_REACH
     ignore: list[int] = []
     force_new_build: list[int] = []
 
@@ -153,6 +163,22 @@ def _groups(counts: Mapping[_Point, int], threshold: int) -> list[_Group]:
     return groups
 
 
+def _merge(groups: Sequence[_Group]) -> list[_Group]:
+    """Groups (largest first) within `MERGE_DISTANCE` of a larger one join it."""
+    kept: list[_Group] = []
+    for group in sorted(groups, key=lambda g: -g.count):
+        target = next(
+            (k for k in kept if (dist := distance(k.centre, group.centre)) is not None and dist <= MERGE_DISTANCE),
+            None,
+        )
+        if target:
+            target.count += group.count
+            target.members.extend(group.members)
+        else:
+            kept.append(group)
+    return sorted(kept, key=lambda g: -g.count)
+
+
 def _letter(index: int) -> str:
     return string.ascii_uppercase[index]
 
@@ -177,7 +203,7 @@ def assign_talents(talents: Mapping[int, int], builds: BuildsResult | SpecBuilds
     index = _assign(
         project(talents),
         [project(build.talents) for build in builds.builds],
-        max(settings.threshold, settings.min_assign),
+        max(settings.threshold, settings.assign_reach),
     )
     return None if index is None else builds.builds[index]
 
@@ -208,7 +234,7 @@ def find_builds(
     """Group the Talents of a pool of Fights into Builds.
 
     The threshold starts at `START_THRESHOLD` and rises until the Builds (groups with at least `MIN_SHARE` of the pool,
-    at most `MAX_BUILDS`) cover `COVER` of it, or `CAP_THRESHOLD` is reached.
+    after merging groups within `MERGE_DISTANCE`, at most `MAX_BUILDS`) cover `COVER` of it, or `CAP_THRESHOLD` is reached.
     Talents of different hero trees, or differing in a `force_new_build` entry, are never in the same Build.
     """
     ignore, force_new_build = frozenset(ignore), frozenset(force_new_build)
@@ -231,7 +257,7 @@ def find_builds(
 
     threshold = START_THRESHOLD
     while True:
-        groups = [g for g in _groups(counts, threshold) if g.count / total >= MIN_SHARE][:MAX_BUILDS]
+        groups = [g for g in _merge(_groups(counts, threshold)) if g.count / total >= MIN_SHARE][:MAX_BUILDS]
         if sum(g.count for g in groups) / total >= COVER or threshold >= CAP_THRESHOLD:
             break
         threshold += 1
@@ -239,7 +265,7 @@ def find_builds(
 
     centres = [g.centre for g in groups]
     assigned = collections.Counter(
-        _assign(point, centres, max(threshold, MIN_ASSIGN)) for point, count in counts.items() for _ in range(count)
+        _assign(point, centres, max(threshold, ASSIGN_REACH)) for point, count in counts.items() for _ in range(count)
     )
     mains = [max(full[c], key=lambda loadout: full[c][loadout]) for c in centres]
     defining = _defining(centres)
