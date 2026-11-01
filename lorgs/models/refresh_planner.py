@@ -92,7 +92,7 @@ def plan(candidates: Iterable[Candidate], budget: int) -> list[Candidate]:
 
 
 def make_candidates(
-    keys: Iterable[str],
+    keys: Iterable[str],  # a Mapping with the keys is fine too
     last_modified: Mapping[str, datetime.datetime],
     dirty: Mapping[str, datetime.datetime] | None = None,
 ) -> list[Candidate]:

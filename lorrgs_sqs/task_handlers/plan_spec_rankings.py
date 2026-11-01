@@ -1,4 +1,4 @@
-"""Handler to plan the next hour's Spec Ranking Refreshes (dry run: logs the plan, queues nothing)."""
+"""Handler to plan the next hour's Spec Ranking Refreshes and queue them."""
 
 from __future__ import annotations
 
@@ -6,12 +6,14 @@ from __future__ import annotations
 import typing
 
 # IMPORT LOCAL LIBRARIES
+from lorgs.clients import sqs
 from lorgs.clients.wcl import WarcraftlogsClient
 from lorgs.data import GAME_VERSIONS
 from lorgs.logger import logger
 from lorgs.models import refresh_planner, selectors
 from lorgs.models.base.s3 import s3client
 from lorgs.models.dirty_marker import DirtyMarker
+from lorgs.models.task_payloads import SpecRankingPayload
 from lorgs.models.warcraftlogs_ranking import SpecRanking
 
 
@@ -21,8 +23,12 @@ if typing.TYPE_CHECKING:
     from lorgs.models.game_version import GameVersion
 
 
-def get_ranking_keys(game_version: GameVersion) -> list[str]:
-    """The S3 key of every Spec Ranking of the Game Version's current season."""
+REFRESH_LIMIT = 50
+"""Players loaded per queued Refresh."""
+
+
+def get_ranking_payloads(game_version: GameVersion) -> dict[str, SpecRankingPayload]:
+    """The `load_spec_rankings` payload of every Spec Ranking of the Game Version's current season, by S3 key."""
     data = game_version.data
     keys = selectors.expand_selectors(
         data,
@@ -31,16 +37,25 @@ def get_ranking_keys(game_version: GameVersion) -> list[str]:
         selectors.ALL,
         selectors.ALL,
     )
-    return [
-        SpecRanking.get_key(
+    result: dict[str, SpecRankingPayload] = {}
+    for key in keys:
+        payload = SpecRankingPayload(
             game_version=game_version.name,
             spec_slug=key.spec.full_name_slug,
             boss_slug=key.boss.full_name_slug,
             difficulty=key.difficulty,
             metric=key.metric,
+            limit=REFRESH_LIMIT,
         )
-        for key in keys
-    ]
+        s3_key = SpecRanking.get_key(
+            game_version=payload.game_version,
+            spec_slug=payload.spec_slug,
+            boss_slug=payload.boss_slug,
+            difficulty=payload.difficulty,
+            metric=payload.metric,
+        )
+        result[s3_key] = payload
+    return result
 
 
 def list_last_modified(game_version: GameVersion) -> dict[str, datetime.datetime]:
@@ -56,8 +71,11 @@ def list_last_modified(game_version: GameVersion) -> dict[str, datetime.datetime
     return result
 
 
-async def plan_spec_rankings() -> tuple[bool, str]:
-    """Work out which Spec Rankings to refresh this hour, across all enabled Game Versions, and log them."""
+async def plan_spec_rankings(*, dry_run: bool = False) -> tuple[bool, str]:
+    """Work out which Spec Rankings to refresh this hour, across all enabled Game Versions, and queue them.
+
+    Last hour's tasks may still be queued: `SpecRanking.needs_refresh` turns those duplicates into cheap skips.
+    """
     info = await WarcraftlogsClient.get_instance().get_rate_info()
     budget = refresh_planner.get_budget(
         info.get("limitPerHour", 0),
@@ -65,11 +83,14 @@ async def plan_spec_rankings() -> tuple[bool, str]:
     )
 
     candidates: list[refresh_planner.Candidate] = []
+    payloads: dict[str, SpecRankingPayload] = {}
     for game_version in GAME_VERSIONS.values():
         if not game_version.updates_enabled:
             continue
+        version_payloads = get_ranking_payloads(game_version)
+        payloads.update(version_payloads)
         candidates += refresh_planner.make_candidates(
-            get_ranking_keys(game_version),
+            version_payloads,
             list_last_modified(game_version),
             DirtyMarker.list_flagged(game_version),
         )
@@ -84,14 +105,28 @@ async def plan_spec_rankings() -> tuple[bool, str]:
         sum(1 for c in candidates if c.dirty_since),
         len(planned),
     )
+
+    # queue per Game Version, in plan order, in that Game Version's FIFO message group
+    by_version: dict[str, list[SpecRankingPayload]] = {}
     for candidate in planned:
+        payload = payloads[candidate.key].model_copy(update={"dirty": candidate.dirty_since is not None})
+        by_version.setdefault(payload.game_version, []).append(payload)
         logger.info(
-            "would refresh: %s (last refreshed %s%s)",
+            "%s: %s (last refreshed %s%s)",
+            "would refresh" if dry_run else "refresh",
             candidate.key,
             candidate.last_refreshed or "never",
             f", dirty since {candidate.dirty_since}" if candidate.dirty_since else "",
         )
-    return True, f"planned {len(planned)} of {len(candidates)}"
+
+    if not dry_run:
+        for name, version_payloads in by_version.items():
+            sqs.send_message_batch(version_payloads, message_group=f"{name}-load_spec_rankings")
+
+    verb = "planned" if dry_run else "queued"
+    message = f"{verb} {len(planned)} of {len(candidates)} (budget {budget})"
+    logger.info(message)
+    return True, message
 
 
 async def main(message: dict[str, str]):  # ruff: ignore[unused-function-argument]  # same interface as the other handlers

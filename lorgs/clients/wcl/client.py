@@ -229,11 +229,6 @@ class WarcraftlogsClient(BaseClient):
         result = await self.query(query)
         return result.get("rateLimitData") or {}
 
-    async def get_points_left(self) -> int:
-        """Points left until we hit the rate limit."""
-        info = await self.get_rate_info()
-        return info.get("limitPerHour", 0) - info.get("pointsSpentThisHour", 0)
-
     @staticmethod
     def _raise_errors(result: dict[str, typing.Any]) -> None:
         if result.get("error"):

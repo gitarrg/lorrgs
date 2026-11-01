@@ -28,6 +28,9 @@ Examples (add --dry-run to only print what would be queued):
     # a whole MoP raid for one class, all metrics
     scripts/queue_updates.py --game-version mists --raid throne-of-thunder --class monk --metric all
 
+    # let the Refresh Planner pick this hour's stalest rankings (what the hourly schedule does)
+    scripts/queue_updates.py --plan
+
     # an entire Game Version (every raid of its current season)
     scripts/queue_updates.py --game-version mists --yes
 
@@ -268,6 +271,11 @@ def build_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="work out the Builds of the selected specs from their stored rankings (Retail), instead of updating rankings",
     )
+    parser.add_argument(
+        "--plan",
+        action="store_true",
+        help="queue a Refresh Planner run (all enabled Game Versions), instead of updating the selected rankings",
+    )
     parser.add_argument("--dry-run", action="store_true", help="print the summary and exit")
     parser.add_argument("-y", "--yes", action="store_true", help="skip the confirmation prompt")
     return parser
@@ -337,6 +345,13 @@ def run_builds(parser: argparse.ArgumentParser, args: argparse.Namespace, game_v
 def main() -> None:
     parser = build_parser()
     args = parser.parse_args()
+
+    if args.plan:
+        payload = {"task": "plan_spec_rankings"}
+        print("q", payload)
+        if not args.dry_run:
+            sqs.send_message(payload=payload, message_group="plan_spec_rankings")
+        return
 
     game_version = GAME_VERSIONS[args.game_version]
     if args.builds:

@@ -1,7 +1,7 @@
 """Stack `lorrgs`: serves every Game Version (ADR 0003).
 
 Cloudflare -> CloudFront -> API Gateway -> lorrgs-api -> SQS -> lorrgs-sqs
-                                          EventBridge Scheduler -> SQS (every 6h, per Game Version)
+                                          EventBridge Scheduler -> SQS (hourly planner; daily Builds per Game Version)
 
 Lambda layers live here. A layer version is immutable, so a code change replaces
 it. CloudFormation can replace it in the same stack as the functions that import
@@ -35,7 +35,6 @@ from aws_cdk import (
 # IMPORT LOCAL LIBRARIES
 from infra import assets
 from lorgs.data import GAME_VERSIONS
-from lorgs.models.raid_zone import AUTO_DIFFICULTY
 
 
 if typing.TYPE_CHECKING:
@@ -64,23 +63,22 @@ SECRETS = (
 REFRESH_INTERVAL_HOURS = 6
 
 
-def refresh_cron(hour_offset: int) -> str:
-    """Every 6h, `hour_offset` hours past 0/6/12/18 (Europe/London)."""
-    if not 0 <= hour_offset < REFRESH_INTERVAL_HOURS:
-        raise ValueError(f"hour_offset must be in [0, {REFRESH_INTERVAL_HOURS}): {hour_offset}")
-    hours = ",".join(str(h + hour_offset) for h in range(0, 24, REFRESH_INTERVAL_HOURS))
-    return f"cron(0 {hours} * * ? *)"
+PLANNER_CRON = "cron(1 * * * ? *)"
+"""Minute 1 of every hour: Warcraft Logs resets the points on the hour."""
 
 
 def builds_cron(hour_offset: int) -> str:
-    """Daily at 03:30 (Europe/London), `hour_offset` hours later: after the 00:00 ranking refresh has run through."""
+    """Daily at 03:30 (Europe/London), `hour_offset` hours later: after the hourly Refresh Planner has had time to refresh the rankings."""
     if not 0 <= hour_offset < REFRESH_INTERVAL_HOURS:
         raise ValueError(f"hour_offset must be in [0, {REFRESH_INTERVAL_HOURS}): {hour_offset}")
     return f"cron(30 {3 + hour_offset} * * ? *)"
 
 
 class RefreshSchedule(typing.NamedTuple):
-    """The 6h ranking refresh of one Game Version, and its daily Builds refresh (Game Versions with talents only)."""
+    """Whether the hourly Refresh Planner covers one Game Version, and its daily Builds refresh (Game Versions with talents only).
+
+    `hour_offset` only places the Builds refresh. The planner schedule is enabled while any Game Version is.
+    """
 
     hour_offset: int
     enabled: bool = False
@@ -136,19 +134,24 @@ class LorrgsStack(cdk.Stack):
                 table.grant_read_write_data(fn)
 
         sqs_fn.add_event_source(
-            event_sources.SqsEventSource(main_queue, batch_size=5, max_concurrency=2, report_batch_item_failures=True),
+            event_sources.SqsEventSource(
+                main_queue,
+                batch_size=5,
+                max_concurrency=2,
+                report_batch_item_failures=True,
+            ),
         )
-        sqs_fn.add_event_source(event_sources.SqsEventSource(user_queue, batch_size=1, report_batch_item_failures=True))
+        sqs_fn.add_event_source(
+            event_sources.SqsEventSource(
+                user_queue,
+                batch_size=1,
+                report_batch_item_failures=True,
+            ),
+        )
 
         role = self.schedule_role(main_queue)
+        self.planner_schedule(main_queue, role, enabled=any(refresh.enabled for refresh in schedules.values()))
         for name, refresh in schedules.items():
-            self.schedule(
-                main_queue,
-                role,
-                GAME_VERSIONS[name],
-                refresh_cron(refresh.hour_offset),
-                enabled=refresh.enabled,
-            )
             if GAME_VERSIONS[name].has_talents:
                 self.builds_schedule(
                     main_queue,
@@ -165,7 +168,7 @@ class LorrgsStack(cdk.Stack):
             api_name=self.name("api"),
             default_integration=apigw_integrations.HttpLambdaIntegration(
                 id="api-integration",
-                handler=api_fn,  # ty: ignore[invalid-argument-type]
+                handler=api_fn,
             ),
         )
         distribution = self.distribution(http_api)
@@ -214,40 +217,22 @@ class LorrgsStack(cdk.Stack):
             environment=self.lambda_env,
         )
 
-    def schedule(
-        self,
-        queue: sqs.Queue,
-        role: iam.Role,
-        game_version: GameVersion,
-        cron: str,
-        *,
-        enabled: bool,
-    ) -> None:
-        """Rankings refresh of one Game Version."""
-        payload = {
-            "task": "load_spec_rankings",
-            "game_version": game_version.name,
-            "spec_slug": "all",
-            "boss_slug": "all",
-            "difficulty": AUTO_DIFFICULTY,
-            "metric": "all",
-            "limit": 50,
-            "clear": False,
-        }
+    def planner_schedule(self, queue: sqs.Queue, role: iam.Role, *, enabled: bool) -> None:
+        """Hourly Refresh Planner: queues the Spec Ranking Refreshes of every Game Version with updates enabled."""
         scheduler.CfnSchedule(
             self,
-            f"schedule-{game_version.name}",
-            name=self.name(f"load_spec_rankings-{game_version.name}"),
+            "planner-schedule",
+            name=self.name("plan_spec_rankings"),
             state="ENABLED" if enabled else "DISABLED",
-            schedule_expression=cron,
+            schedule_expression=PLANNER_CRON,
             schedule_expression_timezone="Europe/London",
-            flexible_time_window={"mode": "FLEXIBLE", "maximumWindowInMinutes": 15},
+            flexible_time_window={"mode": "OFF"},
             target={
                 "arn": queue.queue_arn,
                 "roleArn": role.role_arn,
-                "input": json.dumps(payload),
-                "sqsParameters": {"messageGroupId": f"{game_version.name}-load_spec_rankings"},
-                "retryPolicy": {"maximumEventAgeInSeconds": 86400, "maximumRetryAttempts": 0},
+                "input": json.dumps({"task": "plan_spec_rankings"}),
+                "sqsParameters": {"messageGroupId": "plan_spec_rankings"},
+                "retryPolicy": {"maximumEventAgeInSeconds": 3600, "maximumRetryAttempts": 0},
             },
         )
 
