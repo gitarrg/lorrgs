@@ -49,7 +49,7 @@ class TalentScope:
     """Entries counting towards the distance: hero and spec talents. Class talents are left out."""
 
     hero_trees: Mapping[int, str]
-    """Entry id -> slug of its hero tree, for the entries of a hero tree."""
+    """Entry id -> slug of its hero tree, for the entries of a hero tree and the hero tree selection."""
 
 
 @dataclasses.dataclass(frozen=True)
@@ -95,12 +95,15 @@ class BuildSettings(pydantic.BaseModel):
 
 
 class DefiningTalents(pydantic.BaseModel):
-    """What sets a Build apart from the others, within the counted (hero and spec) talents. Entry id -> rank."""
+    """What sets a Build apart from the others on its hero tree, within the counted (hero and spec) talents.
+
+    Entry id -> rank. Empty for a Build alone on its hero tree: the hero tree stands in.
+    """
 
     has: dict[int, int] = {}
-    """Talents of this Build that no other Build has."""
+    """Talents of this Build that no other Build on its hero tree has."""
     lacks: dict[int, int] = {}
-    """Talents that every other Build has and this one lacks."""
+    """Talents that every other Build on its hero tree has and this one lacks."""
 
 
 class Build(pydantic.BaseModel):
@@ -180,9 +183,10 @@ def assign_talents(talents: Mapping[int, int], builds: BuildsResult | SpecBuilds
 
 
 def _defining(mains: Sequence[_Point]) -> list[DefiningTalents]:
+    """Compared with the other Builds on the same hero tree only: the hero tree already sets it apart from the rest."""
     result = []
     for index, main in enumerate(mains):
-        others = [m.ranks for i, m in enumerate(mains) if i != index]
+        others = [m.ranks for i, m in enumerate(mains) if i != index and m.group[0] == main.group[0]]
         if not others:
             result.append(DefiningTalents())
             continue

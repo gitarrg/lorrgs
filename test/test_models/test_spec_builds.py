@@ -160,3 +160,17 @@ def test_max_builds():
         pool += [talents(i, *HERO_A)] * 10
     result = find_builds(pool, SCOPE)
     assert len(result.builds) <= spec_builds.MAX_BUILDS
+
+
+def test_defining_talents_compare_within_the_hero_tree():
+    a = talents(1, 2, 3, 4, *HERO_A)
+    b = talents(1, 2, 3, 5, *HERO_A)
+    c = talents(6, 7, 8, 9, *HERO_B)  # alone on its hero tree: the tree stands in
+    result = find_builds(pool_of((40, a), (35, b), (25, c)), SCOPE)
+
+    by_tree = {build.hero_tree: build for build in result.builds if build.hero_tree == "tree-b"}
+    assert by_tree["tree-b"].defining.has == {}
+    assert by_tree["tree-b"].defining.lacks == {}
+    build_a = next(build for build in result.builds if 4 in build.talents)
+    assert build_a.defining.has == {4: 1}
+    assert build_a.defining.lacks == {5: 1}
