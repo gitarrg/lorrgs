@@ -1,4 +1,4 @@
-"""Every served Spec Ranking logs one view line, counted with CloudWatch Logs Insights (#130)."""
+"""Every served Spec Ranking logs one view line (with the resolved difficulty), counted with CloudWatch Logs Insights (#130)."""
 
 from __future__ import annotations
 
@@ -16,7 +16,7 @@ def test_a_served_ranking_logs_a_view_with_its_metric(monkeypatch, caplog) -> No
     views = [r.getMessage() for r in caplog.records if r.getMessage().startswith("spec_ranking_view")]
     assert views == [
         "spec_ranking_view game_version=retail spec=mage-fire boss=some-boss "
-        "difficulty=auto metric=dps default_metric=True"
+        "difficulty=mythic metric=dps default_metric=True"
     ]
 
 

@@ -21,6 +21,7 @@ from aws_cdk import (
     aws_apigatewayv2 as apigw,
     aws_apigatewayv2_integrations as apigw_integrations,
     aws_certificatemanager as acm,
+    aws_cloudwatch as cloudwatch,
     aws_cloudfront as cloudfront,
     aws_cloudfront_origins as origins,
     aws_dynamodb as dynamodb,
@@ -62,6 +63,13 @@ SPEC_RANKING_VIEWS_QUERY = """filter @message like "spec_ranking_view"
 | stats count() as views by gv, metric, is_default, bin(1d) as day
 | sort day desc, gv, views desc"""
 """Logs Insights: Spec Ranking views per Game Version, metric and day (#130). Counts cache misses only."""
+
+
+def spec_ranking_difficulties_query(game_version: str) -> str:
+    """Logs Insights: one Game Version's Spec Ranking views per difficulty and day, as a time series."""
+    return f"""filter @message like "spec_ranking_view game_version={game_version} "
+| parse @message "difficulty=* metric=" as difficulty
+| stats count() as views by bin(1d), difficulty"""
 
 # Existing cert for lorrgs.io and *.lorrgs.io. CloudFront requires it to live in us-east-1.
 # Read at stack construction, after `dotenv.load_dotenv()` in infra/app.py.
@@ -180,13 +188,7 @@ class LorrgsStack(cdk.Stack):
         )
         distribution = self.distribution(http_api)
 
-        logs.CfnQueryDefinition(
-            self,
-            "spec-ranking-views",
-            name=f"{self.prefix}/spec-ranking-views",
-            query_string=SPEC_RANKING_VIEWS_QUERY,
-            log_group_names=[f"/aws/lambda/{api_fn.function_name}"],
-        )
+        self.views_dashboard(api_fn)
 
         cdk.CfnOutput(self, "DistributionDomain", value=distribution.distribution_domain_name)
 
@@ -230,6 +232,35 @@ class LorrgsStack(cdk.Stack):
             memory_size=512,
             timeout=cdk.Duration.seconds(timeout),
             environment=self.lambda_env,
+        )
+
+    def views_dashboard(self, api_fn: lambda_.Function) -> None:
+        """Spec Ranking views (#130): a saved Logs Insights query, and a dashboard graphing difficulties."""
+        log_groups = [f"/aws/lambda/{api_fn.function_name}"]
+        logs.CfnQueryDefinition(
+            self,
+            "spec-ranking-views",
+            name=f"{self.prefix}/spec-ranking-views",
+            query_string=SPEC_RANKING_VIEWS_QUERY,
+            log_group_names=log_groups,
+        )
+        cloudwatch.Dashboard(
+            self,
+            "spec-ranking-views-dashboard",
+            dashboard_name=self.name("spec-ranking-views"),
+            start="-P14D",
+            widgets=[
+                [
+                    cloudwatch.LogQueryWidget(
+                        title=f"{version.title}: Spec Ranking views per difficulty",
+                        log_group_names=log_groups,
+                        query_string=spec_ranking_difficulties_query(version.name),
+                        view=cloudwatch.LogQueryVisualizationType.LINE,
+                        width=24,
+                    ),
+                ]
+                for version in GAME_VERSIONS.values()
+            ],
         )
 
     def planner_schedule(self, queue: sqs.Queue, role: iam.Role, *, enabled: bool) -> None:
