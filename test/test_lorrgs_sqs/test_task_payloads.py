@@ -121,6 +121,7 @@ def test_spec_ranking_handler_loads_into_the_requested_game_versions_ranking() -
         mock.patch.object(SpecRanking, "get", classmethod(lambda cls, **kwargs: None)),
         mock.patch.object(SpecRanking, "save", lambda self: saved.append(self)),
         mock.patch.object(load_spec_rankings.SpecRankingLoader, "load", fake_load),
+        mock.patch.object(load_spec_rankings, "has_points_to_spare", mock.AsyncMock(return_value=True)),
     ):
         assert asyncio.run(load_spec_rankings.load_spec_rankings(payload)) == (True, "done")
 

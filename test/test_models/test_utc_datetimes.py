@@ -84,8 +84,8 @@ def test_mixed_naive_and_aware_stored_times_compare() -> None:
 
     assert fight.start_time_rel == 60_000
     assert fight.end_time > ranking.reports[0].start_time
-    assert ranking.needs_refresh(limit=1, now=EXPECTED + datetime.timedelta(hours=3)) is True
-    assert ranking.needs_refresh(limit=1, now=EXPECTED + datetime.timedelta(hours=1)) is False
+    assert ranking.needs_refresh(now=EXPECTED + datetime.timedelta(hours=3)) is True
+    assert ranking.needs_refresh(now=EXPECTED + datetime.timedelta(hours=1)) is False
 
 
 def test_unloaded_report_start_time_has_a_timestamp() -> None:

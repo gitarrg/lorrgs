@@ -58,6 +58,14 @@ _Avoid_: talent build, loadout, spec (alone)
 **Refresh**:
 Re-fetching a ranking's top Fights from Warcraft Logs and loading the new ones. A ranking is only refreshed when it is stale or Dirty.
 
+**Refresh Planner**:
+The hourly job that picks the Spec Rankings to refresh: the ones least recently refreshed, as many as fit the Refresh Budget, across every Game Version.
+_Avoid_: scheduler, refresh schedule
+
+**Refresh Budget**:
+The Warcraft Logs points the Refresh Planner may spend in one hour: the hourly limit minus a reserve kept for User Reports and manual refreshes.
+_Avoid_: quota, rate limit (that is Warcraft Logs' own limit)
+
 **Dirty**:
 A ranking flagged for a full reload, because the data it was loaded with changed (e.g. a spell was added). A Dirty ranking is refreshed at the next opportunity, however recently it was last refreshed.
 
