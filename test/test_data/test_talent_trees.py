@@ -168,6 +168,7 @@ def test_node_and_entry_data(tmp_path: pathlib.Path) -> None:
         "max_ranks": 2,
         "tree": "class",
         "hero_tree": None,
+        "hero_tree_slug": None,
         "entries": [
             {
                 "id": 1000,
@@ -181,6 +182,14 @@ def test_node_and_entry_data(tmp_path: pathlib.Path) -> None:
     assert nodes[30]["type"] == "hero_selection"
     assert nodes[30]["entries"][0]["name"] == "Heroes"  # no spell: named after the Sub Tree
     assert nodes[31]["hero_tree"] == "Heroes"
+    assert nodes[31]["hero_tree_slug"] == "heroes"
+
+
+def test_hero_tree_slug() -> None:
+    assert talent_trees.hero_tree_slug("Elune's Chosen") == "elunes-chosen"
+    assert talent_trees.hero_tree_slug("San'layn") == "sanlayn"
+    assert talent_trees.hero_tree_slug("Fel-Scarred") == "fel-scarred"
+    assert talent_trees.hero_tree_slug("Conduit of the Celestials") == "conduit-of-the-celestials"
 
 
 def test_edges_and_node_order(tmp_path: pathlib.Path) -> None:
@@ -207,6 +216,15 @@ def test_holy_paladin_spot_check() -> None:
     heroes = {n["hero_tree"] for n in tree["nodes"] if n["tree"] == "hero"} - {None}
     assert heroes == {"Lightsmith", "Herald of the Sun"}
     assert {n["tree"] for n in tree["nodes"]} == {"class", "spec", "hero"}
+
+
+def test_every_hero_tree_has_an_icon() -> None:
+    icons = pathlib.Path(__file__).parents[2] / "lorrgs_assets" / "images" / "hero_trees"
+    slugs = {
+        n["hero_tree_slug"] for tree in talent_trees.load_spec_trees().values() for n in tree["nodes"] if n["hero_tree"]
+    }
+    assert len(slugs) == 41
+    assert {p.stem for p in icons.glob("*.png")} == slugs
 
 
 def test_every_retail_spec_has_a_tree() -> None:

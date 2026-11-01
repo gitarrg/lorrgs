@@ -12,6 +12,7 @@ import csv
 import functools
 import json
 import pathlib
+import re
 import typing
 
 
@@ -165,6 +166,14 @@ class _Db2:
         }
 
 
+def hero_tree_slug(name: str) -> str:
+    """Slug of a hero tree name, as used for its icon: "Elune's Chosen" -> "elunes-chosen".
+
+    Hero tree names are unique across classes, unlike the ids of their Sub Trees (the Shaman specs have several).
+    """
+    return re.sub(r"[^a-z0-9]+", "-", name.lower().replace("'", "")).strip("-")
+
+
 def _is_hero(node: dict[str, str]) -> bool:
     return node["TraitSubTreeID"] != "0" or node["Type"] == "3"
 
@@ -238,6 +247,7 @@ def _build_spec_tree(db2: _Db2, spec_id: str, tree_id: str) -> dict[str, typing.
             section = "class"
         else:
             section = "spec"
+        hero_tree = db2.sub_tree_names.get(node["TraitSubTreeID"]) if section == "hero" else None
         nodes.append({
             "id": int(node_id),
             "x": int(node["PosX"]),
@@ -245,7 +255,8 @@ def _build_spec_tree(db2: _Db2, spec_id: str, tree_id: str) -> dict[str, typing.
             "type": NODE_TYPES.get(node["Type"], "single"),
             "max_ranks": max_ranks,
             "tree": section,
-            "hero_tree": db2.sub_tree_names.get(node["TraitSubTreeID"]) if section == "hero" else None,
+            "hero_tree": hero_tree,
+            "hero_tree_slug": hero_tree_slug(hero_tree) if hero_tree else None,
             "entries": entries,
         })
 
