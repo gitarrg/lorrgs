@@ -58,8 +58,8 @@ SECRETS = (
 """Copied from the deploying environment (`.env` locally) onto the Lambdas."""
 
 SPEC_RANKING_VIEWS_QUERY = """filter @message like "spec_ranking_view"
-| parse @message "game_version=* spec=* boss=* difficulty=* metric=* metric_given=*" as gv, spec, boss, difficulty, metric, given
-| stats count() as views by gv, metric, bin(1d) as day
+| parse @message "game_version=* spec=* boss=* difficulty=* metric=* default_metric=*" as gv, spec, boss, difficulty, metric, is_default
+| stats count() as views by gv, metric, is_default, bin(1d) as day
 | sort day desc, gv, views desc"""
 """Logs Insights: Spec Ranking views per Game Version, metric and day (#130). Counts cache misses only."""
 
