@@ -8,7 +8,7 @@ import fastapi
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients import sqs
 from lorgs.logger import logger
-from lorgs.models import selectors, warcraftlogs_ranking
+from lorgs.models import ranking_status, selectors, warcraftlogs_ranking
 from lorgs.models.dirty_marker import DirtyMarker
 from lorgs.models.raid_zone import AUTO_DIFFICULTY
 from lorgs.models.task_payloads import SpecRankingPayload
@@ -16,6 +16,31 @@ from lorrgs_api.dependencies import GameVersionDep
 
 
 router = fastapi.APIRouter(tags=["spec_ranking"], prefix="/spec_ranking")
+
+
+@router.get("/status")
+async def get_spec_ranking_status(game_version: GameVersionDep, response: fastapi.Response):
+    """When every Spec Ranking of the current season was last refreshed and since when it is Dirty.
+
+    The same view the Refresh Planner has: S3 `LastModified` and the Dirty markers.
+    """
+    response.headers["Cache-Control"] = "no-cache"
+
+    payloads = ranking_status.get_ranking_payloads(game_version)
+    data = game_version.data
+    return [
+        {
+            "spec_slug": payloads[candidate.key].spec_slug,
+            "boss_slug": payloads[candidate.key].boss_slug,
+            "difficulty": payloads[candidate.key].difficulty,
+            "metric": payloads[candidate.key].metric,
+            "is_default_metric": payloads[candidate.key].metric
+            == selectors.default_metric(data.get_spec(payloads[candidate.key].spec_slug)),
+            "last_refreshed": candidate.last_refreshed,
+            "dirty_since": candidate.dirty_since,
+        }
+        for candidate in ranking_status.get_candidates(game_version, payloads)
+    ]
 
 
 @router.get("/{spec_slug}/{boss_slug}")
