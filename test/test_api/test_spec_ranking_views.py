@@ -16,7 +16,7 @@ def test_a_served_ranking_logs_a_view_with_its_metric(monkeypatch, caplog) -> No
     views = [r.getMessage() for r in caplog.records if r.getMessage().startswith("spec_ranking_view")]
     assert views == [
         "spec_ranking_view game_version=retail spec=mage-fire boss=some-boss "
-        "difficulty=auto metric=dps metric_given=False"
+        "difficulty=auto metric=dps default_metric=True"
     ]
 
 
@@ -30,3 +30,13 @@ def test_a_missing_ranking_logs_no_view(monkeypatch, caplog) -> None:
         get_api_routes("/api/retail/spec_ranking/mage-fire/some-boss")
 
     assert not [r for r in caplog.records if r.getMessage().startswith("spec_ranking_view")]
+
+
+def test_a_view_of_another_metric_is_not_the_default(monkeypatch, caplog) -> None:
+    monkeypatch.setattr(api_spec_rankings.warcraftlogs_ranking.SpecRanking, "get_raw", lambda **kwargs: "{}")
+
+    with caplog.at_level("INFO", logger="Lorgs"):
+        get_api_routes("/api/retail/spec_ranking/mage-fire/some-boss?metric=bossdps")
+
+    views = [r.getMessage() for r in caplog.records if r.getMessage().startswith("spec_ranking_view")]
+    assert [view.rsplit(" ", 2)[1:] for view in views] == [["metric=bossdps", "default_metric=False"]]
