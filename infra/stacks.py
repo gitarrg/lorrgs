@@ -27,6 +27,7 @@ from aws_cdk import (
     aws_iam as iam,
     aws_lambda as lambda_,
     aws_lambda_event_sources as event_sources,
+    aws_logs as logs,
     aws_s3 as s3,
     aws_scheduler as scheduler,
     aws_sqs as sqs,
@@ -55,6 +56,12 @@ SECRETS = (
     "SECRET_KEY",
 )
 """Copied from the deploying environment (`.env` locally) onto the Lambdas."""
+
+SPEC_RANKING_VIEWS_QUERY = """filter @message like "spec_ranking_view"
+| parse @message "game_version=* spec=* boss=* difficulty=* metric=* metric_given=*" as gv, spec, boss, difficulty, metric, given
+| stats count() as views by gv, metric, bin(1d) as day
+| sort day desc, gv, views desc"""
+"""Logs Insights: Spec Ranking views per Game Version, metric and day (#130). Counts cache misses only."""
 
 # Existing cert for lorrgs.io and *.lorrgs.io. CloudFront requires it to live in us-east-1.
 # Read at stack construction, after `dotenv.load_dotenv()` in infra/app.py.
@@ -172,6 +179,14 @@ class LorrgsStack(cdk.Stack):
             ),
         )
         distribution = self.distribution(http_api)
+
+        logs.CfnQueryDefinition(
+            self,
+            "spec-ranking-views",
+            name=f"{self.prefix}/spec-ranking-views",
+            query_string=SPEC_RANKING_VIEWS_QUERY,
+            log_group_names=[f"/aws/lambda/{api_fn.function_name}"],
+        )
 
         cdk.CfnOutput(self, "DistributionDomain", value=distribution.distribution_domain_name)
 

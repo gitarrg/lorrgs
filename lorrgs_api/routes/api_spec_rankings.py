@@ -52,9 +52,8 @@ async def get_spec_ranking(
     metric: str = "",
 ):
     """Get the Rankings for a given Spec and Boss."""
+    metric_given = bool(metric)
     metric = metric or selectors.default_metric(game_version.data.get_spec(spec_slug))
-
-    logger.info(f"{spec_slug}/{boss_slug} | start ({difficulty}/{metric})")
 
     try:
         # Serve the stored json as it is, without parsing and re-encoding it on every request.
@@ -67,6 +66,12 @@ async def get_spec_ranking(
         )
     except KeyError as e:
         raise fastapi.HTTPException(status_code=404, detail="Not found.") from e
+
+    # Counted with CloudWatch Logs Insights (#130). Only cache misses reach the Lambda.
+    logger.info(
+        f"spec_ranking_view game_version={game_version.name} spec={spec_slug} boss={boss_slug} "
+        f"difficulty={difficulty} metric={metric} metric_given={metric_given}"
+    )
 
     # shorter cache timeout for the start of the tier (where frequent changes happen).
     # Set on the returned Response: FastAPI drops headers set on an injected one.
