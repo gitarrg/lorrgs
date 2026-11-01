@@ -56,12 +56,13 @@ async def get_spec_ranking(
     metric = metric or default_metric
 
     try:
+        difficulty = game_version.data.resolve_difficulty(boss_slug, difficulty)
         # Serve the stored json as it is, without parsing and re-encoding it on every request.
         body = warcraftlogs_ranking.SpecRanking.get_raw(
             game_version=game_version.name,
             boss_slug=boss_slug,
             spec_slug=spec_slug,
-            difficulty=game_version.data.resolve_difficulty(boss_slug, difficulty),
+            difficulty=difficulty,
             metric=metric,
         )
     except KeyError as e:
