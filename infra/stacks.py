@@ -60,7 +60,7 @@ SECRETS = (
 
 SPEC_RANKING_VIEWS_QUERY = """filter @message like "spec_ranking_view"
 | parse @message "game_version=* spec=* boss=* difficulty=* metric=* default_metric=*" as gv, spec, boss, difficulty, metric, is_default
-| stats count() as views by gv, metric, is_default, bin(1d) as day
+| stats count() as views by gv, metric, is_default, bin(1h) as day
 | sort day desc, gv, views desc"""
 """Logs Insights: Spec Ranking views per Game Version, metric and day (#130). Counts cache misses only."""
 
@@ -69,7 +69,8 @@ def spec_ranking_difficulties_query(game_version: str) -> str:
     """Logs Insights: one Game Version's Spec Ranking views per difficulty and day, as a time series."""
     return f"""filter @message like "spec_ranking_view game_version={game_version} "
 | parse @message "difficulty=* metric=" as difficulty
-| stats count() as views by bin(1d), difficulty"""
+| stats count() as views by bin(1h), difficulty"""
+
 
 # Existing cert for lorrgs.io and *.lorrgs.io. CloudFront requires it to live in us-east-1.
 # Read at stack construction, after `dotenv.load_dotenv()` in infra/app.py.
@@ -78,8 +79,8 @@ def spec_ranking_difficulties_query(game_version: str) -> str:
 REFRESH_INTERVAL_HOURS = 6
 
 
-PLANNER_CRON = "cron(1 * * * ? *)"
-"""Minute 1 of every hour: Warcraft Logs resets the points on the hour."""
+PLANNER_CRON = "cron(5,25,45 * * * ? *)"
+"""Minute 5, 25 and 45 of every hour: Warcraft Logs resets the points on the hour."""
 
 
 def builds_cron(hour_offset: int) -> str:
