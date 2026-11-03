@@ -5,7 +5,6 @@ from __future__ import annotations
 # IMPORT LOCAL LIBRARIES
 from lorgs.clients.wcl import WarcraftlogsClient
 from lorgs.loaders.spec_ranking import SpecRankingLoader
-from lorgs.logger import logger
 from lorgs.models import selectors, warcraftlogs_ranking
 from lorgs.models.task_payloads import SpecRankingPayload
 from lorrgs_sqs.exceptions import TaskValidationError
@@ -13,8 +12,6 @@ from lorrgs_sqs.exceptions import TaskValidationError
 
 async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
     """Load the Spec Ranking Data from Warcraftlogs and save it to the Database."""
-    logger.info(f"loading: {payload} vs {payload.spec_slug} | {payload.difficulty=}")
-
     game_version = payload.get_game_version()
     game_data = game_version.data
     if not game_data.get_boss(full_name_slug=payload.boss_slug):
@@ -36,7 +33,6 @@ async def load_spec_rankings(payload: SpecRankingPayload) -> tuple[bool, str]:
     clear = payload.clear or payload.dirty
     needs_refresh = clear or ranking.needs_refresh()
     if not needs_refresh:
-        logger.info(f"already updated: {payload=}")
         return True, "already updated"
 
     client = WarcraftlogsClient.get_instance()

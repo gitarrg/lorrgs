@@ -47,5 +47,4 @@ class ReportLoader:
             plan = FightPlan(fight=fight, players=player_ids or None, boss=load_boss)
             plans.append(plan)
 
-        logger.info(f"load {len(plans)} fights")
         return await load_fights(plans, self.game_data, client=client)

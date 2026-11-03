@@ -180,7 +180,11 @@ class SpecRankingLoader(BaseLoader):
             clear_old: If True, old reports will be deleted.
 
         """
-        logger.info(f"{self.boss.name} vs. {self.spec.name} START | {limit=} | {clear_old=}")
+        boss = self.boss.name
+        spec = self.spec.name
+        difficulty = self.ranking.difficulty
+        metric = self.ranking.metric
+        logger.info(f"{boss=} {spec=} {difficulty=} {metric=} {limit=} {clear_old=}")
 
         ###########################
         # Step 1: Fetch rankings
@@ -223,7 +227,6 @@ class SpecRankingLoader(BaseLoader):
             self.ranking.reports = [report for report in self.ranking.reports if report.report_id not in skipped_ids]
 
         self.ranking.updated = datetime.datetime.now(datetime.UTC)
-        logger.info("done")
 
     @staticmethod
     async def _load_report(

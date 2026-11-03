@@ -25,6 +25,13 @@ async def plan_spec_rankings(*, dry_run: bool = False) -> tuple[bool, str]:
     Last hour's tasks may still be queued: `SpecRanking.needs_refresh` turns those duplicates into cheap skips.
     """
     info = await WarcraftlogsClient.get_instance().get_rate_info()
+    # Read by the saved query `lorrgs/wcl-points` and the spec-ranking-views dashboard.
+    logger.info(
+        "wcl_points spent=%s limit=%s reset_in=%s",
+        int(info.get("pointsSpentThisHour") or 0),
+        int(info.get("limitPerHour") or 0),
+        int(info.get("pointsResetIn") or 0),
+    )
     budget = refresh_planner.get_budget(
         info.get("limitPerHour", 0),
         info.get("pointsSpentThisHour", 0),

@@ -49,18 +49,14 @@ This is required when lambda reuses the same instance for subsequent runs
 
 def submit_messages(queue_url: str, messages: list[dict], chunk_size: int = 10) -> None:
     """Submit messages to the queue in chunks."""
-    logger.info(f"submit_messages: {messages=}")
-
     # Inject IDs
     messages = [{"Id": str(i), **msg} for i, msg in enumerate(messages)]
 
     for entries in utils.chunks(messages, n=chunk_size):
-        logger.info(f"entries: {entries=}")
-        response = SQS_CLIENT.send_message_batch(
+        SQS_CLIENT.send_message_batch(
             QueueUrl=queue_url,
             Entries=entries,  # ty: ignore[invalid-argument-type]
         )
-        logger.info(f"response: {response=}")
 
 
 async def process_message(message: dict) -> None:
@@ -116,7 +112,6 @@ async def process_messages(messages: list) -> dict[str, typing.Any]:
 
 def handler(event, context=None) -> None:  # ruff: ignore[unused-function-argument]
     """Main Handler called by Lambda."""
-    logger.info(f"handler: {event=}")
     records = event.get("Records") or []
 
     # We can not use `asyncio.run` here as it creates and closes fresh loop
@@ -124,5 +119,3 @@ def handler(event, context=None) -> None:  # ruff: ignore[unused-function-argume
     # This interferes with shared instances (eg.: the `aiohttp.ClientSession`)
     # that are bound to a given loop.
     loop.run_until_complete(process_messages(records))
-
-    logger.info("handler done.")

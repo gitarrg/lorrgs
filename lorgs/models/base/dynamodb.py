@@ -12,7 +12,6 @@ import boto3
 from boto3.dynamodb.conditions import Attr
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.logger import Timer
 from lorgs.models.base import base
 
 
@@ -52,15 +51,13 @@ class DynamoDBModel(base.BaseModel):
         table = cls.get_table()
         keys = cls.get_keys(**kwargs)
 
-        with Timer(f"GET: {kwargs}"):
-            response = table.get_item(Key=keys)
+        response = table.get_item(Key=keys)
         try:
             item = response["Item"]
         except KeyError:
             return None
 
-        with Timer(f"PARSE: {kwargs}"):
-            return cls(**item)
+        return cls(**item)
 
     @classmethod
     def first(cls, **kwargs: typing.Any) -> typing.Self | None:

@@ -21,9 +21,9 @@ from aws_cdk import (
     aws_apigatewayv2 as apigw,
     aws_apigatewayv2_integrations as apigw_integrations,
     aws_certificatemanager as acm,
-    aws_cloudwatch as cloudwatch,
     aws_cloudfront as cloudfront,
     aws_cloudfront_origins as origins,
+    aws_cloudwatch as cloudwatch,
     aws_dynamodb as dynamodb,
     aws_iam as iam,
     aws_lambda as lambda_,
@@ -70,6 +70,12 @@ def spec_ranking_difficulties_query(game_version: str) -> str:
     return f"""filter @message like "spec_ranking_view game_version={game_version} "
 | parse @message "difficulty=* metric=" as difficulty
 | stats count() as views by bin(1h), difficulty"""
+
+
+WCL_POINTS_QUERY = """filter @message like "wcl_points "
+| parse @message "spent=* limit=* reset_in=*" as spent, limit, reset_in
+| stats max(spent * 1) as spent, max(limit * 1) as limit by bin(1h)"""
+"""Logs Insights: Warcraft Logs points spent and the hourly limit, from the Refresh Planner."""
 
 
 # Existing cert for lorrgs.io and *.lorrgs.io. CloudFront requires it to live in us-east-1.
@@ -189,7 +195,7 @@ class LorrgsStack(cdk.Stack):
         )
         distribution = self.distribution(http_api)
 
-        self.views_dashboard(api_fn)
+        self.views_dashboard(api_fn, sqs_fn)
 
         cdk.CfnOutput(self, "DistributionDomain", value=distribution.distribution_domain_name)
 
@@ -235,15 +241,23 @@ class LorrgsStack(cdk.Stack):
             environment=self.lambda_env,
         )
 
-    def views_dashboard(self, api_fn: lambda_.Function) -> None:
-        """Spec Ranking views (#130): a saved Logs Insights query, and a dashboard graphing difficulties."""
-        log_groups = [f"/aws/lambda/{api_fn.function_name}"]
+    def views_dashboard(self, api_fn: lambda_.Function, sqs_fn: lambda_.Function) -> None:
+        """Spec Ranking views (#130) and Warcraft Logs points: saved queries, and the dashboard."""
+        api_logs = [f"/aws/lambda/{api_fn.function_name}"]
+        sqs_logs = [f"/aws/lambda/{sqs_fn.function_name}"]
         logs.CfnQueryDefinition(
             self,
             "spec-ranking-views",
             name=f"{self.prefix}/spec-ranking-views",
             query_string=SPEC_RANKING_VIEWS_QUERY,
-            log_group_names=log_groups,
+            log_group_names=api_logs,
+        )
+        logs.CfnQueryDefinition(
+            self,
+            "wcl-points",
+            name=f"{self.prefix}/wcl-points",
+            query_string=WCL_POINTS_QUERY,
+            log_group_names=sqs_logs,
         )
         cloudwatch.Dashboard(
             self,
@@ -253,14 +267,25 @@ class LorrgsStack(cdk.Stack):
             widgets=[
                 [
                     cloudwatch.LogQueryWidget(
-                        title=f"{version.title}: Spec Ranking views per difficulty",
-                        log_group_names=log_groups,
-                        query_string=spec_ranking_difficulties_query(version.name),
+                        title="Warcraft Logs points spent",
+                        log_group_names=sqs_logs,
+                        query_string=WCL_POINTS_QUERY,
                         view=cloudwatch.LogQueryVisualizationType.LINE,
                         width=24,
                     ),
-                ]
-                for version in GAME_VERSIONS.values()
+                ],
+                *[
+                    [
+                        cloudwatch.LogQueryWidget(
+                            title=f"{version.title}: Spec Ranking views per difficulty",
+                            log_group_names=api_logs,
+                            query_string=spec_ranking_difficulties_query(version.name),
+                            view=cloudwatch.LogQueryVisualizationType.LINE,
+                            width=24,
+                        ),
+                    ]
+                    for version in GAME_VERSIONS.values()
+                ],
             ],
         )
 

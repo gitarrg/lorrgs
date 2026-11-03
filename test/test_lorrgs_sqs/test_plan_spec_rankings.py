@@ -71,3 +71,9 @@ def test_dirty_rankings_are_queued_as_dirty(monkeypatch):
 def test_dry_run_queues_nothing(monkeypatch):
     _, sent = _run(monkeypatch, last_modified={}, dirty={}, dry_run=True)
     assert sent == []
+
+
+def test_logs_the_points_left_this_hour(monkeypatch, caplog):
+    with caplog.at_level("INFO", logger="Lorgs"):
+        _run(monkeypatch, last_modified={}, dirty={})
+    assert "wcl_points spent=0 limit=100 reset_in=0" in caplog.text

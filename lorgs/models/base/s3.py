@@ -5,6 +5,7 @@ from __future__ import annotations
 # IMPORT STANDARD LIBRARIES
 import json
 import os
+import time
 from typing import Any, ClassVar, Self, TypeVar
 
 # IMPORT THIRD PARTY LIBRARIES
@@ -12,7 +13,7 @@ import boto3
 from botocore.exceptions import ClientError
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.logger import Timer
+from lorgs.logger import logger
 from lorgs.models.base import base
 
 
@@ -39,13 +40,16 @@ class S3Model(base.BaseModel):
     def get_raw(cls, **kwargs: Any) -> bytes:
         """The stored JSON as bytes, without parsing it."""
         key = cls.get_key(**kwargs)
+        started = time.perf_counter()
         try:
-            with Timer(f"s3.get_raw: {key}"):
-                data = s3client.get_object(Bucket=cls.bucket, Key=key)
+            data = s3client.get_object(Bucket=cls.bucket, Key=key)
         except ClientError as e:
             raise KeyError("Invalid Key: %s", key) from e
 
-        return data["Body"].read()
+        body = data["Body"].read()
+        duration_ms = (time.perf_counter() - started) * 1000
+        logger.info(f"{key=} {duration_ms=:.2f}")
+        return body
 
     @classmethod
     def get_json(cls, **kwargs: Any) -> Any:

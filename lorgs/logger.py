@@ -1,12 +1,9 @@
 """Define and setup Logger-Instances."""
 
 import datetime
-import functools
-import inspect
 import logging
 import os
 import time
-from collections.abc import Callable
 from typing import Self
 
 
@@ -31,9 +28,11 @@ logger = logging.getLogger("Lorgs")
 
 formatter = DeltaTimeFormatter(LOG_FORMAT)
 
-handler = logging.StreamHandler()
-handler.setFormatter(formatter)
-logger.addHandler(handler)
+# Lambda logs whatever reaches the root logger. A handler here would write every line a second time.
+if not os.getenv("AWS_LAMBDA_FUNCTION_NAME"):
+    handler = logging.StreamHandler()
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
 
 if os.getenv("DEBUG"):
     logger.setLevel(logging.DEBUG)
@@ -60,23 +59,3 @@ class Timer:
         self.elapsed_time = time.time() - self.start_time
         if self.print_on_exit:
             self.print()
-
-
-def timeit(func: Callable) -> Callable:
-
-    is_async = inspect.iscoroutinefunction(func)
-    if is_async:
-
-        @functools.wraps(func)
-        async def wrapped(*args, **kwargs):
-            with Timer(func.__name__):  # ty: ignore[unresolved-attribute]
-                return await func(*args, **kwargs)
-
-    else:
-
-        @functools.wraps(func)
-        def wrapped(*args, **kwargs):
-            with Timer(func.__name__):  # ty: ignore[unresolved-attribute]
-                return func(*args, **kwargs)
-
-    return wrapped

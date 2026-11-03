@@ -21,4 +21,11 @@ def test_difficulties_query_matches_only_its_game_version():
 
     query = spec_ranking_difficulties_query("retail")
     assert 'like "spec_ranking_view game_version=retail "' in query  # the space keeps out e.g. `retail_ptr`
-    assert "by bin(1d), difficulty" in query
+    assert "by bin(1h), difficulty" in query
+
+
+def test_points_query_reads_the_planner_line():
+    from infra.stacks import WCL_POINTS_QUERY
+
+    assert 'like "wcl_points "' in WCL_POINTS_QUERY
+    assert "spent=* limit=* reset_in=*" in WCL_POINTS_QUERY

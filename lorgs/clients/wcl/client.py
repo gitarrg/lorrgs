@@ -12,7 +12,7 @@ from http import HTTPStatus
 import aiohttp
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.logger import logger, timeit
+from lorgs.logger import logger
 
 
 # error text we get from Warcraftlogs if a report does not exist.
@@ -117,7 +117,6 @@ class BaseClient:
         """Get new credentials after `rejected_headers` got a 401. Return whether a retry makes sense."""
         return False
 
-    @timeit
     async def query(self, url: str, query: str) -> typing.Any:
         """Executes a "query" to "url".
 
@@ -172,7 +171,6 @@ class WarcraftlogsClient(BaseClient):
         if auth_token:
             self.headers["Authorization"] = "Bearer " + auth_token
 
-        logger.info("NEW CLIENT: %s", self.client_id)
         self._num_queries = 0
         # one token request at a time, shared by all queries waiting on it
         self._auth_lock = asyncio.Lock()
