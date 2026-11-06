@@ -11,7 +11,7 @@ import aws_cdk as cdk
 import dotenv
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data import FOREVER, MISTS, RETAIL
+from lorgs.data import FOREVER, RETAIL
 
 from .stacks import LorrgsStack, RefreshSchedule
 
@@ -22,7 +22,7 @@ ENV = cdk.Environment(account="746912274922", region="eu-west-1")
 # Refresh Planner schedule; which Game Versions it covers is `GameVersion.updates_enabled`.
 SCHEDULES = {
     RETAIL.name: RefreshSchedule(hour_offset=0, enabled=True, builds_enabled=True),
-    MISTS.name: RefreshSchedule(hour_offset=1, enabled=False),
+    # MISTS.name: RefreshSchedule(hour_offset=1, enabled=False),
     FOREVER.name: RefreshSchedule(hour_offset=2, enabled=False),
 }
 
