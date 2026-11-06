@@ -24,16 +24,20 @@ ROGUE_SUBTLETY = WowSpec(id=261, index=3, role=MDPS, wow_class=ROGUE, name="Subt
 # Spells
 #
 # Spellbook
+
 # Blinds the target, causing it to wander disoriented for up to 10 sec. Any damage caused will remove the
 # effect.
-ROGUE.add_spell(spell_id=2094, cooldown=300, duration=10, name="Blind", icon="spell_shadow_mindsteal.jpg")
+# ROGUE.add_spell(spell_id=2094, cooldown=300, duration=10, name="Blind", icon="spell_shadow_mindsteal.jpg")
+
 # The rogue's dodge chance will increase by 50% for 15 sec.
-ROGUE.add_spell(spell_id=5277, cooldown=300, duration=15, name="Evasion", icon="spell_shadow_shadowward.jpg")
+ROGUE.add_spell(spell_id=5277, cooldown=300, duration=15, name="Evasion", icon="spell_shadow_shadowward.jpg", show=False)
+
 # Increases the rogue's movement speed by 70% for 15 sec. Does not break stealth.
-ROGUE.add_spell(spell_id=11305, cooldown=300, duration=15, name="Sprint", icon="ability_rogue_sprint.jpg")
+# ROGUE.add_spell(spell_id=11305, cooldown=300, duration=15, name="Sprint", icon="ability_rogue_sprint.jpg")
+
 # Allows the rogue to vanish from sight, entering an improved stealth mode for 10 sec. Also breaks movement
 # impairing effects. More effective than Vanish (Rank 1).
-ROGUE.add_spell(spell_id=1857, cooldown=300, duration=10, name="Vanish", icon="ability_vanish.jpg")
+# ROGUE.add_spell(spell_id=1857, cooldown=300, duration=10, name="Vanish", icon="ability_vanish.jpg")
 
 # Talents: Assassination
 # When activated, increases the critical strike chance of your next Sinister Strike, Backstab, Ambush,

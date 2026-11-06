@@ -26,12 +26,16 @@ DRUID_RESTORATION = WowSpec(id=105, index=3, role=HEAL, wow_class=DRUID, name="R
 # Spellbook
 # Forces all nearby enemies to focus attacks on you for 6 sec.
 DRUID.add_spell(spell_id=5209, cooldown=600, duration=6, name="Challenging Roar", icon="ability_druid_challangingroar.jpg")
+
 # Increases movement speed by 60% for 15 sec. Does not break prowling.
-DRUID.add_spell(spell_id=9821, cooldown=300, duration=15, name="Dash", icon="ability_druid_dash.jpg")
+DRUID.add_spell(spell_id=9821, cooldown=300, duration=15, name="Dash", icon="ability_druid_dash.jpg", show=False)
+
 # Converts up to 10 Rage per second into health for 10 sec. Each point of Rage is converted into 1% health.
-DRUID.add_spell(spell_id=22842, cooldown=180, duration=10, name="Frenzied Regeneration", icon="ability_bullrush.jpg")
+DRUID.add_spell(spell_id=22842, cooldown=180, duration=10, name="Frenzied Regeneration", icon="ability_bullrush.jpg", show=False)
+
 # Returns the spirit to the body, restoring a dead target to life with 2200 health and 2800 mana.
-DRUID.add_spell(spell_id=20748, cooldown=1800, name="Rebirth", icon="spell_nature_reincarnation.jpg")
+# DRUID.add_spell(spell_id=20748, cooldown=1800, name="Rebirth", icon="spell_nature_reincarnation.jpg", show=False)
+
 # Regenerates all nearby party members within 20 yards for 291 every 2 sec for 10 sec. Druid must channel to
 # maintain the spell.
 DRUID.add_spell(spell_id=9863, cooldown=300, duration=10, name="Tranquility", icon="spell_nature_tranquility.jpg")

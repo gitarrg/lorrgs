@@ -26,9 +26,10 @@ SHAMAN_RESTORATION = WowSpec(id=264, index=3, role=HEAL, wow_class=SHAMAN, name=
 # Spellbook
 # Yanks the caster through the twisting nether back to Hearthstone Location. Speak to an Innkeeper in a
 # different place to change your home location.
-SHAMAN.add_spell(spell_id=556, cooldown=900, name="Astral Recall", icon="spell_nature_astralrecal.jpg")
+# SHAMAN.add_spell(spell_id=556, cooldown=900, name="Astral Recall", icon="spell_nature_astralrecal.jpg")
+
 # Allows you to resurrect yourself upon death with 20% health and mana.
-SHAMAN.add_spell(spell_id=20608, cooldown=3600, name="Reincarnation", icon="spell_nature_reincarnation.jpg")
+# SHAMAN.add_spell(spell_id=20608, cooldown=3600, name="Reincarnation", icon="spell_nature_reincarnation.jpg")
 
 # Talents: Elemental
 # Gain mastery over Lightning, reducing the cast time of your Lightning Bolt spell by 0.5 sec, and removing the

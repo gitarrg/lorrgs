@@ -42,6 +42,6 @@ MAGE_FIRE.add_spell(spell_id=11129, cooldown=180, name="Combustion", icon="spell
 # Talents: Frost
 # You become encased in a block of ice, protecting you from all physical attacks and spells for 10 sec, but
 # during that time you cannot attack, move, or cast spells.
-MAGE_FROST.add_spell(spell_id=11958, cooldown=300, duration=10, name="Ice Block", icon="spell_frost_frost.jpg")
+MAGE_FROST.add_spell(spell_id=11958, cooldown=300, duration=10, name="Ice Block", icon="spell_frost_frost.jpg", show=False)
 # Finishes the remaining cooldown on all your other Frost spells.
 MAGE_FROST.add_spell(spell_id=12472, cooldown=600, name="Cold Snap", icon="spell_frost_wizardmark.jpg")

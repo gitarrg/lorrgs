@@ -34,4 +34,4 @@ HUNTER_BEASTMASTERY.add_spell(spell_id=19574, cooldown=120, duration=18, name="B
 
 # Talents: Survival
 # When activated, increases your Dodge and Parry chance by 25% for 10 sec.
-HUNTER_SURVIVAL.add_spell(spell_id=19263, cooldown=300, duration=10, name="Deterrence", icon="ability_whirlwind.jpg")
+HUNTER_SURVIVAL.add_spell(spell_id=19263, cooldown=300, duration=10, name="Deterrence", icon="ability_whirlwind.jpg", show=False)
