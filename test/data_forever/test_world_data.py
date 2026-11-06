@@ -1,4 +1,4 @@
-"""Seams: the API starts with Forever's world data: classes, specs and the Classic raids and the first class spells."""
+"""Seams: the API starts with Forever's world data: classes, specs, the Classic raids, class cooldowns and racials."""
 
 from lorrgs_sqs.helpers import PAYLOAD_EXPANDERS
 from test.helpers import get_api_routes
@@ -20,11 +20,12 @@ def test_api_starts_and_serves_classes_and_specs() -> None:
     routes = get_api_routes(*WORLD_DATA_ROUTES)
 
     assert {route: status for route, (status, _) in routes.items()} == dict.fromkeys(routes, 200)
-    assert len(routes["/api/forever/classes"][1]) == 9
-    assert len(routes["/api/forever/specs"][1]["specs"]) == 27
+    assert len(routes["/api/forever/classes"][1]) == 10, "9 classes and Other (racials, externals)"
+    assert len(routes["/api/forever/specs"][1]["specs"]) == 29, "27 playable specs and other-racials, other-externals"
     assert len(routes["/api/forever/zones"][1]) == 1
     assert len(routes["/api/forever/bosses"][1]["bosses"]) == 1
     assert "2687" in routes["/api/forever/spells"][1], "Bloodrage"
+    assert "1259799" in routes["/api/forever/spells"][1], "Elune's Light (racial)"
     assert routes["/api/forever/trinkets"][1] == {}
     assert len(routes["/api/forever/seasons/current"][1]["raids"]) == 1
     assert routes["/api/forever/roles"][1]["roles"], "every Game Version has its own roles"

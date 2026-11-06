@@ -125,6 +125,8 @@ def test_every_forever_spec_has_a_tree() -> None:
     from lorgs.data import FOREVER
 
     for spec in FOREVER.data.specs:
+        if not spec.role.playable:
+            continue
         tree = talent_trees.get_spec_tree(FOREVER.name, spec.id)
         assert tree, spec.full_name_slug
         assert tree["max_points"] == 51

@@ -5,6 +5,7 @@ from lorgs.data.forever.classes import (
     DRUID,
     HUNTER,
     MAGE,
+    OTHER,
     PALADIN,
     PRIEST,
     ROGUE,
@@ -12,6 +13,7 @@ from lorgs.data.forever.classes import (
     WARLOCK,
     WARRIOR,
 )
+from lorgs.data.forever.classes.other import ITEM_ROLE
 from lorgs.data.forever.roles import ALL_ROLES
 from lorgs.data.forever.seasons import FOREVER_SEASON
 from lorgs.models.difficulty import RaidDifficulty
@@ -20,11 +22,15 @@ from lorgs.models.game_version import GameVersion, TalentTreeStyle
 
 
 GAME_DATA = GameData(
-    roles=ALL_ROLES,
+    roles=[
+        *ALL_ROLES,
+        ITEM_ROLE,
+    ],
     classes=[
         DRUID,
         HUNTER,
         MAGE,
+        OTHER,
         PALADIN,
         PRIEST,
         ROGUE,
