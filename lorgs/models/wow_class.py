@@ -29,6 +29,9 @@ class WowClass(WowActor):
     color: str = ""
     """Hexadecimal color code. e.g. "#FF7C0A"."""
 
+    talent_tree_id: int = 0
+    """WoW Forever: id of the class's talent tree (DB2 `TraitTree`), whose tabs are its specs in `index` order."""
+
     @property
     def name_slug_cap(self) -> str:
         """PascalCase version of the Name. eg. "DeathKnight"."""

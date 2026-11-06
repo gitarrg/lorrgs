@@ -11,7 +11,7 @@ from lorgs.models.wow_spec import WowSpec
 ################################################################################
 # Class
 #
-MAGE = WowClass(id=8, name="Mage", color="#3FC7EB")
+MAGE = WowClass(id=8, name="Mage", color="#3FC7EB", talent_tree_id=1112)
 
 ################################################################################
 # Specs

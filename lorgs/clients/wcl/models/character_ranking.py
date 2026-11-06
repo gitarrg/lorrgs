@@ -4,9 +4,10 @@ from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
 import datetime
+import typing
 
 # IMPORT THIRD PARTY LIBRARIES
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class CharacterRankingReportFightData(BaseModel):
@@ -36,7 +37,7 @@ class CharacterRankingReportServerData(BaseModel):
 
 
 class CharacterRankingTalent(BaseModel):
-    """One talent choice of a ranked player (only returned with `includeCombatantInfo`, Retail only)."""
+    """One talent choice of a ranked player (only returned with `includeCombatantInfo`)."""
 
     talentID: int
     """ID of the talent node *entry* (not a spell id)."""
@@ -77,6 +78,17 @@ class CharacterRanking(BaseModel):
 
     talents: list[CharacterRankingTalent] = []
     """Talent choices. Empty unless requested with `includeCombatantInfo` (and known to Warcraft Logs)."""
+
+    @field_validator("talents", mode="before")
+    @classmethod
+    def skip_placeholder_talents(cls, talents: typing.Any) -> typing.Any:
+        """Keep the talents with a `talentID`.
+
+        Classic-style rankings return placeholders (`{"name": "Unknown Ability", "id": 0, ...}`) instead.
+        """
+        if isinstance(talents, list):
+            return [talent for talent in talents if not isinstance(talent, dict) or "talentID" in talent]
+        return talents
 
 
 class CharacterRankings(BaseModel):

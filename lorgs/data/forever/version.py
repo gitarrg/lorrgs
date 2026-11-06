@@ -43,4 +43,5 @@ GAME_VERSION = GameVersion(
     data=GAME_DATA,
     collapse_raids=True,
     has_comp_modes=False,
+    has_talents=True,
 )

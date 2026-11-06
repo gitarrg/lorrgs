@@ -46,7 +46,7 @@ async def load_spec_builds(payload: SpecBuildsPayload) -> tuple[bool, str]:  # r
     spec = game_version.data.get_spec(payload.spec_slug)
     if not spec or not spec.role.playable:
         raise TaskValidationError("invalid spec")
-    scope = talent_trees.get_spec_scope(spec.id) if game_version.has_talents else None
+    scope = talent_trees.get_spec_scope(game_version.name, spec.id) if game_version.has_talents else None
     if scope is None:
         raise TaskValidationError("spec has no talents")
 

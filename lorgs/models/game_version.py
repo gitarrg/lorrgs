@@ -37,7 +37,7 @@ class GameVersion:
     """Frontend: whether the Game Version has Comp Rankings (the home page hides them otherwise)."""
 
     has_talents: bool = False
-    """Whether Spec Rankings store each player's Talents (Retail only)."""
+    """Whether Spec Rankings store each player's Talents, and the Version has talent trees (`lorgs/data/<name>/talent_trees.json`)."""
 
     updates_enabled: bool = False
     """Whether the Refresh Planner refreshes this Version's Spec Rankings. Keep in line with `infra/app.py`."""
