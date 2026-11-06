@@ -1,6 +1,6 @@
 """RaidZone and Bosses for Onyxia's Lair (WoW Forever).
 
-The zone id is the Classic Warcraft Logs one; Forever has none of its own yet (#86).
+The ids are the WoW Forever ones on Warcraft Logs (expansion 3001).
 """
 
 # IMPORT LOCAL LIBRARIES
@@ -11,7 +11,7 @@ from .onyxia import ONYXIA
 
 
 ONYXIAS_LAIR = RaidZone(
-    id=1001,
+    id=3001,
     name="Onyxia's Lair",
     icon="achievement_boss_onyxia.jpg",
     difficulty=RaidDifficulty.NORMAL,

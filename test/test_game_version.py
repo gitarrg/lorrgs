@@ -16,6 +16,7 @@ def test_game_version_config() -> None:
     assert FOREVER.s3_prefix == "forever/"
     assert FOREVER.difficulties == (RaidDifficulty.NORMAL,)
     assert FOREVER.default_difficulty is RaidDifficulty.NORMAL
+    assert FOREVER.wcl_game_version == 7
 
     assert MISTS.s3_prefix == "mists/"
     assert MISTS.difficulties == (RaidDifficulty.HEROIC,)
@@ -35,6 +36,7 @@ def test_difficulty_names() -> None:
 def test_game_version_by_wcl_id() -> None:
     assert get_game_version_by_wcl_id(1) is RETAIL
     assert get_game_version_by_wcl_id(6) is MISTS
+    assert get_game_version_by_wcl_id(7) is FOREVER
     assert get_game_version_by_wcl_id(12345) is None
 
 

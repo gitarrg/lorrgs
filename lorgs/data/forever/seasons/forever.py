@@ -1,8 +1,10 @@
-"""WoW Forever: all raids, since it has no seasons (so far)."""
+"""WoW Forever: the raids Warcraft Logs ranks so far (Phase 1: Onyxia).
+
+The other Classic raids join once Warcraft Logs has zone and encounter ids for them.
+"""
 
 # IMPORT LOCAL LIBRARIES
 from lorgs.data.expansions.classic import (
-    BLACKWING_LAIR,
     ONYXIAS_LAIR,
 )
 from lorgs.models.season import Season
@@ -14,7 +16,6 @@ FOREVER_SEASON = Season(
     ilvl=0,
     raids=[
         ONYXIAS_LAIR,
-        BLACKWING_LAIR,
     ],
     dungeons=[],
 )
