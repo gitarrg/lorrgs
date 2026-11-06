@@ -3,6 +3,7 @@
 from lorgs.data.forever.classes.druid import *
 from lorgs.data.forever.classes.hunter import *
 from lorgs.data.forever.classes.mage import *
+from lorgs.data.forever.classes.other import *
 from lorgs.data.forever.classes.paladin import *
 from lorgs.data.forever.classes.priest import *
 from lorgs.data.forever.classes.rogue import *

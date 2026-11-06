@@ -7,7 +7,7 @@ The other Classic raids join once Warcraft Logs has zone and encounter ids for t
 from lorgs.data.expansions.classic import (
     ONYXIAS_LAIR,
 )
-from lorgs.data.forever.dungeons import DEADMINES, SHADOWFANG_KEEP, WAILING_CAVERNS
+from lorgs.data.forever.dungeons import CITY_OF_DALARAN, DEADMINES, SHADOWFANG_KEEP, WAILING_CAVERNS
 from lorgs.models.season import Season
 
 
@@ -22,5 +22,6 @@ FOREVER_SEASON = Season(
         DEADMINES,
         WAILING_CAVERNS,
         SHADOWFANG_KEEP,
+        CITY_OF_DALARAN,
     ],
 )
