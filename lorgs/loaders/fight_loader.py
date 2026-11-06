@@ -69,6 +69,13 @@ class FightLoader(BaseLoader):
         except ValueError:
             return None
 
+        # dungeon runs: only the ones in our Game Data (eg. skips Retail M+)
+        dungeon = None
+        if difficulty == RaidDifficulty.DUNGEON:
+            dungeon = game_data.get_dungeon(fight_data.encounterID)
+            if dungeon is None:
+                return None
+
         fight = Fight(
             fight_id=fight_data.id,
             percent=fight_data.fightPercentage,
@@ -76,6 +83,7 @@ class FightLoader(BaseLoader):
             start_time=report.start_time + datetime.timedelta(milliseconds=fight_data.startTime),
             duration=fight_data.endTime - fight_data.startTime + 1,  # somehow there is 1ms missing
             difficulty=difficulty,
+            dungeon=dungeon.name_slug if dungeon else None,
         )
         # set before running `FightPhasesLoader` as it depends on the report
         fight.report = report

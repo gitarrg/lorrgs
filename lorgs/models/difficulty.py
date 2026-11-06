@@ -15,3 +15,6 @@ class RaidDifficulty(CaseInsensitiveEnum):
     NORMAL = 3
     HEROIC = 4
     MYTHIC = 5
+
+    DUNGEON = 10
+    """A whole dungeon run. Only loaded in User Reports, never ranked."""

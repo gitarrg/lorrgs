@@ -41,6 +41,8 @@ class Fight(base.BaseModel):
 
     players: list[Player] = []
     boss: Boss | None = None
+    dungeon: str | None = None
+    """Slug of the Dungeon, for a dungeon run (which has no boss)."""
     phases: list[Phase] = []
 
     deaths: int = 0
@@ -108,6 +110,7 @@ class Fight(base.BaseModel):
             **self.summary(),
             "players": [player.as_dict(game_data) for player in players],
             "boss": self.boss.as_dict() if self.boss else {},
+            "dungeon": self.dungeon,
         }
 
     ##########################

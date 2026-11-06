@@ -153,6 +153,10 @@ class GameData:  # ruff: ignore[too-many-public-methods]
         return {boss.id: boss for boss in self.bosses}
 
     @functools.cached_property
+    def dungeons_by_id(self) -> dict[int, Dungeon]:
+        return {dungeon.id: dungeon for dungeon in self.dungeons if dungeon.id}
+
+    @functools.cached_property
     def zones_by_id(self) -> dict[int | float, RaidZone]:
         return {zone.id: zone for zone in self.zones}
 
@@ -190,6 +194,10 @@ class GameData:  # ruff: ignore[too-many-public-methods]
         if full_name_slug is not None:
             return self.bosses_by_slug.get(full_name_slug)
         return self.bosses_by_id.get(boss_id)
+
+    def get_dungeon(self, dungeon_id: int) -> Dungeon | None:
+        """The Dungeon by its Warcraft Logs encounter id."""
+        return self.dungeons_by_id.get(dungeon_id)
 
     def get_spells(self, spell_id: int) -> list[WowSpell]:
         """The spells with this id or with a variation of this id."""

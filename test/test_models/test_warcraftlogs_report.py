@@ -4,6 +4,8 @@ import unittest
 from lorgs.clients import wcl
 from lorgs.loaders.fight_loader import FightLoader
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader
+from lorgs.models.difficulty import RaidDifficulty
+from lorgs.models.dungeon import Dungeon
 from lorgs.models.warcraftlogs_player import Player
 from lorgs.models.warcraftlogs_report import Report
 from test.helpers import game_data_with, report_query
@@ -64,3 +66,24 @@ class TestReport(unittest.TestCase):
         assert fight.kill is False
         assert fight.duration == 100001
         assert fight.start_time == self.report.start_time + datetime.timedelta(milliseconds=400000)
+
+    def test_fight_from_wcl_fight_dungeon(self):
+        game_data = game_data_with(dungeons=[Dungeon(id=10036, name="Deadmines")])
+        fight = FightLoader.fight_from_wcl_fight(
+            wcl.ReportFight(id=1, encounterID=10036, difficulty=10),
+            self.report,
+            game_data,
+        )
+        assert fight is not None
+        assert fight.dungeon == "deadmines"
+        assert fight.boss is None
+        assert fight.difficulty == RaidDifficulty.DUNGEON
+
+    def test_fight_from_wcl_fight_skips_unknown_dungeon(self):
+        """Dungeon runs we don't know (e.g. Retail M+) are skipped."""
+        fight = FightLoader.fight_from_wcl_fight(
+            wcl.ReportFight(id=1, encounterID=12345, difficulty=10),
+            self.report,
+            game_data_with(),
+        )
+        assert fight is None

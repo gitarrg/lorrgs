@@ -7,14 +7,19 @@ import typing
 ROOT = "./test/fixtures/"
 
 
-def game_data_with(*, bosses: typing.Sequence = (), specs: typing.Sequence = ()):
-    """Game Data holding just these bosses and specs."""
+def game_data_with(*, bosses: typing.Sequence = (), specs: typing.Sequence = (), dungeons: typing.Sequence = ()):
+    """Game Data holding just these bosses, specs and dungeons."""
     from lorgs.models.difficulty import RaidDifficulty
     from lorgs.models.game_data import GameData
     from lorgs.models.raid_zone import RaidZone
     from lorgs.models.season import Season
 
-    season = Season(name="Test Season", ilvl=1, raids=[RaidZone(id=990000, name="Test Raid", bosses=list(bosses))])
+    season = Season(
+        name="Test Season",
+        ilvl=1,
+        raids=[RaidZone(id=990000, name="Test Raid", bosses=list(bosses))],
+        dungeons=list(dungeons),
+    )
     classes = list({spec.wow_class for spec in specs})
     roles = list({spec.role for spec in specs})
     return GameData(roles=roles, classes=classes, season=season, difficulties=(RaidDifficulty.HEROIC,))

@@ -51,6 +51,9 @@ def print_fight(fight: Fight, game_data: GameData) -> None:
     else:
         print("  (none)")
 
+    if fight.dungeon:
+        print(f"dungeon: {fight.dungeon}")
+
     print("boss events:")
     if boss := fight.boss:
         print(f"  boss: {boss.boss_slug}")
@@ -73,8 +76,10 @@ class WarcraftReport(pydantic.BaseModel):
 
     @classmethod
     def from_url(cls, url: str):
-        report_match = re.search(r"reports/(\w{16})", url)
-        report_id = report_match.group(1) if report_match else ""
+        report_match = re.search(r"reports/((?:a:)?\w+)", url)
+        if not report_match:
+            raise SystemExit(f"No report id in URL: {url}")
+        report_id = report_match.group(1)
 
         query_params = parse_qs(urlparse(url).query)
         fight_ids = [int(v) for v in query_params.get("fight", [-1])]
@@ -129,9 +134,11 @@ class WarcraftReport(pydantic.BaseModel):
                 print_fight(fight, game_data)
             return
 
-        if save_report:
-            user_report.save()
+        if not save_report:
+            print("Not saved: pass --save-report to view it on the local frontend.")
+            return
 
+        user_report.save()
         print(self.as_lorrgs_url())
 
 
