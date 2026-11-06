@@ -1,4 +1,4 @@
-"""All Playable Classes of WoW Forever (as of the beta: no Death Knight, Monk, Demon Hunter or Evoker; no spells yet)."""
+"""All Playable Classes of WoW Forever (as of the beta: no Death Knight, Monk, Demon Hunter or Evoker)."""
 
 from lorgs.data.forever.classes.druid import *
 from lorgs.data.forever.classes.hunter import *

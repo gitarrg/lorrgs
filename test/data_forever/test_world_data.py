@@ -1,4 +1,4 @@
-"""Seams: the API starts with Forever's world data: classes, specs and the Classic raids, but no spells yet."""
+"""Seams: the API starts with Forever's world data: classes, specs and the Classic raids and the first class spells."""
 
 from lorrgs_sqs.helpers import PAYLOAD_EXPANDERS
 from test.helpers import get_api_routes
@@ -24,7 +24,7 @@ def test_api_starts_and_serves_classes_and_specs() -> None:
     assert len(routes["/api/forever/specs"][1]["specs"]) == 27
     assert len(routes["/api/forever/zones"][1]) == 1
     assert len(routes["/api/forever/bosses"][1]["bosses"]) == 1
-    assert routes["/api/forever/spells"][1] == {}
+    assert "2687" in routes["/api/forever/spells"][1], "Bloodrage"
     assert routes["/api/forever/trinkets"][1] == {}
     assert len(routes["/api/forever/seasons/current"][1]["raids"]) == 1
     assert routes["/api/forever/roles"][1]["roles"], "every Game Version has its own roles"
