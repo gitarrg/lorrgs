@@ -11,3 +11,4 @@ from lorgs.models.dungeon import Dungeon
 DEADMINES = Dungeon(id=10036, name="Deadmines")
 WAILING_CAVERNS = Dungeon(id=10043, name="Wailing Caverns")
 SHADOWFANG_KEEP = Dungeon(id=10033, name="Shadowfang Keep")
+CITY_OF_DALARAN = Dungeon(id=12959, name="City of Dalaran")
