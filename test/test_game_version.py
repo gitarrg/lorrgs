@@ -55,3 +55,6 @@ def test_game_versions_route_lists_all_game_versions() -> None:
     assert by_name["retail"]["wcl_game_version"] == 1
     assert by_name["mists"]["collapse_raids"] is True
     assert by_name["mists"]["has_comp_modes"] is False
+    assert by_name["retail"]["talent_tree_style"] == "dragonflight"
+    assert by_name["mists"]["talent_tree_style"] == "mists"
+    assert by_name["forever"]["talent_tree_style"] == "classic"

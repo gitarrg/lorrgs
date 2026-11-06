@@ -47,6 +47,28 @@ COND_TYPE_VISIBLE = "1"
 
 MIN_HERO_TREES = 2
 
+SPELL_ATTR0_PASSIVE = 0x40
+"""`SpellMisc.Attributes_0` flag of passive spells."""
+
+ENTRY_TYPES = {
+    "0": "spend_hex",
+    "1": "spend_square",
+    "2": "spend_circle",
+    "3": "spend_small_circle",
+    "4": "deprecated_select",
+    "5": "drag_and_drop",
+    "6": "spend_diamond",
+    "7": "prof_path",
+    "8": "prof_perk",
+    "9": "prof_path_unlock",
+    "10": "red_button",
+    "11": "armor_set",
+    "12": "spend_infinite",
+    "13": "spend_capstone_circle",
+    "14": "spend_capstone_square",
+}
+"""`TraitNodeEntry.NodeEntryType` (`Enum.TraitNodeEntryType`): ingame, "spend_square" talents (mostly active ones) are drawn square."""
+
 NODE_TYPES = {"0": "single", "1": "tiered", "2": "choice", "3": "hero_selection"}
 
 Table = list[dict[str, str]]
@@ -140,6 +162,14 @@ def spell_icons(tables: dict[str, Table]) -> dict[str, str]:
     return icons
 
 
+def passive_spells(tables: dict[str, Table]) -> set[str]:
+    """Ids of the passive spells (spells with per-difficulty rows: the base one, DifficultyID 0, wins)."""
+    passive: dict[str, bool] = {}
+    for row in sorted(tables["SpellMisc"], key=lambda r: r["DifficultyID"] == "0"):
+        passive[row["SpellID"]] = bool(int(row["Attributes_0"] or 0) & SPELL_ATTR0_PASSIVE)
+    return {spell_id for spell_id, is_passive in passive.items() if is_passive}
+
+
 class _Db2:
     """Lookups shared by all specs."""
 
@@ -152,6 +182,7 @@ class _Db2:
 
         self.icon_names = icon_names(tables)
         self.spell_icons = spell_icons(tables)
+        self.passive_spells = passive_spells(tables)
 
         self.nodes_by_tree: dict[str, dict[str, dict[str, str]]] = collections.defaultdict(dict)
         for row in tables["TraitNode"]:
@@ -183,6 +214,8 @@ class _Db2:
             "spell_id": spell_id,
             "icon": self.icon_names.get(icon_id, ""),
             "index": int(node_entry_row["_Index"]),
+            "passive": str(spell_id) in self.passive_spells,
+            "entry_type": ENTRY_TYPES.get(entry["NodeEntryType"], ""),
         }
 
 

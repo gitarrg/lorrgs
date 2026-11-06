@@ -16,7 +16,7 @@ from lorgs.data.forever.roles import ALL_ROLES
 from lorgs.data.forever.seasons import FOREVER_SEASON
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.game_data import GameData
-from lorgs.models.game_version import GameVersion
+from lorgs.models.game_version import GameVersion, TalentTreeStyle
 
 
 GAME_DATA = GameData(
@@ -44,4 +44,5 @@ GAME_VERSION = GameVersion(
     collapse_raids=True,
     has_comp_modes=False,
     has_talents=True,
+    talent_tree_style=TalentTreeStyle.CLASSIC,
 )

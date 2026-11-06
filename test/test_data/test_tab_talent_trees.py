@@ -27,7 +27,7 @@ def _tables(tmp_path: pathlib.Path) -> dict:
         "ManifestInterfaceData",
         [{"ID": 9, "FileName": "Spell_Frost_Ring of Frost.blp", "FilePath": "Interface\\Icons\\"}],
     )
-    _write(tmp_path, "SpellMisc", [{"SpellID": 111, "SpellIconFileDataID": 9, "DifficultyID": 0}])
+    _write(tmp_path, "SpellMisc", [{"SpellID": 111, "SpellIconFileDataID": 9, "DifficultyID": 0, "Attributes_0": 0x40}])
     _write(tmp_path, "TraitCurrency", [{"ID": 7, "SourcedMax": 51}])
     _write(tmp_path, "TraitTreeXTraitCurrency", [{"ID": 1, "TraitTreeID": 1, "TraitCurrencyID": 7}])
     nodes = [_node(10, 1000, 100), _node(11, 1000, 200), _node(20, 5000, 100), _node(21, 5000, 200)]
@@ -98,7 +98,7 @@ def test_nodes_know_their_tab_and_required_points(tmp_path: pathlib.Path) -> Non
         "tab": 0,
         "required_points": 0,
         "entries": [
-            {"id": 1010, "name": "Spell A", "spell_id": 111, "icon": "spell_frost_ring-of-frost.jpg", "index": 0}
+            {"id": 1010, "name": "Spell A", "spell_id": 111, "icon": "spell_frost_ring-of-frost.jpg", "index": 0, "passive": True, "entry_type": "spend_hex"}
         ],
     }
 

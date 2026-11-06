@@ -86,6 +86,7 @@ class _Db2:
         self.spell_names = {r["ID"]: r["Name_lang"] for r in tables["SpellName"]}
         self.icon_names = talent_trees.icon_names(tables)
         self.spell_icons = talent_trees.spell_icons(tables)
+        self.passive_spells = talent_trees.passive_spells(tables)
         self.definitions = {r["ID"]: r for r in tables["TraitDefinition"]}
         self.entries = {r["ID"]: r for r in tables["TraitNodeEntry"]}
 
@@ -139,6 +140,8 @@ class _Db2:
             "spell_id": spell_id,
             "icon": self.icon_names.get(icon_id, ""),
             "index": int(row["_Index"]),
+            "passive": str(spell_id) in self.passive_spells,
+            "entry_type": talent_trees.ENTRY_TYPES.get(entry["NodeEntryType"], ""),
         }
 
 
