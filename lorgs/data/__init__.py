@@ -9,15 +9,14 @@ but at the end of the day, this was the most straight forward way and the easies
 """
 
 # IMPORT LOCAL LIBRARIES
-from lorgs.data import forever, mists, retail
+from lorgs.data import forever, retail
 from lorgs.models.game_version import GameVersion
 
 
 RETAIL = retail.GAME_VERSION
-MISTS = mists.GAME_VERSION
 FOREVER = forever.GAME_VERSION
 
-GAME_VERSIONS: dict[str, GameVersion] = {version.name: version for version in (RETAIL, MISTS, FOREVER)}
+GAME_VERSIONS: dict[str, GameVersion] = {version.name: version for version in (RETAIL, FOREVER)}
 """All Game Versions by name. The order is the order of the frontend's Game Version menu."""
 
 
