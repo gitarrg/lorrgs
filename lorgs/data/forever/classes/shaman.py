@@ -11,7 +11,7 @@ from lorgs.models.wow_spec import WowSpec
 ################################################################################
 # Class
 #
-SHAMAN = WowClass(id=7, name="Shaman", color="#0070DD")
+SHAMAN = WowClass(id=7, name="Shaman", color="#0070DD", talent_tree_id=1082)
 
 ################################################################################
 # Specs

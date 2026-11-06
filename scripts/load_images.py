@@ -127,10 +127,12 @@ def upload(filename: str) -> None:
 
 
 def get_talent_icons() -> set[str]:
-    """Icons of every talent (see `scripts/generate_talent_trees.py`)."""
+    """Icons of every talent of every Game Version (see `scripts/generate_talent_trees.py`)."""
     return {
         entry["icon"]
-        for tree in talent_trees.load_spec_trees().values()
+        for game_version in GAME_VERSIONS.values()
+        if game_version.has_talents
+        for tree in talent_trees.load_spec_trees(game_version.name).values()
         for node in tree["nodes"]
         for entry in node["entries"]
         if entry["icon"]

@@ -18,7 +18,7 @@ from lorgs.data.mists.roles import ALL_ROLES
 from lorgs.data.mists.seasons import MISTS_PHASE5
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.game_data import GameData
-from lorgs.models.game_version import GameVersion
+from lorgs.models.game_version import GameVersion, TalentTreeStyle
 
 
 GAME_DATA = GameData(
@@ -47,4 +47,5 @@ GAME_VERSION = GameVersion(
     data=GAME_DATA,
     collapse_raids=True,
     has_comp_modes=False,
+    talent_tree_style=TalentTreeStyle.MISTS,
 )

@@ -16,6 +16,7 @@ def test_game_version_config() -> None:
     assert FOREVER.s3_prefix == "forever/"
     assert FOREVER.difficulties == (RaidDifficulty.NORMAL,)
     assert FOREVER.default_difficulty is RaidDifficulty.NORMAL
+    assert FOREVER.wcl_game_version == 7
 
     assert MISTS.s3_prefix == "mists/"
     assert MISTS.difficulties == (RaidDifficulty.HEROIC,)
@@ -35,6 +36,7 @@ def test_difficulty_names() -> None:
 def test_game_version_by_wcl_id() -> None:
     assert get_game_version_by_wcl_id(1) is RETAIL
     assert get_game_version_by_wcl_id(6) is MISTS
+    assert get_game_version_by_wcl_id(7) is FOREVER
     assert get_game_version_by_wcl_id(12345) is None
 
 
@@ -53,3 +55,6 @@ def test_game_versions_route_lists_all_game_versions() -> None:
     assert by_name["retail"]["wcl_game_version"] == 1
     assert by_name["mists"]["collapse_raids"] is True
     assert by_name["mists"]["has_comp_modes"] is False
+    assert by_name["retail"]["talent_tree_style"] == "dragonflight"
+    assert by_name["mists"]["talent_tree_style"] == "mists"
+    assert by_name["forever"]["talent_tree_style"] == "classic"

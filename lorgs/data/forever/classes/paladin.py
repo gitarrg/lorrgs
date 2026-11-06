@@ -11,7 +11,7 @@ from lorgs.models.wow_spec import WowSpec
 ################################################################################
 # Class
 #
-PALADIN = WowClass(id=2, name="Paladin", color="#F48CBA")
+PALADIN = WowClass(id=2, name="Paladin", color="#F48CBA", talent_tree_id=1100)
 
 ################################################################################
 # Specs

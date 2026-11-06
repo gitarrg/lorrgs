@@ -11,7 +11,7 @@ from lorgs.models.wow_spec import WowSpec
 ################################################################################
 # Class
 #
-HUNTER = WowClass(id=3, name="Hunter", color="#AAD372")
+HUNTER = WowClass(id=3, name="Hunter", color="#AAD372", talent_tree_id=1091)
 
 ################################################################################
 # Specs

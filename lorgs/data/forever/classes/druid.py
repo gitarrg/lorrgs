@@ -11,7 +11,7 @@ from lorgs.models.wow_spec import WowSpec
 ################################################################################
 # Class
 #
-DRUID = WowClass(id=11, name="Druid", color="#FF7C0A")
+DRUID = WowClass(id=11, name="Druid", color="#FF7C0A", talent_tree_id=1089)
 
 ################################################################################
 # Specs

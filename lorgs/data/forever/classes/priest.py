@@ -11,7 +11,7 @@ from lorgs.models.wow_spec import WowSpec
 ################################################################################
 # Class
 #
-PRIEST = WowClass(id=5, name="Priest", color="#FFFFFF")
+PRIEST = WowClass(id=5, name="Priest", color="#FFFFFF", talent_tree_id=1114)
 
 ################################################################################
 # Specs

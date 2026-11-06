@@ -51,7 +51,15 @@ def _tables(tmp_path: pathlib.Path) -> dict:
         "ManifestInterfaceData",
         [{"ID": 9, "FileName": "Spell_Frost_Ring of Frost.blp", "FilePath": "Interface\\Icons\\"}],
     )
-    _write(tmp_path, "SpellMisc", [{"SpellID": 111, "SpellIconFileDataID": 9, "DifficultyID": 0}])
+    _write(
+        tmp_path,
+        "SpellMisc",
+        [
+            # passive: the base row (DifficultyID 0) wins over the one of another difficulty
+            {"SpellID": 111, "SpellIconFileDataID": 9, "DifficultyID": 0, "Attributes_0": 0x40},
+            {"SpellID": 111, "SpellIconFileDataID": 8, "DifficultyID": 16, "Attributes_0": 0},
+        ],
+    )
     _write(tmp_path, "TraitTree", [{"ID": 1, "TraitSystemID": 0}])
     _write(
         tmp_path,
@@ -176,11 +184,14 @@ def test_node_and_entry_data(tmp_path: pathlib.Path) -> None:
                 "spell_id": 111,
                 "icon": "spell_frost_ring-of-frost.jpg",
                 "index": 0,
+                "passive": True,
+                "entry_type": "spend_square",
             }
         ],
     }
     assert nodes[30]["type"] == "hero_selection"
     assert nodes[30]["entries"][0]["name"] == "Heroes"  # no spell: named after the Sub Tree
+    assert nodes[30]["entries"][0]["passive"] is False
     assert nodes[31]["hero_tree"] == "Heroes"
     assert nodes[31]["hero_tree_slug"] == "heroes"
 
@@ -207,11 +218,15 @@ def test_edges_and_node_order(tmp_path: pathlib.Path) -> None:
 
 
 def test_holy_paladin_spot_check() -> None:
-    tree = talent_trees.get_spec_tree(65)
+    tree = talent_trees.get_spec_tree("retail", 65)
     assert tree
     entries = {e["id"]: (n["tree"], e["name"], e["spell_id"]) for n in tree["nodes"] for e in n["entries"]}
     assert entries[102534] == ("spec", "Holy Shock", 20473)
     assert entries[102548] == ("spec", "Aura Mastery", 31821)
+
+    shapes = {e["name"]: (e["passive"], e["entry_type"]) for n in tree["nodes"] for e in n["entries"]}
+    assert shapes["Holy Shock"] == (False, "spend_square")  # active
+    assert shapes["Overflowing Light"] == (True, "spend_circle")  # passive
 
     heroes = {n["hero_tree"] for n in tree["nodes"] if n["tree"] == "hero"} - {None}
     assert heroes == {"Lightsmith", "Herald of the Sun"}
@@ -221,7 +236,7 @@ def test_holy_paladin_spot_check() -> None:
 def test_every_hero_tree_has_an_icon() -> None:
     icons = pathlib.Path(__file__).parents[2] / "lorrgs_assets" / "images" / "hero_trees"
     slugs = {
-        n["hero_tree_slug"] for tree in talent_trees.load_spec_trees().values() for n in tree["nodes"] if n["hero_tree"]
+        n["hero_tree_slug"] for tree in talent_trees.load_spec_trees("retail").values() for n in tree["nodes"] if n["hero_tree"]
     }
     assert len(slugs) == 41
     assert {p.stem for p in icons.glob("*.png")} == slugs
@@ -232,7 +247,7 @@ def test_every_retail_spec_has_a_tree() -> None:
 
     for spec in RETAIL.data.specs:
         if spec.role.playable:
-            assert talent_trees.get_spec_tree(spec.id), spec.full_name_slug
+            assert talent_trees.get_spec_tree("retail", spec.id), spec.full_name_slug
 
 
 def test_route_serves_one_spec_tree() -> None:
@@ -249,8 +264,13 @@ def test_route_serves_one_spec_tree() -> None:
         "/api/retail/talent_trees/nope": 404,
         "/api/retail/talent_trees/other-trinkets": 404,
         "/api/mists/talent_trees/paladin-holy": 404,
-        "/api/forever/talent_trees/paladin-holy": 404,
+        "/api/forever/talent_trees/paladin-holy": 200,
     }
     body = routes["/api/retail/talent_trees/paladin-holy"][1]
     assert body["spec_id"] == 65
     assert body["nodes"]
+    assert routes["/api/forever/talent_trees/paladin-holy"][1]["tabs"] == [65, 66, 70]
+
+
+def test_a_game_version_without_trees_has_none() -> None:
+    assert talent_trees.load_spec_trees("mists") == {}

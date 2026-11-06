@@ -19,9 +19,10 @@ async def get_talent_tree(game_version: GameVersionDep, spec_slug: str) -> dict:
 
     Entries are talent node entry ids, as stored in the Talents of a Spec Ranking player.
     Talents of older patches can hold entries missing here.
+    WoW Forever's trees hold all three tabs of the class (see `lorgs/data/tab_talent_trees.py`).
     """
     spec = game_version.data.get_spec(spec_slug) if game_version.has_talents else None
-    tree = talent_trees.get_spec_tree(spec.id) if spec else None
+    tree = talent_trees.get_spec_tree(game_version.name, spec.id) if spec else None
     if tree is None:
         raise fastapi.HTTPException(status_code=404, detail="Not found.")
     return tree

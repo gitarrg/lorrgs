@@ -4,12 +4,26 @@ from __future__ import annotations
 
 # IMPORT STANDARD LIBRARIES
 import dataclasses
+import enum
 import typing
 
 
 if typing.TYPE_CHECKING:
     from lorgs.models.difficulty import RaidDifficulty
     from lorgs.models.game_data import GameData
+
+
+class TalentTreeStyle(enum.StrEnum):
+    """Frontend: the look of the talent trees, named after the expansion that introduced it."""
+
+    CLASSIC = "classic"
+    """three tabs, one per spec"""
+
+    MISTS = "mists"
+    """rows of three talents to choose from"""
+
+    DRAGONFLIGHT = "dragonflight"
+    """class, hero and spec trees"""
 
 
 @dataclasses.dataclass(frozen=True)
@@ -37,7 +51,10 @@ class GameVersion:
     """Frontend: whether the Game Version has Comp Rankings (the home page hides them otherwise)."""
 
     has_talents: bool = False
-    """Whether Spec Rankings store each player's Talents (Retail only)."""
+    """Whether Spec Rankings store each player's Talents, and the Version has talent trees (`lorgs/data/<name>/talent_trees.json`)."""
+
+    talent_tree_style: TalentTreeStyle = TalentTreeStyle.DRAGONFLIGHT
+    """Frontend: the look of the talent trees (with `has_talents`)."""
 
     updates_enabled: bool = False
     """Whether the Refresh Planner refreshes this Version's Spec Rankings. Keep in line with `infra/app.py`."""

@@ -22,7 +22,7 @@ class Player(BaseActor):
     total: float = 0
 
     talents: dict[int, int] = {}
-    """Talents as `{node entry id: rank}`. Retail Spec Rankings only."""
+    """Talents as `{node entry id: rank}`. Spec Rankings of Game Versions with talents only."""
 
     deaths: list = []
     resurrects: list = []

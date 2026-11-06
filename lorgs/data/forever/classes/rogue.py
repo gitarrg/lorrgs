@@ -11,7 +11,7 @@ from lorgs.models.wow_spec import WowSpec
 ################################################################################
 # Class
 #
-ROGUE = WowClass(id=4, name="Rogue", color="#FFF468")
+ROGUE = WowClass(id=4, name="Rogue", color="#FFF468", talent_tree_id=1111)
 
 ################################################################################
 # Specs

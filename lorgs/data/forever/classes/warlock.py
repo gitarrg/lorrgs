@@ -11,7 +11,7 @@ from lorgs.models.wow_spec import WowSpec
 ################################################################################
 # Class
 #
-WARLOCK = WowClass(id=9, name="Warlock", color="#8788EE")
+WARLOCK = WowClass(id=9, name="Warlock", color="#8788EE", talent_tree_id=1116)
 
 ################################################################################
 # Specs

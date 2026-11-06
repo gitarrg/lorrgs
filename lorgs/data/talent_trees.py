@@ -1,5 +1,9 @@
 """Talent tree data per spec, generated from the DB2 tables (see `scripts/generate_talent_trees.py`).
 
+Each Game Version with talents has its own file, `lorgs/data/<game version>/talent_trees.json`, keyed by spec id
+(spec ids are only unique within a Game Version). This module builds the Retail trees; WoW Forever's classic-style
+trees come from `lorgs/data/tab_talent_trees.py` in the same shape.
+
 The DB2 tree of a class holds the nodes of all its specs. Which nodes a spec has comes from
 the *Visible* conditions (`TraitCond`) on the node, or on a group the node is in.
 """
@@ -37,21 +41,48 @@ TABLES = (
 )
 """DB2 tables the generator reads (`data/<name>.csv`, fetched by `data/download.sh`)."""
 
-TREES_FILE = pathlib.Path(__file__).parent / "retail" / "talent_trees.json"
+DATA_DIR = pathlib.Path(__file__).parent
 
 COND_TYPE_VISIBLE = "1"
 
 MIN_HERO_TREES = 2
+
+SPELL_ATTR0_PASSIVE = 0x40
+"""`SpellMisc.Attributes_0` flag of passive spells."""
+
+ENTRY_TYPES = {
+    "0": "spend_hex",
+    "1": "spend_square",
+    "2": "spend_circle",
+    "3": "spend_small_circle",
+    "4": "deprecated_select",
+    "5": "drag_and_drop",
+    "6": "spend_diamond",
+    "7": "prof_path",
+    "8": "prof_perk",
+    "9": "prof_path_unlock",
+    "10": "red_button",
+    "11": "armor_set",
+    "12": "spend_infinite",
+    "13": "spend_capstone_circle",
+    "14": "spend_capstone_square",
+}
+"""`TraitNodeEntry.NodeEntryType` (`Enum.TraitNodeEntryType`): ingame, "spend_square" talents (mostly active ones) are drawn square."""
 
 NODE_TYPES = {"0": "single", "1": "tiered", "2": "choice", "3": "hero_selection"}
 
 Table = list[dict[str, str]]
 
 
-def read_tables(directory: pathlib.Path) -> dict[str, Table]:
+def trees_file(game_version: str) -> pathlib.Path:
+    """The generated talent trees of a Game Version (by name)."""
+    return DATA_DIR / game_version / "talent_trees.json"
+
+
+def read_tables(directory: pathlib.Path, names: typing.Iterable[str] = TABLES) -> dict[str, Table]:
     """Read the DB2 CSVs from `directory`."""
     tables: dict[str, Table] = {}
-    for name in TABLES:
+    for name in names:
         with (directory / f"{name}.csv").open(encoding="utf-8", newline="") as f:
             tables[name] = list(csv.DictReader(f))
     return tables
@@ -111,6 +142,34 @@ def _node_specs(tables: dict[str, Table]) -> dict[str, set[str]]:
     return node_specs
 
 
+def icon_names(tables: dict[str, Table]) -> dict[str, str]:
+    """Icon file id -> name, as used for our spell icons: "Spell_Nature_Rejuvenation.blp" -> "spell_nature_rejuvenation.jpg".
+
+    Wowhead serves a space in the DB2 filename as a hyphen.
+    """
+    return {
+        r["ID"]: r["FileName"].lower().removesuffix(".blp").replace(" ", "-") + ".jpg"
+        for r in tables["ManifestInterfaceData"]
+        if r["FilePath"].lower() == "interface\\icons\\"
+    }
+
+
+def spell_icons(tables: dict[str, Table]) -> dict[str, str]:
+    """Spell id -> icon file id (spells with per-difficulty rows: the base one, DifficultyID 0, wins)."""
+    icons: dict[str, str] = {}
+    for row in sorted(tables["SpellMisc"], key=lambda r: r["DifficultyID"] == "0"):
+        icons[row["SpellID"]] = row["SpellIconFileDataID"]
+    return icons
+
+
+def passive_spells(tables: dict[str, Table]) -> set[str]:
+    """Ids of the passive spells (spells with per-difficulty rows: the base one, DifficultyID 0, wins)."""
+    passive: dict[str, bool] = {}
+    for row in sorted(tables["SpellMisc"], key=lambda r: r["DifficultyID"] == "0"):
+        passive[row["SpellID"]] = bool(int(row["Attributes_0"] or 0) & SPELL_ATTR0_PASSIVE)
+    return {spell_id for spell_id, is_passive in passive.items() if is_passive}
+
+
 class _Db2:
     """Lookups shared by all specs."""
 
@@ -121,17 +180,9 @@ class _Db2:
         self.entries = {r["ID"]: r for r in tables["TraitNodeEntry"]}
         self.sub_tree_names = {r["ID"]: r["Name_lang"] for r in tables["TraitSubTree"]}
 
-        # icon file id -> name, as used for our spell icons: "Spell_Nature_Rejuvenation.blp" -> "spell_nature_rejuvenation.jpg"
-        # Wowhead serves a space in the DB2 filename as a hyphen.
-        self.icon_names = {
-            r["ID"]: r["FileName"].lower().removesuffix(".blp").replace(" ", "-") + ".jpg"
-            for r in tables["ManifestInterfaceData"]
-            if r["FilePath"].lower() == "interface\\icons\\"
-        }
-        # spell id -> icon file id (spells with per-difficulty rows: the base one, DifficultyID 0, wins)
-        self.spell_icons: dict[str, str] = {}
-        for row in sorted(tables["SpellMisc"], key=lambda r: r["DifficultyID"] == "0"):
-            self.spell_icons[row["SpellID"]] = row["SpellIconFileDataID"]
+        self.icon_names = icon_names(tables)
+        self.spell_icons = spell_icons(tables)
+        self.passive_spells = passive_spells(tables)
 
         self.nodes_by_tree: dict[str, dict[str, dict[str, str]]] = collections.defaultdict(dict)
         for row in tables["TraitNode"]:
@@ -163,6 +214,8 @@ class _Db2:
             "spell_id": spell_id,
             "icon": self.icon_names.get(icon_id, ""),
             "index": int(node_entry_row["_Index"]),
+            "passive": str(spell_id) in self.passive_spells,
+            "entry_type": ENTRY_TYPES.get(entry["NodeEntryType"], ""),
         }
 
 
@@ -299,23 +352,35 @@ def build_spec_trees(tables: dict[str, Table]) -> dict[int, dict[str, typing.Any
     }
 
 
+def write_spec_trees(game_version: str, trees: dict[int, dict[str, typing.Any]]) -> pathlib.Path:
+    """Save the generated trees of a Game Version."""
+    path = trees_file(game_version)
+    path.write_text(json.dumps(trees, separators=(",", ":")) + "\n", encoding="utf-8")
+    load_spec_trees.cache_clear()
+    return path
+
+
 @functools.cache
-def load_spec_trees() -> dict[int, dict[str, typing.Any]]:
-    """The generated trees, keyed by spec id."""
-    with TREES_FILE.open(encoding="utf-8") as f:
+def load_spec_trees(game_version: str) -> dict[int, dict[str, typing.Any]]:
+    """The generated trees of a Game Version, keyed by spec id. Empty if it has none."""
+    path = trees_file(game_version)
+    if not path.exists():
+        return {}
+    with path.open(encoding="utf-8") as f:
         return {int(spec_id): tree for spec_id, tree in json.load(f).items()}
 
 
-def get_spec_tree(spec_id: int) -> dict[str, typing.Any] | None:
-    return load_spec_trees().get(spec_id)
+def get_spec_tree(game_version: str, spec_id: int) -> dict[str, typing.Any] | None:
+    return load_spec_trees(game_version).get(spec_id)
 
 
-def get_spec_scope(spec_id: int) -> tuple[frozenset[int], dict[int, str], dict[int, int]] | None:
+def get_spec_scope(game_version: str, spec_id: int) -> tuple[frozenset[int], dict[int, str], dict[int, int]] | None:
     """The talent entries of a spec that count for its Builds, with their hero trees and nodes.
 
-    Hero and spec talents count; the hero tree of each hero entry; the node of each entry.
+    Hero and spec talents count (in WoW Forever's trees every node is a spec one); the hero tree of each hero entry;
+    the node of each entry.
     """
-    tree = get_spec_tree(spec_id)
+    tree = get_spec_tree(game_version, spec_id)
     if tree is None:
         return None
     counted: set[int] = set()
