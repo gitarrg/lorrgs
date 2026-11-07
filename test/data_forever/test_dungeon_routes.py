@@ -22,7 +22,9 @@ def test_one_dungeon_by_slug() -> None:
     assert routes["/api/forever/dungeons/nope"][0] == 404
 
 
-def test_retail_serves_no_dungeons_while_none_have_an_id() -> None:
+def test_retail_serves_the_dungeons_of_the_season() -> None:
     status, body = get_api_routes("/api/retail/dungeons")["/api/retail/dungeons"]
     assert status == 200
-    assert body == {"dungeons": []}
+    dungeons = body["dungeons"]
+    assert len(dungeons) == 8
+    assert all(d["id"] and d["icon"] != "inv_misc_map_01.jpg" for d in dungeons)

@@ -9,4 +9,8 @@ from lorgs.models.dungeon import Dungeon
 
 ################################################################################
 
-ALTAR_OF_FANGS = Dungeon(name="Altar of Fangs")
+ALTAR_OF_FANGS = Dungeon(
+    id=12993,
+    name="Altar of Fangs",
+    icon="inv_achievement_dungeon_altaroffangs.jpg",
+)

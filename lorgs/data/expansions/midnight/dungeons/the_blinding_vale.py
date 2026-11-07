@@ -10,4 +10,8 @@ from lorgs.models.dungeon import Dungeon
 
 ################################################################################
 
-THE_BLINDING_VALE = Dungeon(name="The Blinding Vale")
+THE_BLINDING_VALE = Dungeon(
+    id=12859,
+    name="The Blinding Vale",
+    icon="inv_achievement_dungeon_lightbloom.jpg",
+)

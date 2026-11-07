@@ -8,4 +8,8 @@ from lorgs.models.dungeon import Dungeon
 
 ################################################################################
 
-TEMPLE_OF_SETHRALISS = Dungeon(name="Temple of Sethraliss")
+TEMPLE_OF_SETHRALISS = Dungeon(
+    id=61877,
+    name="Temple of Sethraliss",
+    icon="achievement_dungeon_templeofsethraliss.jpg",
+)

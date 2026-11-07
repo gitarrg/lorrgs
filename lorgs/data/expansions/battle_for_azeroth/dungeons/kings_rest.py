@@ -8,4 +8,8 @@ from lorgs.models.dungeon import Dungeon
 
 ################################################################################
 
-KINGS_REST = Dungeon(name="Kings' Rest")
+KINGS_REST = Dungeon(
+    id=61762,
+    name="Kings' Rest",
+    icon="achievement_dungeon_kingsrest.jpg",
+)

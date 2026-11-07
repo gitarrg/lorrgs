@@ -9,4 +9,8 @@ from lorgs.models.dungeon import Dungeon
 
 ################################################################################
 
-MURDER_ROW = Dungeon(name="Murder Row")
+MURDER_ROW = Dungeon(
+    id=12813,
+    name="Murder Row",
+    icon="inv_achievement_dungeon_murderrow.jpg",
+)

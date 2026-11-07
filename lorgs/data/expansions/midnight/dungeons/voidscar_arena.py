@@ -9,4 +9,8 @@ from lorgs.models.dungeon import Dungeon
 
 ################################################################################
 
-VOIDSCAR_ARENA = Dungeon(name="Voidscar Arena")
+VOIDSCAR_ARENA = Dungeon(
+    id=12923,
+    name="Voidscar Arena",
+    icon="inv_achievement_dungeon_voidscararena.jpg",
+)
