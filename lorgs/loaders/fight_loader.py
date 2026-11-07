@@ -135,6 +135,13 @@ class FightLoader(BaseLoader):
         total_damage = summary.damageDone
         total_healing = summary.healingDone
 
+        talents_by_id = {
+            detail.id: {t.id: t.rank for t in detail.talents}
+            for details in summary.playerDetails.values()
+            for detail in details
+            if detail.talents
+        }
+
         self.fight.players = []
         for composition_data in summary.composition:
             player = player_from_composition_data(composition_data, self.game_data)
@@ -149,6 +156,7 @@ class FightLoader(BaseLoader):
                     player.total = data.total // (self.fight.duration / 1000)
                     break
 
+            player.talents = talents_by_id.get(player.source_id, {})
             player.fight = self.fight
             player.process_death_events(summary.deathEvents)
             self.fight.players.append(player)
