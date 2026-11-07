@@ -11,8 +11,13 @@ class TestUserReport(unittest.TestCase):
         self.user_report = UserReport(report_id="REPORT_ID")
 
     def test__is_loaded__yes(self):
-        self.user_report.fights = [Fight.model_construct(fight_id=1)]
+        self.user_report.fights = [Fight.model_construct(fight_id=1, player_ids=[1, 2])]
         assert self.user_report.is_loaded
+
+    def test__is_loaded__fights_without_players(self):
+        """Overviews stored before Fights had their players get loaded again."""
+        self.user_report.fights = [Fight.model_construct(fight_id=1)]
+        assert not self.user_report.is_loaded
 
     def test__is_loaded__nope(self):
         self.user_report.fights = []
