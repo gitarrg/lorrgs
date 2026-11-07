@@ -84,13 +84,13 @@ class TestSpecRankingLoader(unittest.TestCase):
         assert len(self.spec_ranking.reports) == 10
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_loader_rejects_a_ranking_of_another_game_version() -> None:
-    from lorgs.data import MISTS, RETAIL
+    from lorgs.data import RETAIL
 
     ranking = SpecRanking(game_version="mists", spec_slug="mage-fire", boss_slug="b", difficulty="heroic", metric="dps")
     with pytest.raises(ValueError, match="belongs to Game Version 'mists', not 'retail'"):
         SpecRankingLoader(ranking, RETAIL)
-    assert SpecRankingLoader(ranking, MISTS).game_data is MISTS.data
 
 
 ################################################################################

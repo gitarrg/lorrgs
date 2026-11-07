@@ -10,7 +10,7 @@ import pydantic
 import pytest
 
 from lorgs.clients import sqs
-from lorgs.data import MISTS, RETAIL
+from lorgs.data import RETAIL
 from lorgs.models.raid_zone import AUTO_DIFFICULTY
 from lorgs.models.task_payloads import CompRankingPayload, SpecRankingPayload, UserReportPayload
 from lorgs.models.warcraftlogs_ranking import SpecRanking
@@ -38,10 +38,12 @@ def test_a_payload_with_an_unknown_game_version_fails_validation() -> None:
         SpecRankingPayload(game_version="classic", **SPEC_PAYLOAD)
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_the_difficulty_defaults_to_auto() -> None:
     assert SpecRankingPayload(game_version="mists", **SPEC_PAYLOAD).difficulty == AUTO_DIFFICULTY
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_the_payload_resolves_its_game_version() -> None:
     assert SpecRankingPayload(game_version="mists", **SPEC_PAYLOAD).get_game_version() is MISTS
 
@@ -51,6 +53,7 @@ def test_the_payload_resolves_its_game_version() -> None:
 #
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_expansion_uses_the_game_data_of_the_payloads_game_version() -> None:
     mists = helpers.expand_keywords({"game_version": "mists", "boss_slug": "all", "spec_slug": "mage-fire"})
     retail = helpers.expand_keywords({"game_version": "retail", "boss_slug": "all", "spec_slug": "mage-fire"})
@@ -59,6 +62,7 @@ def test_expansion_uses_the_game_data_of_the_payloads_game_version() -> None:
     assert {p["boss_slug"] for p in retail} == {boss.full_name_slug for boss in RETAIL.data.bosses}
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_expanded_payloads_keep_the_game_version() -> None:
     payloads = helpers.expand_keywords({"game_version": "mists", "boss_slug": "all", "spec_slug": "all"})
 
@@ -73,6 +77,7 @@ def test_expansion_without_a_valid_game_version_is_a_validation_error() -> None:
         helpers.expand_keywords({"game_version": "classic", "boss_slug": "all"})
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_expanded_messages_are_in_a_message_group_of_their_game_version() -> None:
     body = json.dumps({
         "task": "load_spec_rankings",
@@ -92,11 +97,13 @@ def test_expanded_messages_are_in_a_message_group_of_their_game_version() -> Non
     assert len({m["MessageGroupId"] for m in messages}) == len(messages)
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_message_groups_of_different_game_versions_differ() -> None:
     assert sqs.new_message_group({"game_version": "mists"}).startswith("mists-")
     assert sqs.new_message_group(SpecRankingPayload(game_version="retail", **SPEC_PAYLOAD)).startswith("retail-")
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_sending_a_message_uses_the_game_version_as_message_group() -> None:
     payload = SpecRankingPayload(game_version="mists", **SPEC_PAYLOAD)
     with mock.patch.object(sqs, "SQS_CLIENT") as client:
@@ -109,6 +116,7 @@ def test_sending_a_message_uses_the_game_version_as_message_group() -> None:
 #
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_spec_ranking_handler_loads_into_the_requested_game_versions_ranking() -> None:
     payload = SpecRankingPayload(game_version="mists", metric="dps", **SPEC_PAYLOAD)
     saved: list[SpecRanking] = []

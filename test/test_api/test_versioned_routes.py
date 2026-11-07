@@ -2,22 +2,25 @@
 
 from __future__ import annotations
 
+import pytest
+
 from test.helpers import get_api_routes
 
 
 def test_each_game_version_serves_its_own_data() -> None:
-    routes = get_api_routes("/api/retail/specs", "/api/mists/specs", "/api/forever/specs")
+    routes = get_api_routes("/api/retail/specs", "/api/forever/specs")
     slugs = {
         path: {spec["full_name_slug"] for spec in body["specs"]}
         for path, (status, body) in routes.items()
         if status == 200
     }
 
-    assert len(slugs) == 3
+    assert len(slugs) == 2
     sizes = {path: len(found) for path, found in slugs.items()}
-    assert sizes == {"/api/retail/specs": 45, "/api/mists/specs": 34, "/api/forever/specs": 27}
+    assert sizes == {"/api/retail/specs": 45, "/api/forever/specs": 27}
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_the_same_boss_is_only_served_by_its_game_version() -> None:
     routes = get_api_routes(
         "/api/mists/bosses/the-stone-guard",
@@ -45,7 +48,7 @@ def test_game_versions_are_an_enum_in_the_openapi_docs() -> None:
     schema = parameter["schema"]
     if "$ref" in schema:
         schema = body["components"]["schemas"][schema["$ref"].rsplit("/", 1)[-1]]
-    assert schema["enum"] == ["retail", "mists", "forever"]
+    assert schema["enum"] == ["retail", "forever"]
 
 
 def test_global_routes_work_without_a_prefix() -> None:

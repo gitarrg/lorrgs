@@ -27,3 +27,7 @@ def game_data(spec: WowSpec) -> GameData:
     """Game Data holding only the `spec` fixture."""
     season = Season(name="Fixture Season", ilvl=1)
     return GameData(roles=[spec.role], classes=[spec.wow_class], season=season, difficulties=(RaidDifficulty.HEROIC,))
+
+
+# Mists is disabled (see lorgs/data/__init__.py): do not collect its tests.
+collect_ignore = ["data_mists"]

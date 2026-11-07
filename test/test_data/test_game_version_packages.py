@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
-from lorgs.data import FOREVER, GAME_VERSIONS, MISTS, RETAIL
+import pytest
+
+from lorgs.data import FOREVER, GAME_VERSIONS, RETAIL
 
 
 def test_every_game_version_is_loaded() -> None:
-    assert list(GAME_VERSIONS) == ["retail", "mists", "forever"]
-    assert [version.data for version in GAME_VERSIONS.values()] == [RETAIL.data, MISTS.data, FOREVER.data]
+    assert list(GAME_VERSIONS) == ["retail", "forever"]
+    assert [version.data for version in GAME_VERSIONS.values()] == [RETAIL.data, FOREVER.data]
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_the_same_spec_slug_resolves_to_a_different_object_per_game_version() -> None:
     slug = "mage-fire"
     retail_spec = RETAIL.data.get_spec(slug)
@@ -41,5 +44,4 @@ def test_back_references_stay_inside_their_game_version() -> None:
 
 def test_lookups_only_find_their_own_game_version() -> None:
     assert FOREVER.data.get_boss(full_name_slug="the-stone-guard") is None
-    assert MISTS.data.get_boss(full_name_slug="the-stone-guard") is not None
     assert RETAIL.data.get_boss(full_name_slug="the-stone-guard") is None

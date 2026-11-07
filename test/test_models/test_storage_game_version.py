@@ -12,7 +12,7 @@ from unittest import mock
 
 import pytest
 
-from lorgs.data import GAME_VERSIONS, MISTS, RETAIL
+from lorgs.data import GAME_VERSIONS, RETAIL
 from lorgs.loaders.report_overview_loader import ReportOverviewLoader, UnsupportedGameVersionError
 from lorgs.models.base.dynamodb import DynamoDBModel
 from lorgs.models.user import User
@@ -31,7 +31,7 @@ SPEC_RANKING_KWARGS = {"spec_slug": "mage-fire", "boss_slug": "some-boss", "diff
 #
 
 
-@pytest.mark.parametrize("game_version", ["retail", "mists", "forever"])
+@pytest.mark.parametrize("game_version", ["retail", "forever"])
 def test_s3_keys_start_with_the_game_version(game_version: str) -> None:
     season_slug = GAME_VERSIONS[game_version].data.season.slug
     assert (
@@ -122,6 +122,7 @@ def test_loaded_user_report_stores_game_version() -> None:
 #
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_overview_loader_picks_the_game_data_from_the_log() -> None:
     report = UserReport(report_id="abc")
     loader = ReportOverviewLoader(report)
@@ -146,6 +147,7 @@ def test_overview_loader_rejects_an_unsupported_game_version_naming_it() -> None
 #
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_comp_ranking_loader_rejects_another_game_version() -> None:
     ranking = CompRanking(game_version="mists", boss_slug="b")
     with pytest.raises(ValueError, match="belongs to Game Version 'mists', not 'retail'"):

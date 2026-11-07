@@ -24,7 +24,7 @@ def _load(report: UserReport | None) -> dict:
     return send_message.call_args.kwargs["payload"]
 
 
-@pytest.mark.parametrize(("wcl_game_version", "expected"), [(1, "retail"), (6, "mists")])
+@pytest.mark.parametrize(("wcl_game_version", "expected"), [(1, "retail")])
 def test_the_queued_task_carries_the_game_version_of_the_log(wcl_game_version: int, expected: str) -> None:
     payload = _load(UserReport(report_id="abc", game_version=wcl_game_version))
     assert payload.game_version == expected

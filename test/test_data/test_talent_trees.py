@@ -5,6 +5,8 @@ from __future__ import annotations
 import csv
 import pathlib
 
+import pytest
+
 from lorgs.data import talent_trees
 from test.helpers import get_api_routes
 
@@ -255,7 +257,6 @@ def test_route_serves_one_spec_tree() -> None:
         "/api/retail/talent_trees/paladin-holy",
         "/api/retail/talent_trees/nope",
         "/api/retail/talent_trees/other-trinkets",
-        "/api/mists/talent_trees/paladin-holy",
         "/api/forever/talent_trees/paladin-holy",
     )
     statuses = {path: status for path, (status, _) in routes.items()}
@@ -263,7 +264,6 @@ def test_route_serves_one_spec_tree() -> None:
         "/api/retail/talent_trees/paladin-holy": 200,
         "/api/retail/talent_trees/nope": 404,
         "/api/retail/talent_trees/other-trinkets": 404,
-        "/api/mists/talent_trees/paladin-holy": 404,
         "/api/forever/talent_trees/paladin-holy": 200,
     }
     body = routes["/api/retail/talent_trees/paladin-holy"][1]
@@ -272,5 +272,6 @@ def test_route_serves_one_spec_tree() -> None:
     assert routes["/api/forever/talent_trees/paladin-holy"][1]["tabs"] == [65, 66, 70]
 
 
+@pytest.mark.skip(reason="Mists is disabled")
 def test_a_game_version_without_trees_has_none() -> None:
     assert talent_trees.load_spec_trees("mists") == {}

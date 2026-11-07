@@ -40,7 +40,6 @@ def test_stored_builds_are_served(monkeypatch):
     [
         "/api/retail/builds/no-such-spec",
         "/api/retail/builds/other-trinkets",
-        "/api/mists/builds/monk-windwalker",
     ],
 )
 def test_unknown_or_unsupported_spec_is_404(path):
