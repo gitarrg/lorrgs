@@ -58,6 +58,9 @@ class ReportFight(BaseModel):
     phaseTransitions: list[PhaseTransition] = []
     """The start times of the phases in the fight."""
 
+    friendlyPlayers: list[int] = []
+    """The IDs of all friendly players that took part in the fight (the Report's actor ids)."""
+
     @model_validator(mode="before")
     @classmethod
     def remove_nones(cls, values):

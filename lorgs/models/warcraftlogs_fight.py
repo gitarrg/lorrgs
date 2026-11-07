@@ -40,6 +40,9 @@ class Fight(base.BaseModel):
     """fight duration in milliseconds."""
 
     players: list[Player] = []
+
+    player_ids: list[int] = []
+    """Source ids of every player that took part in the fight (from the Report's overview)."""
     boss: Boss | None = None
     dungeon: str | None = None
     """Slug of the Dungeon, for a dungeon run (which has no boss)."""

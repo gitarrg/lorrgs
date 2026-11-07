@@ -78,6 +78,7 @@ class ReportOverviewLoader(BaseLoader):
                     fightPercentage
                     kill
                     difficulty
+                    friendlyPlayers
 
                     phaseTransitions {{
                         id
@@ -128,7 +129,8 @@ class ReportOverviewLoader(BaseLoader):
     def _process_fights(self, fights: list[wcl.ReportFight]) -> None:
         """Create the Fights from the passed Report-Fights."""
         for fight_data in fights:
-            if self.report.get_fight(fight_data.id):
+            if existing := self.report.get_fight(fight_data.id):
+                existing.player_ids = fight_data.friendlyPlayers  # (for Fights stored before we had them)
                 continue  # already loaded
 
             if fight := FightLoader.fight_from_wcl_fight(fight_data, report=self.report, game_data=self.game_data):

@@ -153,5 +153,5 @@ async def load_user_report(
 
     return {
         "task_id": message_id,
-        "queue": "aws",
+        "queue": "local" if sqs.SQS_LOCAL else "aws",
     }

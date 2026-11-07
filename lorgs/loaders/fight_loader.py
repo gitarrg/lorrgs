@@ -84,6 +84,7 @@ class FightLoader(BaseLoader):
             duration=fight_data.endTime - fight_data.startTime + 1,  # somehow there is 1ms missing
             difficulty=difficulty,
             dungeon=dungeon.name_slug if dungeon else None,
+            player_ids=fight_data.friendlyPlayers,
         )
         # set before running `FightPhasesLoader` as it depends on the report
         fight.report = report
