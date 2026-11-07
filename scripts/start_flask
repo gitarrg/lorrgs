@@ -4,6 +4,7 @@
 export APP="lorrgs_api.app:create_app"
 export PORT=5012
 export DEBUG=1
+export SQS_LOCAL=1  # run queued tasks in this process instead of sending them to AWS
 export DEFAULT_CACHE_TIMEOUT=60
 export PYTHONPATH=.  # adds current dir, so we can import
 

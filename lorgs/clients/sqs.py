@@ -6,6 +6,7 @@ import os
 import typing
 import uuid
 from collections.abc import Iterable
+from concurrent.futures import ThreadPoolExecutor
 
 # IMPORT THIRD PARTY LIBRARIES
 import boto3
@@ -13,6 +14,7 @@ from pydantic import BaseModel
 
 # IMPORT LOCAL LIBRARIES
 from lorgs import utils
+from lorgs.logger import logger
 
 
 if typing.TYPE_CHECKING:
@@ -53,9 +55,35 @@ def new_message_group(payload: payload_type = "") -> str:
 SQS_CLIENT = boto3.client("sqs")
 SQS_QUEUE_URL = os.getenv("SQS_QUEUE_URL") or ""
 
+SQS_LOCAL = os.getenv("SQS_LOCAL", "").lower() in {"1", "true", "yes"}
+"""Dev mode: run tasks in this process (with the local code) instead of sending them to AWS."""
+
+_LOCAL_EXECUTOR = ThreadPoolExecutor(max_workers=1, thread_name_prefix="sqs-local")
+"""One worker: tasks run one at a time, like a single Lambda sharing the handler's event loop."""
+
+
+def _run_local(payload: payload_type) -> dict:
+    """Run a task with the SQS handler in a background thread. Returns a fake `send_message` response."""
+    from lorrgs_sqs import handler  # lazy: the handler imports this module  # ruff: ignore[import-outside-top-level]
+
+    message_id = str(uuid.uuid4())
+    record = {"messageId": message_id, "body": _serialize(payload)}
+
+    def run() -> None:
+        try:
+            handler.handler({"Records": [record]})
+        except Exception:  # ruff: ignore[blind-except]
+            logger.exception("local task failed")
+
+    _LOCAL_EXECUTOR.submit(run)
+    return {"MessageId": message_id}
+
 
 def send_message(payload: payload_type, queue_url="", message_group=""):
     """Send a single Message."""
+    if SQS_LOCAL:
+        return _run_local(payload)
+
     return SQS_CLIENT.send_message(
         QueueUrl=queue_url or SQS_QUEUE_URL,
         MessageGroupId=message_group or new_message_group(payload),
@@ -65,6 +93,11 @@ def send_message(payload: payload_type, queue_url="", message_group=""):
 
 def send_message_batch(payloads: Iterable[payload_type], queue_url="", chunk_size=10, message_group=""):
     """Batch Submit multiple Messages. Each gets its own FIFO message group, unless `message_group` is given."""
+    if SQS_LOCAL:
+        for payload in payloads:
+            _run_local(payload)
+        return
+
     # Wrap Payloads
     messages: list[SendMessageBatchRequestEntryTypeDef] = [
         {

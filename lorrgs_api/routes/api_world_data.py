@@ -191,3 +191,25 @@ async def get_boss_spells(game_version: GameVersionDep, boss_slug: str):
 
     spells = boss.all_spells + boss.all_buffs + boss.all_debuffs + boss.all_events
     return {spell.spell_id: spell.as_dict() for spell in spells}
+
+
+###############################################################################
+#
+#       Dungeons
+#
+###############################################################################
+
+
+@router.get("/dungeons", tags=["dungeons"])
+async def get_dungeons(game_version: GameVersionDep):
+    """Get all Dungeons whose runs load in User Reports. They are never ranked."""
+    return {"dungeons": [dungeon.as_dict() for dungeon in game_version.data.dungeons_by_id.values()]}
+
+
+@router.get("/dungeons/{dungeon_slug}", tags=["dungeons"])
+async def get_dungeon(game_version: GameVersionDep, dungeon_slug: str):
+    """Get a single Dungeon by its slug (`Fight.dungeon`)."""
+    for dungeon in game_version.data.dungeons_by_id.values():
+        if dungeon.name_slug == dungeon_slug:
+            return dungeon.as_dict()
+    raise fastapi.HTTPException(status_code=404, detail="Invalid Dungeon.")

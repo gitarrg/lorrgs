@@ -36,7 +36,11 @@ class UserReport(Report, base.DynamoDBModel):
     #
     @property
     def is_loaded(self) -> bool:
-        return bool(self.fights)
+        """Whether the overview is loaded: its Fights, with the players in each.
+
+        Overviews stored before Fights had their `player_ids` count as not loaded, so they get loaded again.
+        """
+        return any(fight.player_ids for fight in self.fights)
 
     ################################
     # Methods

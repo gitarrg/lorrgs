@@ -4,6 +4,10 @@ from lorgs.models import base
 from lorgs.models.wow_trinket import WowTrinket
 
 
+FALLBACK_ICON = "inv_misc_map_01.jpg"
+"""Icon of every Dungeon without one of its own (a map)."""
+
+
 class Dungeon(base.StaticModel):
     """A Dungeon in the Game.
 
@@ -17,9 +21,21 @@ class Dungeon(base.StaticModel):
     name: str
     """Full Name."""
 
+    icon: str = FALLBACK_ICON
+    """Icon file in the shared spell icon folder. All Dungeons share a fallback until they get their own."""
+
     trinkets: list[WowTrinket] = []
     """List of (relevant) Trinkets that drop from Bosses inside the Dungeon."""
 
     @property
     def name_slug(self) -> str:
         return utils.slug(self.name, space="-")
+
+    def as_dict(self) -> dict:
+        """The Dungeon as the frontend needs it to label a run (not its trinkets)."""
+        return {
+            "id": self.id,
+            "name": self.name,
+            "name_slug": self.name_slug,
+            "icon": self.icon,
+        }

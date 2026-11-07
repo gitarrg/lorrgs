@@ -9,7 +9,7 @@ from lorgs.loaders.fight_phases import FightPhasesLoader
 from lorgs.logger import logger
 from lorgs.models.difficulty import RaidDifficulty
 from lorgs.models.warcraftlogs_boss import Boss
-from lorgs.models.warcraftlogs_fight import Fight
+from lorgs.models.warcraftlogs_fight import Fight, Pull
 from lorgs.models.warcraftlogs_player import Player
 
 from .base_loader import BaseLoader
@@ -84,9 +84,20 @@ class FightLoader(BaseLoader):
             duration=fight_data.endTime - fight_data.startTime + 1,  # somehow there is 1ms missing
             difficulty=difficulty,
             dungeon=dungeon.name_slug if dungeon else None,
+            player_ids=fight_data.friendlyPlayers,
         )
         # set before running `FightPhasesLoader` as it depends on the report
         fight.report = report
+
+        # Fight: Pulls (dungeon runs)
+        fight.pulls = [
+            Pull(
+                start=int(pull.startTime - fight_data.startTime),
+                end=int(pull.endTime - fight_data.startTime),
+                boss=pull.name if pull.encounterID else None,
+            )
+            for pull in fight_data.dungeonPulls
+        ]
 
         # Fight: Boss
         if raid_boss := game_data.get_boss(boss_id=fight_data.encounterID):
