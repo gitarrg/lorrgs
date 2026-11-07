@@ -30,6 +30,19 @@ class Phase(pydantic.BaseModel):
     phase_id: int | float = 0
 
 
+class Pull(pydantic.BaseModel):
+    """A pull inside a dungeon run."""
+
+    start: int
+    """Pull start, in milliseconds since the run started."""
+
+    end: int
+    """Pull end, in milliseconds since the run started."""
+
+    boss: str | None = None
+    """Name of the boss, if the pull is a boss fight. None for trash."""
+
+
 class Fight(base.BaseModel):
     fight_id: int
 
@@ -47,6 +60,8 @@ class Fight(base.BaseModel):
     dungeon: str | None = None
     """Slug of the Dungeon, for a dungeon run (which has no boss)."""
     phases: list[Phase] = []
+    pulls: list[Pull] = []
+    """The pulls of a dungeon run (empty otherwise)."""
 
     deaths: int = 0
     damage_taken: int = 0
@@ -114,6 +129,7 @@ class Fight(base.BaseModel):
             "players": [player.as_dict(game_data) for player in players],
             "boss": self.boss.as_dict() if self.boss else {},
             "dungeon": self.dungeon,
+            "pulls": [pull.model_dump() for pull in self.pulls],
         }
 
     ##########################

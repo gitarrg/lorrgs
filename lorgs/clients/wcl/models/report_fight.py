@@ -17,6 +17,31 @@ class PhaseTransition(BaseModel):
     """The start time of the phase transition. (Milliseconds relative to the start of the report)."""
 
 
+class ReportDungeonPull(BaseModel):
+    """A pull inside a dungeon run: trash, or a boss fight when `encounterID` is set.
+
+    https://www.warcraftlogs.com/v2-api-docs/warcraft/reportdungeonpull.doc.html
+    """
+
+    id: int = 0
+    encounterID: int = 0
+    """The encounter id if the pull is a boss. 0 for trash."""
+
+    name: str = ""
+    """Name of the boss (or of the pull's first enemy for trash)."""
+
+    startTime: float = 0
+    """Milliseconds relative to the start of the report."""
+
+    endTime: float = 0
+    """Milliseconds relative to the start of the report."""
+
+    @model_validator(mode="before")
+    @classmethod
+    def remove_nones(cls, values):
+        return {k: v for k, v in values.items() if v is not None}
+
+
 class ReportFight(BaseModel):
     """The ReportFight represents a single fight that occurs in the report."""
 
@@ -57,6 +82,9 @@ class ReportFight(BaseModel):
 
     phaseTransitions: list[PhaseTransition] = []
     """The start times of the phases in the fight."""
+
+    dungeonPulls: list[ReportDungeonPull] = []
+    """The pulls of a dungeon run. Empty for everything else."""
 
     friendlyPlayers: list[int] = []
     """The IDs of all friendly players that took part in the fight (the Report's actor ids)."""

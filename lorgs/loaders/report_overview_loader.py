@@ -84,6 +84,14 @@ class ReportOverviewLoader(BaseLoader):
                         id
                         startTime
                     }}
+
+                    dungeonPulls {{
+                        id
+                        encounterID
+                        name
+                        startTime
+                        endTime
+                    }}
                 }}
             }}
         }}
