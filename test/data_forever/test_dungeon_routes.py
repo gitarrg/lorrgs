@@ -13,7 +13,7 @@ def test_dungeons_are_listed_with_the_fallback_icon() -> None:
     assert status == 200
     dungeons = {d["name_slug"]: d for d in body["dungeons"]}
     assert len(dungeons) == 31
-    assert dungeons["deadmines"] == {"id": 10036, "name": "Deadmines", "name_slug": "deadmines", "icon": FALLBACK_ICON}
+    assert dungeons["deadmines"] == {"id": 10036, "name": "Deadmines", "name_slug": "deadmines", "icon": FALLBACK_ICON, "par_time": 0}
 
 
 def test_one_dungeon_by_slug() -> None:

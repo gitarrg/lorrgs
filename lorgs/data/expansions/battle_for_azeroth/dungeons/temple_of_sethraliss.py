@@ -11,5 +11,6 @@ from lorgs.models.dungeon import Dungeon
 TEMPLE_OF_SETHRALISS = Dungeon(
     id=61877,
     name="Temple of Sethraliss",
+    par_time=32 * 60,  # 32:00
     icon="achievement_dungeon_templeofsethraliss.jpg",
 )

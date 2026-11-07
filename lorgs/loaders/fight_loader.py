@@ -89,6 +89,10 @@ class FightLoader(BaseLoader):
             difficulty=difficulty,
             dungeon=dungeon.name_slug if dungeon else None,
             player_ids=fight_data.friendlyPlayers,
+            keystone_level=fight_data.keystoneLevel,
+            keystone_time=fight_data.keystoneTime,
+            keystone_bonus=fight_data.keystoneBonus,
+            keystone_affixes=fight_data.keystoneAffixes,
         )
         # set before running `FightPhasesLoader` as it depends on the report
         fight.report = report

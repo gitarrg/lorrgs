@@ -13,5 +13,6 @@ from lorgs.models.dungeon import Dungeon
 THE_BLINDING_VALE = Dungeon(
     id=12859,
     name="The Blinding Vale",
+    par_time=30 * 60,  # 30:00
     icon="inv_achievement_dungeon_lightbloom.jpg",
 )

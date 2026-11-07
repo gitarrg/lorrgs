@@ -15,6 +15,7 @@ if [ -z "$product" ]; then
         ChrClasses
         ChrSpecialization
         ManifestInterfaceData
+        MapChallengeMode
         SpecializationSpells
         SpellMisc
         SpellName

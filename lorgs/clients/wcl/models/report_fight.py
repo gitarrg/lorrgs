@@ -86,6 +86,18 @@ class ReportFight(BaseModel):
     dungeonPulls: list[ReportDungeonPull] = []
     """The pulls of a dungeon run. Empty for everything else."""
 
+    keystoneLevel: int = 0
+    """The Mythic+ keystone level. 0 outside of Mythic+ runs."""
+
+    keystoneTime: int = 0
+    """The Mythic+ run time in milliseconds. 0 outside of Mythic+ runs."""
+
+    keystoneBonus: int = 0
+    """Mythic+ upgrade: 0 = depleted, 1/2/3 = timed at +1/+2/+3."""
+
+    keystoneAffixes: list[int] = []
+    """The Mythic+ affix ids."""
+
     friendlyPlayers: list[int] = []
     """The IDs of all friendly players that took part in the fight (the Report's actor ids)."""
 

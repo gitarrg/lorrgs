@@ -79,6 +79,10 @@ class ReportOverviewLoader(BaseLoader):
                     kill
                     difficulty
                     friendlyPlayers
+                    keystoneLevel
+                    keystoneTime
+                    keystoneBonus
+                    keystoneAffixes
 
                     phaseTransitions {{
                         id

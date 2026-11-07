@@ -11,5 +11,6 @@ from lorgs.models.dungeon import Dungeon
 KINGS_REST = Dungeon(
     id=61762,
     name="Kings' Rest",
+    par_time=33 * 60,  # 33:00
     icon="achievement_dungeon_kingsrest.jpg",
 )

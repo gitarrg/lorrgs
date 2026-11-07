@@ -21,6 +21,10 @@ class Dungeon(base.StaticModel):
     name: str
     """Full Name."""
 
+    par_time: float = 0
+    """Mythic+ timer in seconds: a run within it is timed (+2 within 80% of it, +3 within 60%).
+    From DB2 `MapChallengeMode.CriteriaCount_0`. 0: unknown."""
+
     icon: str = FALLBACK_ICON
     """Icon file in the shared spell icon folder. All Dungeons share a fallback until they get their own."""
 
@@ -38,4 +42,5 @@ class Dungeon(base.StaticModel):
             "name": self.name,
             "name_slug": self.name_slug,
             "icon": self.icon,
+            "par_time": self.par_time,
         }

@@ -63,6 +63,15 @@ class Fight(base.BaseModel):
     pulls: list[Pull] = []
     """The pulls of a dungeon run (empty otherwise)."""
 
+    keystone_level: int = 0
+    """Mythic+ keystone level (0 for everything else)."""
+    keystone_time: int = 0
+    """Mythic+ run time in milliseconds, as Warcraft Logs reports it."""
+    keystone_bonus: int = 0
+    """Mythic+ upgrade: 0 = depleted, 1/2/3 = timed at +1/+2/+3."""
+    keystone_affixes: list[int] = []
+    """Mythic+ affix ids."""
+
     deaths: int = 0
     damage_taken: int = 0
 
@@ -130,6 +139,10 @@ class Fight(base.BaseModel):
             "boss": self.boss.as_dict() if self.boss else {},
             "dungeon": self.dungeon,
             "pulls": [pull.model_dump() for pull in self.pulls],
+            "keystone_level": self.keystone_level,
+            "keystone_time": self.keystone_time,
+            "keystone_bonus": self.keystone_bonus,
+            "keystone_affixes": self.keystone_affixes,
         }
 
     ##########################
