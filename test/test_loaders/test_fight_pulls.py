@@ -21,6 +21,7 @@ def test_dungeon_pulls_are_relative_to_the_run():
             "dungeonPulls": [
                 {"id": 1, "encounterID": 0, "name": "Trash", "startTime": 10_000, "endTime": 25_000},
                 {"id": 2, "encounterID": 900, "name": "Big Boss", "startTime": 30_000.0, "endTime": 60_000.0},
+                {"id": 3, "encounterID": 0, "name": "Blip", "startTime": 61_000, "endTime": 61_000},
             ],
         }
     )

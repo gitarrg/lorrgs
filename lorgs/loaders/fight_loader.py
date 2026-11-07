@@ -45,6 +45,10 @@ def player_from_composition_data(composition_data: wcl.CompositionEntry, game_da
     )
 
 
+MIN_PULL_DURATION = 1000
+"""Dungeon pulls shorter than this (milliseconds) are dropped: they show as 0sec."""
+
+
 class FightLoader(BaseLoader):
     def __init__(self, fight: Fight, game_data: GameData) -> None:
         super().__init__(game_data)
@@ -97,6 +101,7 @@ class FightLoader(BaseLoader):
                 boss=pull.name if pull.encounterID else None,
             )
             for pull in fight_data.dungeonPulls
+            if pull.endTime - pull.startTime >= MIN_PULL_DURATION  # skip 0sec pulls
         ]
 
         # Fight: Boss
