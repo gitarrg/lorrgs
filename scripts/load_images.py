@@ -27,6 +27,7 @@ from lorgs.data import GAME_VERSIONS, talent_trees
 
 
 if typing.TYPE_CHECKING:
+    from lorgs.models.dungeon import Dungeon
     from lorgs.models.raid_boss import RaidBoss
     from lorgs.models.raid_zone import RaidZone
     from lorgs.models.wow_spell import WowSpell
@@ -170,7 +171,7 @@ def upload_hero_tree_images() -> None:
 images = get_images(FOLDER)
 
 # Icons live in one shared folder, so we want the icons of every Game Version.
-spells: list[WowSpell | RaidBoss | RaidZone] = []
+spells: list[WowSpell | RaidBoss | RaidZone | Dungeon] = []
 for _game_version in GAME_VERSIONS.values():
     game_data = _game_version.data
     spells += game_data.spells
@@ -178,6 +179,7 @@ for _game_version in GAME_VERSIONS.values():
     # not actual "Spell" subclasses... but lets go with this for now
     spells += game_data.bosses
     spells += game_data.zones
+    spells += game_data.dungeons
 spells = utils.uniqify(spells)
 
 
