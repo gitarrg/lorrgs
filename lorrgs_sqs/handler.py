@@ -68,6 +68,11 @@ async def process_message(message: dict) -> None:
     # See if the message expands into multiple tasks
     # if so: resubmit those back to the queue
     payloads = helpers.expand_keywords(payload)
+    if len(payloads) > 1 and sqs.SQS_LOCAL:
+        for expanded in payloads:
+            sqs.send_message(expanded)
+        return None
+
     if len(payloads) > 1:
         queue_url = helpers.queue_arn_to_url(message.get("eventSourceARN", ""))
 
